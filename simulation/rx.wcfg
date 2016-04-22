@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="D:/ZJUprojects/ZJUproject/Ethernet_new/MAC/Mac_RX2_tester_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="Mac_RX2_tester" />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="10" />
+   <wvobject fp_name="/Mac_RX2_tester/Frm_valid" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">Frm_valid</obj_property>
+      <obj_property name="ObjectShortName">Frm_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/Mac_RX2_tester/reset" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">reset</obj_property>
+      <obj_property name="ObjectShortName">reset</obj_property>
+   </wvobject>
+   <wvobject fp_name="/Mac_RX2_tester/Rd_Clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">Rd_Clk</obj_property>
+      <obj_property name="ObjectShortName">Rd_Clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/Mac_RX2_tester/Rd_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">Rd_en</obj_property>
+      <obj_property name="ObjectShortName">Rd_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/Mac_RX2_tester/Rd_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">Rd_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">Rd_data[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/Mac_RX2_tester/Rd_Addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">Rd_Addr[13:0]</obj_property>
+      <obj_property name="ObjectShortName">Rd_Addr[13:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/Mac_RX2_tester/PHY_RXD" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">PHY_RXD[3:0]</obj_property>
+      <obj_property name="ObjectShortName">PHY_RXD[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/Mac_RX2_tester/PHY_RXC" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">PHY_RXC</obj_property>
+      <obj_property name="ObjectShortName">PHY_RXC</obj_property>
+   </wvobject>
+   <wvobject fp_name="/Mac_RX2_tester/PHY_RXDV" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">PHY_RXDV</obj_property>
+      <obj_property name="ObjectShortName">PHY_RXDV</obj_property>
+   </wvobject>
+   <wvobject fp_name="group55" type="group">
+      <obj_property name="label">New Group</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/Mac_RX2_tester/uut/reset" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">reset</obj_property>
+         <obj_property name="ObjectShortName">reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/MAC_addr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">MAC_addr[47:0]</obj_property>
+         <obj_property name="ObjectShortName">MAC_addr[47:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/Rd_Clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">Rd_Clk</obj_property>
+         <obj_property name="ObjectShortName">Rd_Clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/Rd_en" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">Rd_en</obj_property>
+         <obj_property name="ObjectShortName">Rd_en</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/Rd_Addr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">Rd_Addr[13:0]</obj_property>
+         <obj_property name="ObjectShortName">Rd_Addr[13:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/Rd_data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">Rd_data[7:0]</obj_property>
+         <obj_property name="ObjectShortName">Rd_data[7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/Frm_valid" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">Frm_valid</obj_property>
+         <obj_property name="ObjectShortName">Frm_valid</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/PHY_RXD" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">PHY_RXD[3:0]</obj_property>
+         <obj_property name="ObjectShortName">PHY_RXD[3:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/PHY_RXC" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">PHY_RXC</obj_property>
+         <obj_property name="ObjectShortName">PHY_RXC</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/PHY_RXDV" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">PHY_RXDV</obj_property>
+         <obj_property name="ObjectShortName">PHY_RXDV</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/GMII_RX_CLK" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">GMII_RX_CLK</obj_property>
+         <obj_property name="ObjectShortName">GMII_RX_CLK</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/GMII_RX_RXD" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">GMII_RX_RXD[7:0]</obj_property>
+         <obj_property name="ObjectShortName">GMII_RX_RXD[7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/GMII_RX_DV" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">GMII_RX_DV</obj_property>
+         <obj_property name="ObjectShortName">GMII_RX_DV</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/GMII_RX_ER" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">GMII_RX_ER</obj_property>
+         <obj_property name="ObjectShortName">GMII_RX_ER</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/CRC_calc" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">CRC_calc[31:0]</obj_property>
+         <obj_property name="ObjectShortName">CRC_calc[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/Error" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">Error</obj_property>
+         <obj_property name="ObjectShortName">Error</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/rev_crc_data_r" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rev_crc_data_r[7:0]</obj_property>
+         <obj_property name="ObjectShortName">rev_crc_data_r[7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/GMII_RX_DV1" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">GMII_RX_DV1</obj_property>
+         <obj_property name="ObjectShortName">GMII_RX_DV1</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/GMII_RX_DV2" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">GMII_RX_DV2</obj_property>
+         <obj_property name="ObjectShortName">GMII_RX_DV2</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/DV_last" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">DV_last</obj_property>
+         <obj_property name="ObjectShortName">DV_last</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/rev_StartPulse" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rev_StartPulse</obj_property>
+         <obj_property name="ObjectShortName">rev_StartPulse</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/rev_EndPulse" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rev_EndPulse</obj_property>
+         <obj_property name="ObjectShortName">rev_EndPulse</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/rev_EndPulse2" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rev_EndPulse2</obj_property>
+         <obj_property name="ObjectShortName">rev_EndPulse2</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/rev_EndPulse3" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rev_EndPulse3</obj_property>
+         <obj_property name="ObjectShortName">rev_EndPulse3</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/rev_PRE" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rev_PRE</obj_property>
+         <obj_property name="ObjectShortName">rev_PRE</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/rev_SOF" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rev_SOF</obj_property>
+         <obj_property name="ObjectShortName">rev_SOF</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/rev_MAC_dst" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rev_MAC_dst</obj_property>
+         <obj_property name="ObjectShortName">rev_MAC_dst</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/rev_MAC_src" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rev_MAC_src</obj_property>
+         <obj_property name="ObjectShortName">rev_MAC_src</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/rev_TYPE" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rev_TYPE</obj_property>
+         <obj_property name="ObjectShortName">rev_TYPE</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/rev_DATA" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rev_DATA</obj_property>
+         <obj_property name="ObjectShortName">rev_DATA</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/rev_cnt" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rev_cnt[14:0]</obj_property>
+         <obj_property name="ObjectShortName">rev_cnt[14:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/rev_cnt_en" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rev_cnt_en</obj_property>
+         <obj_property name="ObjectShortName">rev_cnt_en</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/rev_crc" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rev_crc[31:0]</obj_property>
+         <obj_property name="ObjectShortName">rev_crc[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/Error_code" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">Error_code[7:0]</obj_property>
+         <obj_property name="ObjectShortName">Error_code[7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/buf_addr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">buf_addr[13:0]</obj_property>
+         <obj_property name="ObjectShortName">buf_addr[13:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/buf_wr_en" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">buf_wr_en</obj_property>
+         <obj_property name="ObjectShortName">buf_wr_en</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/buf_wr_data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">buf_wr_data[7:0]</obj_property>
+         <obj_property name="ObjectShortName">buf_wr_data[7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/buf_wr_frm_ok" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">buf_wr_frm_ok</obj_property>
+         <obj_property name="ObjectShortName">buf_wr_frm_ok</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/buf_wr_frm_ok_last" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">buf_wr_frm_ok_last</obj_property>
+         <obj_property name="ObjectShortName">buf_wr_frm_ok_last</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/frm_length" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">frm_length[13:0]</obj_property>
+         <obj_property name="ObjectShortName">frm_length[13:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/MAC_dst" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">MAC_dst[47:0]</obj_property>
+         <obj_property name="ObjectShortName">MAC_dst[47:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/Type_length" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">Type_length[15:0]</obj_property>
+         <obj_property name="ObjectShortName">Type_length[15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/RAM_WIDTH" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">RAM_WIDTH[31:0]</obj_property>
+         <obj_property name="ObjectShortName">RAM_WIDTH[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/RAM_ADDR_BITS" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">RAM_ADDR_BITS[31:0]</obj_property>
+         <obj_property name="ObjectShortName">RAM_ADDR_BITS[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/Mac_RX2_tester/uut/MAC_ADDR_BROAD" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">MAC_ADDR_BROAD[47:0]</obj_property>
+         <obj_property name="ObjectShortName">MAC_ADDR_BROAD[47:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>
