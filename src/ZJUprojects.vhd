@@ -101,7 +101,7 @@ entity ZJUprojects is
                PHY_GTXclk_quar          : OUT    std_logic;
                 PHy_txen_quar            : OUT    std_logic;
                 phy_txer_o               : OUT    std_logic;
-                ethernet_Rd_data         : buffer    std_logic_vector(7 downto 0);
+                -- ethernet_Rd_data         : buffer    std_logic_vector(7 downto 0);
 --                ethernet_Frm_valid       : OUT    std_logic;
                 phy_rst_n_o : out std_logic
     );
@@ -231,14 +231,15 @@ architecture Behavioral of ZJUprojects is
    signal ethernet_Rd_addr : std_logic_vector(13 downto 0);
 	signal ethernet_frm_valid : std_logic;
 	signal frm_valid_d : std_logic;
-	-- signal ethernet_rd_data : std_logic_vector(7 downto 0);
+	signal ethernet_rd_data : std_logic_vector(7 downto 0);
+    attribute keep of ethernet_Rd_data : signal is true;
   -- signal rst_n : std_logic;
   signal ethernet_fifo_upload_data : std_logic_vector(7 downto 0);
   signal ethernet_rst_n_gb_i : std_logic;
   signal cmd_frm_length : std_logic_vector(15 downto 0);
   signal cmd_frm_type : std_logic_vector(15 downto 0);
-  signal start_sample : std_logic;
-  attribute keep of start_sample : signal is true;
+  -- signal start_sample : std_logic;
+
   signal phy_rxc_g :std_logic;
   -----------------------------------------------------------------------------
     signal ram_doutb : std_logic_vector(7 downto 0);  --ram control
@@ -257,6 +258,8 @@ architecture Behavioral of ZJUprojects is
   signal ram_addrb : std_logic_vector(15 downto 0);
   signal clr_n_ram : std_logic;
   signal ram_last : std_logic;
+  signal ram_rst : std_logic;
+    attribute keep of ram_rst : signal is true;
   signal start_ram : std_logic;
   signal ram_wren : std_logic;
   signal ram_rden : std_logic;
@@ -348,7 +351,7 @@ architecture Behavioral of ZJUprojects is
 		-- mac_src : OUT std_logic_vector(47 downto 0);
 		-- reg_addr : OUT std_logic_vector(15 downto 0);
 		-- reg_data : OUT std_logic_vector(31 downto 0);
-		start_sample : OUT std_logic;
+	         ram_rst  : buffer std_logic;
                 user_pushbutton : in std_logic
 		);
 	END COMPONENT;
@@ -889,7 +892,7 @@ IDELAYCTRL_inst : IDELAYCTRL
 		-- mac_src =>mac_src ,
 		-- reg_addr =>mac_reg_addr ,
 		-- reg_data =>mac_reg_data ,
-	        start_sample => start_sample,
+	        ram_rst => ram_rst,
                 user_pushbutton => user_pushbutton
 	);
 -------------------------------------------------------------------------------
@@ -1088,37 +1091,37 @@ end process ram_addrb_ps;
     elsif ethernet_Rd_clk'event and ethernet_Rd_clk = '1' then
     if frm_valid_d = '0' and ethernet_frm_valid = '1' then  -- rising clock edge
       ethernet_Rd_en<='1';
-    -- elsif ethernet_Rd_Addr>=x"42" then
-    elsif ethernet_Rd_Addr>=x"16" then
+    elsif ethernet_Rd_Addr>=x"42" then
+    -- elsif ethernet_Rd_Addr>=x"16" then
       ethernet_Rd_en<='0';
     end if;
   end if;
   end process Rd_en_ps;
 
--- Rd_Addr_ps: process (ethernet_Rd_clk, rst_n) is
--- begin  -- process Rd_Addr_ps
---   if rst_n = '0' then                   -- asynchronous reset (active low)
---     ethernet_Rd_Addr<=(others => '0');
---   elsif ethernet_Rd_clk'event and ethernet_Rd_clk = '1' then  -- rising clock edge
---     if ethernet_Rd_Addr<=x"42" and ethernet_Rd_en = '1'then
---     ethernet_Rd_Addr<=ethernet_Rd_Addr + 1;
---     elsif ethernet_Rd_en = '0' or ethernet_Rd_Addr>x"41" then
---       ethernet_Rd_Addr<=(others => '0');
---   end if;
--- end if;
--- end process Rd_Addr_ps;
-    Rd_Addr_ps: process (ethernet_Rd_clk, rst_n) is
+Rd_Addr_ps: process (ethernet_Rd_clk, rst_n) is
 begin  -- process Rd_Addr_ps
   if rst_n = '0' then                   -- asynchronous reset (active low)
-    ethernet_Rd_Addr<=x"11";
+    ethernet_Rd_Addr<=(others => '0');
   elsif ethernet_Rd_clk'event and ethernet_Rd_clk = '1' then  -- rising clock edge
-    if ethernet_Rd_Addr<=x"16" and ethernet_Rd_en = '1'then
+    if ethernet_Rd_Addr<=x"42" and ethernet_Rd_en = '1'then
     ethernet_Rd_Addr<=ethernet_Rd_Addr + 1;
-    elsif ethernet_Rd_en = '0' or ethernet_Rd_Addr>x"16" then
-      ethernet_Rd_Addr<=x"11";
+    elsif ethernet_Rd_en = '0' or ethernet_Rd_Addr>x"41" then
+      ethernet_Rd_Addr<=(others => '0');
   end if;
 end if;
 end process Rd_Addr_ps;
+--     Rd_Addr_ps: process (ethernet_Rd_clk, rst_n) is
+-- begin  -- process Rd_Addr_ps
+--   if rst_n = '0' then                   -- asynchronous reset (active low)
+--     ethernet_Rd_Addr<="00"&(x"011");
+--   elsif ethernet_Rd_clk'event and ethernet_Rd_clk = '1' then  -- rising clock edge
+--     if ethernet_Rd_Addr<=x"16" and ethernet_Rd_en = '1'then
+--     ethernet_Rd_Addr<=ethernet_Rd_Addr + 1;
+--     elsif ethernet_Rd_en = '0' or ethernet_Rd_Addr>x"16" then
+--       ethernet_Rd_Addr<="00"&(x"011");
+--   end if;
+-- end if;
+-- end process Rd_Addr_ps;
   -----------------------------------------------------------------------------
 -- purpose: set Gcnt
 -- type   : sequential

@@ -83,9 +83,9 @@ architecture behavior of ZJUprojects_TB is
       MRCC2_p            : out    std_logic;
       MRCC2_n            : out    std_logic_vector(0 downto 0);
       -------------------------------------------------------------------------
-      ethernet_Rd_clk    : in     std_logic;
-      ethernet_Rd_en     : in     std_logic;
-      ethernet_Rd_Addr   : in     std_logic_vector(13 downto 0);
+      -- ethernet_Rd_clk    : in     std_logic;
+      -- ethernet_Rd_en     : in     std_logic;
+      -- ethernet_Rd_Addr   : in     std_logic_vector(13 downto 0);
       PHY_RXD            : in     std_logic_vector(3 downto 0);
       PHY_RXC            : in     std_logic;
       PHY_RXDV           : in     std_logic;
@@ -93,8 +93,8 @@ architecture behavior of ZJUprojects_TB is
       PHY_GTXclk_quar    : out    std_logic;
       PHy_txen_quar      : out    std_logic;
       phy_txer_o         : out    std_logic;
-      ethernet_Rd_data   : out    std_logic_vector(7 downto 0);
-      ethernet_Frm_valid : out    std_logic;
+      -- ethernet_Rd_data   : out    std_logic_vector(7 downto 0);
+      -- ethernet_Frm_valid : out    std_logic;
       phy_rst_n_o        : out    std_logic
       );
   end component;
@@ -142,12 +142,12 @@ architecture behavior of ZJUprojects_TB is
   signal CLK_500M           : std_logic;  -- to simulate the ADC_DOQ
   signal rst                : std_logic;
   signal SRCC1_p            : std_logic;
-  signal ethernet_Rd_clk    : std_logic:='0';
-  signal ethernet_Rd_en     : std_logic:='0';
-  signal ethernet_Rd_Addr   : std_logic_vector(13 downto 0):=x"fff"&"11";
-  signal PHY_RXD            : std_logic_vector(3 downto 0);
+  -- signal ethernet_Rd_clk    : std_logic:='0';
+  -- signal ethernet_Rd_en     : std_logic:='0';
+  -- signal ethernet_Rd_Addr   : std_logic_vector(13 downto 0):=x"fff"&"11";
+  signal PHY_RXD            : std_logic_vector(3 downto 0):=x"0";
   signal PHY_RXC            : std_logic;
-  signal PHY_RXDV           : std_logic;
+  signal PHY_RXDV           : std_logic :='0';
   signal PHY_TXD_o          : std_logic_vector(3 downto 0);
   signal PHY_GTXclk_quar    : std_logic;
   signal PHY_txen_quar      : std_logic;
@@ -162,6 +162,7 @@ architecture behavior of ZJUprojects_TB is
   constant OSC_in_n_period    : time := 12.5 ns;
   constant ADC_CLKOQ_p_period : time := 4 ns;
   constant CLK_500M_period    : time := 2 ns;
+  constant phy_rxc_period : time := 8 ns;
   signal MRCC2_p              : std_logic;
   signal MRCC2_n              : std_logic_vector(0 downto 0);
   signal SRCC1_n              : std_logic;
@@ -208,9 +209,9 @@ begin
     SRCC1_n            => SRCC1_n,
     MRCC2_p            => MRCC2_p,
     MRCC2_n            => MRCC2_n,
-    ethernet_Rd_clk    => ethernet_Rd_clk,
-    ethernet_Rd_en     => ethernet_Rd_en,
-    ethernet_Rd_Addr   => ethernet_Rd_Addr,
+    -- ethernet_Rd_clk    => ethernet_Rd_clk,
+    -- ethernet_Rd_en     => ethernet_Rd_en,
+    -- ethernet_Rd_Addr   => ethernet_Rd_Addr,
     PHY_RXD            => PHY_RXD,
     PHY_RXC            => PHY_RXC,
     PHY_RXDV           => PHY_RXDV,
@@ -218,8 +219,8 @@ begin
     PHY_GTXclk_quar    => PHY_GTXclk_quar,
     PHy_txen_quar      => PHy_txen_quar,
     phy_txer_o         => phy_txer_o,
-    ethernet_Rd_data   => ethernet_Rd_data,
-    ethernet_Frm_valid => ethernet_Frm_valid,
+    -- ethernet_Rd_data   => ethernet_Rd_data,
+    -- ethernet_Frm_valid => ethernet_Frm_valid,
     phy_rst_n_o =>phy_rst_n_o
     );
 -------------------------------------------------------------------------------
@@ -251,6 +252,14 @@ begin
     CLK_500M <= '1';
     wait for CLK_500M_period/2;
   end process;  -- CLK_500M;
+
+phy_rxc_process : process
+  begin
+    phy_rxc <= '0';
+    wait for phy_rxc_period/2;
+    phy_rxc <= '1';
+    wait for phy_rxc_period/2;
+  end process;  -- rxc;
 -------------------------------------------------------------------------------
 -- purpose: set a counter to simulate DOQA
 -- type   : sequential
@@ -284,12 +293,85 @@ begin
   stim_proc : process
   begin
     user_pushbutton<= '0';                         -- hold reset state for 100 ns.
-    wait for 1000 ns;
+    wait for 5000 ns;
     user_pushbutton <= '1';
     wait for OSC_in_p_period*10;
-
+    
     -- insert stimulus here 
-
+    phy_rxdv <= '1';
+    phy_rxd <= x"f";
+    wait for 16 ns;
+    phy_rxd<= x"5";
+    wait for 60 ns;
+    phy_rxd<= x"d";
+    wait for 4 ns;
+    phy_rxd <= x"f";
+    wait for 48 ns;
+    --mac dst
+    phy_rxd <= x"0";
+    wait for 4 ns;
+        phy_rxd <= x"0";
+    wait for 4 ns;
+        phy_rxd <= x"4";
+    wait for 4 ns;
+        phy_rxd <= x"A";
+    wait for 4 ns;
+        phy_rxd <= x"c";
+    wait for 4 ns;
+        phy_rxd <= x"4";
+    wait for 4 ns;
+        phy_rxd <= x"1";
+    wait for 4 ns;
+        phy_rxd <= x"3";
+    wait for 4 ns;
+        phy_rxd <= x"3";
+    wait for 4 ns;
+        phy_rxd <= x"7";
+    wait for 4 ns;
+        phy_rxd <= x"0";
+    wait for 4 ns;
+        phy_rxd <= x"4";
+    wait for 4 ns;
+    --mac src
+        phy_rxd <= x"a";
+    wait for 4 ns;
+        phy_rxd <= x"a";
+    wait for 4 ns;
+        phy_rxd <= x"5";
+    wait for 4 ns;
+        phy_rxd <= x"5";
+    wait for 4 ns;
+    --type
+        phy_rxd <= x"0";
+    wait for 8 ns;
+        phy_rxd <= x"1";
+    wait for 4 ns;
+    phy_rxd <= x"0";
+    wait for 4 ns;
+    --reg addr
+        phy_rxd <= x"e";
+    wait for 32 ns;
+    --reg data
+        phy_rxd <= x"0";
+    wait for 320 ns;
+    -- blank 40 byte
+    phy_rxd <= x"2";
+    wait for 4 ns;
+    phy_rxd <= x"9";
+    wait for 4 ns;
+    phy_rxd <= x"3";
+    wait for 4 ns;
+    phy_rxd <= x"9";
+    wait for 4 ns;
+    phy_rxd <= x"c";
+    wait for 4 ns;
+    phy_rxd <= x"4";
+    wait for 4 ns;
+    phy_rxd <= x"1";
+    wait for 4 ns;
+    phy_rxd <= x"0";
+    wait for 4 ns;                      --crc from chipscope
+    phy_rxdv <= '0';
     wait;
   end process;
 

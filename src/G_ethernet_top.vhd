@@ -72,8 +72,8 @@ end G_ethernet_top;
 architecture Behavioral of G_ethernet_top is
   -----------------------------------------------------------------------------
   attribute keep  : boolean;
-  signal CLK_250M : std_logic;
-  attribute keep of CLK_250M : signal is true;
+  -- signal CLK_250M : std_logic;
+  -- attribute keep of CLK_250M : signal is true;
   -- signal CLK_125M : std_logic;
   -- signal CLK_125M_quar : std_logic;
   -- signal CLK_71M : std_logic;
@@ -81,9 +81,9 @@ architecture Behavioral of G_ethernet_top is
 --  signal Rd_en : std_logic;
 --  signal Rd_Addr : std_logic_vector(13 downto 0);
   signal rst_n : std_logic;
-  signal PHY_RXC_g : std_logic;
+  -- signal PHY_RXC_g : std_logic;
 --  signal Frm_valid : std_logic;
-  signal frm_valid_d : std_logic;
+  -- signal frm_valid_d : std_logic;
   -- signal ram_wren : std_logic;
   -- signal ram_rden : std_logic;
   -- signal ram_full : std_logic;
