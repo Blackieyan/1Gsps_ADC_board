@@ -65,7 +65,8 @@ entity G_ethernet_top is
 --    CLK_71M : in std_logic;
 -------------------------------------------------------------------------------
     ram_wren : out std_logic;
-    ram_rden : out std_logic
+    ram_rden : out std_logic;
+    ram_start : in std_logic
     );
 end G_ethernet_top;
 
@@ -129,7 +130,8 @@ architecture Behavioral of G_ethernet_top is
       phy_txer_o       : out std_logic;
       rst_n_o          : out std_logic;
       ram_wren : out std_logic;
-      ram_rden : out std_logic
+      ram_rden : out std_logic;
+         ram_start : in std_logic
       );
   end component;
 
@@ -174,7 +176,8 @@ begin
     rst_n_o         => rst_n_o,
     fifo_upload_data => fifo_upload_data,
     ram_rden => ram_rden,
-    ram_wren => ram_wren
+    ram_wren => ram_wren,
+    ram_start => ram_start                                                    
     );
 
 --    IBUFG_inst : IBUFG

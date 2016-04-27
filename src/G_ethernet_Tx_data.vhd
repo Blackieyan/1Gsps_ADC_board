@@ -43,7 +43,8 @@ entity G_ethernet_Tx_data is
     rst_n_o         : out std_logic;    --for test,generate from Gcnt
     fifo_upload_data : in std_logic_vector(7 downto 0);
     ram_wren : out std_logic;
-    ram_rden : out std_logic
+    ram_rden : out std_logic;
+    ram_start : in std_logic
     );
 end G_ethernet_Tx_data;
 
@@ -84,6 +85,12 @@ architecture Behavioral of G_ethernet_Tx_data is
   signal  addr_cnt : integer range 0 to 255;
   signal data_ready : std_logic;
   signal data_test : std_logic_vector(7 downto 0);
+  signal ram_start_cnt : std_logic_vector(11 downto 0);
+  -- signal ram_start : std_logic;
+  signal ram_start_d : std_logic;
+  signal ram_start_d2 : std_logic;
+  signal wren_reset : std_logic;
+  signal wren_ethernet : std_logic;
 -------------------------------------------------------------------------------
   type array_header is array (7 downto 0) of std_logic_vector(7 downto 0);
   constant header : array_header := (x"d5",x"55",x"55",x"55",x"55",x"55",x"55",x"55");
@@ -210,32 +217,51 @@ begin
     end if;
   end process Gclk_d2_ps;
 
-  Gcnt_ps : process (GCLK, rst_n) is
+  Gcnt_ps : process (clk_125m, GCLK_d, GCLK_d2, rst_n) is
   begin
     if rst_n = '0' then
       Gcnt <= (others => '0');
-    -- elsif Gclk_d2 = '0' and Gclk_d = '1' then
-    elsif GCLK'event and GCLK = '1' then
+    elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
+    if Gclk_d2 = '0' and Gclk_d = '1' then
+    -- elsif GCLK'event and GCLK = '1' then
 -- if Gcnt <= x"ffffffff" then
       Gcnt <= Gcnt+1;
     end if;
+  end if;
 -- end if;
   end process Gcnt_ps;
 
-  O_Gcnt_ps : process (clk_125m, rst_n) is
+
+
+  O_Gcnt_ps : process (clk_125m, rst_n, GCLK_d, GCLK_d2) is
   begin  -- process O_Gcnt_ps
     if rst_n = '0' then
       O_Gcnt <= (others => '0');
-    -- elsif Gclk_d2 = '0' and Gclk_d = '1' then
-    elsif GCLK'event and GCLK = '1' then
+    elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
+    if Gclk_d2 = '0' and Gclk_d = '1' then
+    -- elsif GCLK'event and GCLK = '1' then
       if Gcnt = x"ffff" and O_Gcnt <= x"F5" then
         O_Gcnt <= O_Gcnt+1;
       else
         O_Gcnt <= (others => '0');
       end if;
     end if;
+  end if;
   end process O_Gcnt_ps;
 
+  ram_start_d_ps: process (CLK_125M) is
+  begin  -- process ram_start_d_ps
+    if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      ram_start_d<=ram_start;
+    end if;
+  end process ram_start_d_ps;
+ram_start_d2_ps: process (CLK_125M) is
+  begin  -- process ram_start_d_ps
+    if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      ram_start_d2<=ram_start_d;
+    end if;
+  end process ram_start_d2_ps;
+  
 -- rst_n_ps : process (GCLK, clk_125m) is
 -- begin  -- process rst_n_ps
 --   if gclk'event and gclk = '1' then
@@ -264,22 +290,53 @@ begin
       end if;
     end if;
   end process trig_i_ps;
-
-    ram_wren_ps : process (GCLK, rst_n, clk_125m) is
+-------------------------------------------------------------------------------
+    wren_reset_ps : process (GCLK, rst_n, clk_125m) is
 --实际上是trig信号来以后持续100us或者其它。一个trig只持续一次。这里用gcnt会反复出现。但是用not full相与可以避免最终的使能反复。想要清零只能通过复位信号。以后要修改为命令trig下传后执行一次ram_clr
   begin  -- process trig_i_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      ram_wren <= '0';
+      wren_reset <= '0';
     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
       -- if GCLK_d='0' and GCLK='1' then
-      if Gcnt >= x"AC8" and Gcnt<=x"c68" then  --为了防止上电马上采样时的抖动 这个数值要够大。
-        ram_wren <= '1';
+      if Gcnt >= x"AC8" and Gcnt<=x"c68" and O_Gcnt=x"00" then  --为了防止上电马上采样时的抖动 这个数值要够大。
+        wren_reset <= '1';
       else
-        ram_wren <= '0';
+        wren_reset <= '0';
       end if;
     end if;
-  end process ram_wren_ps;
+  end process wren_reset_ps;
   
+    ram_start_cnt_ps: process (clk_125m, Gclk_d, Gclk_d2, ram_start) is
+  begin  -- process ram_rst_cnt_ps
+    if rst_n = '0' then               -- asynchronous reset (active low)
+      ram_start_cnt<=(others => '0');
+    -- elsif Gclk'event and Gclk = '1' then  -- rising clock edge
+         elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
+         if Gclk_d2 = '0' and Gclk_d = '1' then
+      if wren_ethernet<='1' then
+      ram_start_cnt<=ram_start_cnt+1;
+     elsif wren_ethernet<='0' then
+       ram_start_cnt<=(others => '0'); 
+      end if;
+    end if;
+  end if;
+  end process ram_start_cnt_ps;
+
+  wren_ethernet_ps: process (clk_125m, rst_n, ram_start_d, ram_start_d2) is
+  begin  -- process wren_ethernet_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      wren_ethernet<='0';
+    elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
+      if ram_start_cnt = x"1ae" then
+        wren_ethernet<='0';
+      elsif ram_start_d='1' and ram_start_d2='0' then
+        wren_ethernet<='1';
+    end if;
+  end if;
+  end process wren_ethernet_ps;
+
+  ram_wren<=wren_ethernet or wren_reset;
+  -----------------------------------------------------------------------------
   Last_byte_ps : process (clk_125m, rst_n) is
   begin  -- process Last_byte_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)

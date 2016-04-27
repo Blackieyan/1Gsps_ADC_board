@@ -45,7 +45,7 @@ entity command_analysis is
     -- mac_src    : out std_logic_vector(47 downto 0);
     -- reg_addr   : out std_logic_vector(15 downto 0);
     -- reg_data   : out std_logic_vector(31 downto 0);
-    ram_rst   : buffer std_logic;
+    ram_start   : buffer std_logic;
     user_pushbutton : in  std_logic
     );
 end command_analysis;
@@ -121,12 +121,12 @@ begin
   reg_clr_ps : process (rd_clk, rst_n) is
   begin  -- process reg_clr
     if rst_n = '0' then                 -- asynchronous reset (active low)
-     ram_rst <= '0';
+     ram_start <= '0';
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
       if reg_clr_cnt = x"0F" then
-        ram_rst <= '0';
+        ram_start <= '0';
       elsif reg_addr = x"01" and reg_data = x"eeeeeeee" then
-       ram_rst <= '1';
+       ram_start <= '1';
       end if;
     -- else
     --   reg_clr <= '0';
@@ -142,9 +142,9 @@ begin
     if rst_n = '0' then                 -- asynchronous reset (active low)
       reg_clr_cnt <= (others => '0');
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
-      if ram_rst = '1' then
+      if ram_start = '1' then
         reg_clr_cnt <= reg_clr_cnt+1;
-      elsif ram_rst = '0' then
+      elsif ram_start = '0' then
         reg_clr_cnt <= (others => '0');
       end if;
     end if;

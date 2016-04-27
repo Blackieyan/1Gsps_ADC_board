@@ -260,7 +260,9 @@ architecture Behavioral of ZJUprojects is
   signal ram_last : std_logic;
   signal ram_rst : std_logic;
     attribute keep of ram_rst : signal is true;
-  signal start_ram : std_logic;
+  signal ram_start : std_logic;
+  signal ram_start_d : std_logic;
+  signal ram_start_d2 : std_logic;
   signal ram_wren : std_logic;
   signal ram_rden : std_logic;
   signal ram_full : std_logic;
@@ -335,7 +337,8 @@ architecture Behavioral of ZJUprojects is
 		Rd_data : OUT std_logic_vector(7 downto 0);
 		Frm_valid : OUT std_logic;
 		ram_wren : OUT std_logic;
-		ram_rden : OUT std_logic
+		ram_rden : OUT std_logic;
+           ram_start : in std_logic
 		);
 	END COMPONENT;
   -----------------------------------------------------------------------------
@@ -351,7 +354,7 @@ architecture Behavioral of ZJUprojects is
 		-- mac_src : OUT std_logic_vector(47 downto 0);
 		-- reg_addr : OUT std_logic_vector(15 downto 0);
 		-- reg_data : OUT std_logic_vector(31 downto 0);
-	         ram_rst  : buffer std_logic;
+	         ram_start  : buffer std_logic;
                 user_pushbutton : in std_logic
 		);
 	END COMPONENT;
@@ -878,7 +881,8 @@ IDELAYCTRL_inst : IDELAYCTRL
 		CLK_125M => CLK_125M,
 		CLK_125M_quar => CLK_125M_quar,
                 ram_wren => ram_wren,
-                ram_rden => ram_rden
+                ram_rden => ram_rden,
+                ram_start =>ram_start
 	);
 -------------------------------------------------------------------------------
   	Inst_command_analysis: command_analysis PORT MAP(
@@ -892,7 +896,7 @@ IDELAYCTRL_inst : IDELAYCTRL
 		-- mac_src =>mac_src ,
 		-- reg_addr =>mac_reg_addr ,
 		-- reg_data =>mac_reg_data ,
-	        ram_rst => ram_rst,
+	        ram_start => ram_start,
                 user_pushbutton => user_pushbutton
 	);
 -------------------------------------------------------------------------------
@@ -1043,10 +1047,23 @@ IDELAYCTRL_inst : IDELAYCTRL
 
   -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
+ram_start_d_ps: process (CLK_125M) is
+  begin  -- process ram_start_d_ps
+    if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      ram_start_d<=ram_start;
+    end if;
+  end process ram_start_d_ps;
+ram_start_d2_ps: process (CLK_125M) is
+  begin  -- process ram_start_d_ps
+    if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      ram_start_d2<=ram_start_d;
+    end if;
+  end process ram_start_d2_ps;
+
   --ram_addr
-ram_addra_ps: process (ADC_CLKOQ, clr_n_ram) is
+ram_addra_ps: process (ADC_CLKOQ, clr_n_ram, ram_start_d, ram_start_d2) is
 begin  -- process addra_ps
-  if clr_n_ram = '0' or start_ram = '1' then                   -- asynchronous reset (active low)
+  if clr_n_ram = '0' or (ram_start_d = '1' and ram_start_d2='0')  then                   -- asynchronous reset (active low)
     ram_addra<=(others => '0');
   elsif ADC_CLKOQ'event and ADC_CLKOQ = '1' then  -- rising clock edge
     if ram_wren='1' then                --收到wren控制，希望wren是上位机的trig到来后的10us或者20us这样一个持续
@@ -1062,7 +1079,7 @@ end process ram_addra_ps;
 
 ram_addrb_ps: process (CLK_125M, clr_n_ram) is
 begin  -- process addrb_ps
-  if clr_n_ram = '0' or start_ram = '1' then               -- asynchronous reset (active low)
+  if clr_n_ram = '0'  then               -- asynchronous reset (active low)
     ram_addrb<=(others => '0');
   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
     if ram_rden='1' then
