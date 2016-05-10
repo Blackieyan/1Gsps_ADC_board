@@ -1071,7 +1071,7 @@ begin  -- process addra_ps
       ram_addra<=ram_addra+1;
       ram_full<='0';
     elsif ram_addra= x"270e" then       --270f是最后一个地址 留一个余量防止ram崩溃
-      ram_full<='1';
+      ram_full<='1';                    --为了保持这个full的状态，ram_addra不能清零
     end if;
   end if;
   end if;

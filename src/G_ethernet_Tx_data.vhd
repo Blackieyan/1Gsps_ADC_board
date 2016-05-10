@@ -311,15 +311,17 @@ ram_start_d2_ps: process (CLK_125M) is
     if rst_n = '0' then               -- asynchronous reset (active low)
       ram_start_cnt<=(others => '0');
     -- elsif Gclk'event and Gclk = '1' then  -- rising clock edge
-         elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-         if Gclk_d2 = '0' and Gclk_d = '1' then
-      if wren_ethernet<='1' then
-      ram_start_cnt<=ram_start_cnt+1;
-     elsif wren_ethernet<='0' then
-       ram_start_cnt<=(others => '0'); 
+    elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
+      if wren_ethernet<='0' then
+        ram_start_cnt<=(others => '0'); 
+      elsif wren_ethernet<='1' then
+        if Gclk_d2 = '0' and Gclk_d = '1'  then
+      -- if wren_ethernet<='1' then
+        ram_start_cnt<=ram_start_cnt+1;
+        end if;
+      -- end if;
       end if;
     end if;
-  end if;
   end process ram_start_cnt_ps;
 
   wren_ethernet_ps: process (clk_125m, rst_n, ram_start_d, ram_start_d2) is
@@ -327,7 +329,7 @@ ram_start_d2_ps: process (CLK_125M) is
     if rst_n = '0' then                 -- asynchronous reset (active low)
       wren_ethernet<='0';
     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-      if ram_start_cnt = x"1ae" then
+      if ram_start_cnt = x"3e1" then
         wren_ethernet<='0';
       elsif ram_start_d='1' and ram_start_d2='0' then
         wren_ethernet<='1';

@@ -65,18 +65,35 @@ module CDCE62005_config(clk,clk_spi,en,spi_clk,spi_mosi,spi_miso,spi_le,spi_syn,
 				
 
 
-	localparam  Value_register0=32'hE9400300,		//1000MHz
-					Value_register1=32'hE9400301,		//1000MHz
-					Value_register2=32'hE8400302,		//1000MHz
-					Value_register3=32'hE8400303,		//1000MHz
-					Value_register4=32'hE8400304,		//1000MHz				
-//					Value_register4=32'hEB140314,		//					
-//
-					Value_register5=32'h10008F35,		//1000MHz
-					Value_register6=32'h04BE03E6,
-					Value_toEEPROM=32'h0000001f;		//		
+
+//	localparam  Value_register0=32'hE9400300,		//打开1000MHz lvds
+   	localparam  Value_register0=32'h81400300,               //打开1ghz lvpel，crystal
+	            Value_register1=32'h81400301,	        
+//		    Value_register2=32'hE8400302,		//关闭1000MHz lvds
+	            Value_register2=32'h81400302,
+		    Value_register3=32'hE8400303,		//关闭1000MHz
+//	            Value_register4=32'h81400304,
+		    Value_register4=32'hE8400304,		//关闭1000MHz				
+//	            Value_register4=32'hEB140314,		//					
+		    Value_register5=32'h10008F35,		//1000MHz
+		    Value_register6=32'h04BE03E6,
+		    Value_toEEPROM=32'h0000001f;		 		
 
 
+/* -----\/----- EXCLUDED -----\/-----
+//	localparam  Value_register0=32'hE9400300,		//打开1000MHz lvds
+   	localparam  Value_register0=32'h81400300,               //打开1ghz lvpel，crystal
+	            Value_register1=32'h81400301,	        
+//		    Value_register2=32'hE8400302,		//关闭1000MHz lvds
+	            Value_register2=32'h81400302,
+		    Value_register3=32'hE8400303,		//关闭1000MHz
+//	            Value_register4=32'h81400304,
+		    Value_register4=32'hE8400304,		//关闭1000MHz				
+//	            Value_register4=32'hEB140314,		//					
+		    Value_register5=32'h10008EB5,		//1000MHz sec_sel lvds input i=1
+		    Value_register6=32'h04BE09E6, //Fin*100
+		    Value_toEEPROM=32'h0000001f;	
+ -----/\----- EXCLUDED -----/\----- */// 外部输入10mhz lvds参考时钟
 				
 	reg[31:0] spi_data;
 	reg[3:0]SM,SM_next;
