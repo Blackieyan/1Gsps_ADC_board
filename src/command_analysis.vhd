@@ -95,8 +95,12 @@ begin
       elsif rd_addr = x"12" then
         reg_addr(7 downto 0) <= rd_data;
       elsif rd_addr=x"18" or (rd_en_d = '1' and rd_en = '0')then  --地址为0x18或者rden信号下降,因为rddata有可能全读有可能只读0x11-0x17
+        if reg_addr<=x"0010" then         --控制命令，清零
         reg_addr<=(others => '0');
+        elsif reg_addr>x"0010" then --配置命令，保持
+          reg_addr<=reg_addr;
       end if;
+    end if;
     end if;
   end process reg_addr_ps;
 
@@ -114,7 +118,11 @@ begin
       elsif rd_addr = x"16" then
         reg_data(7 downto 0) <= rd_data;
       elsif rd_addr=x"18" or (rd_en_d = '1' and rd_en = '0')then  --地址为0x18或者rden信号下降,因为rddata有可能全读有可能只读0x11-0x17
+        if reg_addr<=x"0010" then         --控制命令，清零
         reg_data<=(others => '0');
+        elsif reg_addr>x"0010" then       --配置命令,保持
+          reg_data<=reg_data;
+        end if;
       end if;
     end if;
   end process reg_data_ps;
@@ -126,7 +134,7 @@ begin
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
       if reg_clr_cnt = x"0F" then
         ram_start <= '0';
-      elsif reg_addr = x"01" and reg_data = x"eeeeeeee" then
+      elsif reg_addr = x"0001" and reg_data = x"eeeeeeee" then
        ram_start <= '1';
       end if;
     -- else
@@ -156,11 +164,11 @@ begin
     if rst_n = '0' then                 -- asynchronous reset (active low)
       ram_switch<=(others => '0');
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
-      if reg_addr=x"11" and reg_data = x"11111111" then
+      if reg_addr=x"0101" and reg_data = x"11111111" then
         ram_switch <= "001";
-      elsif reg_addr=x"11" and reg_data =x"22222222" then
+      elsif reg_addr=x"0101" and reg_data =x"22222222" then
         ram_switch<="010";
-      elsif reg_addr=x"11" and reg_data = x"33333333"  then
+      elsif reg_addr=x"0101" and reg_data = x"33333333"  then
         ram_switch<="101";
       end if;
     end if;

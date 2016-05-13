@@ -153,7 +153,7 @@
       <association xil_pn:name="Implementation" xil_pn:seqID="16"/>
     </file>
     <file xil_pn:name="chipscope/chipscope.cdc" xil_pn:type="FILE_CDC">
-      <association xil_pn:name="Implementation" xil_pn:seqID="145"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
     <file xil_pn:name="ipcore_dir/dcm.xise" xil_pn:type="FILE_COREGENISE">
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>

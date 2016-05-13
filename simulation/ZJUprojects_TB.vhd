@@ -342,14 +342,16 @@ begin
     phy_rxd  <= x"5";
     wait for 4 ns;
     --type
+    phy_rxd  <= x"1";
+    wait for 4 ns;
     phy_rxd  <= x"0";
-    wait for 8 ns;
+    wait for 4 ns;
     phy_rxd  <= x"1";
     wait for 4 ns;
     phy_rxd  <= x"0";
     wait for 4 ns;
     --reg addr
-    phy_rxd  <= x"e";
+    phy_rxd  <= x"1";
     wait for 32 ns;
     --reg data
     phy_rxd  <= x"0";
