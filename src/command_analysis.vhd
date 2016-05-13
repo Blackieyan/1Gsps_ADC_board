@@ -46,7 +46,8 @@ entity command_analysis is
     -- reg_addr   : out std_logic_vector(15 downto 0);
     -- reg_data   : out std_logic_vector(31 downto 0);
     ram_start   : buffer std_logic;
-    user_pushbutton : in  std_logic
+    user_pushbutton : in  std_logic;
+    ram_switch : out std_logic_vector(2 downto 0)
     );
 end command_analysis;
 
@@ -150,5 +151,19 @@ begin
     end if;
   end process reg_clr_cnt_ps;
 
+  ram_switch_ps: process (rd_clk, rst_n) is
+  begin  -- process ram_switch_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      ram_switch<=(others => '0');
+    elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
+      if reg_addr=x"11" and reg_data = x"11111111" then
+        ram_switch <= "001";
+      elsif reg_addr=x"11" and reg_data =x"22222222" then
+        ram_switch<="010";
+      elsif reg_addr=x"11" and reg_data = x"33333333"  then
+        ram_switch<="101";
+      end if;
+    end if;
+  end process ram_switch_ps;
 end Behavioral;
 

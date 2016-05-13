@@ -243,6 +243,7 @@ architecture Behavioral of ZJUprojects is
   signal phy_rxc_g :std_logic;
   -----------------------------------------------------------------------------
     signal ram_doutb : std_logic_vector(7 downto 0);  --ram control
+    attribute keep of ram_doutb : signal is true;
   signal ram_dina : std_logic_vector(31 downto 0);
   signal ram_clka : std_logic;
   signal ram_clkb : std_logic;
@@ -266,6 +267,31 @@ architecture Behavioral of ZJUprojects is
   signal ram_wren : std_logic;
   signal ram_rden : std_logic;
   signal ram_full : std_logic;
+  -----------------------------------------------------------------------------
+  signal ram_i_doutb : std_logic_vector(7 downto 0);
+  attribute keep of ram_i_doutb : signal is true;
+  signal ram_i_dina : std_logic_vector(31 downto 0);
+  signal ram_i_clka : std_logic;
+  signal ram_i_clkb : std_logic;
+  signal ram_i_rstb : std_logic;
+  signal ram_i_ena : std_logic;
+  signal ram_i_enb : std_logic;
+  signal ram_i_wea : std_logic_vector(0 downto 0);
+  signal ram_i_addra : std_logic_vector(13 downto 0);
+  signal ram_i_addrb : std_logic_vector(15 downto 0);
+  signal ram_i_rst : std_logic;
+  signal ram_i_full : std_logic;
+  signal ADC_doia_delay : std_logic_vector(7 downto 0);
+  signal ADC_doib_delay : std_logic_vector(7 downto 0); 
+  signal ADC_DOiA_1_d : std_logic_vector(7 downto 0);
+  attribute keep of ADC_DOiA_1_d : signal is true;
+  signal ADC_DOiA_2_d : std_logic_vector(7 downto 0);
+  attribute keep of ADC_DOiA_2_d : signal is true;
+  signal ADC_DOiB_1_d : std_logic_vector(7 downto 0);
+  attribute keep of ADC_DOiB_1_d : signal is true;
+  signal ADC_DOiB_2_d : std_logic_vector(7 downto 0);
+  attribute keep of ADC_DOiB_2_d : signal is true;
+  signal ram_switch : std_logic_vector(2 downto 0);
   -----------------------------------------------------------------------------
   component CDCE62005_config
     port(
@@ -355,7 +381,8 @@ architecture Behavioral of ZJUprojects is
 		-- reg_addr : OUT std_logic_vector(15 downto 0);
 		-- reg_data : OUT std_logic_vector(31 downto 0);
 	         ram_start  : buffer std_logic;
-                user_pushbutton : in std_logic
+                user_pushbutton : in std_logic;
+                ram_switch : out std_logic_vector(2 downto 0)
 		);
 	END COMPONENT;
   -----------------------------------------------------------------------------
@@ -435,6 +462,21 @@ END COMPONENT;
     doutb : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
   );
 END COMPONENT;
+
+  COMPONENT ram_data_i
+  PORT (
+    clka : IN STD_LOGIC;
+    ena : IN STD_LOGIC;
+    wea : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+    addra : IN STD_LOGIC_VECTOR(13 DOWNTO 0);
+    dina : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+    clkb : IN STD_LOGIC;
+    rstb : IN STD_LOGIC;
+    enb : IN STD_LOGIC;
+    addrb : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+    doutb : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
+  );
+END COMPONENT;
 -------------------------------------------------------------------------------
 	COMPONENT IDDR_inst
 	PORT(
@@ -472,7 +514,7 @@ begin
       CLK_OUT7 => CLK_125M_quar
       );               --10MHz 50shift
 
-  dcm2 : dcm_adc_clkoi
+ dcm2 : dcm_adc_clkoi
   port map
    (-- Clock in ports
     CLK_IN1_P => ADC_CLKOI_p,
@@ -660,37 +702,135 @@ IODELAYE1_inst : IODELAYE1
   end generate universal;
 end generate;
 -------------------------------------------------------------------------------
--- ADC_doqb_inst  : FOR i in 0 to 7 generate
--- begin
--- IODELAYE1_inst : IODELAYE1
---   generic map (
---      CINVCTRL_SEL          => FALSE,  -- Enable dynamic clock inversion (TRUE/FALSE)
---      DELAY_SRC             => "I",  -- Delay input ("I", "CLKIN", "DATAIN", "IO", "O")
---      HIGH_PERFORMANCE_MODE => FALSE,  -- Reduced jitter (TRUE), Reduced power (FALSE)
---      IDELAY_TYPE           => "FIXED",  -- "DEFAULT", "FIXED", "VARIABLE", or "VAR_LOADABLE" 
---      IDELAY_VALUE          => 0,        -- Input delay tap setting (0-31)
---      ODELAY_TYPE           => "FIXED",  -- "FIXED", "VARIABLE", or "VAR_LOADABLE" 
---      ODELAY_VALUE          => 0,        -- Output delay tap setting (0-31)
---      REFCLK_FREQUENCY      => 100.0,  -- IDELAYCTRL clock input frequency in MHz
---      SIGNAL_PATTERN        => "DATA"    -- "DATA" or "CLOCK" input signal
---   )
---   port map (
---      CNTVALUEOUT => open,               -- 5-bit output: Counter value output
---      DATAOUT     => ADC_doqb_delay(i),  -- 1-bit output: Delayed data output
---      C           => '0',                -- 1-bit input: Clock input
---      CE          => '0',  -- 1-bit input: Active high enable increment/decrement input
---      CINVCTRL    => '0',  -- 1-bit input: Dynamic clock inversion input
---      CLKIN       => '0',                -- 1-bit input: Clock delay input
---      CNTVALUEIN  => "00000",            -- 5-bit input: Counter value input
---      DATAIN      => '0',  -- 1-bit input: Internal delay data input
---      IDATAIN     => ADC_doqb(i),        -- 1-bit input: Data input from the I/O
---      INC         => '0',  -- 1-bit input: Increment / Decrement tap delay input
---      ODATAIN     => '0',                -- 1-bit input: Output delay data input
---      RST         => '0',  -- 1-bit input: Active-high reset tap-delay input
---      T           => '0'                 -- 1-bit input: 3-state input
---   );
--- end generate;
-	
+ADC_doia_inst: FOR i in 0 to 7 generate
+begin
+  specify_one: if i = 5 generate        --i=5为需要调整第5bit的延迟
+    begin
+IODELAYE1_inst : IODELAYE1
+  generic map (
+     CINVCTRL_SEL => FALSE,          -- Enable dynamic clock inversion (TRUE/FALSE)
+     DELAY_SRC => "I",               -- Delay input ("I", "CLKIN", "DATAIN", "IO", "O")
+     HIGH_PERFORMANCE_MODE => FALSE, -- Reduced jitter (TRUE), Reduced power (FALSE)
+     IDELAY_TYPE => "FIXED",       -- "DEFAULT", "FIXED", "VARIABLE", or "VAR_LOADABLE" 
+     IDELAY_VALUE => 0,              -- Input delay tap setting (0-31)
+     ODELAY_TYPE => "FIXED",         -- "FIXED", "VARIABLE", or "VAR_LOADABLE" 
+     ODELAY_VALUE => 0,              -- Output delay tap setting (0-31)
+     REFCLK_FREQUENCY => 200.0,      -- IDELAYCTRL clock input frequency in MHz
+     SIGNAL_PATTERN => "DATA"        -- "DATA" or "CLOCK" input signal
+  )
+  port map (
+     CNTVALUEOUT => open, -- 5-bit output: Counter value output
+     DATAOUT => ADC_doia_delay(i),         -- 1-bit output: Delayed data output
+     C =>  '0',                     -- 1-bit input: Clock input
+     CE => '0',                   -- 1-bit input: Active high enable increment/decrement input
+     CINVCTRL => '0',       -- 1-bit input: Dynamic clock inversion input
+     CLKIN => '0',             -- 1-bit input: Clock delay input
+     CNTVALUEIN => "00000",   -- 5-bit input: Counter value input
+     DATAIN => '0',           -- 1-bit input: Internal delay data input
+     IDATAIN => ADC_doia(i),         -- 1-bit input: Data input from the I/O
+     INC => '0',                 -- 1-bit input: Increment / Decrement tap delay input
+     ODATAIN => '0',         -- 1-bit input: Output delay data input
+     RST => '0',                 -- 1-bit input: Active-high reset tap-delay input
+     T => '0'                      -- 1-bit input: 3-state input
+  );
+  end generate specify_one;
+  
+  universal: if i/=5 generate
+IODELAYE1_inst : IODELAYE1
+  generic map (
+     CINVCTRL_SEL => FALSE,          -- Enable dynamic clock inversion (TRUE/FALSE)
+     DELAY_SRC => "I",               -- Delay input ("I", "CLKIN", "DATAIN", "IO", "O")
+     HIGH_PERFORMANCE_MODE => FALSE, -- Reduced jitter (TRUE), Reduced power (FALSE)
+     IDELAY_TYPE => "FIXED",       -- "DEFAULT", "FIXED", "VARIABLE", or "VAR_LOADABLE" 
+     IDELAY_VALUE => 0,              -- Input delay tap setting (0-31)
+     ODELAY_TYPE => "FIXED",         -- "FIXED", "VARIABLE", or "VAR_LOADABLE" 
+     ODELAY_VALUE => 0,              -- Output delay tap setting (0-31)
+     REFCLK_FREQUENCY => 200.0,      -- IDELAYCTRL clock input frequency in MHz
+     SIGNAL_PATTERN => "DATA"        -- "DATA" or "CLOCK" input signal
+  )
+  port map (
+     CNTVALUEOUT => open, -- 5-bit output: Counter value output
+     DATAOUT => ADC_doia_delay(i),         -- 1-bit output: Delayed data output
+     C =>  '0',                     -- 1-bit input: Clock input
+     CE => '0',                   -- 1-bit input: Active high enable increment/decrement input
+     CINVCTRL => '0',       -- 1-bit input: Dynamic clock inversion input
+     CLKIN => '0',             -- 1-bit input: Clock delay input
+     CNTVALUEIN => "00000",   -- 5-bit input: Counter value input
+     DATAIN => '0',           -- 1-bit input: Internal delay data input
+     IDATAIN => ADC_doia(i),         -- 1-bit input: Data input from the I/O
+     INC => '0',                 -- 1-bit input: Increment / Decrement tap delay input
+     ODATAIN => '0',         -- 1-bit input: Output delay data input
+     RST => '0',                 -- 1-bit input: Active-high reset tap-delay input
+     T => '0'                      -- 1-bit input: 3-state input
+  );
+  end generate universal;
+end generate;
+
+-------------------------------------------------------------------------------
+ ADC_doib_inst: FOR i in 0 to 7 generate
+begin
+  specify_one: if i = 5 generate
+    begin
+IODELAYE1_inst : IODELAYE1
+  generic map (
+     CINVCTRL_SEL => FALSE,          -- Enable dynamic clock inversion (TRUE/FALSE)
+     DELAY_SRC => "I",               -- Delay input ("I", "CLKIN", "DATAIN", "IO", "O")
+     HIGH_PERFORMANCE_MODE => FALSE, -- Reduced jitter (TRUE), Reduced power (FALSE)
+     IDELAY_TYPE => "FIXED",       -- "DEFAULT", "FIXED", "VARIABLE", or "VAR_LOADABLE" 
+     IDELAY_VALUE => 0,              -- Input delay tap setting (0-31)
+     ODELAY_TYPE => "FIXED",         -- "FIXED", "VARIABLE", or "VAR_LOADABLE" 
+     ODELAY_VALUE => 0,              -- Output delay tap setting (0-31)
+     REFCLK_FREQUENCY => 200.0,      -- IDELAYCTRL clock input frequency in MHz
+     SIGNAL_PATTERN => "DATA"        -- "DATA" or "CLOCK" input signal
+  )
+  port map (
+     CNTVALUEOUT => open, -- 5-bit output: Counter value output
+     DATAOUT => ADC_doib_delay(i),         -- 1-bit output: Delayed data output
+     C =>  '0',                     -- 1-bit input: Clock input
+     CE => '0',                   -- 1-bit input: Active high enable increment/decrement input
+     CINVCTRL => '0',       -- 1-bit input: Dynamic clock inversion input
+     CLKIN => '0',             -- 1-bit input: Clock delay input
+     CNTVALUEIN => "00000",   -- 5-bit input: Counter value input
+     DATAIN => '0',           -- 1-bit input: Internal delay data input
+     IDATAIN => ADC_doib(i),         -- 1-bit input: Data input from the I/O
+     INC => '0',                 -- 1-bit input: Increment / Decrement tap delay input
+     ODATAIN => '0',         -- 1-bit input: Output delay data input
+     RST => '0',                 -- 1-bit input: Active-high reset tap-delay input
+     T => '0'                      -- 1-bit input: 3-state input
+  );
+  end generate specify_one;
+  
+  universal: if i/=5 generate
+IODELAYE1_inst : IODELAYE1
+  generic map (
+     CINVCTRL_SEL => FALSE,          -- Enable dynamic clock inversion (TRUE/FALSE)
+     DELAY_SRC => "I",               -- Delay input ("I", "CLKIN", "DATAIN", "IO", "O")
+     HIGH_PERFORMANCE_MODE => FALSE, -- Reduced jitter (TRUE), Reduced power (FALSE)
+     IDELAY_TYPE => "FIXED",       -- "DEFAULT", "FIXED", "VARIABLE", or "VAR_LOADABLE" 
+     IDELAY_VALUE => 0,              -- Input delay tap setting (0-31)
+     ODELAY_TYPE => "FIXED",         -- "FIXED", "VARIABLE", or "VAR_LOADABLE" 
+     ODELAY_VALUE => 0,              -- Output delay tap setting (0-31)
+     REFCLK_FREQUENCY => 200.0,      -- IDELAYCTRL clock input frequency in MHz
+     SIGNAL_PATTERN => "DATA"        -- "DATA" or "CLOCK" input signal
+  )
+  port map (
+     CNTVALUEOUT => open, -- 5-bit output: Counter value output
+     DATAOUT => ADC_doib_delay(i),         -- 1-bit output: Delayed data output
+     C =>  '0',                     -- 1-bit input: Clock input
+     CE => '0',                   -- 1-bit input: Active high enable increment/decrement input
+     CINVCTRL => '0',       -- 1-bit input: Dynamic clock inversion input
+     CLKIN => '0',             -- 1-bit input: Clock delay input
+     CNTVALUEIN => "00000",   -- 5-bit input: Counter value input
+     DATAIN => '0',           -- 1-bit input: Internal delay data input
+     IDATAIN => ADC_doib(i),         -- 1-bit input: Data input from the I/O
+     INC => '0',                 -- 1-bit input: Increment / Decrement tap delay input
+     ODATAIN => '0',         -- 1-bit input: Output delay data input
+     RST => '0',                 -- 1-bit input: Active-high reset tap-delay input
+     T => '0'                      -- 1-bit input: 3-state input
+  );
+  end generate universal;
+end generate;
+-------------------------------------------------------------------------------	
 IDELAYCTRL_inst : IDELAYCTRL
   port map (
      RDY => open,       -- 1-bit output indicates validity of the REFCLK
@@ -700,18 +840,18 @@ IDELAYCTRL_inst : IDELAYCTRL
 -------------------------------------------------------------------------------
   -----------------------------------------------------------------------------
 -- iddr(iob)
-        -- Inst_IDDR_inst1: IDDR_inst PORT MAP(
-	-- 	CLK =>CLKOI ,
-	-- 	Q1 =>ADC_DOIA_1 ,
-	-- 	Q2 =>ADC_DOIA_2 ,
-	-- 	D =>ADC_DOIA
-	-- );
-    	-- Inst_IDDR_inst2: IDDR_inst PORT MAP(
-	-- 	CLK =>CLKOI ,
-	-- 	Q1 =>ADC_DOIB_1 ,
-	-- 	Q2 =>ADC_DOIB_2 ,
-	-- 	D =>ADC_DOIB 
-	-- );
+        Inst_IDDR_inst1: IDDR_inst PORT MAP(
+		CLK =>ADC_CLKOI ,
+		Q1 =>ADC_DOIA_1 ,
+		Q2 =>ADC_DOIA_2 ,
+		D =>ADC_DOIA_delay
+	);
+    	Inst_IDDR_inst2: IDDR_inst PORT MAP(
+		CLK =>ADC_CLKOI ,
+		Q1 =>ADC_DOIB_1 ,
+		Q2 =>ADC_DOIB_2 ,
+		D =>ADC_DOIB_delay 
+	);
     	Inst_IDDR_inst3: IDDR_inst PORT MAP(
 		CLK =>ADC_CLKOQ ,
 		Q1 =>ADC_DOQA_1 ,
@@ -783,6 +923,62 @@ IDELAYCTRL_inst : IDELAYCTRL
       D =>ADC_DOQB_2(i)        -- Data input
    );
   end generate DFF_doqB_2_inst4;
+  -----------------------------------------------------------------------------
+    DFF_doiA_1_inst1: for i in 0 to 7 generate
+  begin  
+   FDCE_inst : FDCE
+   generic map (
+      INIT => '0') -- Initial value of register ('0' or '1')  
+   port map (
+      Q =>ADC_DOiA_1_d(i) ,      -- Data output
+      C => ADC_clkoi,      -- Clock input
+      CE => '1',    -- Clock enable input
+      CLR => '0',  -- Asynchronous clear input
+      D =>ADC_DOiA_1(i)        -- Data input
+   );
+  end generate DFF_doiA_1_inst1;
+
+    DFF_doiA_2_inst2: for i in 0 to 7 generate
+  begin  
+     FDCE_inst : FDCE
+   generic map (
+      INIT => '0') -- Initial value of register ('0' or '1')  
+   port map (
+      Q =>ADC_DOiA_2_d(i) ,      -- Data output
+      C => ADC_clkoi,      -- Clock input
+      CE => '1',    -- Clock enable input
+      CLR => '0',  -- Asynchronous clear input
+      D =>ADC_DOiA_2(i)        -- Data input
+   );
+  end generate DFF_doiA_2_inst2;
+
+      DFF_doiB_1_inst3: for i in 0 to 7 generate
+  begin  
+     FDCE_inst : FDCE
+   generic map (
+      INIT => '0') -- Initial value of register ('0' or '1')  
+   port map (
+      Q =>ADC_DOiB_1_d(i) ,      -- Data output
+      C =>  ADC_clkoi,      -- Clock input
+      CE => '1',    -- Clock enable input
+      CLR => '0',  -- Asynchronous clear input
+      D =>ADC_DOiB_1(i)        -- Data input
+   );
+  end generate DFF_doiB_1_inst3;
+
+      DFF_doiB_2_inst4: for i in 0 to 7 generate
+  begin  
+     FDCE_inst : FDCE
+   generic map (
+      INIT => '0') -- Initial value of register ('0' or '1')  
+   port map (
+      Q =>ADC_DOiB_2_d(i) ,      -- Data output
+      C =>  ADC_clkoi,      -- Clock input
+      CE => '1',    -- Clock enable input
+      CLR => '0',  -- Asynchronous clear input
+      D =>ADC_DOiB_2(i)        -- Data input
+   );
+  end generate DFF_doiB_2_inst4;
   -----------------------------------------------------------------------------
         
    --   IBUFGDS_inst1 : IBUFGDS
@@ -897,7 +1093,8 @@ IDELAYCTRL_inst : IDELAYCTRL
 		-- reg_addr =>mac_reg_addr ,
 		-- reg_data =>mac_reg_data ,
 	        ram_start => ram_start,
-                user_pushbutton => user_pushbutton
+                user_pushbutton => user_pushbutton,
+                ram_switch =>ram_switch
 	);
 -------------------------------------------------------------------------------
     ram_data_inst : ram_data
@@ -922,8 +1119,29 @@ IDELAYCTRL_inst : IDELAYCTRL
   ram_wea(0)<=ram_wren and (not ram_full);
   ram_rstb<=not rst_n;
   clr_n_ram<=rst_n;
-  ethernet_fifo_upload_data<=ram_doutb;
+ 
 ------------------------------------------------------------------------------
+     ram_data_inst2 : ram_data_i
+  PORT MAP (
+    clka =>ADC_clkoi,
+    ena => ram_i_ena,
+    wea => ram_i_wea,
+    addra => ram_i_addra,
+    dina => ram_i_dina,
+    clkb => ram_i_clkb,
+    rstb => ram_i_rstb,
+    enb => ram_i_enb,
+    addrb => ram_i_addrb,
+    doutb => ram_i_doutb
+  );
+  ram_i_dina<=ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
+  ram_i_clkb<=CLK_125M;
+  ram_i_enb<=ram_rden;
+  ram_i_ena<=ram_wren and (not ram_i_full);
+  ram_i_wea(0)<=ram_wren and (not ram_i_full);
+  ram_i_rstb<=not rst_n;
+  clr_n_ram<=rst_n;
+-----------------------------------------------------------------------------
 -- Inst_fifo_receivedata_I_A1  : fifo
 --   PORT MAP (
 --     rst => rst,
@@ -1046,21 +1264,24 @@ IDELAYCTRL_inst : IDELAYCTRL
   -- );
 
   -----------------------------------------------------------------------------
+  ----------------------------------------------------------------------------
+  ram_switch_ps: process (CLK_125M, rst_n) is
+  begin  -- process ram_switch_ps
+    if rst_n ='0' then
+      ethernet_fifo_upload_data<=ram_i_doutb;
+    elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      case ram_switch is
+        when "001" =>
+          ethernet_fifo_upload_data<=ram_doutb;
+        when "010" =>
+          ethernet_fifo_upload_data<=ram_i_doutb;
+        when others =>
+         ethernet_fifo_upload_data<=ram_i_doutb;
+      end case;
+    end if;
+  end process ram_switch_ps;
   -----------------------------------------------------------------------------
-ram_start_d_ps: process (CLK_125M) is
-  begin  -- process ram_start_d_ps
-    if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-      ram_start_d<=ram_start;
-    end if;
-  end process ram_start_d_ps;
-ram_start_d2_ps: process (CLK_125M) is
-  begin  -- process ram_start_d_ps
-    if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-      ram_start_d2<=ram_start_d;
-    end if;
-  end process ram_start_d2_ps;
-
-  --ram_addr
+    --ram_addr
 ram_addra_ps: process (ADC_CLKOQ, clr_n_ram, ram_start_d, ram_start_d2) is
 begin  -- process addra_ps
   if clr_n_ram = '0' or (ram_start_d = '1' and ram_start_d2='0')  then                   -- asynchronous reset (active low)
@@ -1093,7 +1314,54 @@ begin  -- process addrb_ps
   end if;
 end if;
 end process ram_addrb_ps;
+-------------------------------------------------------------------------------
+ram_i_addra_ps: process (ADC_CLKOi, clr_n_ram, ram_start_d, ram_start_d2) is
+begin  -- process addra_ps
+  if clr_n_ram = '0' or (ram_start_d = '1' and ram_start_d2='0')  then                   -- asynchronous reset (active low)
+    ram_i_addra<=(others => '0');
+  elsif ADC_CLKOi'event and ADC_CLKOi = '1' then  -- rising clock edge
+    if ram_wren='1' then                --收到wren控制，希望wren是上位机的trig到来后的10us或者20us这样一个持续
+    if ram_i_addra<x"270e" then        --只写入一次 10000的ram深度
+      ram_i_addra<=ram_i_addra+1;
+      ram_i_full<='0';
+    elsif ram_i_addra= x"270e" then       --270f是最后一个地址 留一个余量防止ram崩溃
+      ram_i_full<='1';                    --为了保持这个full的状态，ram_addra不能清零
+    end if;
+  end if;
+  end if;
+end process ram_i_addra_ps;
 
+ram_i_addrb_ps: process (CLK_125M, clr_n_ram) is
+begin  -- process addrb_ps
+  if clr_n_ram = '0'  then               -- asynchronous reset (active low)
+    ram_i_addrb<=(others => '0');
+  elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+    if ram_rden='1' then
+     if ram_i_addrb<x"9c37" then
+      ram_i_addrb<=ram_i_addrb+1;                   --只读一轮 测试阶段先循环读出,现在ram的深度为10000 位宽32bit,对于8bit的读出位宽深度为40000，x“9c40"
+      ram_last<='0';
+    elsif ram_i_addrb=x"9c37" then        --不要读满。。余几个量
+      ram_last<='1';
+      ram_i_addrb<=x"0004";               --根据方针前4个值为空，9c40为x
+     end if;
+  end if;
+end if;
+end process ram_i_addrb_ps;
+
+-------------------------------------------------------------------------------
+ram_start_d_ps: process (CLK_125M) is
+  begin  -- process ram_start_d_ps
+    if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      ram_start_d<=ram_start;
+    end if;
+  end process ram_start_d_ps;
+ram_start_d2_ps: process (CLK_125M) is
+  begin  -- process ram_start_d_ps
+    if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      ram_start_d2<=ram_start_d;
+    end if;
+  end process ram_start_d2_ps;
+-------------------------------------------------------------------------------
  frm_valid_d_ps: process (ethernet_Rd_clk, rst_n) is
   begin  -- process frm_valid_d
     if ethernet_Rd_clk'event and ethernet_Rd_clk = '1' then  -- rising clock edge
