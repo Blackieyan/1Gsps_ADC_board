@@ -44,7 +44,8 @@ entity G_ethernet_Tx_data is
     fifo_upload_data : in std_logic_vector(7 downto 0);
     ram_wren : out std_logic;
     ram_rden : out std_logic;
-    ram_start : in std_logic
+    ram_start : in std_logic;
+    srcc1_p_trigin : in std_logic
     );
 end G_ethernet_Tx_data;
 
@@ -91,6 +92,11 @@ architecture Behavioral of G_ethernet_Tx_data is
   signal ram_start_d2 : std_logic;
   signal wren_reset : std_logic;
   signal wren_ethernet : std_logic;
+  signal trigin_d : std_logic;
+  signal trigin_d2 : std_logic;
+  signal trigin_cnt : std_logic_vector(11 downto 0);
+  signal wren_trigin : std_logic;
+  
 -------------------------------------------------------------------------------
   type array_header is array (7 downto 0) of std_logic_vector(7 downto 0);
   constant header : array_header := (x"d5",x"55",x"55",x"55",x"55",x"55",x"55",x"55");
@@ -201,17 +207,17 @@ begin
 
   Gclk_d_ps : process (clk_125m, rst_n) is
   begin  -- process Gclk_ps
-    if rst_n = '0' then
-      Gclk_d <= '0';
-    elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
+    if rst_n ='0' then
+      gclk_d<='0';
+   elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
       GCLK_d <= GCLK;
     end if;
   end process Gclk_d_ps;
 
   Gclk_d2_ps : process (clk_125m, rst_n) is
   begin  -- process Gclk_d2_ps
-    if rst_n = '0' then                 -- asynchronous reset (active low)
-      Gclk_d2 <= '0';
+    if rst_n ='0' then
+      gclk_d2<='0';
     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
       Gclk_d2 <= GCLK_d;
     end if;
@@ -219,9 +225,9 @@ begin
 
   Gcnt_ps : process (clk_125m, GCLK_d, GCLK_d2, rst_n) is
   begin
-    if rst_n = '0' then
-      Gcnt <= (others => '0');
-    elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
+        if rst_n ='0' then
+      gcnt<=(others => '0');
+      elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
     if Gclk_d2 = '0' and Gclk_d = '1' then
     -- elsif GCLK'event and GCLK = '1' then
 -- if Gcnt <= x"ffffffff" then
@@ -312,9 +318,9 @@ ram_start_d2_ps: process (CLK_125M) is
       ram_start_cnt<=(others => '0');
     -- elsif Gclk'event and Gclk = '1' then  -- rising clock edge
     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-      if wren_ethernet<='0' then
+      if wren_ethernet ='0' then
         ram_start_cnt<=(others => '0'); 
-      elsif wren_ethernet<='1' then
+      elsif wren_ethernet ='1' then
         if Gclk_d2 = '0' and Gclk_d = '1'  then
       -- if wren_ethernet<='1' then
         ram_start_cnt<=ram_start_cnt+1;
@@ -329,7 +335,7 @@ ram_start_d2_ps: process (CLK_125M) is
     if rst_n = '0' then                 -- asynchronous reset (active low)
       wren_ethernet<='0';
     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-      if ram_start_cnt = x"3e1" then
+      if ram_start_cnt = x"3e1" then    --数小了似乎ram抓不满，和仿真的不一样。似乎存在bug。
         wren_ethernet<='0';
       elsif ram_start_d='1' and ram_start_d2='0' then
         wren_ethernet<='1';
@@ -337,7 +343,46 @@ ram_start_d2_ps: process (CLK_125M) is
   end if;
   end process wren_ethernet_ps;
 
-  ram_wren<=wren_ethernet or wren_reset;
+    trigin_d_ps: process (CLK_125M, rst_n) is
+  begin  -- process trig_in_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      trigin_d<='0';
+      trigin_d2<='0';
+    elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      trigin_d<=srcc1_p_trigin;
+      trigin_d2<=trigin_d;
+    end if;
+  end process trigin_d_ps;
+
+  wren_trigin_ps: process (CLK_125M, rst_n, trigin_d, trigin_d2) is
+  begin  -- process trigin_cnt_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      wren_trigin<='0';
+    elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      if trigin_cnt = x"3e1" then 
+        wren_trigin<='0';
+      elsif trigin_d = '1' and trigin_d2 ='0' then
+         wren_trigin<='1';                           
+      end if;
+    end if;
+  end process wren_trigin_ps;
+
+  trigin_cnt_ps: process (CLK_125M, rst_n, gclk_d2, gclk_d) is
+  begin  -- process trigin_cnt_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      trigin_cnt<=(others => '0');
+    elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      if wren_trigin='0' then
+        trigin_cnt<=(others => '0');
+      elsif wren_trigin = '1' then
+        if Gclk_d2 = '0' and Gclk_d = '1'  then        
+        trigin_cnt<=trigin_cnt+1;
+      end if;
+    end if;
+    end if;
+  end process trigin_cnt_ps;
+
+  ram_wren<=wren_ethernet or wren_reset or wren_trigin;
   -----------------------------------------------------------------------------
   Last_byte_ps : process (clk_125m, rst_n) is
   begin  -- process Last_byte_ps

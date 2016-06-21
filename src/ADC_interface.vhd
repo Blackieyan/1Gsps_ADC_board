@@ -47,7 +47,10 @@ architecture Behavioral of ADC_interface is
   signal reg         : std_logic_vector(18 downto 0);
   signal working     : std_logic;
   signal SCLK_en : std_logic;
-  constant reg000    : std_logic_vector(18 downto 0) := "0000111110011111100";
+  -- constant reg000    : std_logic_vector(18 downto 0) := "0000111110011111100";
+--at84ad001b fs/4
+  constant reg000    : std_logic_vector(18 downto 0) := "0000011110011111100";--
+  --at84ad001c fs/4
   constant reg001    : std_logic_vector(18 downto 0) := "0011000000010000000";
   constant reg010    : std_logic_vector(18 downto 0) := "0100000000000000000";
   constant reg011    : std_logic_vector(18 downto 0) := "0110000000000000000";

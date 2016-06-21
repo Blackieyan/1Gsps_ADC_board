@@ -74,7 +74,7 @@ entity ZJUprojects is
     DOIRI_n                              : in     std_logic;
     DOIRQ_p                              : in     std_logic;
     DOIRQ_n                              : in     std_logic;
-    SRCC1_p                              : out    std_logic;
+    SRCC1_p_trigin                       : in    std_logic;
     SRCC1_n                              : out    std_logic;
     MRCC2_p                              : out    std_logic;
     MRCC2_n                              : out    std_logic_vector(0 downto 0);
@@ -264,6 +264,8 @@ architecture Behavioral of ZJUprojects is
   signal ram_start : std_logic;
   signal ram_start_d : std_logic;
   signal ram_start_d2 : std_logic;
+  signal trigin_d2 : std_logic;
+  signal trigin_d : std_logic;
   signal ram_wren : std_logic;
   signal ram_rden : std_logic;
   signal ram_full : std_logic;
@@ -364,7 +366,8 @@ architecture Behavioral of ZJUprojects is
 		Frm_valid : OUT std_logic;
 		ram_wren : OUT std_logic;
 		ram_rden : OUT std_logic;
-           ram_start : in std_logic
+           ram_start : in std_logic;
+           srcc1_p_trigin : in std_logic
 		);
 	END COMPONENT;
   -----------------------------------------------------------------------------
@@ -1078,7 +1081,8 @@ IDELAYCTRL_inst : IDELAYCTRL
 		CLK_125M_quar => CLK_125M_quar,
                 ram_wren => ram_wren,
                 ram_rden => ram_rden,
-                ram_start =>ram_start
+                ram_start =>ram_start,
+                srcc1_p_trigin => SRCC1_p_trigin 
 	);
 -------------------------------------------------------------------------------
   	Inst_command_analysis: command_analysis PORT MAP(
@@ -1282,9 +1286,9 @@ IDELAYCTRL_inst : IDELAYCTRL
   end process ram_switch_ps;
   -----------------------------------------------------------------------------
     --ram_addr
-ram_addra_ps: process (ADC_CLKOQ, clr_n_ram, ram_start_d, ram_start_d2) is
+ram_addra_ps: process (ADC_CLKOQ, clr_n_ram, ram_start_d, ram_start_d2, trigin_d2, trigin_d) is
 begin  -- process addra_ps
-  if clr_n_ram = '0' or (ram_start_d = '1' and ram_start_d2='0')  then                   -- asynchronous reset (active low)
+  if clr_n_ram = '0' or (ram_start_d = '1' and ram_start_d2='0') or (trigin_d2 ='0' and trigin_d='1')  then                   -- asynchronous reset (active low)
     ram_addra<=(others => '0');
   elsif ADC_CLKOQ'event and ADC_CLKOQ = '1' then  -- rising clock edge
     if ram_wren='1' then                --收到wren控制，希望wren是上位机的trig到来后的10us或者20us这样一个持续
@@ -1315,9 +1319,9 @@ begin  -- process addrb_ps
 end if;
 end process ram_addrb_ps;
 -------------------------------------------------------------------------------
-ram_i_addra_ps: process (ADC_CLKOi, clr_n_ram, ram_start_d, ram_start_d2) is
+ram_i_addra_ps: process (ADC_CLKOi, clr_n_ram, ram_start_d, ram_start_d2,trigin_d2,trigin_d) is
 begin  -- process addra_ps
-  if clr_n_ram = '0' or (ram_start_d = '1' and ram_start_d2='0')  then                   -- asynchronous reset (active low)
+  if clr_n_ram = '0' or (ram_start_d = '1' and ram_start_d2='0') or (trigin_d2 ='0' and trigin_d='1') then                   -- asynchronous reset (active low)
     ram_i_addra<=(others => '0');
   elsif ADC_CLKOi'event and ADC_CLKOi = '1' then  -- rising clock edge
     if ram_wren='1' then                --收到wren控制，希望wren是上位机的trig到来后的10us或者20us这样一个持续
@@ -1361,6 +1365,14 @@ ram_start_d2_ps: process (CLK_125M) is
       ram_start_d2<=ram_start_d;
     end if;
   end process ram_start_d2_ps;
+
+  SRCC1_p_trigin_d_ps: process (CLK_125M) is
+  begin  -- process SRCC1_p_trigin_d_ps
+    if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+       trigin_d<=SRCC1_p_trigin;
+       trigin_d2<=trigin_d;
+    end if;
+  end process SRCC1_p_trigin_d_ps;
 -------------------------------------------------------------------------------
  frm_valid_d_ps: process (ethernet_Rd_clk, rst_n) is
   begin  -- process frm_valid_d
@@ -1508,6 +1520,8 @@ end process Rd_Addr_ps;
   --   end if;
   -- end process data_in_usb_ps;
 ------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
  -- SRCC1_n<=ADC_CLKOQ_n;
   -- SRCC1_p<=USB_data(0); --j9
   -- SRCC1_n<=data_in_usb(0);--j8

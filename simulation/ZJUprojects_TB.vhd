@@ -78,7 +78,7 @@ architecture behavior of ZJUprojects_TB is
       DOIRQ_n         : in  std_logic;
       GHz_in_p        : in  std_logic;
       GHz_in_n        : in  std_logic;
-      SRCC1_p         : out std_logic;
+      SRCC1_p_trigin         : in std_logic;
       SRCC1_n         : out std_logic;
       MRCC2_p         : out std_logic;
       MRCC2_n         : out std_logic_vector(0 downto 0);
@@ -141,7 +141,7 @@ architecture behavior of ZJUprojects_TB is
   -----------------------------------------------------------------------------
   signal CLK_500M           : std_logic;  -- to simulate the ADC_DOQ
   signal rst                : std_logic;
-  signal SRCC1_p            : std_logic;
+  signal SRCC1_p_trigin            : std_logic;
   -- signal ethernet_Rd_clk    : std_logic:='0';
   -- signal ethernet_Rd_en     : std_logic:='0';
   -- signal ethernet_Rd_Addr   : std_logic_vector(13 downto 0):=x"fff"&"11";
@@ -205,7 +205,7 @@ begin
     DOIRI_n         => DOIRI_n,
     DOIRQ_p         => DOIRQ_p,
     DOIRQ_n         => DOIRQ_n,
-    SRCC1_p         => SRCC1_p,
+    SRCC1_p_trigin         => SRCC1_p_trigin,
     SRCC1_n         => SRCC1_n,
     MRCC2_p         => MRCC2_p,
     MRCC2_n         => MRCC2_n,

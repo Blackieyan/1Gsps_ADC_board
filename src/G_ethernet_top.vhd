@@ -66,7 +66,8 @@ entity G_ethernet_top is
 -------------------------------------------------------------------------------
     ram_wren : out std_logic;
     ram_rden : out std_logic;
-    ram_start : in std_logic
+    ram_start : in std_logic;
+    srcc1_p_trigin : in std_logic
     );
 end G_ethernet_top;
 
@@ -82,6 +83,7 @@ architecture Behavioral of G_ethernet_top is
 --  signal Rd_en : std_logic;
 --  signal Rd_Addr : std_logic_vector(13 downto 0);
   signal rst_n : std_logic;
+                         
   -- signal PHY_RXC_g : std_logic;
 --  signal Frm_valid : std_logic;
   -- signal frm_valid_d : std_logic;
@@ -131,7 +133,8 @@ architecture Behavioral of G_ethernet_top is
       rst_n_o          : out std_logic;
       ram_wren : out std_logic;
       ram_rden : out std_logic;
-         ram_start : in std_logic
+      ram_start : in std_logic;
+      srcc1_p_trigin : in std_logic
       );
   end component;
 
@@ -177,7 +180,8 @@ begin
     fifo_upload_data => fifo_upload_data,
     ram_rden => ram_rden,
     ram_wren => ram_wren,
-    ram_start => ram_start                                                    
+    ram_start => ram_start,
+    srcc1_p_trigin => srcc1_p_trigin                                                    
     );
 
 --    IBUFG_inst : IBUFG

@@ -77,7 +77,9 @@ module CDCE62005_config(clk,clk_spi,en,spi_clk,spi_mosi,spi_miso,spi_le,spi_syn,
 //	            Value_register4=32'hEB140314,		//					
 		    Value_register5=32'h10008F35,		//1000MHz
 		    Value_register6=32'h04BE03E6,
-		    Value_toEEPROM=32'h0000001f;		 		
+		   // Value_toEEPROM=32'h0000001f;
+	  Value_toEEPROM=32'h80009cd8;
+		 		
 
 
 /* -----\/----- EXCLUDED -----\/-----
