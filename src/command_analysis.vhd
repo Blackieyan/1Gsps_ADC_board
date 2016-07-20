@@ -46,6 +46,7 @@ entity command_analysis is
     -- reg_addr   : out std_logic_vector(15 downto 0);
     -- reg_data   : out std_logic_vector(31 downto 0);
     ram_start   : buffer std_logic;
+     upload_trig_ethernet : buffer std_logic;
     user_pushbutton : in  std_logic;
     ram_switch : out std_logic_vector(2 downto 0)
     );
@@ -58,6 +59,7 @@ architecture Behavioral of command_analysis is
   signal reg_data : std_logic_vector(31 downto 0);
   signal rst_n    : std_logic;
   signal reg_clr_cnt : std_logic_vector(7 downto 0);
+  signal upload_trig_ethernet_cnt : std_logic_vector(7 downto 0);
   signal rd_en_d : std_logic;
   -- signal reg_clr_cnt : std_logic_vector(7 downto 0);
 begin
@@ -126,7 +128,7 @@ begin
       end if;
     end if;
   end process reg_data_ps;
-
+-------------------------------------------------------------------------------
   reg_clr_ps : process (rd_clk, rst_n) is
   begin  -- process reg_clr
     if rst_n = '0' then                 -- asynchronous reset (active low)
@@ -158,7 +160,7 @@ begin
       end if;
     end if;
   end process reg_clr_cnt_ps;
-
+-------------------------------------------------------------------------------
   ram_switch_ps: process (rd_clk, rst_n) is
   begin  -- process ram_switch_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
@@ -173,5 +175,39 @@ begin
       end if;
     end if;
   end process ram_switch_ps;
-end Behavioral;
 
+-------------------------------------------------------------------------------
+--上位机可以通过trig来读取ram内部的内容。设计成为：上位机的trig到来控制tx_module工作，tx_module将ram内部的数剧传输出来（通过ram_full来控制，判断ram_full的计数器可以灵活控制想要读取的ram的深度，初步设计为ram写满了ram_full）
+  upload_trig_ethernet_ps : process (rd_clk, rst_n) is
+  begin  -- process reg_clr
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+     upload_trig_ethernet <= '0';
+    elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
+      if upload_trig_ethernet_cnt = x"0F" then  --0f是 upload_trig_ethernet的长度，控制命令只能持续一定时间然后消失。配置命令会一直存在直到被覆盖。
+        upload_trig_ethernet <= '0';
+      elsif reg_addr = x"0002" and reg_data = x"eeeeeeee" then
+       upload_trig_ethernet <= '1';
+      end if;
+    -- else
+    --   reg_clr <= '0';
+    end if;
+  end process upload_trig_ethernet_ps;
+
+  -- purpose: to control the period of the rd_trig_ethernet
+  -- type   : sequential
+  -- inputs : rd_clk, rst_n
+  -- outputs: 
+  upload_trig_ethernet_cnt_ps : process (rd_clk, rst_n) is
+  begin  -- process reg_clr_cnt_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      upload_trig_ethernet_cnt <= (others => '0');
+    elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
+      if  upload_trig_ethernet = '1' then
+       upload_trig_ethernet_cnt <=  upload_trig_ethernet_cnt+1;
+      elsif  upload_trig_ethernet = '0' then
+         upload_trig_ethernet_cnt <= (others => '0');
+      end if;
+    end if;
+  end process upload_trig_ethernet_cnt_ps;
+  -----------------------------------------------------------------------------
+end Behavioral;

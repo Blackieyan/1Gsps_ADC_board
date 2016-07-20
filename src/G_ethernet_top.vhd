@@ -64,10 +64,13 @@ entity G_ethernet_top is
     CLK_125M_quar : in std_logic;
 --    CLK_71M : in std_logic;
 -------------------------------------------------------------------------------
-    ram_wren : out std_logic;
+    ram_wren : buffer std_logic;
     ram_rden : out std_logic;
     ram_start : in std_logic;
-    srcc1_p_trigin : in std_logic
+    ram_last : in std_logic;
+    srcc1_p_trigin : in std_logic;
+    SRCC1_n_upload_sma_trigin : in std_logic;
+    upload_trig_ethernet : in std_logic
     );
 end G_ethernet_top;
 
@@ -131,10 +134,14 @@ architecture Behavioral of G_ethernet_top is
       phy_txen_quar    : out std_logic;
       phy_txer_o       : out std_logic;
       rst_n_o          : out std_logic;
-      ram_wren : out std_logic;
+      ram_wren : buffer std_logic;
       ram_rden : out std_logic;
       ram_start : in std_logic;
-      srcc1_p_trigin : in std_logic
+      srcc1_p_trigin : in std_logic;    --trigger from sma srcc1_p to trig the
+                                        --ram writing
+      SRCC1_n_upload_sma_trigin : in std_logic;
+      ram_last : in std_logic;
+      upload_trig_ethernet : in std_logic
       );
   end component;
 
@@ -181,7 +188,10 @@ begin
     ram_rden => ram_rden,
     ram_wren => ram_wren,
     ram_start => ram_start,
-    srcc1_p_trigin => srcc1_p_trigin                                                    
+    srcc1_p_trigin => srcc1_p_trigin,
+    SRCC1_n_upload_sma_trigin => SRCC1_n_upload_sma_trigin,                                    
+    upload_trig_ethernet =>upload_trig_ethernet,
+    ram_last =>  ram_last                                                    
     );
 
 --    IBUFG_inst : IBUFG

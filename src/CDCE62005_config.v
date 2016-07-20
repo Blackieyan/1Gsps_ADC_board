@@ -13,9 +13,11 @@ module CDCE62005_config(clk,clk_spi,en,spi_clk,spi_mosi,spi_miso,spi_le,spi_syn,
 	assign spi_syn=1'b1;
 	assign spi_powerdn=1'b1;
 	
-	localparam SM_confg_regiter0=4'h0,SM_confg_regiter1=4'h1,SM_confg_regiter2=4'h2,SM_confg_regiter3=4'h3,
-				SM_confg_regiter4=4'h4,SM_confg_regiter5=4'h5,SM_confg_regiter6=4'h6,SM_spi_confg=4'h7,SM_spi_toEEPROM=4'h8,
-				SM_confg_finish=4'h9,SM_Idle=4'ha,SM_RdCommd_Set=4'hb,SM_RdCommd_Wr=4'hc,SM_RdCommd_Rev=4'hd,SM_RdCommd_RevPre=4'he,SM_spicfg_wait=4'hf;
+	localparam SM_confg_regiter0=8'h00,SM_confg_regiter1=8'h01,SM_confg_regiter2=8'h02,SM_confg_regiter3=8'h03,
+				SM_confg_regiter4=8'h04,SM_confg_regiter5=8'h05,SM_confg_regiter6=8'h06,SM_spi_confg=8'h07,SM_spi_toEEPROM=8'h08,
+	  SM_confg_finish=8'h09,SM_Idle=8'h0a,SM_RdCommd_Set=8'h0b,SM_RdCommd_Wr=8'h0c,SM_RdCommd_Rev=8'h0d,SM_RdCommd_RevPre=8'h0e,SM_spicfg_wait=8'h0f,SM_confg_regiter7=8'h10,
+   SM_confg_regiter8=8'h11, SM_confg_regiter9=8'h12,SM_confg_regiter10=8'h13;
+   
 //	localparam Value_register0=32'hEB840300,		//250MHz
 //					Value_register1=32'hEB840301,		//250MHz
 //					Value_register2=32'hEB060302,		//100Mhz
@@ -66,6 +68,7 @@ module CDCE62005_config(clk,clk_spi,en,spi_clk,spi_mosi,spi_miso,spi_le,spi_syn,
 
 
 
+/* -----\/----- EXCLUDED -----\/-----right
 //	localparam  Value_register0=32'hE9400300,		//打开1000MHz lvds
    	localparam  Value_register0=32'h81400300,               //打开1ghz lvpel，crystal
 	            Value_register1=32'h81400301,	        
@@ -77,10 +80,28 @@ module CDCE62005_config(clk,clk_spi,en,spi_clk,spi_mosi,spi_miso,spi_le,spi_syn,
 //	            Value_register4=32'hEB140314,		//					
 		    Value_register5=32'h10008F35,		//1000MHz
 		    Value_register6=32'h04BE03E6,
-		   // Value_toEEPROM=32'h0000001f;
-	  Value_toEEPROM=32'h80009cd8;
-		 		
+		    Value_toEEPROM=32'h0000001f;
+ -----/\----- EXCLUDED -----/\----- */
 
+//外部输入10MHz，lvpecl输出1GHz	 		
+//	localparam  Value_register0=32'hE9400300,		//打开1000MHz lvds
+   	localparam  Value_register0=32'hEB400320,               //打开1ghz lvpel，crystal
+	            Value_register1=32'hEB400321,	        
+//		    Value_register2=32'hE8400302,		//关闭1000MHz lvds
+	            Value_register2=32'hEB400302,
+		    Value_register3=32'h68840303,		//关闭1000MHz
+//	            Value_register4=32'h81400304,
+		    Value_register4=32'h68800314,		//关闭1000MHz				
+//	            Value_register4=32'hEB140314,		//					
+		    Value_register5=32'h10000E65,		//1000MHz
+		    Value_register6=32'h04BE09E6,
+	  Value_register7=32'hBD0037F7,
+	   Value_register8=32'h80001808,
+/* -----\/----- EXCLUDED -----\/-----
+	  Value_register9=32'h800094D8,
+	  Value_register10=32'h80009CD8,
+ -----/\----- EXCLUDED -----/\----- */
+		    Value_toEEPROM=32'h0000001f;
 
 /* -----\/----- EXCLUDED -----\/-----
 //	localparam  Value_register0=32'hE9400300,		//打开1000MHz lvds
@@ -98,7 +119,7 @@ module CDCE62005_config(clk,clk_spi,en,spi_clk,spi_mosi,spi_miso,spi_le,spi_syn,
  -----/\----- EXCLUDED -----/\----- */// 外部输入10mhz lvds参考时钟
 				
 	reg[31:0] spi_data;
-	reg[3:0]SM,SM_next;
+	reg[7:0]SM,SM_next;
 	reg[7:0] cfg_cnt,spird_cnt;
 	reg[3:0] spi_reg_addr;
 	reg[31:0] wait_cnt;
@@ -169,14 +190,41 @@ module CDCE62005_config(clk,clk_spi,en,spi_clk,spi_mosi,spi_miso,spi_le,spi_syn,
 				begin
 				spi_data<=Value_register6;
 				SM<=SM_spi_confg;
+				SM_next<=SM_confg_regiter7;
+				end
+			  SM_confg_regiter7:
+				begin
+				spi_data<=Value_register7;
+				SM<=SM_spi_confg;
+				   SM_next<=SM_confg_regiter8;
+				end
+			  SM_confg_regiter8:
+				begin
+				spi_data<=Value_register8;
+				SM<=SM_spi_confg;
 				SM_next<=SM_spi_toEEPROM;
-				end	
-			SM_spi_toEEPROM:
+				end
+			  SM_spi_toEEPROM:
 				begin
 				spi_data<=Value_toEEPROM;
 				SM<=SM_spi_confg;
-				SM_next<=SM_RdCommd_Set;				
+				SM_next<=SM_RdCommd_Set;			
 				end
+/* -----\/----- EXCLUDED -----\/-----
+			  SM_confg_regiter9:
+				begin
+				spi_data<=Value_register9;
+				SM<=SM_spi_confg;
+				SM_next<=SM_confg_regiter10;
+				end
+			  SM_confg_regiter10:
+			    begin
+				spi_data<=Value_register10;
+				SM<=SM_spi_confg;
+				SM_next<=SM_RdCommd_Set;
+				end
+ -----/\----- EXCLUDED -----/\----- */
+
 			SM_spi_confg:
 				if(cfg_cnt>=36)
 					begin
@@ -203,7 +251,7 @@ module CDCE62005_config(clk,clk_spi,en,spi_clk,spi_mosi,spi_miso,spi_le,spi_syn,
 			SM_spicfg_wait:
 				begin
 				wait_cnt<=wait_cnt+1'b1;
-				if(wait_cnt>=32'd60000)
+				if(wait_cnt>=32'd600)
 					begin
 					wait_cnt<=32'h0;
 					SM<=SM_next;

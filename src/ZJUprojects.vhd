@@ -51,9 +51,10 @@ entity ZJUprojects is
     spi_le                               : out    std_logic;
     spi_syn                              : out    std_logic;
     spi_miso                             : in     std_logic;
-    spi_powerdn                          : out    std_logic;
+    spi_powerdn                          : inout    std_logic;
     spi_revdata                          : out    std_logic_vector(31 downto 0);
     cfg_finish                           : out    std_logic;  --CDCE62005
+    -- spi_pd                               : inout std_logic;
 -------------------------------------------------------------------------------
     test                                 : out    std_logic_vector(0 downto 0);
     user_pushbutton                      : in     std_logic;  --glbclr_n
@@ -75,7 +76,7 @@ entity ZJUprojects is
     DOIRQ_p                              : in     std_logic;
     DOIRQ_n                              : in     std_logic;
     SRCC1_p_trigin                       : in    std_logic;
-    SRCC1_n                              : out    std_logic;
+    SRCC1_n_upload_sma_trigin                : in    std_logic;
     MRCC2_p                              : out    std_logic;
     MRCC2_n                              : out    std_logic_vector(0 downto 0);
     ---------------------------------------------------------------------------
@@ -104,6 +105,7 @@ entity ZJUprojects is
                 -- ethernet_Rd_data         : buffer    std_logic_vector(7 downto 0);
 --                ethernet_Frm_valid       : OUT    std_logic;
                 phy_rst_n_o : out std_logic
+                
     );
 end ZJUprojects;
 
@@ -202,6 +204,7 @@ architecture Behavioral of ZJUprojects is
   signal ADC_CLKOQ            : std_logic;
   signal rst_gb_d             : std_logic;
   signal rst_n : std_logic;
+  signal posedge_upload_trig : std_logic;
  
   attribute keep of rst_gb_d  : signal is true;
   signal OIcounter            : std_logic_vector(7 downto 0);
@@ -259,9 +262,12 @@ architecture Behavioral of ZJUprojects is
   signal ram_addrb : std_logic_vector(15 downto 0);
   signal clr_n_ram : std_logic;
   signal ram_last : std_logic;
+  signal ram_q_last : std_logic;
+  signal ram_i_last : std_logic;
   signal ram_rst : std_logic;
     attribute keep of ram_rst : signal is true;
   signal ram_start : std_logic;
+  signal  upload_trig_ethernet : std_logic;
   signal ram_start_d : std_logic;
   signal ram_start_d2 : std_logic;
   signal trigin_d2 : std_logic;
@@ -269,6 +275,8 @@ architecture Behavioral of ZJUprojects is
   signal ram_wren : std_logic;
   signal ram_rden : std_logic;
   signal ram_full : std_logic;
+  signal ram_q_full : std_logic;
+  signal ram_i_full : std_logic;
   -----------------------------------------------------------------------------
   signal ram_i_doutb : std_logic_vector(7 downto 0);
   attribute keep of ram_i_doutb : signal is true;
@@ -282,7 +290,6 @@ architecture Behavioral of ZJUprojects is
   signal ram_i_addra : std_logic_vector(13 downto 0);
   signal ram_i_addrb : std_logic_vector(15 downto 0);
   signal ram_i_rst : std_logic;
-  signal ram_i_full : std_logic;
   signal ADC_doia_delay : std_logic_vector(7 downto 0);
   signal ADC_doib_delay : std_logic_vector(7 downto 0); 
   signal ADC_DOiA_1_d : std_logic_vector(7 downto 0);
@@ -294,6 +301,10 @@ architecture Behavioral of ZJUprojects is
   signal ADC_DOiB_2_d : std_logic_vector(7 downto 0);
   attribute keep of ADC_DOiB_2_d : signal is true;
   signal ram_switch : std_logic_vector(2 downto 0);
+  signal SRCC1_n_upload_sma_trigin_d : std_logic;
+  signal SRCC1_n_upload_sma_trigin_d2 : std_logic;
+  signal upload_trig_ethernet_d: std_logic;
+  signal upload_trig_ethernet_d2: std_logic;
   -----------------------------------------------------------------------------
   component CDCE62005_config
     port(
@@ -364,10 +375,13 @@ architecture Behavioral of ZJUprojects is
 		rst_n_o : OUT std_logic;
 		Rd_data : OUT std_logic_vector(7 downto 0);
 		Frm_valid : OUT std_logic;
-		ram_wren : OUT std_logic;
+		ram_wren : buffer std_logic;
 		ram_rden : OUT std_logic;
            ram_start : in std_logic;
-           srcc1_p_trigin : in std_logic
+           srcc1_p_trigin : in std_logic;
+           ram_last : in std_logic;
+           SRCC1_n_upload_sma_trigin : in std_logic;
+           upload_trig_ethernet : in std_logic
 		);
 	END COMPONENT;
   -----------------------------------------------------------------------------
@@ -385,7 +399,8 @@ architecture Behavioral of ZJUprojects is
 		-- reg_data : OUT std_logic_vector(31 downto 0);
 	         ram_start  : buffer std_logic;
                 user_pushbutton : in std_logic;
-                ram_switch : out std_logic_vector(2 downto 0)
+                ram_switch : out std_logic_vector(2 downto 0);
+                upload_trig_ethernet : buffer std_logic
 		);
 	END COMPONENT;
   -----------------------------------------------------------------------------
@@ -509,7 +524,7 @@ begin
       CLK_IN1_N => OSC_in_n,
       -- Clock out ports
       CLK_OUT1  => CLK1,                --100MHz
-      CLK_OUT2  => CLK2,                --10MHz
+      CLK_OUT2  => CLK2,                --5MHz
       CLK_OUT3  => CLK_71M,                -- 71mhz inv
       CLK_OUT4  => open,                -- for chipscope
       CLK_OUT5 => CLK5_200MHz,          -- iodley ctrl
@@ -1082,7 +1097,11 @@ IDELAYCTRL_inst : IDELAYCTRL
                 ram_wren => ram_wren,
                 ram_rden => ram_rden,
                 ram_start =>ram_start,
-                srcc1_p_trigin => SRCC1_p_trigin 
+                srcc1_p_trigin => SRCC1_p_trigin,
+                ram_last => ram_last,
+                SRCC1_n_upload_sma_trigin=>SRCC1_n_upload_sma_trigin,
+                upload_trig_ethernet=>upload_trig_ethernet
+                
 	);
 -------------------------------------------------------------------------------
   	Inst_command_analysis: command_analysis PORT MAP(
@@ -1098,7 +1117,8 @@ IDELAYCTRL_inst : IDELAYCTRL
 		-- reg_data =>mac_reg_data ,
 	        ram_start => ram_start,
                 user_pushbutton => user_pushbutton,
-                ram_switch =>ram_switch
+                ram_switch =>ram_switch,
+                upload_trig_ethernet=> upload_trig_ethernet
 	);
 -------------------------------------------------------------------------------
     ram_data_inst : ram_data
@@ -1272,48 +1292,75 @@ IDELAYCTRL_inst : IDELAYCTRL
   ram_switch_ps: process (CLK_125M, rst_n) is
   begin  -- process ram_switch_ps
     if rst_n ='0' then
-      ethernet_fifo_upload_data<=ram_i_doutb;
+      ethernet_fifo_upload_data<=ram_doutb;
     elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
       case ram_switch is
         when "001" =>
           ethernet_fifo_upload_data<=ram_doutb;
+          ram_last<=ram_q_last;
+          ram_full<=ram_q_full;
         when "010" =>
           ethernet_fifo_upload_data<=ram_i_doutb;
+          ram_last<=ram_i_last;
+          ram_full<=ram_i_full;
         when others =>
-         ethernet_fifo_upload_data<=ram_i_doutb;
+         ethernet_fifo_upload_data<=ram_doutb;
+         ram_last<=ram_q_last;
+         ram_full<=ram_q_full;
       end case;
     end if;
   end process ram_switch_ps;
   -----------------------------------------------------------------------------
+  -- purpose: to combine all the conditions
+  -- type   : sequential
+  -- inputs : CLK_125M, rst_n
+  -- outputs: 
+  posedge_upload_trig_ps: process (CLK_125M, rst_n, ram_start_d, ram_start_d2, trigin_d2, trigin_d, SRCC1_n_upload_sma_trigin_d, SRCC1_n_upload_sma_trigin_d2, upload_trig_ethernet_d, upload_trig_ethernet_d2) is
+  begin  -- process posedge_upload_trig_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+     posedge_upload_trig<='0';
+    elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      if (ram_start_d = '1' and ram_start_d2='0') or (trigin_d2 ='0' and trigin_d='1') or (SRCC1_n_upload_sma_trigin_d = '1' and SRCC1_n_upload_sma_trigin_d2 = '0') or (upload_trig_ethernet_d = '1' and upload_trig_ethernet_d2 = '0') then
+      posedge_upload_trig<='1';
+      else
+        posedge_upload_trig<='0';
+      end if;
+    end if;
+  end process posedge_upload_trig_ps;
+  
     --ram_addr
-ram_addra_ps: process (ADC_CLKOQ, clr_n_ram, ram_start_d, ram_start_d2, trigin_d2, trigin_d) is
+ram_addra_ps: process (ADC_CLKOQ, clr_n_ram, ram_start_d, ram_start_d2, trigin_d2, trigin_d) is --trigin是sma触发，ram_start是上位机的触发
 begin  -- process addra_ps
   if clr_n_ram = '0' or (ram_start_d = '1' and ram_start_d2='0') or (trigin_d2 ='0' and trigin_d='1')  then                   -- asynchronous reset (active low)
     ram_addra<=(others => '0');
   elsif ADC_CLKOQ'event and ADC_CLKOQ = '1' then  -- rising clock edge
-    if ram_wren='1' then                --收到wren控制，希望wren是上位机的trig到来后的10us或者20us这样一个持续
+    if ram_wren='1' then                --收到wren控制，希望wren是上位机的trig到来后的10us或者20us这样一个持续，ram_wren来自tx_module
     if ram_addra<x"270e" then        --只写入一次 10000的ram深度
       ram_addra<=ram_addra+1;
-      ram_full<='0';
+      ram_q_full<='0';
     elsif ram_addra= x"270e" then       --270f是最后一个地址 留一个余量防止ram崩溃
-      ram_full<='1';                    --为了保持这个full的状态，ram_addra不能清零
+      ram_q_full<='1';                    --为了保持这个full的状态，ram_addra不能清零
     end if;
   end if;
   end if;
 end process ram_addra_ps;
 
-ram_addrb_ps: process (CLK_125M, clr_n_ram) is
+ram_addrb_ps: process (CLK_125M, clr_n_ram, posedge_upload_trig) is
 begin  -- process addrb_ps
-  if clr_n_ram = '0'  then               -- asynchronous reset (active low)
+  if clr_n_ram = '0'  then
     ram_addrb<=(others => '0');
+    ram_q_last<='1';
+  elsif posedge_upload_trig='1' then    --比真正的trig上升沿到来晚一拍
+    ram_addrb<=(others => '0');
+    ram_q_last<='1';
   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
     if ram_rden='1' then
      if ram_addrb<x"9c37" then
       ram_addrb<=ram_addrb+1;                   --只读一轮 测试阶段先循环读出,现在ram的深度为10000 位宽32bit,对于8bit的读出位宽深度为40000，x“9c40"
-      ram_last<='0';
-    elsif ram_addrb=x"9c37" then        --不要读满。。余几个量
-      ram_last<='1';
-      ram_addrb<=x"0004";               --根据方针前4个值为空，9c40为x
+      ram_q_last<='0';
+    elsif ram_addrb>=x"9c37" then        --不要读满。。余几个量
+      ram_q_last<='1';
+             --根据方针前4个值为空，9c40为x
      end if;
   end if;
 end if;
@@ -1335,24 +1382,29 @@ begin  -- process addra_ps
   end if;
 end process ram_i_addra_ps;
 
-ram_i_addrb_ps: process (CLK_125M, clr_n_ram) is
+ram_i_addrb_ps: process (CLK_125M, clr_n_ram, posedge_upload_trig) is
 begin  -- process addrb_ps
-  if clr_n_ram = '0'  then               -- asynchronous reset (active low)
+  if clr_n_ram = '0'  then
     ram_i_addrb<=(others => '0');
+    ram_i_last<='1';
+  elsif posedge_upload_trig ='1' then  --比真正的trig上升沿到来晚一拍
+    ram_i_addrb<=(others => '0');
+    ram_i_last<='1';
   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
     if ram_rden='1' then
      if ram_i_addrb<x"9c37" then
       ram_i_addrb<=ram_i_addrb+1;                   --只读一轮 测试阶段先循环读出,现在ram的深度为10000 位宽32bit,对于8bit的读出位宽深度为40000，x“9c40"
-      ram_last<='0';
-    elsif ram_i_addrb=x"9c37" then        --不要读满。。余几个量
-      ram_last<='1';
-      ram_i_addrb<=x"0004";               --根据方针前4个值为空，9c40为x
+      ram_i_last<='0';
+    elsif ram_i_addrb>=x"9c37" then        --不要读满。。余几个量
+      ram_i_last<='1';
+            --根据方针前4个值为空，9c40为x
      end if;
   end if;
 end if;
 end process ram_i_addrb_ps;
 
 -------------------------------------------------------------------------------
+--ram sample trigger for sma and ethernet;delay
 ram_start_d_ps: process (CLK_125M) is
   begin  -- process ram_start_d_ps
     if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
@@ -1373,6 +1425,28 @@ ram_start_d2_ps: process (CLK_125M) is
        trigin_d2<=trigin_d;
     end if;
   end process SRCC1_p_trigin_d_ps;
+  ----------------------------
+   upload_trig_ethernet_d_ps: process (CLK_125M, rst_n) is
+  begin  -- process trig_in_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      upload_trig_ethernet_d<='0';
+      upload_trig_ethernet_d2<='0';
+    elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      upload_trig_ethernet_d<=upload_trig_ethernet;
+      upload_trig_ethernet_d2<=upload_trig_ethernet_d;
+    end if;
+  end process upload_trig_ethernet_d_ps;
+  
+    SRCC1_n_upload_sma_trigin_d_ps: process (CLK_125M, rst_n) is
+  begin  -- process trig_in_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      SRCC1_n_upload_sma_trigin_d<='0';
+      SRCC1_n_upload_sma_trigin_d2<='0';
+    elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      SRCC1_n_upload_sma_trigin_d<=SRCC1_n_upload_sma_trigin;
+      SRCC1_n_upload_sma_trigin_d2<=SRCC1_n_upload_sma_trigin_d;
+    end if;
+  end process SRCC1_n_upload_sma_trigin_d_ps;
 -------------------------------------------------------------------------------
  frm_valid_d_ps: process (ethernet_Rd_clk, rst_n) is
   begin  -- process frm_valid_d
@@ -1429,8 +1503,8 @@ end process Rd_Addr_ps;
       if CLK2'event and CLK2 = '1' then
         if clk2_cnt <= x"11111111" then
           clk2_cnt <= clk2_cnt+1;
-        else
-          clk2_cnt <= x"00000000";
+          else
+            clk2_cnt<=clk2_cnt;
         end if;
       end if;
     end process set_clk2_cnt;
