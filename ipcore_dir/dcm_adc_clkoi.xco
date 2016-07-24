@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 13.3
-# Date: Wed Jul 20 08:57:42 2016
+# Date: Sun Jul 24 13:16:22 2016
 #
 ##############################################################
 #
@@ -71,7 +71,7 @@ CSET clkin2_ui_jitter=0.010
 CSET clkout1_drives=BUFG
 CSET clkout1_requested_duty_cycle=50.000
 CSET clkout1_requested_out_freq=250.000
-CSET clkout1_requested_phase=30.000
+CSET clkout1_requested_phase=210.000
 CSET clkout2_drives=BUFG
 CSET clkout2_requested_duty_cycle=50.000
 CSET clkout2_requested_out_freq=250.000
@@ -155,7 +155,7 @@ CSET mmcm_clkin1_period=4.000
 CSET mmcm_clkin2_period=10.0
 CSET mmcm_clkout0_divide_f=3.000
 CSET mmcm_clkout0_duty_cycle=0.500
-CSET mmcm_clkout0_phase=30.000
+CSET mmcm_clkout0_phase=210.000
 CSET mmcm_clkout0_use_fine_ps=false
 CSET mmcm_clkout1_divide=3
 CSET mmcm_clkout1_duty_cycle=0.500
@@ -263,4 +263,4 @@ CSET use_status=false
 MISC pkg_timestamp=2011-03-09T16:42:33.000Z
 # END Extra information
 GENERATE
-# CRC: ce12c504
+# CRC: 70777a6e

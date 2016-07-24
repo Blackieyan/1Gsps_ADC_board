@@ -252,7 +252,7 @@ TIMESPEC TS_PHY_RXC = PERIOD "PHY_RXC" 8 ns HIGH 50 %;
 NET "PHY_RXDV" LOC =AK31;
 #---------------------------------------
 #NET "SRCC1_p" LOC =N32;#j9
-#NET "SRCC1_p_trigin" LOC =N32;
-#NET "SRCC1_n_upload_sma_trigin" LOC =P32; #j8
+NET "SRCC1_p_trigin" LOC =N32;
+NET "SRCC1_n_upload_sma_trigin" LOC =P32; #j8
 #NET "MRCC2_p" LOC =N33; #j12
 #NET "MRCC2_n[0]" LOC =M33; #j13

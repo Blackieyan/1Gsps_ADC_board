@@ -538,7 +538,7 @@ ram_start_d2_ps: process (CLK_125M) is
     if rst_n = '0' then                 -- asynchronous reset (active low)
       frame_gap<='0';
     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-        if frame_gap_cnt = x"f00" then     --调整frame_gap的长度
+        if frame_gap_cnt = x"010" then     --调整frame_gap的长度
           frame_gap <= '0';
         elsif busy_d2='1' and busy_d='0' then
           frame_gap <= '1';

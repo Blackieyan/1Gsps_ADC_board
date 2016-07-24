@@ -1030,7 +1030,7 @@ IDELAYCTRL_inst : IDELAYCTRL
       O  => GHz_in,                     -- Clock buffer output
       I  => GHz_in_p,  -- Diff_p clock buffer input (connect directly to top-level port)
       IB => GHz_in_n  -- Diff_n clock buffer input (connect directly to top-level port)
-   );
+  );
 -------------------------------------------------------------------------------
   Inst_ADC_interface : ADC_interface port map(
     ADC_Mode        => ADC_Mode,
@@ -1297,19 +1297,21 @@ IDELAYCTRL_inst : IDELAYCTRL
       case ram_switch is
         when "001" =>
           ethernet_fifo_upload_data<=ram_doutb;
-          ram_last<=ram_q_last;
-          ram_full<=ram_q_full;
+          -- ram_last<=ram_q_last;
+          -- ram_full<=ram_q_full;
         when "010" =>
           ethernet_fifo_upload_data<=ram_i_doutb;
-          ram_last<=ram_i_last;
-          ram_full<=ram_i_full;
+          -- ram_last<=ram_i_last;
+          -- ram_full<=ram_i_full;
         when others =>
          ethernet_fifo_upload_data<=ram_doutb;
-         ram_last<=ram_q_last;
-         ram_full<=ram_q_full;
+         -- ram_last<=ram_q_last;
+         -- ram_full<=ram_q_full;
       end case;
     end if;
   end process ram_switch_ps;
+  ram_last<=ram_q_last;
+  ram_full<=ram_q_full;
   -----------------------------------------------------------------------------
   -- purpose: to combine all the conditions
   -- type   : sequential
