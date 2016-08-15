@@ -205,6 +205,7 @@ architecture Behavioral of ZJUprojects is
   signal rst_gb_d             : std_logic;
   signal rst_n : std_logic;
   signal posedge_upload_trig : std_logic;
+  signal ram_i_doutb_sim : std_logic_vector(7 downto 0);
  
   attribute keep of rst_gb_d  : signal is true;
   signal OIcounter            : std_logic_vector(7 downto 0);
@@ -305,6 +306,10 @@ architecture Behavioral of ZJUprojects is
   signal SRCC1_n_upload_sma_trigin_d2 : std_logic;
   signal upload_trig_ethernet_d: std_logic;
   signal upload_trig_ethernet_d2: std_logic;
+  signal ram_i_doutb_d : std_logic_vector(7 downto 0);
+  signal posedge_sample_trig : std_logic;
+  signal user_pushbutton_g : std_logic;
+  signal data_test_pin :std_logic;
   -----------------------------------------------------------------------------
   component CDCE62005_config
     port(
@@ -381,7 +386,8 @@ architecture Behavioral of ZJUprojects is
            srcc1_p_trigin : in std_logic;
            ram_last : in std_logic;
            SRCC1_n_upload_sma_trigin : in std_logic;
-           upload_trig_ethernet : in std_logic
+           upload_trig_ethernet : in std_logic;
+           posedge_upload_trig : in std_logic
 		);
 	END COMPONENT;
   -----------------------------------------------------------------------------
@@ -550,14 +556,14 @@ begin
     ADC_clkoq => ADC_clkoq,
     ADC_clkoq_inv => ADC_clkoq_inv);
 	
-    --         IBUFG_inst : IBUFG
-    -- generic map (
-    --    IBUF_LOW_PWR => TRUE, -- Low power (TRUE) vs. performance (FALSE) setting for refernced I/O standards
-    --    IOSTANDARD => "DEFAULT")
-    -- port map (
-    --    O => phy_rxc_g, -- Clock buffer output
-    --    I => phy_rxc  -- Clock buffer input (connect directly to top-level port)
-    -- );
+            IBUFG_inst : IBUFG
+    generic map (
+       IBUF_LOW_PWR => TRUE, -- Low power (TRUE) vs. performance (FALSE) setting for refernced I/O standards
+       IOSTANDARD => "DEFAULT")
+    port map (
+       O => user_pushbutton_g, -- Clock buffer output
+       I => user_pushbutton  -- Clock buffer input (connect directly to top-level port)
+    );
 	 
 dcm_rxc_inst : dcm_rxc
   port map
@@ -1032,9 +1038,23 @@ IDELAYCTRL_inst : IDELAYCTRL
       IB => GHz_in_n  -- Diff_n clock buffer input (connect directly to top-level port)
   );
 -------------------------------------------------------------------------------
+  --     DFF_ram_i_doutb_inst1: for i in 0 to 7 generate
+  -- begin  
+  --  FDCE_inst : FDCE
+  --  generic map (
+  --     INIT => '0') -- Initial value of register ('0' or '1')  
+  --  port map (
+  --     Q =>ram_i_doutb_d(i) ,      -- Data output
+  --     C => CLK_125M,      -- Clock input
+  --     CE => '1',    -- Clock enable input
+  --     CLR => '0',  -- Asynchronous clear input
+  --     D =>ram_i_doutb(i)        -- Data input
+  --  );
+  -- end generate DFF_ram_i_doutb_inst1;
+-------------------------------------------------------------------------------
   Inst_ADC_interface : ADC_interface port map(
     ADC_Mode        => ADC_Mode,
-    user_pushbutton => user_pushbutton,
+    user_pushbutton => user_pushbutton_g,
     ADC_sclk_OUT    => ADC_sclk_OUT,
     ADC_sldn_OUT    => ADC_sldn_OUT,
     ADC_sdata       => ADC_sdata,
@@ -1081,7 +1101,7 @@ IDELAYCTRL_inst : IDELAYCTRL
 		PHY_GTXclk_quar => PHY_GTXclk_quar,
 		phy_txen_quar => phy_txen_quar,
 		phy_txer_o => phy_txer_o,
-		user_pushbutton => user_pushbutton,
+		user_pushbutton => user_pushbutton_g,
 		rst_n_o => phy_rst_n_o,
 		fifo_upload_data =>ethernet_fifo_upload_data,
 		Rd_clk => ethernet_Rd_clk,
@@ -1100,7 +1120,8 @@ IDELAYCTRL_inst : IDELAYCTRL
                 srcc1_p_trigin => SRCC1_p_trigin,
                 ram_last => ram_last,
                 SRCC1_n_upload_sma_trigin=>SRCC1_n_upload_sma_trigin,
-                upload_trig_ethernet=>upload_trig_ethernet
+                upload_trig_ethernet=>upload_trig_ethernet,
+                posedge_upload_trig=>posedge_upload_trig
                 
 	);
 -------------------------------------------------------------------------------
@@ -1116,7 +1137,7 @@ IDELAYCTRL_inst : IDELAYCTRL
 		-- reg_addr =>mac_reg_addr ,
 		-- reg_data =>mac_reg_data ,
 	        ram_start => ram_start,
-                user_pushbutton => user_pushbutton,
+                user_pushbutton => user_pushbutton_g,
                 ram_switch =>ram_switch,
                 upload_trig_ethernet=> upload_trig_ethernet
 	);
@@ -1139,8 +1160,8 @@ IDELAYCTRL_inst : IDELAYCTRL
   ram_clka<=ADC_clkoq;
   ram_CLKb<=CLK_125M;
   ram_enb<=ram_rden;
-  ram_ena<=ram_wren and (not ram_full);     --ram_wren 在trig信号后一拍到来在endstate后一拍结束，ram输入端使能信号要从trig_i开始一直到满或者20us结束。可以考虑重做ram_wren
-  ram_wea(0)<=ram_wren and (not ram_full);
+  ram_ena<=ram_wren and (not ram_q_full);     --ram_wren 在trig信号后一拍到来在endstate后一拍结束，ram输入端使能信号要从trig_i开始一直到满或者20us结束。可以考虑重做ram_wren
+  ram_wea(0)<=ram_wren and (not ram_q_full);
   ram_rstb<=not rst_n;
   clr_n_ram<=rst_n;
  
@@ -1159,12 +1180,14 @@ IDELAYCTRL_inst : IDELAYCTRL
     doutb => ram_i_doutb
   );
   ram_i_dina<=ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
+  -- ram_i_dina<=ram_i_doutb_sim&ram_i_doutb_sim&ram_i_doutb_sim&ram_i_doutb_sim;
+  -- ram_i_dina<=x"7f807f80";
   ram_i_clkb<=CLK_125M;
   ram_i_enb<=ram_rden;
   ram_i_ena<=ram_wren and (not ram_i_full);
   ram_i_wea(0)<=ram_wren and (not ram_i_full);
   ram_i_rstb<=not rst_n;
-  clr_n_ram<=rst_n;
+  -- clr_n_ram<=rst_n;
 -----------------------------------------------------------------------------
 -- Inst_fifo_receivedata_I_A1  : fifo
 --   PORT MAP (
@@ -1289,6 +1312,27 @@ IDELAYCTRL_inst : IDELAYCTRL
 
   -----------------------------------------------------------------------------
   ----------------------------------------------------------------------------
+  -- test_pin_i_ps: process (ADC_clkoi, ADC_DOiB_1_d, ADC_DOiA_1_d) is
+  -- begin  -- process test_pin_ps
+  --   if ADC_clkoi'event and ADC_clkoi = '1' then
+  --   if (ADC_DOiA_1_d - ADC_DOiB_1_d > x"5") and (ADC_DOiA_1_d>ADC_DOib_1_d) then 
+  --     data_test_pin<='1';
+  --   else
+  --     data_test_pin<='0';
+  --   end if;
+  -- end if;
+  -- end process test_pin_i_ps;
+  --   test_pin_i_ps: process (ADC_clkoq, ADC_DOqB_1_d, ADC_DOqA_1_d) is
+  -- begin  -- process test_pin_ps
+  --   if ADC_clkoq'event and ADC_clkoq = '1' then
+  --   if (ADC_DOqA_1_d - ADC_DOqB_1_d > x"5") and (ADC_DOqA_1_d>ADC_DOqb_1_d) then 
+  --     data_test_pin<='1';
+  --   else
+  --     data_test_pin<='0';
+  --   end if;
+  -- end if;
+  -- end process test_pin_i_ps;
+  -----------------------------------------------------------------------------
   ram_switch_ps: process (CLK_125M, rst_n) is
   begin  -- process ram_switch_ps
     if rst_n ='0' then
@@ -1304,14 +1348,14 @@ IDELAYCTRL_inst : IDELAYCTRL
           -- ram_last<=ram_i_last;
           -- ram_full<=ram_i_full;
         when others =>
-         ethernet_fifo_upload_data<=ram_doutb;
+         ethernet_fifo_upload_data<=ram_i_doutb;
          -- ram_last<=ram_q_last;
          -- ram_full<=ram_q_full;
       end case;
     end if;
   end process ram_switch_ps;
   ram_last<=ram_q_last;
-  ram_full<=ram_q_full;
+  -- ram_full<=ram_i_full;
   -----------------------------------------------------------------------------
   -- purpose: to combine all the conditions
   -- type   : sequential
@@ -1329,34 +1373,50 @@ IDELAYCTRL_inst : IDELAYCTRL
       end if;
     end if;
   end process posedge_upload_trig_ps;
+
+   posedge_sample_trig_ps: process (CLK_125M, rst_n, ram_start_d, ram_start_d2, trigin_d2, trigin_d) is
+  begin  -- process posedge_upload_trig_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+     posedge_sample_trig<='0';
+    elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      if (ram_start_d = '1' and ram_start_d2='0') or (trigin_d2 ='0' and trigin_d='1')  then
+      posedge_sample_trig<='1';
+      else
+        posedge_sample_trig<='0';
+      end if;
+    end if;
+  end process posedge_sample_trig_ps; 
+  
   
     --ram_addr
-ram_addra_ps: process (ADC_CLKOQ, clr_n_ram, ram_start_d, ram_start_d2, trigin_d2, trigin_d) is --trigin是sma触发，ram_start是上位机的触发
+ram_addra_ps: process (ADC_CLKOQ, clr_n_ram, posedge_sample_trig) is --trigin是sma触发，ram_start是上位机的触发
 begin  -- process addra_ps
-  if clr_n_ram = '0' or (ram_start_d = '1' and ram_start_d2='0') or (trigin_d2 ='0' and trigin_d='1')  then                   -- asynchronous reset (active low)
+  if clr_n_ram = '0' or posedge_sample_trig='1' then                   -- asynchronous reset (active low)
     ram_addra<=(others => '0');
   elsif ADC_CLKOQ'event and ADC_CLKOQ = '1' then  -- rising clock edge
+    -- if posedge_sample_trig='1' then
+    --   ram_addra<=(others => '0');
     if ram_wren='1' then                --收到wren控制，希望wren是上位机的trig到来后的10us或者20us这样一个持续，ram_wren来自tx_module
     if ram_addra<x"270e" then        --只写入一次 10000的ram深度
       ram_addra<=ram_addra+1;
       ram_q_full<='0';
-    elsif ram_addra= x"270e" then       --270f是最后一个地址 留一个余量防止ram崩溃
+    elsif ram_addra>= x"270e" then       --270f是最后一个地址 留一个余量防止ram崩溃
       ram_q_full<='1';                    --为了保持这个full的状态，ram_addra不能清零
     end if;
   end if;
   end if;
 end process ram_addra_ps;
 
-ram_addrb_ps: process (CLK_125M, clr_n_ram, posedge_upload_trig) is
+ram_addrb_ps: process (CLK_125M, clr_n_ram) is
 begin  -- process addrb_ps
   if clr_n_ram = '0'  then
     ram_addrb<=(others => '0');
     ram_q_last<='1';
-  elsif posedge_upload_trig='1' then    --比真正的trig上升沿到来晚一拍
+  elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+  if posedge_upload_trig='1' then    --比真正的trig上升沿到来晚一拍
     ram_addrb<=(others => '0');
     ram_q_last<='1';
-  elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-    if ram_rden='1' then
+    elsif ram_rden='1' then
      if ram_addrb<x"9c37" then
       ram_addrb<=ram_addrb+1;                   --只读一轮 测试阶段先循环读出,现在ram的深度为10000 位宽32bit,对于8bit的读出位宽深度为40000，x“9c40"
       ram_q_last<='0';
@@ -1368,16 +1428,18 @@ begin  -- process addrb_ps
 end if;
 end process ram_addrb_ps;
 -------------------------------------------------------------------------------
-ram_i_addra_ps: process (ADC_CLKOi, clr_n_ram, ram_start_d, ram_start_d2,trigin_d2,trigin_d) is
+ram_i_addra_ps: process (ADC_CLKOi, clr_n_ram, posedge_sample_trig) is
 begin  -- process addra_ps
-  if clr_n_ram = '0' or (ram_start_d = '1' and ram_start_d2='0') or (trigin_d2 ='0' and trigin_d='1') then                   -- asynchronous reset (active low)
+  if clr_n_ram = '0' or posedge_sample_trig='1' then                   -- asynchronous reset (active low)
     ram_i_addra<=(others => '0');
   elsif ADC_CLKOi'event and ADC_CLKOi = '1' then  -- rising clock edge
+    -- if posedge_sample_trig ='1' then
+    --  ram_i_addra<=(others => '0');     
     if ram_wren='1' then                --收到wren控制，希望wren是上位机的trig到来后的10us或者20us这样一个持续
     if ram_i_addra<x"270e" then        --只写入一次 10000的ram深度
       ram_i_addra<=ram_i_addra+1;
       ram_i_full<='0';
-    elsif ram_i_addra= x"270e" then       --270f是最后一个地址 留一个余量防止ram崩溃
+    elsif ram_i_addra>= x"270e" then       --270f是最后一个地址 留一个余量防止ram崩溃
       ram_i_full<='1';                    --为了保持这个full的状态，ram_addra不能清零
     end if;
   end if;
@@ -1389,11 +1451,11 @@ begin  -- process addrb_ps
   if clr_n_ram = '0'  then
     ram_i_addrb<=(others => '0');
     ram_i_last<='1';
-  elsif posedge_upload_trig ='1' then  --比真正的trig上升沿到来晚一拍
-    ram_i_addrb<=(others => '0');
-    ram_i_last<='1';
   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-    if ram_rden='1' then
+    if posedge_upload_trig ='1' then  --比真正的trig上升沿到来晚一拍
+    ram_i_addrb<=(others => '0');
+    ram_i_last<='1';                    --如果为0状态机不会被强制中止
+    elsif ram_rden='1' then
      if ram_i_addrb<x"9c37" then
       ram_i_addrb<=ram_i_addrb+1;                   --只读一轮 测试阶段先循环读出,现在ram的深度为10000 位宽32bit,对于8bit的读出位宽深度为40000，x“9c40"
       ram_i_last<='0';
@@ -1595,15 +1657,23 @@ end process Rd_Addr_ps;
   --     data_in_usb<=data_in_usb+1;
   --   end if;
   -- end process data_in_usb_ps;
+  data_in_ram_i_doutb_sim_ps: process (CLK_125M, rst_n) is
+  begin  -- process data_in_ram_i_doutb_sim_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      ram_i_doutb_sim<=(others => '0');
+    elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      ram_i_doutb_sim<=ram_i_doutb_sim+1;
+    end if;
+  end process data_in_ram_i_doutb_sim_ps;
 ------------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------
  -- SRCC1_n<=ADC_CLKOQ_n;
   -- SRCC1_p<=USB_data(0); --j9
   -- SRCC1_n<=data_in_usb(0);--j8
-  -- MRCC2_p<=dout(0);--j12
+   MRCC2_p<=data_test_pin;--j12
   -- MRCC2_n<=ADC_sdata;
- rst_n<=user_pushbutton;
+ rst_n<=user_pushbutton_g;
  ethernet_rd_clk<= CLK_71M;
  -- ethernet_fifo_upload_data<=ADC_DOQA_1_d;
   -- usb_rst<= user_pushbutton;

@@ -48,7 +48,8 @@ entity G_ethernet_Tx_data is
     srcc1_p_trigin : in std_logic;
     SRCC1_n_upload_sma_trigin : in std_logic;
     upload_trig_ethernet : in std_logic;
-    ram_last : in std_logic
+    ram_last : in std_logic;
+    posedge_upload_trig : in std_logic
     );
 end G_ethernet_Tx_data;
 
@@ -583,7 +584,8 @@ ram_start_d2_ps: process (CLK_125M) is
           trig_i <= '1';
         end if;
       elsif ram_last='1' and frame_gap='0' then  --保证了死时间。以防下次外部触发太快。
-        trig_i<=upload_sma_trigin or upload_ethernet_trigin or upload_wren_trigin; --可以通过上位机，sma，采集trig这三个统计来控制trig_i
+      trig_i<=upload_sma_trigin or upload_ethernet_trigin or upload_wren_trigin; --可以通过上位机，sma，采集trig这三个统计来控制trig_i
+        -- trig_i<=posedge_upload_trig;
       end if;
     end if;
   end process trig_i_ps;

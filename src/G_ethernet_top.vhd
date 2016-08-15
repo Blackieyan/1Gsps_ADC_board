@@ -70,7 +70,8 @@ entity G_ethernet_top is
     ram_last : in std_logic;
     srcc1_p_trigin : in std_logic;
     SRCC1_n_upload_sma_trigin : in std_logic;
-    upload_trig_ethernet : in std_logic
+    upload_trig_ethernet : in std_logic;
+    posedge_upload_trig : in std_logic
     );
 end G_ethernet_top;
 
@@ -141,7 +142,8 @@ architecture Behavioral of G_ethernet_top is
                                         --ram writing
       SRCC1_n_upload_sma_trigin : in std_logic;
       ram_last : in std_logic;
-      upload_trig_ethernet : in std_logic
+      upload_trig_ethernet : in std_logic;
+      posedge_upload_trig : in std_logic
       );
   end component;
 
@@ -191,7 +193,8 @@ begin
     srcc1_p_trigin => srcc1_p_trigin,
     SRCC1_n_upload_sma_trigin => SRCC1_n_upload_sma_trigin,                                    
     upload_trig_ethernet =>upload_trig_ethernet,
-    ram_last =>  ram_last                                                    
+    ram_last =>  ram_last,
+    posedge_upload_trig => posedge_upload_trig                                                    
     );
 
 --    IBUFG_inst : IBUFG
