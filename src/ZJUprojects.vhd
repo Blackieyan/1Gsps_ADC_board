@@ -310,6 +310,7 @@ architecture Behavioral of ZJUprojects is
   signal posedge_sample_trig : std_logic;
   signal user_pushbutton_g : std_logic;
   signal data_test_pin :std_logic;
+  signal TX_dst_MAC_addr : std_logic_vector(47 downto 0);
   -----------------------------------------------------------------------------
   component CDCE62005_config
     port(
@@ -406,7 +407,8 @@ architecture Behavioral of ZJUprojects is
 	         ram_start  : buffer std_logic;
                 user_pushbutton : in std_logic;
                 ram_switch : out std_logic_vector(2 downto 0);
-                upload_trig_ethernet : buffer std_logic
+                upload_trig_ethernet : buffer std_logic;
+                TX_dst_MAC_addr : out STD_LOGIC_VECTOR(47 downto 0)
 		);
 	END COMPONENT;
   -----------------------------------------------------------------------------
@@ -1139,7 +1141,8 @@ IDELAYCTRL_inst : IDELAYCTRL
 	        ram_start => ram_start,
                 user_pushbutton => user_pushbutton_g,
                 ram_switch =>ram_switch,
-                upload_trig_ethernet=> upload_trig_ethernet
+                upload_trig_ethernet=> upload_trig_ethernet,
+                TX_dst_MAC_addr=>TX_dst_MAC_addr
 	);
 -------------------------------------------------------------------------------
     ram_data_inst : ram_data

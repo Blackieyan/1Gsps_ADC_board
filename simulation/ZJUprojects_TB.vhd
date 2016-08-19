@@ -53,7 +53,7 @@ architecture behavior of ZJUprojects_TB is
       spi_syn         : out std_logic;
       spi_mosi        : out std_logic;
       spi_miso        : in  std_logic;
-      spi_powerdn     : out std_logic;
+      spi_powerdn     : inout std_logic;
       spi_revdata     : out std_logic_vector(31 downto 0);
       cfg_finish      : out std_logic;
       -------------------------------------------------------------------------
@@ -79,7 +79,7 @@ architecture behavior of ZJUprojects_TB is
       GHz_in_p        : in  std_logic;
       GHz_in_n        : in  std_logic;
       SRCC1_p_trigin         : in std_logic;
-      SRCC1_n         : out std_logic;
+      SRCC1_n_upload_sma_trigin         : in std_logic;
       MRCC2_p         : out std_logic;
       MRCC2_n         : out std_logic_vector(0 downto 0);
       -------------------------------------------------------------------------
@@ -165,7 +165,7 @@ architecture behavior of ZJUprojects_TB is
   constant phy_rxc_period     : time := 8 ns;
   signal MRCC2_p              : std_logic;
   signal MRCC2_n              : std_logic_vector(0 downto 0);
-  signal SRCC1_n              : std_logic;
+  signal SRCC1_n_upload_sma_trigin              : std_logic;
 begin
 
   -- Instantiate the Unit Under Test (UUT)
@@ -206,7 +206,7 @@ begin
     DOIRQ_p         => DOIRQ_p,
     DOIRQ_n         => DOIRQ_n,
     SRCC1_p_trigin         => SRCC1_p_trigin,
-    SRCC1_n         => SRCC1_n,
+    SRCC1_n_upload_sma_trigin=> SRCC1_n_upload_sma_trigin,
     MRCC2_p         => MRCC2_p,
     MRCC2_n         => MRCC2_n,
     -- ethernet_Rd_clk    => ethernet_Rd_clk,
@@ -296,7 +296,7 @@ begin
     wait for 5000 ns;
     user_pushbutton <= '1';
     wait for OSC_in_p_period*10;
-
+    wait for 7 ns;                      --ÎªÁË¶ÔÆëddr
     -- insert stimulus here 
     phy_rxdv <= '1';
     phy_rxd  <= x"f";

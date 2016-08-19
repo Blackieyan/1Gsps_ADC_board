@@ -48,7 +48,8 @@ entity command_analysis is
     ram_start   : buffer std_logic;
      upload_trig_ethernet : buffer std_logic;
     user_pushbutton : in  std_logic;
-    ram_switch : out std_logic_vector(2 downto 0)
+    ram_switch : out std_logic_vector(2 downto 0);
+    TX_dst_MAC_addr : out std_logic_vector(47 downto 0)
     );
 end command_analysis;
 
@@ -210,4 +211,19 @@ begin
     end if;
   end process upload_trig_ethernet_cnt_ps;
   -----------------------------------------------------------------------------
+  --≈‰÷√√¸¡Ó
+  -- purpose: to assign new destination MAC address in case that the PC changes.
+  -- type   : sequential
+  -- inputs : rd_clk, rst_n
+  -- outputs: TX_dst_MAC_addr
+  TX_dst_MAC_address_ps: process (rd_clk, rst_n) is
+  begin  -- process TX_dst_MAC_address_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      TX_dst_MAC_addr<=(others => '0');
+    elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
+      if reg_addr = x"0011"  then
+        TX_dst_MAC_addr<=reg_data;
+      end if;
+    end if;
+  end process TX_dst_MAC_address_ps;
 end Behavioral;

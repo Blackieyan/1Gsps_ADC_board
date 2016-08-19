@@ -133,8 +133,9 @@ architecture Behavioral of G_ethernet_Tx_data is
   -- constant header(7) :=x"d5";
 -------------------------------------------------------------------------------
  type array_address is array (13 downto 0) of std_logic_vector(7 downto 0);
+   constant address : array_address := (x"55",x"AA",x"00",x"00",x"00",x"00",x"00",x"00",x"40",x"73",x"31",x"4C",x"A4",x"60");
   -- constant address : array_address := (x"0c",x"00",x"86",x"B1",x"00",x"67",x"10",x"00",x"ff",x"ff",x"ff",x"ff",x"ff",x"ff");
-      constant address : array_address := (x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00");
+      -- constant address : array_address := (x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00");--能够点对点正常使用
   -- constant address(0) :std_logic_vector(7 downto 0):=x"ff";          --destination address
   --  constant address(1) :std_logic_vector(7 downto 0):=x"ff"; 
   --  constant address(2) :std_logic_vector(7 downto 0):=x"ff"; 

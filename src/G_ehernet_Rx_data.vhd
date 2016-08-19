@@ -45,7 +45,8 @@ entity G_ehernet_Rx_data is
 end G_ehernet_Rx_data;
 
 architecture Behavioral of G_ehernet_Rx_data is
-constant MAC_addr : std_logic_vector(47 downto 0):=x"ffffffffffff";--板子的mac地址
+-- constant MAC_addr : std_logic_vector(47 downto 0):=x"ffffffffffff";--
+   constant MAC_addr : std_logic_vector(47 downto 0):=x"000000000000";--板子的mac地址,配合上位机可以更改                                             
 -- signal PHY_RXC_g : std_logic;
 ---- signal Frm_valid : std_logic;
 -- signal frm_valid_d : std_logic;
