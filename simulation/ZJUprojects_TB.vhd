@@ -79,7 +79,7 @@ architecture behavior of ZJUprojects_TB is
       GHz_in_p        : in  std_logic;
       GHz_in_n        : in  std_logic;
       SRCC1_p_trigin         : in std_logic;
-      SRCC1_n_upload_sma_trigin         : in std_logic;
+      SRCC1_n_upload_sma_trigin  : in    std_logic;
       MRCC2_p         : out std_logic;
       MRCC2_n         : out std_logic_vector(0 downto 0);
       -------------------------------------------------------------------------
@@ -141,7 +141,7 @@ architecture behavior of ZJUprojects_TB is
   -----------------------------------------------------------------------------
   signal CLK_500M           : std_logic;  -- to simulate the ADC_DOQ
   signal rst                : std_logic;
-  signal SRCC1_p_trigin            : std_logic;
+  signal SRCC1_p_trigin            : std_logic :='0';
   -- signal ethernet_Rd_clk    : std_logic:='0';
   -- signal ethernet_Rd_en     : std_logic:='0';
   -- signal ethernet_Rd_Addr   : std_logic_vector(13 downto 0):=x"fff"&"11";
@@ -156,16 +156,17 @@ architecture behavior of ZJUprojects_TB is
   -- signal ethernet_Frm_valid : std_logic                    := '0';
   signal phy_rst_n_o        : std_logic;
   signal user_pushbutton    : std_logic;
-
+  signal rd_data : std_ulogic_vector(7 downto 0) := x"00";
   -- Clock period definitions
   constant OSC_in_p_period    : time := 12.5 ns;
   constant OSC_in_n_period    : time := 12.5 ns;
   constant ADC_CLKOQ_p_period : time := 4 ns;
+    constant ADC_CLKOi_p_period : time := 4 ns;
   constant CLK_500M_period    : time := 2 ns;
   constant phy_rxc_period     : time := 8 ns;
   signal MRCC2_p              : std_logic;
   signal MRCC2_n              : std_logic_vector(0 downto 0);
-  signal SRCC1_n_upload_sma_trigin              : std_logic;
+  signal SRCC1_n_upload_sma_trigin              : std_logic := '0'; 
 begin
 
   -- Instantiate the Unit Under Test (UUT)
@@ -206,7 +207,7 @@ begin
     DOIRQ_p         => DOIRQ_p,
     DOIRQ_n         => DOIRQ_n,
     SRCC1_p_trigin         => SRCC1_p_trigin,
-    SRCC1_n_upload_sma_trigin=> SRCC1_n_upload_sma_trigin,
+    SRCC1_n_upload_sma_trigin        => SRCC1_n_upload_sma_trigin,
     MRCC2_p         => MRCC2_p,
     MRCC2_n         => MRCC2_n,
     -- ethernet_Rd_clk    => ethernet_Rd_clk,
@@ -245,6 +246,16 @@ begin
     wait for ADC_CLKOQ_p_period/2;
   end process;  -- CLKOQ_p;
 
+    CLK_Oi_process : process
+  begin
+    ADC_CLKOi_p <= '0';
+    ADC_CLKOi_n <= '1';
+    wait for ADC_CLKOi_p_period/2;
+    ADC_CLKOi_p <= '1';
+    ADC_CLKOi_n <= '0';
+    wait for ADC_CLKOi_p_period/2;
+  end process;  -- CLKOi_p;
+
   CLK_500M_process : process
   begin
     CLK_500M <= '0';
@@ -265,7 +276,7 @@ begin
 -- type   : sequential
 -- inputs : CLK_500M, rst
 -- outputs: DOQA
-  sim_DOQA : process (CLK_500M, rst) is
+  sim_DOQA : process (CLK_500M, rst, user_pushbutton) is
   begin  -- process sim_DOQA
     if user_pushbutton = '0' then       -- asynchronous reset (active low)
       ADC_DOQA_p <= (others => '0');
@@ -279,7 +290,7 @@ begin
 -- type   : sequential
 -- inputs : CLK_500M, rst
 -- outputs: DOQB
-  sim_DOQB : process (CLK_500M, rst) is
+  sim_DOQB : process (CLK_500M, rst, user_pushbutton) is
   begin  -- process sim_DOQB
     if user_pushbutton = '0' then       -- asynchronous reset (active low)
       ADC_DOQB_p <= x"01";
@@ -289,6 +300,34 @@ begin
   end process sim_DOQB;
   ADC_DOQB_n <= not ADC_DOQB_p;
   -----------------------------------------------------------------------------
+  -- purpose: set a counter to simulate DOIA
+-- type   : sequential
+-- inputs : CLK_500M, rst
+-- outputs: DOIA
+  sim_DOIA : process (CLK_500M, rst, user_pushbutton) is
+  begin  -- process sim_DOIA
+    if user_pushbutton = '0' then       -- asynchronous reset (active low)
+      ADC_DOIA_p <= (others => '0');
+    elsif CLK_500M'event and CLK_500M = '1' then  -- rising clock edge
+      ADC_DOIA_p <= ADC_DOIA_p+2;
+    end if;
+  end process sim_DOIA;
+  ADC_DOIA_n <= not ADC_DOIA_p;
+
+  -- purpose: set a counter to simulate DOIB
+-- type   : sequential
+-- inputs : CLK_500M, rst
+-- outputs: DOIB
+  sim_DOIB : process (CLK_500M, rst, user_pushbutton) is
+  begin  -- process sim_DOIB
+    if user_pushbutton = '0' then       -- asynchronous reset (active low)
+      ADC_DOIB_p <= x"01";
+    elsif CLK_500M'event and CLK_500M = '1' then  -- rising clock edge
+      ADC_DOIB_p <= ADC_DOIB_p+2;
+    end if;
+  end process sim_DOIB;
+  ADC_DOIB_n <= not ADC_DOIB_p;
+  -----------------------------------------------------------------------------
   -- Stimulus process
   stim_proc : process
   begin
@@ -296,8 +335,9 @@ begin
     wait for 5000 ns;
     user_pushbutton <= '1';
     wait for OSC_in_p_period*10;
-    wait for 7 ns;                      --ÎªÁË¶ÔÆëddr
-    -- insert stimulus here 
+
+    -- insert stimulus here
+    wait for 4 ns;                      --new add
     phy_rxdv <= '1';
     phy_rxd  <= x"f";
     wait for 16 ns;
@@ -305,12 +345,12 @@ begin
     wait for 60 ns;
     phy_rxd  <= x"d";
     wait for 4 ns;
-    phy_rxd  <= x"f";
+    phy_rxd  <= x"0";
     wait for 48 ns;
     --mac dst
     phy_rxd  <= x"0";
     wait for 4 ns;
-    phy_rxd  <= x"0";
+    phy_rxd  <= x"6";
     wait for 4 ns;
     phy_rxd  <= x"4";
     wait for 4 ns;
@@ -342,7 +382,7 @@ begin
     phy_rxd  <= x"5";
     wait for 4 ns;
     --type
-    phy_rxd  <= x"1";
+    phy_rxd  <= x"0";
     wait for 4 ns;
     phy_rxd  <= x"0";
     wait for 4 ns;
@@ -351,30 +391,50 @@ begin
     phy_rxd  <= x"0";
     wait for 4 ns;
     --reg addr
-    phy_rxd  <= x"1";
-    wait for 32 ns;
-    --reg data
-    phy_rxd  <= x"0";
-    wait for 320 ns;
+    phy_rxd  <= x"e";
+    wait for 48 ns;
+        phy_rxd  <= x"0";
+    wait for 304 ns;
     -- blank 40 byte
-    phy_rxd  <= x"2";
+    phy_rxd  <= x"0";
     wait for 4 ns;
-    phy_rxd  <= x"9";
+    phy_rxd  <= x"a";
     wait for 4 ns;
-    phy_rxd  <= x"3";
-    wait for 4 ns;
-    phy_rxd  <= x"9";
+    phy_rxd  <= x"5";
     wait for 4 ns;
     phy_rxd  <= x"c";
     wait for 4 ns;
-    phy_rxd  <= x"4";
+    phy_rxd  <= x"9";
     wait for 4 ns;
-    phy_rxd  <= x"1";
+    phy_rxd  <= x"9";
     wait for 4 ns;
-    phy_rxd  <= x"0";
+    phy_rxd  <= x"2";
+    wait for 4 ns;
+    phy_rxd  <= x"2";
     wait for 4 ns;                      --crc from chipscope
     phy_rxdv <= '0';
-    wait for 100us;
+    --reg data
+    -- phy_rxd  <= x"0";
+    -- wait for 304 ns;
+    -- -- blank 40 byte
+    -- phy_rxd  <= x"2";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"9";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"3";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"9";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"c";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"4";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"1";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"0";
+    -- wait for 4 ns;                      --crc from chipscope
+    -- phy_rxdv <= '0';
+    wait for 1000us;
 
     phy_rxdv <= '1';
     phy_rxd  <= x"f";
@@ -383,12 +443,12 @@ begin
     wait for 60 ns;
     phy_rxd  <= x"d";
     wait for 4 ns;
-    phy_rxd  <= x"f";
+    phy_rxd  <= x"0";
     wait for 48 ns;
     --mac dst
     phy_rxd  <= x"0";
     wait for 4 ns;
-    phy_rxd  <= x"0";
+    phy_rxd  <= x"6";
     wait for 4 ns;
     phy_rxd  <= x"4";
     wait for 4 ns;
@@ -422,32 +482,32 @@ begin
     --type
     phy_rxd  <= x"0";
     wait for 8 ns;
-    phy_rxd  <= x"1";
+    phy_rxd  <= x"2";
     wait for 4 ns;
     phy_rxd  <= x"0";
     wait for 4 ns;
     --reg addr
     phy_rxd  <= x"e";
-    wait for 32 ns;
+    wait for 48 ns;
     --reg data
     phy_rxd  <= x"0";
-    wait for 320 ns;
+    wait for 304 ns;
     -- blank 40 byte
-    phy_rxd  <= x"2";
-    wait for 4 ns;
-    phy_rxd  <= x"9";
+    phy_rxd  <= x"5";
     wait for 4 ns;
     phy_rxd  <= x"3";
     wait for 4 ns;
-    phy_rxd  <= x"9";
+    phy_rxd  <= x"B";
     wait for 4 ns;
-    phy_rxd  <= x"c";
+    phy_rxd  <= x"B";
     wait for 4 ns;
-    phy_rxd  <= x"4";
+    phy_rxd  <= x"2";
+    wait for 4 ns;
+    phy_rxd  <= x"5";
+    wait for 4 ns;
+    phy_rxd  <= x"D";
     wait for 4 ns;
     phy_rxd  <= x"1";
-    wait for 4 ns;
-    phy_rxd  <= x"0";
     wait for 4 ns;                      --crc from chipscope
     phy_rxdv <= '0';
   end process;

@@ -49,12 +49,13 @@ entity G_ethernet_Tx_data is
     SRCC1_n_upload_sma_trigin : in std_logic;
     upload_trig_ethernet : in std_logic;
     ram_last : in std_logic;
-    posedge_upload_trig : in std_logic
+    posedge_upload_trig : in std_logic;
+    TX_dst_MAC_addr : in std_logic_vector(47 downto 0)
     );
 end G_ethernet_Tx_data;
 
 architecture Behavioral of G_ethernet_Tx_data is
-  type state_type is (ini_state,header_state,addr_state,frame_num_state1,frame_num_state2,data_state,end_state);
+  type state_type is (ini_state,header_state,addr_state,frame_num_state1,frame_num_state2,data_state,rden_stop_state,end_state);
   signal current_state : state_type;
   signal next_state : state_type;
   attribute keep             : boolean;
@@ -119,6 +120,7 @@ architecture Behavioral of G_ethernet_Tx_data is
   signal frame_gap : std_logic;
   signal frame_gap_d : std_logic;
   signal frame_gap_d2 : std_logic;
+  signal ram_rden_stop : std_logic;
 -------------------------------------------------------------------------------
   type array_header is array (7 downto 0) of std_logic_vector(7 downto 0);
   constant header : array_header := (x"d5",x"55",x"55",x"55",x"55",x"55",x"55",x"55");
@@ -132,26 +134,31 @@ architecture Behavioral of G_ethernet_Tx_data is
   -- constant header(6) :=x"55";
   -- constant header(7) :=x"d5";
 -------------------------------------------------------------------------------
- type array_address is array (13 downto 0) of std_logic_vector(7 downto 0);
-   constant address : array_address := (x"55",x"AA",x"00",x"00",x"00",x"00",x"00",x"00",x"40",x"73",x"31",x"4C",x"A4",x"60");
+  type array_address is array (13 downto 0) of std_logic_vector(7 downto 0);
+  signal address : array_address := (x"55",x"AA",x"00",x"00",x"00",x"00",x"00",x"00",x"40",x"73",x"31",x"4C",x"A4",x"60");
+   -- constant address : array_address :=
+   -- (x"55",x"AA",x"00",x"00",x"00",x"00",x"00",x"00",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF"); --广播地址也能通过交换机
+
+  -- signal address : array_address := (x"55",x"AA",x"00",x"00",x"00",x"00",x"00",x"00",TX_dst_MAC_addr(7 downto 0),TX_dst_MAC_addr(15 downto 8),TX_dst_MAC_addr(23 downto 16),TX_dst_MAC_addr(31 downto 24),TX_dst_MAC_addr(39 downto 32),TX_dst_MAC_addr(47 downto 40));--初始值必须为常数所以这样做不行
   -- constant address : array_address := (x"0c",x"00",x"86",x"B1",x"00",x"67",x"10",x"00",x"ff",x"ff",x"ff",x"ff",x"ff",x"ff");
       -- constant address : array_address := (x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00",x"00");--能够点对点正常使用
-  -- constant address(0) :std_logic_vector(7 downto 0):=x"ff";          --destination address
-  --  constant address(1) :std_logic_vector(7 downto 0):=x"ff"; 
-  --  constant address(2) :std_logic_vector(7 downto 0):=x"ff"; 
-  --  constant address(3) :std_logic_vector(7 downto 0):=x"ff";
-  --  constant address(4) :std_logic_vector(7 downto 0):=x"ff";
-  --  constant address(5) :std_logic_vector(7 downto 0):=x"ff";
+  -- signal address :std_logic_vector(111 downto 0):=x"55AA0000000000004073314CA460";  --address
+  -- signal address(1) :std_logic_vector(7 downto 0):=x"60";--destination address
+  -- signal address(1) :std_logic_vector(7 downto 0):=x"A4"; 
+  -- signal address(2) :std_logic_vector(7 downto 0):=x"4C"; 
+  -- signal address(3) :std_logic_vector(7 downto 0):=x"31";
+  -- signal address(4) :std_logic_vector(7 downto 0):=x"73";
+  -- signal address(5) :std_logic_vector(7 downto 0):=x"40";
   
-  --  constant address(6) :std_logic_vector(7 downto 0):=x"00";  --source address
-  --  constant address(7) :std_logic_vector(7 downto 0):=x"10";
-  --  constant address(8) :std_logic_vector(7 downto 0):=x"67";
-  --  constant address(9)  :std_logic_vector(7 downto 0):=x"00";
-  --  constant address(10) :std_logic_vector(7 downto 0):=x"B1";
-  --  constant address(11) :std_logic_vector(7 downto 0):=x"86";
+  -- signal address(6) :std_logic_vector(7 downto 0):=x"00";  --source address
+  -- signal address(7) :std_logic_vector(7 downto 0):=x"00";
+  -- signal address(8) :std_logic_vector(7 downto 0):=x"00";
+  -- signal address(9)  :std_logic_vector(7 downto 0):=x"00";
+  -- signal address(10) :std_logic_vector(7 downto 0):=x"00";
+  -- signal address(11) :std_logic_vector(7 downto 0):=x"00";
   
-  --  constant address(12) :std_logic_vector(7 downto 0):=x"05";
-  --  constant address(13) :std_logic_vector(7 downto 0):=x"04";
+  -- signal address(12) :std_logic_vector(7 downto 0):=x"AA";
+  -- signal address(13) :std_logic_vector(7 downto 0):=x"55";
   -----------------------------------------------------------------------------
 -- signal sending : std_logic;
 -- signal TX_byte_cnt : std_logic;
@@ -609,9 +616,15 @@ ram_start_d2_ps: process (CLK_125M) is
   begin  -- process Last_byte_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
       last_byte <= '0';
+       ram_rden_stop<='0';
     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-      -- if wr_addr = x"05db" then          --帧长1500
-      if wr_addr = x"05db" then  
+      -- if wr_addr = x"05db" then          
+      if wr_addr =x"05d8" then
+        ram_rden_stop<='1';
+        else
+          ram_rden_stop<='0';
+        end if;
+      if wr_addr = x"05db" then  --帧长1500
         last_byte <= '1';
       else
         last_byte <= '0';
@@ -687,7 +700,7 @@ ram_start_d2_ps: process (CLK_125M) is
   end process SWITCH_STATE_ps;
 
 
-  CHANGE_STATE_ps : process (current_state, next_state,trig_i,addr_en,frame_num_en,data_ready,last_byte,busy) is
+  CHANGE_STATE_ps : process (current_state, next_state,trig_i,addr_en,frame_num_en,data_ready,last_byte,ram_rden_stop,busy) is
   begin
     case current_state is
       when ini_state =>
@@ -713,10 +726,16 @@ ram_start_d2_ps: process (CLK_125M) is
         when frame_num_state2 =>
           next_state <= data_state;       
         when data_state =>
-        if last_byte = '1' then
+        if ram_rden_stop='1' then
+          next_state<=rden_stop_state;
+        else
+          next_state<=data_state;
+        end if;
+        when rden_stop_state =>
+        if last_byte = '1' then     --edit at 8.23
           next_state <= end_state;
         else
-          next_state <= data_state;
+          next_state <= rden_stop_state;
         end if;
       when end_state =>
         if busy ='0' then
@@ -761,6 +780,23 @@ ram_start_d2_ps: process (CLK_125M) is
             
           when addr_state =>
             header_cnt<=0;
+            address(0)<=TX_dst_MAC_addr(47 downto 40);
+            address(1)<=TX_dst_MAC_addr(39 downto 32);
+            address(2)<=TX_dst_MAC_addr(31 downto 24);
+            address(3)<=TX_dst_MAC_addr(23 downto 16);
+            address(4)<=TX_dst_MAC_addr(15 downto 8);
+            address(5)<=TX_dst_MAC_addr(7 downto 0);  --dst addr
+            
+            address(6)<=x"00";  --src addr
+            address(7)<=x"00";
+            address(8)<=x"00";
+            address(9)<=x"00";
+            address(10)<=x"00";
+            address(11)<=x"00";
+            
+            address(12)<=x"AA";
+            address(13)<=x"55";--edit at 8.22
+         
             if addr_cnt<13 then
             addr_cnt<=addr_cnt+1;
             else
@@ -782,10 +818,13 @@ ram_start_d2_ps: process (CLK_125M) is
           when data_state =>
             wr_data<=fifo_upload_data;
             ram_rden<='1';
+          when rden_stop_state =>
+            ram_rden<='0';
+            wr_data<=fifo_upload_data;
           when end_state =>
             fifo_upload_wren<='0';
             -- ram_wren<='0';--ram_rden因为每帧的读写需要连续所以在状态机里控制，但是ram_wren理论上是上位机来了trig后持续一段时间结束
-            ram_rden<='0';
+            -- ram_rden<='0';
           when others => null;
         end case;
     end if;

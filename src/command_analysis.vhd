@@ -57,7 +57,7 @@ architecture Behavioral of command_analysis is
   signal mac_dst  : std_logic_vector(47 downto 0);
   signal mac_src  : std_logic_vector(47 downto 0);  -- 为了反馈地址预留的信号
   signal reg_addr : std_logic_vector(15 downto 0);
-  signal reg_data : std_logic_vector(31 downto 0);
+  signal reg_data : std_logic_vector(47 downto 0);
   signal rst_n    : std_logic;
   signal reg_clr_cnt : std_logic_vector(7 downto 0);
   signal upload_trig_ethernet_cnt : std_logic_vector(7 downto 0);
@@ -97,7 +97,7 @@ begin
         reg_addr(15 downto 8) <= rd_data;
       elsif rd_addr = x"12" then
         reg_addr(7 downto 0) <= rd_data;
-      elsif rd_addr=x"18" or (rd_en_d = '1' and rd_en = '0')then  --地址为0x18或者rden信号下降,因为rddata有可能全读有可能只读0x11-0x17
+      elsif rd_addr=x"1A" or (rd_en_d = '1' and rd_en = '0')then  --地址为0x1A或者rden信号下降,因为rddata有可能全读有可能只读0x11-0x17
         if reg_addr<=x"0010" then         --控制命令，清零
         reg_addr<=(others => '0');
         elsif reg_addr>x"0010" then --配置命令，保持
@@ -113,14 +113,18 @@ begin
       reg_data <= (others => '0');
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
       if rd_addr = x"13" then
-        reg_data(31 downto 24) <= rd_data;
+        reg_data(47 downto 40) <= rd_data;
       elsif rd_addr = x"14" then
-        reg_data(23 downto 16) <= rd_data;
+        reg_data(39 downto 32) <= rd_data;
       elsif rd_addr = x"15" then
-        reg_data(15 downto 8) <= rd_data;
+        reg_data(31 downto 24) <= rd_data;
       elsif rd_addr = x"16" then
+        reg_data(23 downto 16) <= rd_data;
+      elsif rd_addr = x"17" then
+        reg_data(15 downto 8) <= rd_data;
+      elsif rd_addr = x"18" then
         reg_data(7 downto 0) <= rd_data;
-      elsif rd_addr=x"18" or (rd_en_d = '1' and rd_en = '0')then  --地址为0x18或者rden信号下降,因为rddata有可能全读有可能只读0x11-0x17
+      elsif rd_addr=x"1A" or (rd_en_d = '1' and rd_en = '0')then  --地址为0x1a或者rden信号下降,因为rddata有可能全读有可能只读0x11-0x17,这是为了更容易接受上位机下发的MAC地址更改命令。地址更改命令为48位数据
         if reg_addr<=x"0010" then         --控制命令，清零
         reg_data<=(others => '0');
         elsif reg_addr>x"0010" then       --配置命令,保持
@@ -137,7 +141,7 @@ begin
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
       if reg_clr_cnt = x"0F" then
         ram_start <= '0';
-      elsif reg_addr = x"0001" and reg_data = x"eeeeeeee" then
+      elsif reg_addr = x"0001" and reg_data = x"eeeeeeeeeeee" then
        ram_start <= '1';
       end if;
     -- else
@@ -167,11 +171,11 @@ begin
     if rst_n = '0' then                 -- asynchronous reset (active low)
       ram_switch<=(others => '0');
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
-      if reg_addr=x"0101" and reg_data = x"11111111" then
+      if reg_addr=x"0101" and reg_data = x"111111111111" then
         ram_switch <= "001";
-      elsif reg_addr=x"0101" and reg_data =x"22222222" then
+      elsif reg_addr=x"0101" and reg_data =x"222222222222" then
         ram_switch<="010";
-      elsif reg_addr=x"0101" and reg_data = x"33333333"  then
+      elsif reg_addr=x"0101" and reg_data = x"333333333333"  then
         ram_switch<="101";
       end if;
     end if;
@@ -186,7 +190,7 @@ begin
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
       if upload_trig_ethernet_cnt = x"0F" then  --0f是 upload_trig_ethernet的长度，控制命令只能持续一定时间然后消失。配置命令会一直存在直到被覆盖。
         upload_trig_ethernet <= '0';
-      elsif reg_addr = x"0002" and reg_data = x"eeeeeeee" then
+      elsif reg_addr = x"0002" and reg_data = x"eeeeeeeeeeee" then
        upload_trig_ethernet <= '1';
       end if;
     -- else
