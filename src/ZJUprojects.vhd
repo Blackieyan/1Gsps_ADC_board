@@ -1419,7 +1419,7 @@ begin  -- process addrb_ps
     ram_q_last<='1';
   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
   if posedge_upload_trig='1' then    --比真正的trig上升沿到来晚一拍
-    ram_addrb<=(others => '0');
+    ram_addrb<=x"0000";                 --edit at 8.25 for a bug
     ram_q_last<='1';
     elsif ram_rden='1' then
      if ram_addrb<x"9c37" then
@@ -1458,7 +1458,7 @@ begin  -- process addrb_ps
     ram_i_last<='1';
   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
     if posedge_upload_trig ='1' then  --比真正的trig上升沿到来晚一拍
-    ram_i_addrb<=(others => '0');
+    ram_i_addrb<=x"0000";               --edit at 8.25
     ram_i_last<='1';                    --如果为0状态机不会被强制中止
     elsif ram_rden='1' then
      if ram_i_addrb<x"9c37" then
