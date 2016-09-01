@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 13.3
-# Date: Thu Feb 18 15:55:18 2016
+# Date: Tue Aug 30 07:32:15 2016
 #
 ##############################################################
 #
@@ -46,7 +46,7 @@ CSET complex_mult_type=use_mults_resources
 CSET component_name=fft
 CSET cyclic_prefix_insertion=false
 CSET data_format=fixed_point
-CSET implementation_options=automatically_select
+CSET implementation_options=pipelined_streaming_io
 CSET input_data_offset=no_offset
 CSET input_width=16
 CSET memory_options_data=block_ram
@@ -59,14 +59,14 @@ CSET ovflo=false
 CSET phase_factor_width=16
 CSET rounding_modes=truncation
 CSET run_time_configurable_transform_length=false
-CSET scaling_options=unscaled
-CSET sclr=true
+CSET scaling_options=scaled
+CSET sclr=false
 CSET target_clock_frequency=250
 CSET target_data_throughput=50
-CSET transform_length=1024
+CSET transform_length=64
 # END Parameters
 # BEGIN Extra information
 MISC pkg_timestamp=2011-07-18T16:01:57.000Z
 # END Extra information
 GENERATE
-# CRC: 9b3e97a7
+# CRC: 68aa768a
