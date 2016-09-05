@@ -50,7 +50,8 @@ entity G_ethernet_Tx_data is
     upload_trig_ethernet : in std_logic;
     ram_last : in std_logic;
     posedge_upload_trig : in std_logic;
-    TX_dst_MAC_addr : in std_logic_vector(47 downto 0)
+    TX_dst_MAC_addr : in std_logic_vector(47 downto 0);
+    sample_en : in std_logic
     );
 end G_ethernet_Tx_data;
 
@@ -341,7 +342,7 @@ ram_start_d2_ps: process (CLK_125M) is
 --       end if;
 --     end if;
 --   end process wren_reset_ps;
-  
+ ------------------------------------------------------------------------------ 
     ram_start_cnt_ps: process (clk_125m, Gclk_d, Gclk_d2, ram_start) is
   begin  -- process ram_rst_cnt_ps
     if rst_n = '0' then               -- asynchronous reset (active low)
@@ -372,7 +373,8 @@ ram_start_d2_ps: process (CLK_125M) is
     end if;
   end if;
   end process wren_ethernet_ps;
-
+  ---wren_ethernet为来自上位机的采样使能
+-------------------------------------------------------------------------------
     trigin_d_ps: process (CLK_125M, rst_n) is
   begin  -- process trig_in_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
@@ -384,7 +386,7 @@ ram_start_d2_ps: process (CLK_125M) is
     end if;
   end process trigin_d_ps;
 
-  wren_trigin_ps: process (CLK_125M, rst_n, trigin_d, trigin_d2) is
+  wren_trigin_ps: process (CLK_125M, rst_n, trigin_d, trigin_d2,sample_en) is
 --来自sma的trig
   begin  -- process trigin_cnt_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
@@ -392,7 +394,7 @@ ram_start_d2_ps: process (CLK_125M) is
     elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
       if trigin_cnt = x"3e1" then 
         wren_trigin<='0';
-      elsif trigin_d = '1' and trigin_d2 ='0' then
+      elsif trigin_d = '1' and trigin_d2 ='0' and sample_en='1' then
          wren_trigin<='1';                           
       end if;
     end if;
@@ -414,7 +416,7 @@ ram_start_d2_ps: process (CLK_125M) is
   end process trigin_cnt_ps;
 
   -- ram_wren<=wren_ethernet or wren_reset or wren_trigin;
-   ram_wren<=wren_ethernet or wren_trigin;
+   ram_wren<=wren_ethernet or wren_trigin;  --ram的采样使能由这一层提供，决定了采样深度
   -----------------------------------------------------------------------------
   upload_trig_ethernet_ps: process (CLK_125M, rst_n) is
   begin  -- process trig_in_ps
@@ -450,13 +452,13 @@ ram_start_d2_ps: process (CLK_125M) is
   end process ram_wren_d_ps;
 -------------------------
     upload_sma_trigin_ps: process (clk_125m, rst_n, SRCC1_n_upload_sma_trigin_d, SRCC1_n_upload_sma_trigin_d2) is
-  begin  -- process wren_ethernet_ps
+  begin  
     if rst_n = '0' then                 -- asynchronous reset (active low)
       upload_sma_trigin<='0';
     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
       if upload_sma_trigin_cnt = x"A" then  --模仿trig_i的长度
         upload_sma_trigin<='0';
-      elsif SRCC1_n_upload_sma_trigin_d='1' and SRCC1_n_upload_sma_trigin_d2='0' then
+      elsif SRCC1_n_upload_sma_trigin_d='1' and SRCC1_n_upload_sma_trigin_d2='0' and sample_en='1' then
         upload_sma_trigin<='1';
     end if;
   end if;
@@ -476,7 +478,7 @@ ram_start_d2_ps: process (CLK_125M) is
   end process upload_sma_trigin_cnt_ps;
 --------------------------  
       upload_ethernet_trigin_ps: process (clk_125m, rst_n, upload_trig_ethernet_d,upload_trig_ethernet_d2) is
-  begin  -- process wren_ethernet_ps
+  begin 
     if rst_n = '0' then                 -- asynchronous reset (active low)
       upload_ethernet_trigin<='0';
     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
@@ -502,7 +504,7 @@ ram_start_d2_ps: process (CLK_125M) is
   end process upload_ethernet_trigin_cnt_ps;
 -------------------------
      upload_wren_trigin_ps: process (clk_125m, rst_n, ram_wren_d,  ram_wren_d2) is
-  begin  -- process wren_ethernet_ps
+  begin 
     if rst_n = '0' then                 -- asynchronous reset (active low)
       upload_wren_trigin<='0';
     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
@@ -592,7 +594,8 @@ ram_start_d2_ps: process (CLK_125M) is
           trig_i <= '1';
         end if;
       elsif ram_last='1' and frame_gap='0' then  --保证了死时间。以防下次外部触发太快。
-      trig_i<=upload_sma_trigin or upload_ethernet_trigin or upload_wren_trigin; --可以通过上位机，sma，采集trig这三个统计来控制trig_i
+      trig_i<=upload_sma_trigin or upload_ethernet_trigin or upload_wren_trigin;
+--可以通过sma trig读ram，上位机读ram，写ram(上位机，sma)这三个统计来控制trig_i
         -- trig_i<=posedge_upload_trig;
       end if;
     end if;

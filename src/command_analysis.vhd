@@ -49,7 +49,8 @@ entity command_analysis is
      upload_trig_ethernet : buffer std_logic;
     user_pushbutton : in  std_logic;
     ram_switch : out std_logic_vector(2 downto 0);
-    TX_dst_MAC_addr : out std_logic_vector(47 downto 0)
+    TX_dst_MAC_addr : out std_logic_vector(47 downto 0);
+    cmd_smpl_en : buffer std_logic
     );
 end command_analysis;
 
@@ -62,6 +63,7 @@ architecture Behavioral of command_analysis is
   signal reg_clr_cnt : std_logic_vector(7 downto 0);
   signal upload_trig_ethernet_cnt : std_logic_vector(7 downto 0);
   signal rd_en_d : std_logic;
+  signal cmd_smpl_en_cnt : std_logic_vector(7 downto 0);
   -- signal reg_clr_cnt : std_logic_vector(7 downto 0);
 begin
   rst_n <= user_pushbutton;
@@ -176,7 +178,7 @@ begin
       elsif reg_addr=x"0101" and reg_data =x"222222222222" then
         ram_switch<="010";
       elsif reg_addr=x"0101" and reg_data = x"333333333333"  then
-        ram_switch<="101";
+        ram_switch<="100";              --fft channel
       end if;
     end if;
   end process ram_switch_ps;
@@ -214,6 +216,34 @@ begin
       end if;
     end if;
   end process upload_trig_ethernet_cnt_ps;
+  -----------------------------------------------------------------------------
+  cmd_smpl_en_ps: process (rd_clk, rst_n) is
+  begin  -- process cmd_sample_en_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      cmd_smpl_en<='0';
+    elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
+      if cmd_smpl_en_cnt=x"0f" then
+        cmd_smpl_en<='0';
+      elsif reg_addr =x"0003" and reg_data =x"eeeeeeeeeeee" then
+        cmd_smpl_en<='1';
+      end if;
+    end if;
+  end process cmd_smpl_en_ps;
+
+  cmd_smpl_en_cnt_ps: process (rd_clk, rst_n) is
+  begin  -- process cmd_smpl_en_cnt_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      cmd_smpl_en_cnt<=(others => '0');
+    elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
+      if cmd_smpl_en<='1' then
+      cmd_smpl_en_cnt<=cmd_smpl_en_cnt+1;
+      elsif cmd_smpl_en<='0' then
+        cmd_smpl_en_cnt<=(others => '0');
+      end if;
+    end if;
+  end process cmd_smpl_en_cnt_ps;
+  --cmd_smple_en是上位机用来解锁trigin的enable信号，长度由计数器决定。目前设置是固定数2000.
+  -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
   --配置命令
   -- purpose: to assign new destination MAC address in case that the PC changes.

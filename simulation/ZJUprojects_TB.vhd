@@ -304,29 +304,29 @@ begin
 -- type   : sequential
 -- inputs : CLK_500M, rst
 -- outputs: DOIA
-  sim_DOIA : process (CLK_500M, rst, user_pushbutton) is
-  begin  -- process sim_DOIA
-    if user_pushbutton = '0' then       -- asynchronous reset (active low)
-      ADC_DOIA_p <= (others => '0');
-    elsif CLK_500M'event and CLK_500M = '1' then  -- rising clock edge
-      ADC_DOIA_p <= ADC_DOIA_p+2;
-    end if;
-  end process sim_DOIA;
-  ADC_DOIA_n <= not ADC_DOIA_p;
+  -- sim_DOIA : process (CLK_500M, rst, user_pushbutton) is
+  -- begin  -- process sim_DOIA
+  --   if user_pushbutton = '0' then       -- asynchronous reset (active low)
+  --     ADC_DOIA_p <= (others => '0');
+  --   elsif CLK_500M'event and CLK_500M = '1' then  -- rising clock edge
+  --     ADC_DOIA_p <= ADC_DOIA_p+2;
+  --   end if;
+  -- end process sim_DOIA;
+  -- ADC_DOIA_n <= not ADC_DOIA_p;
 
   -- purpose: set a counter to simulate DOIB
 -- type   : sequential
 -- inputs : CLK_500M, rst
 -- outputs: DOIB
-  sim_DOIB : process (CLK_500M, rst, user_pushbutton) is
-  begin  -- process sim_DOIB
-    if user_pushbutton = '0' then       -- asynchronous reset (active low)
-      ADC_DOIB_p <= x"01";
-    elsif CLK_500M'event and CLK_500M = '1' then  -- rising clock edge
-      ADC_DOIB_p <= ADC_DOIB_p+2;
-    end if;
-  end process sim_DOIB;
-  ADC_DOIB_n <= not ADC_DOIB_p;
+  -- sim_DOIB : process (CLK_500M, rst, user_pushbutton) is
+  -- begin  -- process sim_DOIB
+  --   if user_pushbutton = '0' then       -- asynchronous reset (active low)
+  --     ADC_DOIB_p <= x"01";
+  --   elsif CLK_500M'event and CLK_500M = '1' then  -- rising clock edge
+  --     ADC_DOIB_p <= ADC_DOIB_p+2;
+  --   end if;
+  -- end process sim_DOIB;
+  -- ADC_DOIB_n <= not ADC_DOIB_p;
   -----------------------------------------------------------------------------
   -- Stimulus process
   stim_proc : process

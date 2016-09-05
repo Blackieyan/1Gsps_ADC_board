@@ -72,7 +72,8 @@ entity G_ethernet_top is
     SRCC1_n_upload_sma_trigin : in std_logic;
     upload_trig_ethernet : in std_logic;
     posedge_upload_trig : in std_logic;
-    TX_dst_MAC_addr : in std_logic_vector(47 downto 0)
+    TX_dst_MAC_addr : in std_logic_vector(47 downto 0);
+    sample_en : in std_logic
     );
 end G_ethernet_top;
 
@@ -145,7 +146,8 @@ architecture Behavioral of G_ethernet_top is
       ram_last : in std_logic;
       upload_trig_ethernet : in std_logic;
       posedge_upload_trig : in std_logic;
-      TX_dst_MAC_addr : in std_logic_vector(47 downto 0)
+      TX_dst_MAC_addr : in std_logic_vector(47 downto 0);
+      sample_en : in std_logic
       );
   end component;
 
@@ -197,7 +199,8 @@ begin
     upload_trig_ethernet =>upload_trig_ethernet,
     ram_last =>  ram_last,
     posedge_upload_trig => posedge_upload_trig,
-    TX_dst_MAC_addr =>TX_dst_MAC_addr                            
+    TX_dst_MAC_addr =>TX_dst_MAC_addr,
+    sample_en => sample_en                                                    
     );
 
 --    IBUFG_inst : IBUFG
