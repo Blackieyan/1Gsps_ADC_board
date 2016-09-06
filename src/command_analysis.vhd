@@ -50,7 +50,8 @@ entity command_analysis is
     user_pushbutton : in  std_logic;
     ram_switch : out std_logic_vector(2 downto 0);
     TX_dst_MAC_addr : out std_logic_vector(47 downto 0);
-    cmd_smpl_en : buffer std_logic
+    cmd_smpl_en : buffer std_logic;
+    cmd_smpl_depth : out std_logic_vector(15 downto 0)
     );
 end command_analysis;
 
@@ -253,11 +254,27 @@ begin
   TX_dst_MAC_address_ps: process (rd_clk, rst_n) is
   begin  -- process TX_dst_MAC_address_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      TX_dst_MAC_addr<=(others => '0');
+      TX_dst_MAC_addr<=x"ffffffffffff";
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
       if reg_addr = x"0011"  then
         TX_dst_MAC_addr<=reg_data;
       end if;
     end if;
   end process TX_dst_MAC_address_ps;
+
+------------------------------------------------------------------------------
+-- purpose: to configure the ram sampling depth as a register
+-- type   : sequential
+-- inputs : rd_clk, rst_n
+-- outputs: 
+cmd_smpl_depth_ps: process (rd_clk, rst_n) is
+begin  -- process ram_smpl_depth_ps
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    cmd_smpl_depth<=x"07d0";
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
+    if reg_addr =x"0012" then
+      cmd_smpl_depth<=reg_data(47 downto 32);
+    end if;
+  end if;
+end process cmd_smpl_depth_ps;
 end Behavioral;

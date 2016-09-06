@@ -121,11 +121,11 @@ architecture Behavioral of ZJUprojects is
   signal clk1         : std_logic;
   signal clk2         : std_logic;
   signal clk3         : std_logic;
-  signal CLK5_200MHz : std_logic;
+  signal CLK_200M : std_logic;
   signal CLK6_20MHz : std_logic;
 --   signal spi_mosi : std_logic;
 -------------------------------------------------------------------------------
-  signal rst_gb : std_logic;               --global signal
+  -- signal rst_gb : std_logic;               --global signal
   -----------------------------------------------------------------------------
   signal full_IA1 : std_logic;          -- fifo_i
   signal empty_IA1 : std_logic;
@@ -202,16 +202,16 @@ architecture Behavioral of ZJUprojects is
   signal ADC_CLKOI : std_logic;
   attribute keep of ADC_CLKOI : signal is true;
   signal ADC_CLKOQ            : std_logic;
-  signal rst_gb_d             : std_logic;
+  -- signal rst_gb_d             : std_logic;
   signal rst_n : std_logic;
   signal posedge_upload_trig : std_logic;
   signal ram_i_doutb_sim : std_logic_vector(7 downto 0);
  
-  attribute keep of rst_gb_d  : signal is true;
-  signal OIcounter            : std_logic_vector(7 downto 0);
-  attribute keep of OIcounter : signal is true;
-  signal OQcounter            : std_logic_vector(7 downto 0);
-  attribute keep of OQcounter : signal is true;
+  -- attribute keep of rst_gb_d  : signal is true;
+  -- signal OIcounter            : std_logic_vector(7 downto 0);
+  -- attribute keep of OIcounter : signal is true;
+  -- signal OQcounter            : std_logic_vector(7 downto 0);
+  -- attribute keep of OQcounter : signal is true;
   attribute IODELAY_GROUP     : string;
   -----------------------------------------------------------------------------
   -- signal fd : std_logic_vector(15 downto 0); --usb module
@@ -221,8 +221,8 @@ architecture Behavioral of ZJUprojects is
   -- signal usb_clr :std_logic;
   -- signal data_in_usb : std_logic_vector(15 downto 0);
   -- signal dout : std_logic_vector(15 downto 0);
-  -- signal clk_div_cnt :std_logic_vector(7 downto 0);
-  -- constant Div_multi :std_logic_vector(3 downto 0) := "1010";
+  signal clk_div_cnt :std_logic_vector(7 downto 0);
+  constant Div_multi :std_logic_vector(3 downto 0) := "1010";
   -- signal usb_SCLK : std_logic;
   -----------------------------------------------------------------------------
   signal CLK_250M : std_logic;
@@ -230,13 +230,13 @@ architecture Behavioral of ZJUprojects is
   signal CLK_125M : std_logic;
   signal CLK_125M_quar : std_logic;
   signal CLK_71M : std_logic;
-   signal ethernet_Rd_clk : std_logic;
-   signal ethernet_Rd_en : std_logic;
-   signal ethernet_Rd_addr : std_logic_vector(13 downto 0);
-	signal ethernet_frm_valid : std_logic;
-	signal frm_valid_d : std_logic;
-	signal ethernet_rd_data : std_logic_vector(7 downto 0);
-    attribute keep of ethernet_Rd_data : signal is true;
+  signal ethernet_Rd_clk : std_logic;
+  signal ethernet_Rd_en : std_logic;
+  signal ethernet_Rd_addr : std_logic_vector(13 downto 0);
+  signal ethernet_frm_valid : std_logic;
+  signal frm_valid_d : std_logic;
+  signal ethernet_rd_data : std_logic_vector(7 downto 0);
+  attribute keep of ethernet_Rd_data : signal is true;
   -- signal rst_n : std_logic;
   signal ethernet_fifo_upload_data : std_logic_vector(7 downto 0);
   signal ethernet_rst_n_gb_i : std_logic;
@@ -259,8 +259,8 @@ architecture Behavioral of ZJUprojects is
   -- signal dina_2 : std_logic_vector(7 downto 0);
   -- signal dina_3 : std_logic_vector(7 downto 0);
   -- signal dina_4 : std_logic_vector(7 downto 0);
-  signal ram_addra : std_logic_vector(13 downto 0);
-  signal ram_addrb : std_logic_vector(15 downto 0);
+  signal ram_addra : std_logic_vector(12 downto 0);  --edit at 9.6
+  signal ram_addrb : std_logic_vector(14 downto 0);  --edit at 9.6
   signal clr_n_ram : std_logic;
   signal ram_last : std_logic;
   signal ram_q_last : std_logic;
@@ -288,8 +288,8 @@ architecture Behavioral of ZJUprojects is
   signal ram_i_ena : std_logic;
   signal ram_i_enb : std_logic;
   signal ram_i_wea : std_logic_vector(0 downto 0);
-  signal ram_i_addra : std_logic_vector(13 downto 0);
-  signal ram_i_addrb : std_logic_vector(15 downto 0);
+  signal ram_i_addra : std_logic_vector(12 downto 0);  --edit at 9.6
+  signal ram_i_addrb : std_logic_vector(14 downto 0);  --edit at 9.6
   signal ram_i_rst : std_logic;
   signal ADC_doia_delay : std_logic_vector(7 downto 0);
   signal ADC_doib_delay : std_logic_vector(7 downto 0); 
@@ -316,6 +316,13 @@ architecture Behavioral of ZJUprojects is
   signal sample_trig_cnt : std_logic_vector(11 downto 0);
   signal cmd_smpl_en_d : std_logic;
   signal cmd_smpl_en_d2 : std_logic;
+  signal cmd_smpl_depth : std_logic_vector(15 downto 0);
+  signal dcm1_locked : std_logic;
+  signal dcm1_locked_d : std_logic;
+  signal dcm1_locked_d2 : std_logic;
+  signal lck_rst_n : std_logic;
+  signal div_sclk : std_logic;
+  signal div_sclk_cnt : std_logic_vector(31 downto 0);
   -----------------------------------------------------------------------------
   signal fft_ce_I : std_logic;
   signal fft_sclr_I : std_logic;
@@ -352,7 +359,6 @@ architecture Behavioral of ZJUprojects is
   -------------------------------------------------------------------------------
   component ADC_interface
     port(
-      clk2 : in std_logic;
       CLK1         : in  std_logic;
       user_pushbutton : in std_logic;
       ADC_Mode     : out std_logic;
@@ -458,25 +464,27 @@ END COMPONENT;
                 ram_switch : out std_logic_vector(2 downto 0);
                 upload_trig_ethernet : buffer std_logic;
                 TX_dst_MAC_addr : out STD_LOGIC_VECTOR(47 downto 0);
-                cmd_smpl_en: out std_logic
+                cmd_smpl_en: out std_logic;
+                cmd_smpl_depth: out STD_LOGIC_VECTOR(15 downto 0)
 		);
 	END COMPONENT;
   -----------------------------------------------------------------------------
-  component dcm
-    port
-      (                                 -- Clock in ports
-        CLK_IN1_P : in  std_logic;
-        CLK_IN1_N : in  std_logic;
-        -- Clock out ports
-        CLK_OUT1  : out std_logic;      --100mhz
-        CLK_OUT2  : out std_logic;      -- 10mhz
-        CLK_OUT3  : out std_logic;      -- 71mhz
-        CLK_OUT4  : out std_logic;      -- 500mhz
-        CLK_OUT5  : out std_logic;      -- 200mhz
-        CLK_OUT6 : out std_logic;  -- 125mhz
-        CLK_out7 : out std_logic  -- 125mhz quar
-        );
-  end component;
+  -- component dcm
+  --   port
+  --     (                                 -- Clock in ports
+  --       CLK_IN1_P : in  std_logic;
+  --       CLK_IN1_N : in  std_logic;
+  --       -- Clock out ports
+  --       CLK_OUT1  : out std_logic;      --100mhz
+  --       CLK_OUT2  : out std_logic;      -- 10mhz
+  --       CLK_OUT3  : out std_logic;      -- 71mhz
+  --       CLK_OUT4  : out std_logic;      -- 500mhz
+  --       CLK_OUT5  : out std_logic;      -- 200mhz
+  --       CLK_OUT6 : out std_logic;  -- 125mhz
+  --       CLK_out7 : out std_logic;  -- 125mhz quar
+  --       locked : out std_logic
+  --       );
+  -- end component;
 
   component dcm_adc_clkoi
 port
@@ -507,6 +515,19 @@ port
   CLK_OUT1          : out    std_logic
  );
 end component;
+
+component dcm_125MHz
+port
+ (-- Clock in ports
+  CLK_IN1_P         : in     std_logic;
+  CLK_IN1_N         : in     std_logic;
+  -- Clock out ports
+  CLK_OUT1          : out    std_logic;
+  CLK_OUT2          : out    std_logic;
+  clk_out3 :out std_logic;
+  locked : out std_logic
+ );
+end component;
 -------------------------------------------------------------------------------
   COMPONENT fifo
   PORT (
@@ -529,12 +550,12 @@ END COMPONENT;
     clka : IN STD_LOGIC;
     ena : IN STD_LOGIC;
     wea : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
-    addra : IN STD_LOGIC_VECTOR(13 DOWNTO 0);
+    addra : IN STD_LOGIC_VECTOR(12 DOWNTO 0);
     dina : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
     clkb : IN STD_LOGIC;
     rstb : IN STD_LOGIC;
     enb : IN STD_LOGIC;
-    addrb : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+    addrb : IN STD_LOGIC_VECTOR(14 DOWNTO 0);
     doutb : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
   );
 END COMPONENT;
@@ -544,12 +565,12 @@ END COMPONENT;
     clka : IN STD_LOGIC;
     ena : IN STD_LOGIC;
     wea : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
-    addra : IN STD_LOGIC_VECTOR(13 DOWNTO 0);
+    addra : IN STD_LOGIC_VECTOR(12 DOWNTO 0);
     dina : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
     clkb : IN STD_LOGIC;
     rstb : IN STD_LOGIC;
     enb : IN STD_LOGIC;
-    addrb : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+    addrb : IN STD_LOGIC_VECTOR(14 DOWNTO 0);
     doutb : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
   );
 END COMPONENT;
@@ -575,20 +596,21 @@ END COMPONENT;
 ---------------------------------------------------------------------------------primitive instantiation       
 begin
   ----------------------------------------------------------------------------
-  dcm1 : dcm
-    port map
-    (                                   -- Clock in ports
-      CLK_IN1_P => OSC_in_p,
-      CLK_IN1_N => OSC_in_n,
-      -- Clock out ports
-      CLK_OUT1  => CLK1,                --100MHz
-      CLK_OUT2  => CLK2,                --5MHz
-      CLK_OUT3  => CLK_71M,                -- 71mhz inv
-      CLK_OUT4  => open,                -- for chipscope
-      CLK_OUT5 => CLK5_200MHz,          -- iodley ctrl
-		CLK_OUT6 => CLK_125M,  -- for ethernet 
-      CLK_OUT7 => CLK_125M_quar
-      );               --10MHz 50shift
+  -- dcm1 : dcm
+  --   port map
+  --   (                                   -- Clock in ports
+  --     CLK_IN1_P => OSC_in_p,
+  --     CLK_IN1_N => OSC_in_n,
+  --     -- Clock out ports
+  --     -- CLK_OUT1  => CLK1,                --100MHz
+  --     -- CLK_OUT2  => CLK2,                --5MHz
+  --     -- CLK_OUT3  => CLK_71M,                -- 71mhz inv
+  --     -- CLK_OUT4  => open,                -- for chipscope
+  --     CLK_OUT5 => CLK5_200MHz,          -- iodley ctrl
+  --     CLK_OUT1 => CLK_125M,          -- for ethernet 
+  --     CLK_OUT2 => CLK_125M_quar,
+  --     -- locked => dcm1_locked
+  --     );               --10MHz 50shift
 
  dcm2 : dcm_adc_clkoi
   port map
@@ -607,7 +629,19 @@ begin
     -- Clock out ports
     ADC_clkoq => ADC_clkoq,
     ADC_clkoq_inv => ADC_clkoq_inv);
-	
+
+  dcm_global : dcm_125MHz
+  port map
+   (-- Clock in ports
+    CLK_IN1_P => OSC_in_p,
+    CLK_IN1_N => OSC_in_n,
+    -- Clock out ports
+    CLK_OUT1 => CLK_125M,
+    CLK_OUT2 => CLK_125M_quar,
+    CLK_OUT3 => CLK_200M,
+    locked => dcm1_locked
+    );
+  
             IBUFG_inst : IBUFG
     generic map (
        IBUF_LOW_PWR => TRUE, -- Low power (TRUE) vs. performance (FALSE) setting for refernced I/O standards
@@ -906,11 +940,11 @@ IODELAYE1_inst : IODELAYE1
   );
   end generate universal;
 end generate;
--------------------------------------------------------------------------------	
+	
 IDELAYCTRL_inst : IDELAYCTRL
   port map (
      RDY => open,       -- 1-bit output indicates validity of the REFCLK
-     REFCLK => CLK5_200MHz, -- 1-bit reference clock input
+     REFCLK => CLK_200M, -- 1-bit reference clock input
      RST => '0'        -- 1-bit reset input
   );
 -------------------------------------------------------------------------------
@@ -1106,17 +1140,16 @@ IDELAYCTRL_inst : IDELAYCTRL
 -------------------------------------------------------------------------------
   Inst_ADC_interface : ADC_interface port map(
     ADC_Mode        => ADC_Mode,
-    user_pushbutton => user_pushbutton_g,
+    user_pushbutton => user_pushbutton_g or lck_rst_n,
     ADC_sclk_OUT    => ADC_sclk_OUT,
     ADC_sldn_OUT    => ADC_sldn_OUT,
     ADC_sdata       => ADC_sdata,
-    CLK1            => CLK1,
-    CLK2            => CLK2
+    clk1            => CLK_125M
     );
 -------------------------------------------------------------------------------
   Inst_CDCE62005_config : CDCE62005_config port map(
-    clk         => clk2,
-    clk_spi     => not clk2,
+    clk         => div_SCLK,
+    clk_spi     => not div_SCLK,
     en          => cdce62005_en,
     spi_clk     => spi_clk,
     spi_mosi    => spi_mosi,
@@ -1188,7 +1221,7 @@ IDELAYCTRL_inst : IDELAYCTRL
 		PHY_GTXclk_quar => PHY_GTXclk_quar,
 		phy_txen_quar => phy_txen_quar,
 		phy_txer_o => phy_txer_o,
-		user_pushbutton => user_pushbutton_g,
+		user_pushbutton => user_pushbutton_g or lck_rst_n,
 		rst_n_o => phy_rst_n_o,
 		fifo_upload_data =>ethernet_fifo_upload_data,
 		Rd_clk => ethernet_Rd_clk,
@@ -1226,11 +1259,12 @@ IDELAYCTRL_inst : IDELAYCTRL
 		-- reg_addr =>mac_reg_addr ,
 		-- reg_data =>mac_reg_data ,
 	        ram_start => ram_start,
-                user_pushbutton => user_pushbutton_g,
+                user_pushbutton => user_pushbutton_g or lck_rst_n,
                 ram_switch =>ram_switch,
                 upload_trig_ethernet=> upload_trig_ethernet,
                 TX_dst_MAC_addr=>TX_dst_MAC_addr,
-                cmd_smpl_en=>cmd_smpl_en
+                cmd_smpl_en=>cmd_smpl_en,
+                cmd_smpl_depth=>cmd_smpl_depth
 	);
 -------------------------------------------------------------------------------
     ram_data_inst : ram_data
@@ -1280,149 +1314,27 @@ IDELAYCTRL_inst : IDELAYCTRL
   ram_i_rstb<=not rst_n;
   -- clr_n_ram<=rst_n;
 -----------------------------------------------------------------------------
--- Inst_fifo_receivedata_I_A1  : fifo
---   PORT MAP (
---     rst => rst,
---     wr_clk => CLKOI,
---     rd_clk => CLKOI,
---     din =>din_IA1 ,
---     wr_en => wr_en,
---     rd_en => rd_en,
---     dout => ADC_DOIA_1_out,
---     full => full_IA1,
---     almost_full => almost_full_IA1,
---     empty => empty_IA1,
---     valid => valid_IA1
---   );
-  -- Inst_fifo_receivedata_I_A2  : fifo
-  -- PORT MAP (
-  --   rst => rst,
-  --   wr_clk => CLKOI,
-  --   rd_clk => CLKOI,
-  --   din => ADC_DOIA_2,
-  --   wr_en => wr_en,
-  --   rd_en => rd_en,
-  --   dout =>ADC_DOIA_2_out,
-  --   full => full_IA2,
-  --   almost_full => almost_full_IA2,
-  --   empty => empty_IA2,
-  --   valid => valid_IA2
-  -- );
-
-  -- Inst_fifo_receivedata_I_B1  : fifo
-  -- PORT MAP (
-  --   rst => rst,
-  --   wr_clk => CLKOI,
-  --   rd_clk => CLKOI,
-  --   din =>ADC_DOIB_1 ,
-  --   wr_en => wr_en,
-  --   rd_en => rd_en,
-  --   dout => ADC_DOIB_1_out,
-  --   full => full_IB1,
-  --   almost_full => almost_full_IB1,
-  --   empty => empty_IB1,
-  --   valid => valid_IB1
-  -- );
-
-  -- Inst_fifo_receivedata_I_B2  : fifo
-  -- PORT MAP (
-  --   rst => rst,
-  --   wr_clk => CLKOI,
-  --   rd_clk => CLKOI,
-  --   din => din_IB2,
-  --   wr_en => wr_en,
-  --   rd_en => rd_en,
-  --   dout =>ADC_DOIB_2_out,
-  --   full => full_IB2,
-  --   almost_full => almost_full_IB2,
-  --   empty => empty_IB2,
-  --   valid => valid_IB2
-  -- );
-
---   Inst_fifo_receivedata_Q  : fifo       --测试用fifo
---   PORT MAP (
---     rst => rst_gb,
---     wr_clk => ADC_CLKOQ,
---     rd_clk => ADC_CLKOQ,
---     din =>din_Q ,
---     wr_en => wr_en,
---     rd_en => rd_en,
---     dout => ADC_DOQA_1_out,
---     full => full_QA1,
---     almost_full => almost_full_QA1,
---     empty => empty_QA1,
---     valid => valid_QA1
---   );
--- din_Q<=ADC_DOQA_1_d&ADC_DOQB_1_d&ADC_DOQA_2_d&ADC_DOQB_2_d;
--- wr_en<='1';
--- rd_en<='1';
-  -- Inst_fifo_receivedata_Q_A2  : fifo
-  -- PORT MAP (
-  --   rst => rst,
-  --   wr_clk => CLKOQ,
-  --   rd_clk => CLKOQ,
-  --   din => ADC_DOQA_2,
-  --   wr_en => wr_en,
-  --   rd_en => rd_en,
-  --   dout =>ADC_DOQA_2_out,
-  --   full => full_QA2,
-  --   almost_full => almost_full_QA2,
-  --   empty => empty_QA2,
-  --   valid => valid_QA2
-  -- );
-
-  -- Inst_fifo_receivedata_Q_B1  : fifo
-  -- PORT MAP (
-  --   rst => rst,
-  --   wr_clk => CLKOQ,
-  --   rd_clk => CLKOQ,
-  --   din =>ADC_DOQB_1 ,
-  --   wr_en => wr_en,
-  --   rd_en => rd_en,
-  --   dout => ADC_DOQB_1_out,
-  --   full => full_QB1,
-  --   almost_full => almost_full_QB1,
-  --   empty => empty_QB1,
-  --   valid => valid_QB1
-  -- );
-
-  -- Inst_fifo_receivedata_Q_B2  : fifo
-  -- PORT MAP (
-  --   rst => rst,
-  --   wr_clk => CLKOQ,
-  --   rd_clk => CLKOQ,
-  --   din => ADC_DOQB_2,
-  --   wr_en => wr_en,
-  --   rd_en => rd_en,
-  --   dout =>ADC_DOQB_2_out,
-  --   full => full_QB2,
-  --   almost_full => almost_full_QB2,
-  --   empty => empty_QB2,
-  --   valid => valid_QB2
-  -- );
-
   -----------------------------------------------------------------------------
-  ----------------------------------------------------------------------------
-  -- test_pin_i_ps: process (ADC_clkoi, ADC_DOiB_1_d, ADC_DOiA_1_d) is
-  -- begin  -- process test_pin_ps
-  --   if ADC_clkoi'event and ADC_clkoi = '1' then
-  --   if (ADC_DOiA_1_d - ADC_DOiB_1_d > x"5") and (ADC_DOiA_1_d>ADC_DOib_1_d) then 
-  --     data_test_pin<='1';
-  --   else
-  --     data_test_pin<='0';
-  --   end if;
-  -- end if;
-  -- end process test_pin_i_ps;
-  --   test_pin_i_ps: process (ADC_clkoq, ADC_DOqB_1_d, ADC_DOqA_1_d) is
-  -- begin  -- process test_pin_ps
-  --   if ADC_clkoq'event and ADC_clkoq = '1' then
-  --   if (ADC_DOqA_1_d - ADC_DOqB_1_d > x"5") and (ADC_DOqA_1_d>ADC_DOqb_1_d) then 
-  --     data_test_pin<='1';
-  --   else
-  --     data_test_pin<='0';
-  --   end if;
-  -- end if;
-  -- end process test_pin_i_ps;
+dcm1_locked_d_ps: process (CLK_125M) is
+begin  -- process dcm1_locked_d_ps
+  if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+    dcm1_locked_d<=dcm1_locked;
+    dcm1_locked_d2<=dcm1_locked_d;
+  end if;
+end process dcm1_locked_d_ps;
+  
+  lck_rst_n_ps: process (CLK_125M, user_pushbutton_g) is
+  begin  -- process reset_n_ps
+    if user_pushbutton_g = '0' then       -- asynchronous reset (active low)
+      lck_rst_n<='1';
+    elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      if dcm1_locked_d='1' and dcm1_locked_d2='0' then
+        lck_rst_n<='0';
+      else
+        lck_rst_n<='1';
+      end if;
+    end if;
+  end process lck_rst_n_ps;
   -----------------------------------------------------------------------------
   ram_switch_ps: process (CLK_125M, rst_n) is
   begin  -- process ram_switch_ps
@@ -1538,10 +1450,10 @@ begin  -- process addra_ps
     --   ram_addra<=(others => '0');
     if ram_wren='1' then                --收到wren控制，希望wren是上位机的trig到来后的10us或者20us这样一个持续，ram_wren来自tx_module
     -- if ram_addra<x"270e" then        --只写入一次 10000的ram深度
-       if ram_addra<x"01F4" then 
+       if ram_addra< cmd_smpl_depth(14 downto 2)then --cmd_smpl_depth/4
       ram_addra<=ram_addra+1;
       ram_q_full<='0';
-    elsif ram_addra>= x"01f4" then       --270f是最后一个地址 留一个余量防止ram崩溃
+    elsif ram_addra>= cmd_smpl_depth(14 downto 2) then       --270f是最后一个地址 留一个余量防止ram崩溃
       ram_q_full<='1';                    --为了保持这个full的状态，ram_addra不能清零
     end if;
   end if;
@@ -1555,14 +1467,14 @@ begin  -- process addrb_ps
     ram_q_last<='1';
   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
   if posedge_upload_trig='1' then    --比真正的trig上升沿到来晚一拍
-    ram_addrb<=x"0000";                 --edit at 8.25 for a bug
+    ram_addrb<=(others => '0');                 --edit at 8.25 for a bug
     ram_q_last<='1';
     elsif ram_rden='1' then
      -- if ram_addrb<x"9c37" then
-    if ram_addrb<x"07D0" then
+    if ram_addrb<cmd_smpl_depth(14 downto 0) then    --edit at 9.5
       ram_addrb<=ram_addrb+1;                   --只读一轮 测试阶段先循环读出,现在ram的深度为10000 位宽32bit,对于8bit的读出位宽深度为40000，x“9c40"
       ram_q_last<='0';
-    elsif ram_addrb>=x"07D0" then        --不要读满。。余几个量
+    elsif ram_addrb>=cmd_smpl_depth(14 downto 0) then        --不要读满。。余几个量
       ram_q_last<='1';
              --根据方针前4个值为空，9c40为x
      end if;
@@ -1578,10 +1490,10 @@ begin  -- process addra_ps
     -- if posedge_sample_trig ='1' then
     --  ram_i_addra<=(others => '0');     
     if ram_wren='1' then                --收到wren控制，希望wren是上位机的trig到来后的10us或者20us这样一个持续
-    if ram_i_addra<x"01f4" then        --只写入一次 10000的ram深度
+    if ram_i_addra<=cmd_smpl_depth(14 downto 2) then        --只写入一次 10000的ram深度
       ram_i_addra<=ram_i_addra+1;
       ram_i_full<='0';
-    elsif ram_i_addra>= x"01f4" then       --270f是最后一个地址 留一个余量防止ram崩溃
+    elsif ram_i_addra>=cmd_smpl_depth(14 downto 2) then       --270f是最后一个地址 留一个余量防止ram崩溃
       ram_i_full<='1';                    --为了保持这个full的状态，ram_addra不能清零
     end if;
   end if;
@@ -1595,13 +1507,13 @@ begin  -- process addrb_ps
     ram_i_last<='1';
   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
     if posedge_upload_trig ='1' then  --比真正的trig上升沿到来晚一拍
-    ram_i_addrb<=x"0000";               --edit at 8.25
+    ram_i_addrb<=(others => '0');               --edit at 8.25
     ram_i_last<='1';                    --如果为0状态机不会被强制中止
     elsif ram_rden='1' then
-     if ram_i_addrb<x"07d09c37" then
+     if ram_i_addrb<=cmd_smpl_depth(14 downto 0) then
       ram_i_addrb<=ram_i_addrb+1;                   --只读一轮 测试阶段先循环读出,现在ram的深度为10000 位宽32bit,对于8bit的读出位宽深度为40000，x“9c40"
       ram_i_last<='0';
-    elsif ram_i_addrb>=x"07d0" then        --不要读满。。余几个量
+    elsif ram_i_addrb>=cmd_smpl_depth(14 downto 0) then        --不要读满。。余几个量
       ram_i_last<='1';
             --根据方针前4个值为空，9c40为x
      end if;
@@ -1704,91 +1616,94 @@ end process Rd_Addr_ps;
 -- type   : sequential
 -- inputs : CLK2
 -- outputs: clk2_cnt
-    set_clk2_cnt : process (CLK2, clk2_cnt) is
+    div_SCLK_cnt_ps : process (div_SCLK) is
     begin  -- process set_Gcnt    
-      if CLK2'event and CLK2 = '1' then
-        if clk2_cnt <= x"11111111" then
-          clk2_cnt <= clk2_cnt+1;
+      if div_SCLK'event and div_SCLK = '1' then
+        if div_SCLK_cnt <= x"11111111" then
+          div_SCLK_cnt <= div_SCLK_cnt+1;
           else
-            clk2_cnt<=clk2_cnt;
+            div_SCLK_cnt<=div_SCLK_cnt;
         end if;
       end if;
-    end process set_clk2_cnt;
+    end process div_SCLK_cnt_ps;
 
-    set_cdce62005_en : process (CLK1, cdce62005_en) is
+    set_cdce62005_en : process (CLK_125M, cdce62005_en) is
     begin  -- process cdce62005_en
-      if CLK1'event and CLK1 = '1' then
-      if clk2_cnt >= x"00000000" and clk2_cnt <= x"00000050" then
+      if rst_n ='0' then
+        cdce62005_en<='0';
+      elsif CLK_125M'event and CLK_125M = '1' then
+      if div_SCLK_cnt >= x"00000000" and div_SCLK_cnt <= x"00000050" then
         cdce62005_en <= '0';
       else
         cdce62005_en <= '1';
       end if;
     end if;
     end process set_cdce62005_en;
+  
   -- purpose: set global_rst---以clk2_cnt为计数设置一个全局的高有效复位信号
   -- type   : sequential
-  -- inputs : clk1
+  -- inputs : CLK_125M
   -- outputs: rst_gb
-  set_rst: process (clk1) is
-  begin  -- process set_rst
-     if CLK1'event and CLK1 = '1' then
-      if clk2_cnt >= x"00000001" and clk2_cnt <= x"0000002" then
-        rst_gb<='1';
-        else
-          rst_gb<='0';
-    end if;
-  end if;
-  end process set_rst;
+  -- set_rst: process (CLK_125M) is
+  -- begin  process set_rst
+  --    if CLK_125M'event and CLK_125M = '1' then
+  --     if clk2_cnt >= x"00000001" and clk2_cnt <= x"0000002" then
+  --       rst_gb<='1';
+  --       else
+  --         rst_gb<='0';
+  --   end if;
+  -- end if;
+  -- end process set_rst;
 
   -- purpose: make GHz_in reveal in the chipscope 
   -- type   : sequential
   -- inputs : GHz_in
   -- outputs: 
-  set_GHz_in: process (GHz_in) is
-  begin  -- process set_GHz_in
-    if GHz_in'event and GHz_in = '1' then  -- rising clock edge
-      rst_gb_d<=rst_gb;
-    end if;
-  end process set_GHz_in;
+  -- set_GHz_in: process (GHz_in) is
+  -- begin  -- process set_GHz_in
+  --   if GHz_in'event and GHz_in = '1' then  -- rising clock edge
+  --     rst_gb_d<=rst_gb;
+  --   end if;
+  -- end process set_GHz_in;
 
-  set_OQcountera: process (ADC_CLKOQ) is
-  begin  -- process set_OQcounter
-    if ADC_CLKOQ'event and ADC_CLKOQ = '1' then  -- rising clock edge
-      OQcounter<=OQcounter+1;
-    end if;
-  end process set_OQcountera;
-   set_OIcounter: process (ADC_CLKOI) is
-  begin  -- process set_OQcounter
-    if ADC_CLKOI'event and ADC_CLKOI = '1' then  -- rising clock edge
-      OIcounter<=OIcounter+1;
-    end if;
-  end process set_OIcounter;
+  -- set_OQcountera: process (ADC_CLKOQ) is
+  -- begin  -- process set_OQcounter
+  --   if ADC_CLKOQ'event and ADC_CLKOQ = '1' then  -- rising clock edge
+  --     OQcounter<=OQcounter+1;
+  --   end if;
+  -- end process set_OQcountera;
+  --  set_OIcounter: process (ADC_CLKOI) is
+  -- begin  -- process set_OQcounter
+  --   if ADC_CLKOI'event and ADC_CLKOI = '1' then  -- rising clock edge
+  --     OIcounter<=OIcounter+1;
+  --   end if;
+  -- end process set_OIcounter;
 -----------------------------------------------------------------------------
-  -- set_clk_div_cnt : process (CLK2, rst_n) is --usb data
-  -- begin  -- process set_clk_div_cnt
-  --   if rst_n = '0' then                 -- asynchronous reset (active
-  --     clk_div_cnt <= x"00";
-  --   elsif CLK2'event and CLK2 = '1' then          -- rising clock edge
-  --     if clk_div_cnt <= Div_multi then
-  --       clk_div_cnt <= clk_div_cnt+1;
-  --     else
-  --       clk_div_cnt <= x"00";
-  --     end if;
-  --   end if;
-  -- end process set_clk_div_cnt;
+  set_clk_div_cnt : process (CLK_125M, rst_n) is --usb data
+  begin  -- process set_clk_div_cnt
+    if rst_n = '0' then                 -- asynchronous reset (active
+      clk_div_cnt <= x"00";
+    elsif CLK_125M'event and CLK_125M = '1' then          -- rising clock edge
+      if clk_div_cnt <= Div_multi then
+        clk_div_cnt <= clk_div_cnt+1;
+      else
+        clk_div_cnt <= x"00";
+      end if;
+    end if;
+  end process set_clk_div_cnt;
 
-  -- set_usb_sclk : process (CLK2, rst_n) is
-  -- begin  -- process set_ADC_sclk
-  --   if rst_n = '0' then                   -- asynchronous reset (active low)
-  --     usb_SCLK <= '0';
-  --   elsif CLK2'event and CLK2 = '1' then  -- rising clock edge
-  --     if clk_div_cnt <= Div_multi(3 downto 1) then
-  --       usb_SCLK <= '0';
-  --     else
-  --       usb_SCLK <= '1';
-  --     end if;
-  --   end if;
-  -- end process set_usb_sclk;
+  set_div_sclk : process (CLK_125M, rst_n) is
+  begin  -- process set_ADC_sclk
+    if rst_n = '0' then                   -- asynchronous reset (active low)
+      div_SCLK <= '0';
+    elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      if clk_div_cnt <= Div_multi(3 downto 1) then
+        div_SCLK <= '0';
+      else
+        div_SCLK <= '1';
+      end if;
+    end if;
+  end process set_div_sclk;
 
 
   -- data_in_usb_ps: process (usb_SCLK, rst_n) is
@@ -1815,8 +1730,8 @@ end process Rd_Addr_ps;
   -- SRCC1_n<=data_in_usb(0);--j8
    MRCC2_p<=data_test_pin;--j12
   -- MRCC2_n<=ADC_sdata;
- rst_n<=user_pushbutton_g;
- ethernet_rd_clk<= CLK_71M;
+ rst_n<=user_pushbutton_g or lck_rst_n;
+ ethernet_rd_clk<= CLK_125M;
  -- ethernet_fifo_upload_data<=ADC_DOQA_1_d;
   -- usb_rst<= user_pushbutton;
     end Behavioral;

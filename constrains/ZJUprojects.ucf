@@ -1,7 +1,7 @@
 NET "OSC_in_p" TNM_NET = "OSC_in_p";
-NET "dcm1/CLK_IN1_P" LOC = K13;
+NET "dcm_global/CLK_IN1_P" LOC = K13;
 TIMESPEC TS_OSC_in_p = PERIOD "OSC_in_p" 12.5 ns HIGH 50 %;
-NET "dcm1/CLK_IN1_N" LOC = K12;
+NET "dcm_global/CLK_IN1_N" LOC = K12;
 NET "GHz_in_p" TNM_NET = "GHz_in_p";
 NET "GHz_in_p" LOC = D11;
 TIMESPEC TS_GHz_in_p = PERIOD "GHz_in_p" 1 ns HIGH 50 %;
@@ -218,45 +218,45 @@ NET "ADC_CLKOQ_n" TNM_NET = "ADC_CLKOQ_n";
 NET "dcm3/CLK_IN1_N" LOC = H9;
 TIMESPEC TS_ADC_CLKOQ_n = PERIOD "ADC_CLKOQ_n" 4 ns HIGH 50 %;
 
-NET "ADC_DOIA[0]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOI_p RISING;
-NET "ADC_DOIB[0]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOI_p FALLING;
-NET "ADC_DOQA[0]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOQ_p RISING;
-NET "ADC_DOQB[0]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOQ_p FALLING;
+NET "ADC_DOIA[0]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" RISING;
+NET "ADC_DOIB[0]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" FALLING;
+NET "ADC_DOQA[0]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOQ_p" RISING;
+NET "ADC_DOQB[0]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOQ_p" FALLING;
 
-NET "ADC_DOIA[1]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOI_p RISING;
-NET "ADC_DOIB[1]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOI_p FALLING;
-NET "ADC_DOQA[1]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOQ_p RISING;
-NET "ADC_DOQB[1]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOQ_p FALLING;
+NET "ADC_DOIA[1]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" RISING;
+NET "ADC_DOIB[1]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" FALLING;
+NET "ADC_DOQA[1]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOQ_p" RISING;
+NET "ADC_DOQB[1]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOQ_p" FALLING;
 
-NET "ADC_DOIA[2]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOI_p RISING;
-NET "ADC_DOIB[2]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOI_p FALLING;
-NET "ADC_DOQA[2]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOQ_p RISING;
-NET "ADC_DOQB[2]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOQ_p FALLING;
+NET "ADC_DOIA[2]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" RISING;
+NET "ADC_DOIB[2]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" FALLING;
+NET "ADC_DOQA[2]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOQ_p" RISING;
+NET "ADC_DOQB[2]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOQ_p" FALLING;
 
-NET "ADC_DOIA[3]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOI_p RISING;
-NET "ADC_DOIB[3]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOI_p FALLING;
-NET "ADC_DOQA[3]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOQ_p RISING;
-NET "ADC_DOQB[3]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOQ_p FALLING;
+NET "ADC_DOIA[3]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" RISING;
+NET "ADC_DOIB[3]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" FALLING;
+NET "ADC_DOQA[3]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOQ_p" RISING;
+NET "ADC_DOQB[3]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOQ_p" FALLING;
 
-NET "ADC_DOIA[4]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOI_p RISING;
-NET "ADC_DOIB[4]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOI_p FALLING;
-NET "ADC_DOQA[4]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOQ_p RISING;
-NET "ADC_DOQB[4]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOQ_p FALLING;
+NET "ADC_DOIA[4]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" RISING;
+NET "ADC_DOIB[4]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" FALLING;
+NET "ADC_DOQA[4]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOQ_p" RISING;
+NET "ADC_DOQB[4]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOQ_p" FALLING;
 
-NET "ADC_DOIA[5]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOI_p RISING;
-NET "ADC_DOIB[5]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOI_p FALLING;
-NET "ADC_DOQA[5]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOQ_p RISING;
-NET "ADC_DOQB[5]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOQ_p FALLING;
+NET "ADC_DOIA[5]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" RISING;
+NET "ADC_DOIB[5]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" FALLING;
+NET "ADC_DOQA[5]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOQ_p" RISING;
+NET "ADC_DOQB[5]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOQ_p" FALLING;
 
-NET "ADC_DOIA[6]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOI_p RISING;
-NET "ADC_DOIB[6]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOI_p FALLING;
-NET "ADC_DOQA[6]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOQ_p RISING;
-NET "ADC_DOQB[6]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOQ_p FALLING;
+NET "ADC_DOIA[6]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" RISING;
+NET "ADC_DOIB[6]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" FALLING;
+NET "ADC_DOQA[6]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOQ_p" RISING;
+NET "ADC_DOQB[6]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOQ_p" FALLING;
 
-NET "ADC_DOIA[7]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOI_p RISING;
-NET "ADC_DOIB[7]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOI_p FALLING;
-NET "ADC_DOQA[7]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOQ_p RISING;
-NET "ADC_DOQB[7]" OFFSET = IN -250 ps VALID 2 ns BEFORE ADC_CLKOQ_p FALLING;
+NET "ADC_DOIA[7]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" RISING;
+NET "ADC_DOIB[7]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" FALLING;
+NET "ADC_DOQA[7]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOQ_p" RISING;
+NET "ADC_DOQB[7]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOQ_p" FALLING;
 
 
 
@@ -439,33 +439,37 @@ NET "SRCC1_n_upload_sma_trigin" LOC = P32;
 NET "MRCC2_p" LOC = N33;
 #NET "MRCC2_n[0]" LOC =M33; #j13
 
+
+#INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg3" LOC = RAMB36_X0Y14;
+#INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg2" LOC = RAMB36_X1Y13;
+#INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg4" LOC = RAMB36_X1Y14;
+#INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg3" LOC = RAMB36_X1Y15;
+#INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg4" LOC = RAMB36_X1Y16;
+#INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg2" LOC = RAMB36_X2Y14;
+#INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg1" LOC = RAMB36_X2Y15;
+#INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg1" LOC = RAMB36_X2Y16;
+#INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[0].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X2Y11;
+#INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[9].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X2Y12;
+#INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[8].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X2Y13;
+
+#INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[0].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X2Y5;
+#INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[6].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X2Y6;
+#INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[9].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X2Y7;
+#INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[6].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y10;
+#INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[3].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y11;
+#INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[5].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y12;
+#INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[4].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y13;
+#INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[2].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y14;
+#INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[1].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y15;
+#INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[5].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y2;
+#INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[1].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y3;
+#INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[4].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y4;
+#INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[7].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y5;
+#INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[2].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y6;
+#INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[3].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y7;
+#INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[8].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y8;
+#INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[7].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y9;
+
 # PlanAhead Generated physical constraints 
 
-INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg3" LOC = RAMB36_X0Y14;
-INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg2" LOC = RAMB36_X1Y13;
-INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg4" LOC = RAMB36_X1Y14;
-INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg3" LOC = RAMB36_X1Y15;
-INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg4" LOC = RAMB36_X1Y16;
-INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[0].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X2Y11;
-INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[9].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X2Y12;
-INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[8].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X2Y13;
-INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg2" LOC = RAMB36_X2Y14;
-INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg1" LOC = RAMB36_X2Y15;
-INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg1" LOC = RAMB36_X2Y16;
-INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[0].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X2Y5;
-INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[6].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X2Y6;
-INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[9].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X2Y7;
-INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[6].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y10;
-INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[3].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y11;
-INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[5].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y12;
-INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[4].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y13;
-INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[2].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y14;
-INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[1].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y15;
-INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[5].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y2;
-INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[1].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y3;
-INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[4].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y4;
-INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[7].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y5;
-INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[2].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y6;
-INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[3].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y7;
-INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[8].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y8;
-INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[7].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y9;
+INST "dcm_global/mmcm_adv_inst" LOC = MMCM_ADV_X0Y5;

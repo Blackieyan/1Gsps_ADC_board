@@ -13,8 +13,8 @@ entity ADC_interface is
     -- OSC_in_n      : in  std_logic;
     -- OSC_in_p      : in  std_logic
     user_pushbutton : in std_logic;
-    CLK1         : in  std_logic;        -- clock from dcm 100MHz
-    clk2 : in std_logic
+    CLK1         : in  std_logic       -- clock from dcm 100MHz
+    -- clk2 : in std_logic
     );
 end entity ADC_interface;
 
