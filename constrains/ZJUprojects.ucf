@@ -433,10 +433,8 @@ NET "PHY_RXDV" LOC = AK31;
 #---------------------------------------
 #NET "SRCC1_p" LOC =N32;#j9
 NET "SRCC1_p_trigin" LOC = N32;
-#j8
-NET "SRCC1_n_upload_sma_trigin" LOC = P32;
-#j12
-NET "MRCC2_p" LOC = N33;
+NET "SRCC1_n_upload_sma_trigin" LOC = P32;#j8
+NET "MRCC2_p" LOC = N33;#j12
 #NET "MRCC2_n[0]" LOC =M33; #j13
 
 
@@ -469,7 +467,16 @@ NET "MRCC2_p" LOC = N33;
 #INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[3].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y7;
 #INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[8].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y8;
 #INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[7].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y9;
+#edit at 9.6 change the ram 
+
+INST "dcm_global/mmcm_adv_inst" LOC = MMCM_ADV_X0Y5;
 
 # PlanAhead Generated physical constraints 
 
-INST "dcm_global/mmcm_adv_inst" LOC = MMCM_ADV_X0Y5;
+INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg3" LOC = RAMB36_X0Y13;
+INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg2" LOC = RAMB36_X0Y14;
+INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg4" LOC = RAMB36_X0Y15;
+INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg1" LOC = RAMB36_X1Y12;
+INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg1" LOC = RAMB36_X1Y13;
+INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg2" LOC = RAMB36_X1Y14;
+INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg4" LOC = RAMB36_X1Y15;

@@ -1407,11 +1407,11 @@ end process dcm1_locked_d_ps;
     if rst_n = '0' then                 -- asynchronous reset (active low)
       sample_trig_cnt<=(others => '0');
     elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-      if sample_en<='1' then
+      if sample_en ='1' then
         if posedge_sample_trig='1' then  --为了缩短逻辑响应时间，就不用上升沿判断了。这里的trig一定要只有一个周期长度才行。所以上位机的命令触发也会被算入其中。
           sample_trig_cnt<=sample_trig_cnt+1;
         end if;
-      elsif sample_en<='0' then
+      elsif sample_en ='0' then
         sample_trig_cnt<=(others => '0');
       end if;
     end if;
@@ -1431,7 +1431,7 @@ end process dcm1_locked_d_ps;
     if rst_n = '0' then                 -- asynchronous reset (active low)
       sample_en<='0';
     elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-      if sample_trig_cnt>=x"7D0" then   --2000个posedge_sample_trig
+      if sample_trig_cnt =x"7D0" then   --2000个posedge_sample_trig
         sample_en<='0';
       elsif cmd_smpl_en_d ='1' and cmd_smpl_en_d2='0' then
         sample_en<='1';
