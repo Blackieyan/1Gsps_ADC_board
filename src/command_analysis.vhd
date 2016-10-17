@@ -236,9 +236,9 @@ begin
     if rst_n = '0' then                 -- asynchronous reset (active low)
       cmd_smpl_en_cnt<=(others => '0');
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
-      if cmd_smpl_en<='1' then
+      if cmd_smpl_en ='1' then
       cmd_smpl_en_cnt<=cmd_smpl_en_cnt+1;
-      elsif cmd_smpl_en<='0' then
+      elsif cmd_smpl_en ='0' then
         cmd_smpl_en_cnt<=(others => '0');
       end if;
     end if;

@@ -1,13 +1,22 @@
 NET "OSC_in_p" TNM_NET = "OSC_in_p";
-NET "dcm_global/CLK_IN1_P" LOC = K13;
+NET "dcm_global/CLK_IN1_P" LOC = A10;
 TIMESPEC TS_OSC_in_p = PERIOD "OSC_in_p" 12.5 ns HIGH 50 %;
-NET "dcm_global/CLK_IN1_N" LOC = K12;
-NET "GHz_in_p" TNM_NET = "GHz_in_p";
-NET "GHz_in_p" LOC = D11;
-TIMESPEC TS_GHz_in_p = PERIOD "GHz_in_p" 1 ns HIGH 50 %;
-NET "GHz_in_n" LOC = E11;
-NET "user_pushbutton" LOC = J26;
+NET "dcm_global/CLK_IN1_N" LOC = B10;
+#NET "GHz_in_p" TNM_NET = "GHz_in_p";
+#NET "GHz_in_p" LOC = D11;
+#TIMESPEC TS_GHz_in_p = PERIOD "GHz_in_p" 1 ns HIGH 50 %;
+#NET "GHz_in_n" LOC = E11;
+NET "user_pushbutton" LOC = AD25;
 # CLOCK region
+
+NET "spi_clk" LOC = K31;
+NET "spi_miso" LOC = K32;
+NET "spi_mosi" LOC = M26;
+NET "spi_le" LOC = M27;
+#NET "spi_syn" LOC = Y27;
+#NET "spi_powerdn" LOC = Y28;
+#NET "spi_pllock" LOC = K18;
+# cdce62005 receiver
 
 NET "ADC_Mode" LOC = U33;
 NET "ADC_sclk_OUT" LOC = U32;
@@ -16,14 +25,6 @@ NET "ADC_sldn_OUT" LOC = U27;
 #TIMEGRP "ADC_sdata[0]" OFFSET = IN 50ns VALID 100ns BEFORE "ADC_sclk_out" RISING;
 #ADC_interfce
 
-NET "spi_clk" LOC = E17;
-NET "spi_miso" LOC = F18;
-NET "spi_mosi" LOC = E18;
-NET "spi_le" LOC = D17;
-NET "spi_syn" LOC = Y27;
-NET "spi_powerdn" LOC = Y28;
-#NET "spi_pllock" LOC = K18;
-# ADC receiver
 #------------------------------ADC_DOQ
 NET "ADC_DOQA_p[0]" TNM = "ADC_DOQA";
 NET "Inst_IBUFD_8bit2/I[0]" LOC = AF13;
@@ -92,6 +93,7 @@ NET "ADC_DOQB_n[6]" TNM = "ADC_DOQB";
 NET "Inst_IBUFD_8bit1/IB[6]" LOC = AG10;
 NET "ADC_DOQB_n[7]" TNM = "ADC_DOQB";
 NET "Inst_IBUFD_8bit1/IB[7]" LOC = AM11;
+
 #--------------------------------ADC_DOI
 NET "ADC_DOIA_p[0]" TNM = "ADC_DOIA";
 NET "Inst_IBUFD_8bit4/I[0]" LOC = AH18;
@@ -161,62 +163,33 @@ NET "Inst_IBUFD_8bit3/IB[6]" LOC = AJ16;
 NET "ADC_DOIB_n[7]" TNM = "ADC_DOIB";
 NET "Inst_IBUFD_8bit3/IB[7]" LOC = AP15;
 #-------
-#NET "USB_data[0]" LOC=E32 | TNM = "USB_FD";
-#NET "USB_data[1]" LOC=E33 | TNM = "USB_FD";
-#NET "USB_data[2]" LOC=F30 | TNM = "USB_FD";
-#NET "USB_data[3]" LOC=G30 | TNM = "USB_FD";
-#NET "USB_data[4]" LOC=A33 | TNM = "USB_FD";
-#NET "USB_data[5]" LOC=H34 | TNM = "USB_FD";
-#NET "USB_data[6]" LOC=D31 | TNM = "USB_FD";
-#NET "USB_data[7]" LOC=D32 | TNM = "USB_FD";
-#NET "USB_data[8]" LOC=K33 | TNM = "USB_FD";
-#NET "USB_data[9]" LOC=J34 | TNM = "USB_FD";
-#NET "USB_data[10]" LOC=G32 | TNM = "USB_FD";
-#NET "USB_data[11]" LOC=H32 | TNM = "USB_FD";
-#NET "USB_data[12]" LOC=L25 | TNM = "USB_FD";
-#NET "USB_data[13]" LOC=L26 | TNM = "USB_FD";
-#NET "USB_data[14]" LOC=J31 | TNM = "USB_FD";
-#NET "USB_data[15]" LOC=J32 | TNM = "USB_FD";
-#NET "USB_SLRD" LOC = C32;
-#NET "USB_SLOE" LOC = H30;
-#NET "USB_SLWR" LOC = B32;
-#NET "USB_IFCLK" LOC = K26;
-#NET "USB_PKTEND" LOC = N28;#MRCC1_p
-#NET "USB_FIFOADR[0]" LOC = J29;
-#NET "USB_FIFOADR[1]" LOC = K28;
-#NET "USB_DataEPFull" LOC = L30;#flagC
-#NET "USB_CmdEPEmpty" LOC = L29;#flagA
-#NET "USB_rst" LOC = J27;#user_pushbutton low active
-#NET "USB_CmdEPEmpty" IOSTANDARD = LVCMOS25;
-#NET "USB_SLOE" IOSTANDARD = LVCMOS25;
-#NET "USB_DataEPFull" IOSTANDARD = LVCMOS25;
-#-------
-#TIMEGRP "ADC_DOQA" OFFSET = IN 1ns VALID 2ns BEFORE "ADC_CLKOQ_p" RISING;
-#TIMEGRP "ADC_DOQB" OFFSET = IN 1ns VALID 2ns BEFORE "ADC_CLKOQ_p" RISING;
-#TIMEGRP "ADC_DOIA" OFFSET = IN 1ns VALID 2ns BEFORE "ADC_CLKOI_p" RISING;
-#TIMEGRP "ADC_DOIB" OFFSET = IN 1ns VALID 2ns BEFORE "ADC_CLKOI_p" RISING;
 
 NET "DOIRI_p" LOC = AH17;
 NET "DOIRI_n" LOC = AG17;
 NET "DOIRQ_p" LOC = AJ10;
 NET "DOIRQ_n" LOC = AH10;
-#--------
+#-------
+
 NET "ADC_CLKOI_p" TNM_NET = "ADC_CLKOI_p";
-NET "dcm2/CLK_IN1_P" LOC = A10;
+NET "dcm2/CLK_IN1_P" LOC = K13;
 TIMESPEC TS_ADC_CLKOI = PERIOD "ADC_CLKOI_p" 4 ns HIGH 50 %;
 NET "ADC_CLKOI_n" TNM_NET = "ADC_CLKOI_n";
-NET "dcm2/CLK_IN1_N" LOC = B10;
+#CLKOIN_GC
+NET "dcm2/CLK_IN1_N" LOC = K12;
 TIMESPEC TS_ADC_CLKOI_n = PERIOD "ADC_CLKOI_n" 4 ns HIGH 50 %;
 #OFFSET = IN 1150 ps VALID 2 ns BEFORE ADC_CLKOI_p RISING;
 #OFFSET = IN 1150 ps VALID 2 ns BEFORE ADC_CLKOI_p FALLING;
+#---ADC_CLKOI
+
 NET "ADC_CLKOQ_p" TNM_NET = "ADC_CLKOQ_p";
-NET "dcm3/CLK_IN1_P" LOC = J9;
+NET "dcm3/CLK_IN1_P" LOC = AC13;
 TIMESPEC TS_ADC_CLKOQ_p = PERIOD "ADC_CLKOQ_p" 4 ns HIGH 50 %;
 #OFFSET = IN 1000 ps VALID 2 ns BEFORE ADC_CLKOQ_p RISING;
 #OFFSET = IN 1000 ps VALID 2 ns BEFORE ADC_CLKOQ_p FALLING;
 NET "ADC_CLKOQ_n" TNM_NET = "ADC_CLKOQ_n";
-NET "dcm3/CLK_IN1_N" LOC = H9;
+NET "dcm3/CLK_IN1_N" LOC = AC12;
 TIMESPEC TS_ADC_CLKOQ_n = PERIOD "ADC_CLKOQ_n" 4 ns HIGH 50 %;
+#---ADC_CLKOQ
 
 NET "ADC_DOIA[0]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" RISING;
 NET "ADC_DOIB[0]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" FALLING;
@@ -257,10 +230,8 @@ NET "ADC_DOIA[7]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" RISING;
 NET "ADC_DOIB[7]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOI_p" FALLING;
 NET "ADC_DOQA[7]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOQ_p" RISING;
 NET "ADC_DOQB[7]" OFFSET = IN -250 ps VALID 2 ns BEFORE "ADC_CLKOQ_p" FALLING;
+#----
 
-
-
-#--------
 INST "DFF_doqA_1_inst1[0].FDCE_inst" TNM = "DFFQ";
 INST "DFF_doqA_1_inst1[0].FDCE_inst" LOC = SLICE_X89Y55;
 INST "DFF_doqA_1_inst1[1].FDCE_inst" TNM = "DFFQ";
@@ -403,11 +374,39 @@ INST "ram_data_inst2" TNM = "RAMI";
 TIMESPEC TS_DFFQtoRAM = FROM "DFFQ" TO "RAMQ" 4 ns;
 TIMESPEC TS_DFFItoRAM = FROM "DFFI" TO "RAMI" 4 ns;
 #--------
+
+#NET "PHY_GTXclk_quar" LOC = C28;
+##TIMESPEC TS_PHY_GTXclk_quar = PERIOD "PHY_GTXclk_quar" 8 ns HIGH 50 %;
+#NET "PHy_txen_quar" LOC = D27;
+#NET "phy_txer_o" LOC = E27;
+#--reset the chip
+#NET "phy_rst_n_o" LOC = E29;
+#NET "PHY_TXD_o[0]" TNM = "TXD";
+#NET "PHY_TXD_o[0]" LOC = A25;
+#NET "PHY_TXD_o[1]" TNM = "TXD";
+#NET "PHY_TXD_o[1]" LOC = B25;
+#NET "PHY_TXD_o[2]" TNM = "TXD";
+#NET "PHY_TXD_o[2]" LOC = F26;
+#NET "PHY_TXD_o[3]" TNM = "TXD";
+#NET "PHY_TXD_o[3]" LOC = E26;
+##TIMEGRP "TXD" OFFSET = OUT 6.275 ns BEFORE "OSC_in_p" REFERENCE_PIN "PHY_GTXclk_quar" RISING;
+##TIMEGRP "TXD" OFFSET = OUT 6.275 ns BEFORE "OSC_in_p" REFERENCE_PIN "PHY_GTXclk_quar" FALLING;
+#----
+#NET "PHY_RXD[3]" LOC = G25;
+#NET "PHY_RXD[2]" LOC = H27;
+#NET "PHY_RXD[1]" LOC = G28;
+#NET "PHY_RXD[0]" LOC = A28;
+#NET "dcm_rxc_inst/CLK_IN1" LOC = H28;
+##NET "PHY_RXC" CLOCK_DEDICATED_ROUTE = FALSE;
+#TIMESPEC TS_PHY_RXC = PERIOD "PHY_RXC" 8 ns HIGH 50 %;
+##TIMEGRP "RXD" OFFSET = in 2ns VALID 4ns BEFORE "PHY_RXC" RISING;
+##TIMEGRP "RXD" OFFSET = in 2ns VALID 4ns BEFORE "PHY_RXC" FALLING;
+#NET "PHY_RXDV" LOC = A29;
+#-----      1   
+
 NET "PHY_GTXclk_quar" LOC = AL33;
-#TIMESPEC TS_PHY_GTXclk_quar = PERIOD "PHY_GTXclk_quar" 8 ns HIGH 50 %;
 NET "PHy_txen_quar" LOC = AN33;
 NET "phy_txer_o" LOC = AN34;
-#--reset the chip
 NET "phy_rst_n_o" LOC = AP32;
 NET "PHY_TXD_o[0]" TNM = "TXD";
 NET "PHY_TXD_o[0]" LOC = AH30;
@@ -417,28 +416,19 @@ NET "PHY_TXD_o[2]" TNM = "TXD";
 NET "PHY_TXD_o[2]" LOC = AK34;
 NET "PHY_TXD_o[3]" TNM = "TXD";
 NET "PHY_TXD_o[3]" LOC = AL34;
-#TIMEGRP "TXD" OFFSET = OUT 6.275 ns BEFORE "OSC_in_p" REFERENCE_PIN "PHY_GTXclk_quar" RISING;
-#TIMEGRP "TXD" OFFSET = OUT 6.275 ns BEFORE "OSC_in_p" REFERENCE_PIN "PHY_GTXclk_quar" FALLING;
-
+#----
 NET "PHY_RXD[3]" LOC = AJ30;
 NET "PHY_RXD[2]" LOC = AK33;
 NET "PHY_RXD[1]" LOC = AK32;
 NET "PHY_RXD[0]" LOC = AL31;
-NET "dcm_rxc_inst/CLK_IN1" LOC = AF26;
-NET "PHY_RXC" CLOCK_DEDICATED_ROUTE = FALSE;
-TIMESPEC TS_PHY_RXC = PERIOD "PHY_RXC" 8 ns HIGH 50 %;
+NET "dcm_rxc_inst/CLK_IN1" LOC = K24;
+#NET "PHY_RXC" CLOCK_DEDICATED_ROUTE = FALSE;
+#TIMESPEC TS_PHY_RXC = PERIOD "PHY_RXC" 8 ns HIGH 50 %;
 #TIMEGRP "RXD" OFFSET = in 2ns VALID 4ns BEFORE "PHY_RXC" RISING;
 #TIMEGRP "RXD" OFFSET = in 2ns VALID 4ns BEFORE "PHY_RXC" FALLING;
 NET "PHY_RXDV" LOC = AK31;
-#---------------------------------------
-#NET "SRCC1_p" LOC =N32;#j9
-NET "SRCC1_p_trigin" LOC = N32;
-#j8
-NET "SRCC1_n_upload_sma_trigin" LOC = P32;
-#j12
-NET "MRCC2_p" LOC = N33;
-#NET "MRCC2_n[0]" LOC =M33; #j13
-
+#----      2   
+#-----1000-base ethernet RGMII
 
 #INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg3" LOC = RAMB36_X0Y14;
 #INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg2" LOC = RAMB36_X1Y13;
@@ -469,7 +459,27 @@ NET "MRCC2_p" LOC = N33;
 #INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[3].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y7;
 #INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[8].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y8;
 #INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[7].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y9;
-
-# PlanAhead Generated physical constraints 
+#edit at 9.6 change the ram 
 
 INST "dcm_global/mmcm_adv_inst" LOC = MMCM_ADV_X0Y5;
+
+
+#INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg3" LOC = RAMB36_X0Y13;
+#INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg2" LOC = RAMB36_X0Y14;
+#INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg4" LOC = RAMB36_X0Y15;
+#INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg1" LOC = RAMB36_X1Y12;
+#INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg1" LOC = RAMB36_X1Y13;
+#INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg2" LOC = RAMB36_X1Y14;
+#INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg4" LOC = RAMB36_X1Y15;
+#----
+#J31 trigger1_p
+NET "SRCC1_p_trigin" LOC = AE27;
+#j8
+NET "SRCC1_n_upload_sma_trigin" LOC = P32;
+#j12 
+NET "MRCC2_p" LOC = N33;
+
+
+NET "ADC_CLKOI_n" IOSTANDARD = LVPECL_25;
+NET "ADC_CLKOI_p" IOSTANDARD = LVPECL_25;
+NET "ADC_CLKOQ_p" IOSTANDARD = LVPECL_25;
