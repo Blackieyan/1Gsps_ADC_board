@@ -80,31 +80,39 @@ entity ZJUprojects is
     MRCC2_p                              : out    std_logic;
     MRCC2_n                              : out    std_logic_vector(0 downto 0);
     ---------------------------------------------------------------------------
-    -- USB_data : inout std_logic_vector(15 downto 0);  --USB
-    -- USB_DataEPFull : in std_logic;
-    -- USB_CmdEPEmpty : in std_logic;
-    -- USB_SLRD : out std_logic;
-    -- USB_SLOE : out std_logic;
-    -- USB_SLWR : out std_logic;
-    -- USB_PKTEND : out std_logic;
-    -- USB_IFCLK :out std_logic;
-    -- USB_FIFOADR : out std_logic_vector(1 downto 0);
-    --      USB_RST :out std_logic
+    PHY_RXD                   : IN     std_logic_vector(3 downto 0);
+    PHY_RXC                  : IN     std_logic;
+    PHY_RXDV                 : IN     std_logic;
+    PHY_TXD_o                : OUT    std_logic_vector(3 downto 0);
+    PHY_GTXclk_quar          : OUT    std_logic;
+    PHy_txen_quar            : OUT    std_logic;
+    phy_txer_o               : OUT    std_logic;
+    phy_rst_n_o : out std_logic
     ---------------------------------------------------------------------------
-               -- ethernet_rst_n_gb_i       : IN     std_logic;
---               ethernet_Rd_clk           : IN     std_logic;
---               ethernet_Rd_en            : IN     std_logic;
---               ethernet_Rd_Addr          : IN     std_logic_vector(13 downto 0);
-               PHY_RXD                   : IN     std_logic_vector(3 downto 0);
-               PHY_RXC                  : IN     std_logic;
-               PHY_RXDV                 : IN     std_logic;
-               PHY_TXD_o                : OUT    std_logic_vector(3 downto 0);
-               PHY_GTXclk_quar          : OUT    std_logic;
-                PHy_txen_quar            : OUT    std_logic;
-                phy_txer_o               : OUT    std_logic;
-                -- ethernet_Rd_data         : buffer    std_logic_vector(7 downto 0);
---                ethernet_Frm_valid       : OUT    std_logic;
-                phy_rst_n_o : out std_logic
+    -- qdriip_cq_p                : in std_logic_vector(NUM_DEVICES-1 downto 0); --Memory Interface
+    -- qdriip_cq_n                : in std_logic_vector(NUM_DEVICES-1 downto 0);
+    -- qdriip_q                   : in std_logic_vector(DATA_WIDTH-1 downto 0);
+    -- qdriip_k_p                 : out std_logic_vector(NUM_DEVICES-1 downto 0);
+    -- qdriip_k_n                 : out std_logic_vector(NUM_DEVICES-1 downto 0);
+    -- qdriip_d                   : out std_logic_vector(DATA_WIDTH-1 downto 0);
+    -- qdriip_sa                  : out std_logic_vector(ADDR_WIDTH-1 downto 0);
+    -- qdriip_w_n                 : out std_logic;
+    -- qdriip_r_n                 : out std_logic;
+    -- qdriip_bw_n                : out std_logic_vector(BW_WIDTH-1 downto 0);
+    -- qdriip_dll_off_n           : out std_logic;
+    -- cal_done                   : out std_logic;
+    -- user_wr_cmd0               : in std_logic;      --User interface
+    -- user_wr_addr0              : in std_logic_vector(ADDR_WIDTH-1 downto 0);
+    -- user_rd_cmd0               : in std_logic;
+    -- user_rd_addr0              : in std_logic_vector(ADDR_WIDTH-1 downto 0);
+    -- user_wr_data0              : in std_logic_vector(DATA_WIDTH*BURST_LEN-1 downto 0);
+    -- user_wr_bw_n0              : in std_logic_vector(BW_WIDTH*BURST_LEN-1 downto 0);
+    -- ui_clk                     : out std_logic;
+    -- ui_clk_sync_rst            : out std_logic;
+    -- user_rd_valid0             : out std_logic;
+    -- user_rd_data0              : out std_logic_vector(DATA_WIDTH*BURST_LEN-1 downto 0);
+    -- sys_rst          : in std_logic
+    ---------------------------------------------------------------------------
                 
     );
 end ZJUprojects;
@@ -165,15 +173,15 @@ architecture Behavioral of ZJUprojects is
   signal rd_en : std_logic;
   
   -----------------------------------------------------------------------------
-   attribute keep : boolean;
+  attribute keep : boolean;
   signal ADC_DOIA_1 : std_logic_vector(7 downto 0);  -- ADC data receiver
-    signal ADC_DOIA_2 : std_logic_vector(7 downto 0);
-    signal ADC_DOIB_1 : std_logic_vector(7 downto 0);
-    signal ADC_DOIB_2 : std_logic_vector(7 downto 0);
-    signal ADC_DOQA_1 : std_logic_vector(7 downto 0);
-    signal ADC_DOQA_2 : std_logic_vector(7 downto 0);
-    signal ADC_DOQB_1 : std_logic_vector(7 downto 0);
-    signal ADC_DOQB_2 : std_logic_vector(7 downto 0);
+  signal ADC_DOIA_2 : std_logic_vector(7 downto 0);
+  signal ADC_DOIB_1 : std_logic_vector(7 downto 0);
+  signal ADC_DOIB_2 : std_logic_vector(7 downto 0);
+  signal ADC_DOQA_1 : std_logic_vector(7 downto 0);
+  signal ADC_DOQA_2 : std_logic_vector(7 downto 0);
+  signal ADC_DOQB_1 : std_logic_vector(7 downto 0);
+  signal ADC_DOQB_2 : std_logic_vector(7 downto 0);
   signal ADC_DOIA_1_out : std_logic_vector(7 downto 0);
   signal ADC_DOIA_2_out : std_logic_vector(7 downto 0);
   signal ADC_DOIB_1_out : std_logic_vector(7 downto 0);
@@ -201,28 +209,13 @@ architecture Behavioral of ZJUprojects is
   signal ADC_CLKOI : std_logic;
   attribute keep of ADC_CLKOI : signal is true;
   signal ADC_CLKOQ            : std_logic;
-  -- signal rst_gb_d             : std_logic;
   signal rst_n : std_logic;
   signal posedge_upload_trig : std_logic;
   signal ram_i_doutb_sim : std_logic_vector(7 downto 0);
- 
-  -- attribute keep of rst_gb_d  : signal is true;
-  -- signal OIcounter            : std_logic_vector(7 downto 0);
-  -- attribute keep of OIcounter : signal is true;
-  -- signal OQcounter            : std_logic_vector(7 downto 0);
-  -- attribute keep of OQcounter : signal is true;
   attribute IODELAY_GROUP     : string;
   -----------------------------------------------------------------------------
-  -- signal fd : std_logic_vector(15 downto 0); --usb module
-  -- -- signal DataEPFull : std_logic;
-  -- -- signal CmdEPEmpty : std_logic;
-  -- signal usb_start : std_logic;
-  -- signal usb_clr :std_logic;
-  -- signal data_in_usb : std_logic_vector(15 downto 0);
-  -- signal dout : std_logic_vector(15 downto 0);
   signal clk_div_cnt :std_logic_vector(7 downto 0);
   constant Div_multi :std_logic_vector(3 downto 0) := "1010";
-  -- signal usb_SCLK : std_logic;
   -----------------------------------------------------------------------------
   signal CLK_250M : std_logic;
   attribute keep of CLK_250M : signal is true;
@@ -238,17 +231,14 @@ architecture Behavioral of ZJUprojects is
   signal frm_valid_d : std_logic;
   signal ethernet_rd_data : std_logic_vector(7 downto 0);
   attribute keep of ethernet_Rd_data : signal is true;
-  -- signal rst_n : std_logic;
   signal ethernet_fifo_upload_data : std_logic_vector(7 downto 0);
   signal ethernet_rst_n_gb_i : std_logic;
   signal cmd_frm_length : std_logic_vector(15 downto 0);
   signal cmd_frm_type : std_logic_vector(15 downto 0);
-  -- signal start_sample : std_logic;
-
   signal phy_rxc_g :std_logic;
   -----------------------------------------------------------------------------
-    signal ram_doutb : std_logic_vector(7 downto 0);  --ram control
-    attribute keep of ram_doutb : signal is true;
+  signal ram_doutb : std_logic_vector(7 downto 0);  --ram control
+  attribute keep of ram_doutb : signal is true;
   signal ram_dina : std_logic_vector(31 downto 0);
   signal ram_clka : std_logic;
   signal ram_clkb : std_logic;
@@ -256,10 +246,6 @@ architecture Behavioral of ZJUprojects is
   signal ram_ena : std_logic;
   signal ram_enb : std_logic;
   signal ram_wea : std_logic_vector(0 downto 0);
-  -- signal dina_1 : std_logic_vector(7 downto 0);
-  -- signal dina_2 : std_logic_vector(7 downto 0);
-  -- signal dina_3 : std_logic_vector(7 downto 0);
-  -- signal dina_4 : std_logic_vector(7 downto 0);
   signal ram_addra : std_logic_vector(12 downto 0);  --edit at 9.6
   signal ram_addrb : std_logic_vector(14 downto 0);  --edit at 9.6
   signal clr_n_ram : std_logic;
@@ -267,7 +253,7 @@ architecture Behavioral of ZJUprojects is
   signal ram_q_last : std_logic;
   signal ram_i_last : std_logic;
   signal ram_rst : std_logic;
-    attribute keep of ram_rst : signal is true;
+  attribute keep of ram_rst : signal is true;
   signal ram_start : std_logic;
   signal  upload_trig_ethernet : std_logic;
   signal ram_start_d : std_logic;
@@ -369,27 +355,6 @@ architecture Behavioral of ZJUprojects is
       );
   end component;
 -------------------------------------------------------------------------------
-  	-- COMPONENT usb2_interface
-	-- PORT(
-	-- 	clk_20m : IN std_logic;
-	-- 	clk_10m : in std_logic;
-	-- 	rst_n : IN std_logic;
-	-- 	DataEPFull : IN std_logic;
-	-- 	CmdEPEmpty : IN std_logic;
-	-- 	data_in_usb : IN std_logic_vector(15 downto 0);    
-	-- 	USB_data : INOUT std_logic_vector(15 downto 0);      
-	-- 	EPADDR : OUT std_logic_vector(1 downto 0);
-	-- 	SLRD : OUT std_logic;
-	-- 	SLOE : OUT std_logic;
-	-- 	SLWR : OUT std_logic;
-	-- 	PKTEND : OUT std_logic;
-	-- 	IFCLk : OUT std_logic;
-	-- 	usb_start : OUT std_logic;
-	-- 	usb_clr : OUT std_logic;
-	-- 	dout : out std_logic_vector(15 downto 0)
-	-- 	);
-	-- END COMPONENT;
-  -----------------------------------------------------------------------------
   COMPONENT fft
   PORT (
     clk : IN STD_LOGIC;
@@ -470,22 +435,6 @@ END COMPONENT;
 		);
 	END COMPONENT;
   -----------------------------------------------------------------------------
-  -- component dcm
-  --   port
-  --     (                                 -- Clock in ports
-  --       CLK_IN1_P : in  std_logic;
-  --       CLK_IN1_N : in  std_logic;
-  --       -- Clock out ports
-  --       CLK_OUT1  : out std_logic;      --100mhz
-  --       CLK_OUT2  : out std_logic;      -- 10mhz
-  --       CLK_OUT3  : out std_logic;      -- 71mhz
-  --       CLK_OUT4  : out std_logic;      -- 500mhz
-  --       CLK_OUT5  : out std_logic;      -- 200mhz
-  --       CLK_OUT6 : out std_logic;  -- 125mhz
-  --       CLK_out7 : out std_logic;  -- 125mhz quar
-  --       locked : out std_logic
-  --       );
-  -- end component;
 
   component dcm_adc_clkoi
 port
@@ -594,25 +543,68 @@ END COMPONENT;
 		);
 	END COMPONENT;      
 -------------------------------------------------------------------------------
-
+-- component SRAM_interface
+--   generic (
+--     REFCLK_FREQ                : integer := 200.0;
+--                                           --Iodelay Clock Frequency
+--     MMCM_ADV_BANDWIDTH        : string  := "LOW";
+--                                          -- MMCM programming algorithm
+--     CLKFBOUT_MULT_F           : real  := 11.0;      -- write PLL VCO multiplier
+--     CLKOUT_DIVIDE             : integer := 11;      -- VCO output divisor for fast (memory) clocks
+--     DIVCLK_DIVIDE             : integer := 1;      -- write PLL VCO divisor
+--     CLK_PERIOD                : integer := 16000;   -- Double the Memory Clk Period (in ps)
+--     DEBUG_PORT                : string  := "OFF";  -- Enable debug port
+--     CLK_STABLE                : integer := 2048;   -- Cycles till CQ/CQ# is stable
+--     ADDR_WIDTH                : integer := 19;     -- Address Width
+--     DATA_WIDTH                : integer := 36;     -- Data Width
+--     BW_WIDTH                  : integer := 4;      -- Byte Write Width
+--     BURST_LEN                 : integer := 4;      -- Burst Length
+--     NUM_DEVICES               : integer := 1;      -- No. of Connected Memories
+--     FIXED_LATENCY_MODE        : integer := 0;      -- Enable Fixed Latency
+--     PHY_LATENCY               : integer := 0;      -- Expected Latency
+--     SIM_CAL_OPTION            : string := "NONE"; -- Skip various calibration steps
+--     SIM_INIT_OPTION           : string  := "NONE"; -- Simulation only. "NONE", "SIM_MODE"
+--     PHASE_DETECT              : string := "OFF";   -- Enable Phase detector
+--     IBUF_LPWR_MODE            : string := "OFF";  -- Input buffer low power mode
+--     IODELAY_HP_MODE           : string := "ON";   -- IODELAY High Performance Mode
+--     TCQ                       : integer := 1;   -- Simulation Register Delay
+--     INPUT_CLK_TYPE        : string  := "DIFFERENTIAL"; -- # of clock type
+--     IODELAY_GRP    : string  := "IODELAY_MIG";
+--     RST_ACT_LOW           : integer := 1           -- Active Low Reset
+--     );
+--   port (
+--     sys_clk_p                  : in std_logic;  --differential system clocks
+--     sys_clk_n                  : in std_logic;
+--     clk_ref_p                  : in std_logic;     --differential iodelayctrl clk
+--     clk_ref_n                  : in std_logic;
+--     qdriip_cq_p                : in std_logic_vector(NUM_DEVICES-1 downto 0); --Memory Interface
+--     qdriip_cq_n                : in std_logic_vector(NUM_DEVICES-1 downto 0);
+--     qdriip_q                   : in std_logic_vector(DATA_WIDTH-1 downto 0);
+--     qdriip_k_p                 : out std_logic_vector(NUM_DEVICES-1 downto 0);
+--     qdriip_k_n                 : out std_logic_vector(NUM_DEVICES-1 downto 0);
+--     qdriip_d                   : out std_logic_vector(DATA_WIDTH-1 downto 0);
+--     qdriip_sa                  : out std_logic_vector(ADDR_WIDTH-1 downto 0);
+--     qdriip_w_n                 : out std_logic;
+--     qdriip_r_n                 : out std_logic;
+--     qdriip_bw_n                : out std_logic_vector(BW_WIDTH-1 downto 0);
+--     qdriip_dll_off_n           : out std_logic;
+--     cal_done                   : out std_logic;
+--     user_wr_cmd0               : in std_logic;      --User interface
+--     user_wr_addr0              : in std_logic_vector(ADDR_WIDTH-1 downto 0);
+--     user_rd_cmd0               : in std_logic;
+--     user_rd_addr0              : in std_logic_vector(ADDR_WIDTH-1 downto 0);
+--     user_wr_data0              : in std_logic_vector(DATA_WIDTH*BURST_LEN-1 downto 0);
+--     user_wr_bw_n0              : in std_logic_vector(BW_WIDTH*BURST_LEN-1 downto 0);
+--     ui_clk                     : out std_logic;
+--     ui_clk_sync_rst            : out std_logic;
+--     user_rd_valid0             : out std_logic;
+--     user_rd_data0              : out std_logic_vector(DATA_WIDTH*BURST_LEN-1 downto 0);
+--     sys_rst          : in std_logic
+--     );
+-- end component SRAM_interface;
 ---------------------------------------------------------------------------------primitive instantiation       
 begin
-  ----------------------------------------------------------------------------
-  -- dcm1 : dcm
-  --   port map
-  --   (                                   -- Clock in ports
-  --     CLK_IN1_P => OSC_in_p,
-  --     CLK_IN1_N => OSC_in_n,
-  --     -- Clock out ports
-  --     -- CLK_OUT1  => CLK1,                --100MHz
-  --     -- CLK_OUT2  => CLK2,                --5MHz
-  --     -- CLK_OUT3  => CLK_71M,                -- 71mhz inv
-  --     -- CLK_OUT4  => open,                -- for chipscope
-  --     CLK_OUT5 => CLK5_200MHz,          -- iodley ctrl
-  --     CLK_OUT1 => CLK_125M,          -- for ethernet 
-  --     CLK_OUT2 => CLK_125M_quar,
-  --     -- locked => dcm1_locked
-  --     );               --10MHz 50shift
+
 
  dcm2 : dcm_adc_clkoi
   port map
@@ -1093,28 +1085,6 @@ IDELAYCTRL_inst : IDELAYCTRL
    );
   end generate DFF_doiB_2_inst4;
   -----------------------------------------------------------------------------
-        
-   --   IBUFGDS_inst1 : IBUFGDS
-   -- generic map (
-   --    DIFF_TERM => FALSE, -- Differential Termination 
-   --    IBUF_LOW_PWR => TRUE, -- Low power (TRUE) vs. performance (FALSE) setting for refernced I/O standards
-   --    IOSTANDARD => "DEFAULT")
-   -- port map (
-   --    O => ADC_CLKOQ,  -- Clock buffer output
-   --    I => ADC_CLKOQ_p,  -- Diff_p clock buffer input (connect directly to top-level port)
-   --    IB => ADC_CLKOQ_n -- Diff_n clock buffer input (connect directly to top-level port)
-   -- );
-  
-   --   IBUFGDS_inst2 : IBUFGDS
-   -- generic map (
-   --    DIFF_TERM => FALSE, -- Differential Termination 
-   --    IBUF_LOW_PWR => TRUE, -- Low power (TRUE) vs. performance (FALSE) setting for refernced I/O standards
-   --    IOSTANDARD => "DEFAULT")
-   -- port map (
-   --    O =>ADC_CLKOI,  -- Clock buffer output
-   --    I => ADC_CLKOI_p,  -- Diff_p clock buffer input (connect directly to top-level port)
-   --    IB => ADC_CLKOI_n -- Diff_n clock buffer input (connect directly to top-level port)
-   -- );
 
       IBUFGDS_inst3 : IBUFGDS
    generic map (
@@ -1127,19 +1097,7 @@ IDELAYCTRL_inst : IDELAYCTRL
       IB => GHz_in_n  -- Diff_n clock buffer input (connect directly to top-level port)
   );
 -------------------------------------------------------------------------------
-  --     DFF_ram_i_doutb_inst1: for i in 0 to 7 generate
-  -- begin  
-  --  FDCE_inst : FDCE
-  --  generic map (
-  --     INIT => '0') -- Initial value of register ('0' or '1')  
-  --  port map (
-  --     Q =>ram_i_doutb_d(i) ,      -- Data output
-  --     C => CLK_125M,      -- Clock input
-  --     CE => '1',    -- Clock enable input
-  --     CLR => '0',  -- Asynchronous clear input
-  --     D =>ram_i_doutb(i)        -- Data input
-  --  );
-  -- end generate DFF_ram_i_doutb_inst1;
+
 -------------------------------------------------------------------------------
   Inst_ADC_interface : ADC_interface port map(
     ADC_Mode        => ADC_Mode,
@@ -1163,25 +1121,7 @@ IDELAYCTRL_inst : IDELAYCTRL
     cfg_finish  => cfg_finish,
     spi_revdata => spi_revdata
     );
--------------------------------------------------------------------------------
-        -- Inst_usb2_interface : usb2_interface PORT MAP(
-        --         clk_20m     => CLK6_20MHz,
-	-- 				 clk_10m     =>usb_SCLK,
-        --         USB_data    => USB_data,
-        --         rst_n       => rst_n,
-        --         DataEPFull  => USB_DataEPFull,
-        --         CmdEPEmpty  => USB_CmdEPEmpty,
-        --         data_in_usb => data_in_usb,
-        --         EPADDR      => USB_FIFOADR,
-        --         SLRD        => USB_SLRD,
-        --         SLOE        => USB_SLOE,
-        --         SLWR        => USB_SLWR,
-        --         PKTEND      => USB_PKTEND,
-        --         IFCLk       => USB_IFCLk,
-        --         usb_start       => usb_start,
-        --         usb_clr     => usb_clr,
-	-- 				 dout => dout
-        -- );
+
 -------------------------------------------------------------------------------
   -- fft_I : fft
   -- PORT MAP (
@@ -1269,7 +1209,65 @@ IDELAYCTRL_inst : IDELAYCTRL
                 cmd_smpl_en=>cmd_smpl_en,
                 cmd_smpl_depth=>cmd_smpl_depth
 	);
--------------------------------------------------------------------------------
+-- -------------------------------------------------------------------------------
+--   inst_SRAM : SRAM_interface
+--   generic map(
+--     REFCLK_FREQ                => REFCLK_FREQ,
+--     MMCM_ADV_BANDWIDTH         => MMCM_ADV_BANDWIDTH,
+--     CLKFBOUT_MULT_F            => CLKFBOUT_MULT_F,
+--     CLKOUT_DIVIDE              => CLKOUT_DIVIDE,
+--     DIVCLK_DIVIDE              => DIVCLK_DIVIDE,
+--     CLK_PERIOD                 => CLK_PERIOD,
+--     DEBUG_PORT                 => DEBUG_PORT,
+--     CLK_STABLE                 => CLK_STABLE,
+--     ADDR_WIDTH                 => ADDR_WIDTH,
+--     DATA_WIDTH                 => DATA_WIDTH,
+--     BW_WIDTH                   => BW_WIDTH,
+--     BURST_LEN                  => BURST_LEN,
+--     NUM_DEVICES                => NUM_DEVICES,
+--     FIXED_LATENCY_MODE         => FIXED_LATENCY_MODE,
+--     PHY_LATENCY                => PHY_LATENCY,
+--     SIM_CAL_OPTION             => SIM_CAL_OPTION,
+--     SIM_INIT_OPTION            => SIM_INIT_OPTION,
+--     PHASE_DETECT               => PHASE_DETECT,
+--     IBUF_LPWR_MODE             => IBUF_LPWR_MODE,
+--     IODELAY_HP_MODE            => IODELAY_HP_MODE,
+--     TCQ                        => TCQ,
+--     INPUT_CLK_TYPE     => INPUT_CLK_TYPE,
+--     IODELAY_GRP => IODELAY_GRP,
+--     RST_ACT_LOW        => RST_ACT_LOW
+--     )
+--   port map(
+--     sys_clk_p                  => sys_clk_p,
+--     sys_clk_n                  => sys_clk_n,
+--     clk_ref_p                  => clk_ref_p,
+--     clk_ref_n                  => clk_ref_n,
+--     qdriip_cq_p                => qdriip_cq_p,
+--     qdriip_cq_n                => qdriip_cq_n,
+--     qdriip_q                   => qdriip_q,
+--     qdriip_k_p                 => qdriip_k_p,
+--     qdriip_k_n                 => qdriip_k_n,
+--     qdriip_d                   => qdriip_d,
+--     qdriip_sa                  => qdriip_sa,
+--     qdriip_w_n                 => qdriip_w_n,
+--     qdriip_r_n                 => qdriip_r_n,
+--     qdriip_bw_n                => qdriip_bw_n,
+--     qdriip_dll_off_n           => qdriip_dll_off_n,
+--     cal_done                   => cal_done,
+--     user_wr_cmd0               => user_wr_cmd0,
+--     user_wr_addr0              => user_wr_addr0,
+--     user_rd_cmd0               => user_rd_cmd0,
+--     user_rd_addr0              => user_rd_addr0,
+--     user_wr_data0              => user_wr_data0,
+--     user_wr_bw_n0              => user_wr_bw_n0,
+--     ui_clk                     => ui_clk,
+--     ui_clk_sync_rst            => ui_clk_sync_rst,
+--     user_rd_valid0             => user_rd_valid0,
+--     user_rd_data0              => user_rd_data0,
+--     sys_rst                => sys_rst
+--     );
+
+  -----------------------------------------------------------------------------
     ram_data_inst : ram_data
   PORT MAP (
     clka =>ADC_clkoq,
