@@ -34,7 +34,8 @@ module Mac_TX(
 	 //TX
 	 output  PHY_TXEN_o,
 	 output  PHY_GTXCLK_o,		// TX clock, should be 125MHz for GbE
-	 output [3:0] PHY_TXD_o
+	 output [3:0] PHY_TXD_o,
+	 
     );
 
 	// detect start and end

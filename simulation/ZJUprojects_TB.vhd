@@ -92,10 +92,10 @@ architecture behavior of ZJUprojects_TB is
       PHY_TXD_o       : out std_logic_vector(3 downto 0);
       PHY_GTXclk_quar : out std_logic;
       PHy_txen_quar   : out std_logic;
-      phy_txer_o      : out std_logic;
+      phy_txer_o      : out std_logic
       -- ethernet_Rd_data   : out    std_logic_vector(7 downto 0);
       -- ethernet_Frm_valid : out    std_logic;
-      phy_rst_n_o     : out std_logic
+      -- phy_rst_n_o     : out std_logic
       );
   end component;
 
@@ -154,7 +154,7 @@ architecture behavior of ZJUprojects_TB is
   signal phy_txer_o         : std_logic;
   -- signal ethernet_Rd_data   : std_logic_vector(7 downto 0) := x"00";
   -- signal ethernet_Frm_valid : std_logic                    := '0';
-  signal phy_rst_n_o        : std_logic;
+  -- signal phy_rst_n_o        : std_logic;
   signal user_pushbutton    : std_logic;
   signal rd_data : std_ulogic_vector(7 downto 0) := x"00";
   -- Clock period definitions
@@ -219,10 +219,10 @@ begin
     PHY_TXD_o       => PHY_TXD_o,
     PHY_GTXclk_quar => PHY_GTXclk_quar,
     PHy_txen_quar   => PHy_txen_quar,
-    phy_txer_o      => phy_txer_o,
+    phy_txer_o      => phy_txer_o
     -- ethernet_Rd_data   => ethernet_Rd_data,
     -- ethernet_Frm_valid => ethernet_Frm_valid,
-    phy_rst_n_o     => phy_rst_n_o
+    -- phy_rst_n_o     => phy_rst_n_o
     );
 -------------------------------------------------------------------------------
   -- Clock process definitions
@@ -300,44 +300,44 @@ begin
   end process sim_DOQB;
   ADC_DOQB_n <= not ADC_DOQB_p;
   -----------------------------------------------------------------------------
-  -- purpose: set a counter to simulate DOIA
+--   purpose: set a counter to simulate DOIA
 -- type   : sequential
 -- inputs : CLK_500M, rst
 -- outputs: DOIA
-  -- sim_DOIA : process (CLK_500M, rst, user_pushbutton) is
-  -- begin  -- process sim_DOIA
-  --   if user_pushbutton = '0' then       -- asynchronous reset (active low)
-  --     ADC_DOIA_p <= (others => '0');
-  --   elsif CLK_500M'event and CLK_500M = '1' then  -- rising clock edge
-  --     ADC_DOIA_p <= ADC_DOIA_p+2;
-  --   end if;
-  -- end process sim_DOIA;
-  -- ADC_DOIA_n <= not ADC_DOIA_p;
+  sim_DOIA : process (CLK_500M, rst, user_pushbutton) is
+  begin  -- process sim_DOIA
+    if user_pushbutton = '0' then       -- asynchronous reset (active low)
+      ADC_DOIA_p <= (others => '0');
+    elsif CLK_500M'event and CLK_500M = '1' then  -- rising clock edge
+      ADC_DOIA_p <= ADC_DOIA_p+2;
+    end if;
+  end process sim_DOIA;
+  ADC_DOIA_n <= not ADC_DOIA_p;
 
-  -- purpose: set a counter to simulate DOIB
+--   purpose: set a counter to simulate DOIB
 -- type   : sequential
 -- inputs : CLK_500M, rst
 -- outputs: DOIB
-  -- sim_DOIB : process (CLK_500M, rst, user_pushbutton) is
-  -- begin  -- process sim_DOIB
-  --   if user_pushbutton = '0' then       -- asynchronous reset (active low)
-  --     ADC_DOIB_p <= x"01";
-  --   elsif CLK_500M'event and CLK_500M = '1' then  -- rising clock edge
-  --     ADC_DOIB_p <= ADC_DOIB_p+2;
-  --   end if;
-  -- end process sim_DOIB;
-  -- ADC_DOIB_n <= not ADC_DOIB_p;
+  sim_DOIB : process (CLK_500M, rst, user_pushbutton) is
+  begin  -- process sim_DOIB
+    if user_pushbutton = '0' then       -- asynchronous reset (active low)
+      ADC_DOIB_p <= x"01";
+    elsif CLK_500M'event and CLK_500M = '1' then  -- rising clock edge
+      ADC_DOIB_p <= ADC_DOIB_p+2;
+    end if;
+  end process sim_DOIB;
+  ADC_DOIB_n <= not ADC_DOIB_p;
   -----------------------------------------------------------------------------
   -- Stimulus process
   stim_proc : process
   begin
     user_pushbutton <= '0';             -- hold reset state for 100 ns.
-    wait for 5000 ns;
+    wait for phy_rxc_period*500;
     user_pushbutton <= '1';
-    wait for OSC_in_p_period*10;
+    wait for phy_rxc_period*1000.75;
 
     -- insert stimulus here
-    wait for 4 ns;                      --new add
+    -- wait for 4 ns;                      --new add
     phy_rxdv <= '1';
     phy_rxd  <= x"f";
     wait for 16 ns;

@@ -34,13 +34,13 @@ entity G_ethernet_Tx_data is
   port (
     clk_125m :in std_logic;
     clk_125m_quar : in std_logic;
-    rst_n_gb_i      : in  std_logic;
+    -- rst_n_gb_i      : in  std_logic;
     PHY_TXD_o       : out std_logic_vector(3 downto 0);
     PHY_GTXclk_quar : out std_logic;
     phy_txen_quar   : out std_logic;
     phy_txer_o      : out std_logic;
     user_pushbutton : in  std_logic;
-    rst_n_o         : out std_logic;    --for test,generate from Gcnt
+    -- rst_n_o         : out std_logic;    --for test,generate from Gcnt
     fifo_upload_data : in std_logic_vector(7 downto 0);
     ram_wren : buffer std_logic;
     ram_rden : out std_logic;
@@ -51,12 +51,15 @@ entity G_ethernet_Tx_data is
     ram_last : in std_logic;
     posedge_upload_trig : in std_logic;
     TX_dst_MAC_addr : in std_logic_vector(47 downto 0);
-    sample_en : in std_logic
+    sample_en : in std_logic;
+    CH_flag : in std_logic_vector(7 downto 0);
+    CH_stat : in std_logic_vector(1 downto 0);
+    Upld_finish : in std_logic
     );
 end G_ethernet_Tx_data;
 
 architecture Behavioral of G_ethernet_Tx_data is
-  type state_type is (ini_state,header_state,addr_state,frame_num_state1,frame_num_state2,data_state,rden_stop_state,end_state);
+  type state_type is (ini_state,header_state,addr_state,frame_num_state1,frame_num_state2,ch_sw_state,data_state,rden_stop_state,end_state);
   signal current_state : state_type;
   signal next_state : state_type;
   attribute keep             : boolean;
@@ -122,6 +125,10 @@ architecture Behavioral of G_ethernet_Tx_data is
   signal frame_gap_d : std_logic;
   signal frame_gap_d2 : std_logic;
   signal ram_rden_stop : std_logic;
+  signal Upld_finish_d4 : std_logic;
+  signal Upld_finish_d3 :std_logic;
+  signal Upld_finish_d2 : std_logic;
+  signal Upld_finish_d : std_logic;
 -------------------------------------------------------------------------------
   type array_header is array (7 downto 0) of std_logic_vector(7 downto 0);
   constant header : array_header := (x"d5",x"55",x"55",x"55",x"55",x"55",x"55",x"55");
@@ -189,7 +196,7 @@ begin
   phy_GTXclk_quar <= not CLK_125M_quar;
   data_in         <= wr_data;
   phy_txer_o      <= '0';
-  rst_n_o         <= rst_n;
+  -- rst_n_o         <= rst_n;
   rst_n           <= user_pushbutton;
   phy_txen_quar   <= phy_txen_o;
 --  SRCC1_p <= PHY_TXD_o(0);
@@ -256,16 +263,16 @@ begin
 
   Gcnt_ps : process (clk_125m, GCLK_d, GCLK_d2, rst_n) is
   begin
-        if rst_n ='0' then
-      gcnt<=(others => '0');
-      elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-    if Gclk_d2 = '0' and Gclk_d = '1' then
-    -- elsif GCLK'event and GCLK = '1' then
+    if rst_n = '0' then
+      gcnt <= (others => '0');
+    elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
+      if Gclk_d2 = '0' and Gclk_d = '1' then
+        -- elsif GCLK'event and GCLK = '1' then
 -- if Gcnt <= x"ffffffff" then
-      Gcnt <= Gcnt+1;
+        Gcnt <= Gcnt+1;
+      end if;
     end if;
-  end if;
--- end if;
+-- end if; 
   end process Gcnt_ps;
 
 
@@ -275,86 +282,44 @@ begin
     if rst_n = '0' then
       O_Gcnt <= (others => '0');
     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-    if Gclk_d2 = '0' and Gclk_d = '1' then
-    -- elsif GCLK'event and GCLK = '1' then
-      if Gcnt = x"ffff" and O_Gcnt <= x"F5" then
-        O_Gcnt <= O_Gcnt+1;
-      else
-        O_Gcnt <= (others => '0');
+      if Gclk_d2 = '0' and Gclk_d = '1' then
+        -- elsif GCLK'event and GCLK = '1' then
+        if Gcnt = x"ffff" and O_Gcnt <= x"F5" then
+          O_Gcnt <= O_Gcnt+1;
+        else
+          O_Gcnt <= (others => '0');
+        end if;
       end if;
     end if;
-  end if;
   end process O_Gcnt_ps;
 
-  ram_start_d_ps: process (CLK_125M) is
+  ram_start_d_ps : process (CLK_125M) is
   begin  -- process ram_start_d_ps
     if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-      ram_start_d<=ram_start;
+      ram_start_d <= ram_start;
     end if;
   end process ram_start_d_ps;
-ram_start_d2_ps: process (CLK_125M) is
+
+  ram_start_d2_ps : process (CLK_125M) is
   begin  -- process ram_start_d_ps
     if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-      ram_start_d2<=ram_start_d;
+      ram_start_d2 <= ram_start_d;
     end if;
   end process ram_start_d2_ps;
-  
--- rst_n_ps : process (GCLK, clk_125m) is
--- begin  -- process rst_n_ps
---   if gclk'event and gclk = '1' then
---     -- if GCLK_d = '0' and GCLK = '1' then  -- rising clock edge
---     if O_Gcnt = x"00" then
---       if Gcnt >= x"000f" and Gcnt <= x"0018" then
---         rst_n <= '0';
---       else
---         rst_n <= '1';
---       end if;
---     end if;
---   -- end if;
---   end if;
--- end process rst_n_ps;
--------------------------------------------------------------------------------
-  -- trig_i_ps : process (GCLK, rst_n, clk_125m) is --自动不停地上传帧
-  -- begin  -- process trig_i_ps
-  --   if rst_n = '0' then                 -- asynchronous reset (active low)
-  --     trig_i <= '0';
-  --   elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-  --     -- if GCLK_d='0' and GCLK='1' then
-  --     if Gcnt = x"0020" then
-  --       trig_i <= '1';
-  --     else
-  --       trig_i <= '0';
-  --     end if;
-  --   end if;
-  -- end process trig_i_ps;
--------------------------------------------------------------------------------
---     wren_reset_ps : process (GCLK, rst_n, clk_125m) is
--- --实际上是trig信号来以后持续100us或者其它。一个trig只持续一次。这里用gcnt会反复出现。但是用not full相与可以避免最终的使能反复。想要清零只能通过复位信号。以后要修改为命令trig下传后执行一次ram_clr
---   begin  -- process trig_i_ps
---     if rst_n = '0' then                 -- asynchronous reset (active low)
---       wren_reset <= '0';
---     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
---       -- if GCLK_d='0' and GCLK='1' then
---       if Gcnt >= x"AC8" and Gcnt<=x"c68" and O_Gcnt=x"00" then  --为了防止上电马上采样时的抖动 这个数值要够大。
---         wren_reset <= '1';
---       else
---         wren_reset <= '0';
---       end if;
---     end if;
---   end process wren_reset_ps;
- ------------------------------------------------------------------------------ 
-    ram_start_cnt_ps: process (clk_125m, Gclk_d, Gclk_d2, ram_start) is
+
+  ------------------------------------------------------------------------------ 
+  ram_start_cnt_ps : process (clk_125m, Gclk_d, Gclk_d2, ram_start) is
   begin  -- process ram_rst_cnt_ps
-    if rst_n = '0' then               -- asynchronous reset (active low)
-      ram_start_cnt<=(others => '0');
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      ram_start_cnt <= (others => '0');
     -- elsif Gclk'event and Gclk = '1' then  -- rising clock edge
     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-      if wren_ethernet ='0' then
-        ram_start_cnt<=(others => '0'); 
-      elsif wren_ethernet ='1' then
-        if Gclk_d2 = '0' and Gclk_d = '1'  then
-      -- if wren_ethernet<='1' then
-        ram_start_cnt<=ram_start_cnt+1;
+      if wren_ethernet = '0' then
+        ram_start_cnt <= (others => '0');
+      elsif wren_ethernet = '1' then
+        if Gclk_d2 = '0' and Gclk_d = '1' then
+          -- if wren_ethernet<='1' then
+          ram_start_cnt <= ram_start_cnt+1;
         end if;
       -- end if;
       end if;
@@ -375,6 +340,21 @@ ram_start_d2_ps: process (CLK_125M) is
   end process wren_ethernet_ps;
   ---wren_ethernet为来自上位机的采样使能
 -------------------------------------------------------------------------------
+  Upld_finish_d4_ps: process (CLK_125M, rst_n) is
+  begin  -- process trig_in_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      Upld_finish_d<='0';
+      Upld_finish_d2<='0';
+      Upld_finish_d3<='0';
+      Upld_finish_d4<='0';
+    elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      Upld_finish_d<=Upld_finish;
+      Upld_finish_d2<=Upld_finish_d;
+      Upld_finish_d3<=Upld_finish_d2;
+      Upld_finish_d4<=Upld_finish_d3;
+    end if;
+  end process Upld_finish_d4_ps;
+
     trigin_d_ps: process (CLK_125M, rst_n) is
   begin  -- process trig_in_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
@@ -587,13 +567,13 @@ ram_start_d2_ps: process (CLK_125M) is
     if rst_n = '0' then                 -- asynchronous reset (active low)
       trig_i<='0';
     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-      if ram_last ='0' then
+      if Upld_finish_d2 ='0' then
         if Trig_i_cnt = x"A" then
           trig_i <= '0';
         elsif frame_gap_d2='1' and frame_gap_d='0' then
           trig_i <= '1';
         end if;
-      elsif ram_last='1' and frame_gap='0' then  --保证了死时间。以防下次外部触发太快。
+      elsif Upld_finish_d2='1' and frame_gap='0' then  --保证了死时间。以防下次外部触发太快。
       trig_i<=upload_sma_trigin or upload_ethernet_trigin or upload_wren_trigin;
 --可以通过sma trig读ram，上位机读ram，写ram(上位机，sma)这三个统计来控制trig_i
         -- trig_i<=posedge_upload_trig;
@@ -626,7 +606,7 @@ ram_start_d2_ps: process (CLK_125M) is
         ram_rden_stop<='1';
         else
           ram_rden_stop<='0';
-        end if;
+        end if;                         --让ram_rden比last_byte提前3周期结束，可以保证每帧数据连续
       if wr_addr = x"05db" then  --帧长1500
         last_byte <= '1';
       else
@@ -712,39 +692,51 @@ ram_start_d2_ps: process (CLK_125M) is
         else
           next_state <= ini_state;
         end if;
+        
         when header_state =>
         if addr_en = '1' then
           next_state <= addr_state;
         else
           next_state <= header_state;
         end if;
+        
         when addr_state =>
         if frame_num_en = '1' then
           next_state <= frame_num_state1;
         else
           next_state <= addr_state;
         end if;
+        
         when frame_num_state1 =>
           next_state <= frame_num_state2;
+          
         when frame_num_state2 =>
-          next_state <= data_state;       
+          next_state <= ch_sw_state;
+          
+        when ch_sw_state =>
+          next_state<= data_state;
+          
         when data_state =>
         if ram_rden_stop='1' then
           next_state<=rden_stop_state;
         else
           next_state<=data_state;
         end if;
+        
         when rden_stop_state =>
-        if last_byte = '1' then     --edit at 8.23
+        if last_byte = '1' then     --edit at 8.23 可参考调试日志
           next_state <= end_state;
         else
           next_state <= rden_stop_state;
         end if;
-      when end_state =>
+        
+       when end_state =>
         if busy ='0' then
           next_state<=ini_state;
         end if;
-      when others => null;
+        
+      when others =>
+        next_state<=ini_state;
     end case;
   end process CHANGE_STATE_ps;
 
@@ -814,10 +806,12 @@ ram_start_d2_ps: process (CLK_125M) is
           when frame_num_state1 =>
             addr_cnt<=0;
             wr_data<=frame_cnt(15 downto 8);
-             ram_rden<='1';
+            -- ram_rden<='1'; --edit at 11.8 由于增加了ch_sw_state，增加了一个周期，所以ram_rden也延后一周期。但是忘了为什么ram_rden信号要提前两个周期。。
           when frame_num_state2 =>          
             wr_data<=frame_cnt(7 downto 0);
-           ram_rden<='1';
+             ram_rden<='1';
+          when ch_sw_state =>
+            wr_data<=CH_flag;
           when data_state =>
             wr_data<=fifo_upload_data;
             ram_rden<='1';

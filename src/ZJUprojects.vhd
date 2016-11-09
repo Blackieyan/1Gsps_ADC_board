@@ -86,8 +86,8 @@ entity ZJUprojects is
     PHY_TXD_o                : OUT    std_logic_vector(3 downto 0);
     PHY_GTXclk_quar          : OUT    std_logic;
     PHy_txen_quar            : OUT    std_logic;
-    phy_txer_o               : OUT    std_logic;
-    phy_rst_n_o : out std_logic
+    phy_txer_o               : OUT    std_logic
+    -- phy_rst_n_o : out std_logic
     ---------------------------------------------------------------------------
     -- qdriip_cq_p                : in std_logic_vector(NUM_DEVICES-1 downto 0); --Memory Interface
     -- qdriip_cq_n                : in std_logic_vector(NUM_DEVICES-1 downto 0);
@@ -239,6 +239,8 @@ architecture Behavioral of ZJUprojects is
   -----------------------------------------------------------------------------
   signal ram_doutb : std_logic_vector(7 downto 0);  --ram control
   attribute keep of ram_doutb : signal is true;
+  signal ram_Q_doutb : std_logic_vector(7 downto 0);
+  signal ram_q_rden : std_logic;
   signal ram_dina : std_logic_vector(31 downto 0);
   signal ram_clka : std_logic;
   signal ram_clkb : std_logic;
@@ -269,6 +271,7 @@ architecture Behavioral of ZJUprojects is
   signal ram_i_doutb : std_logic_vector(7 downto 0);
   attribute keep of ram_i_doutb : signal is true;
   signal ram_i_dina : std_logic_vector(31 downto 0);
+  signal Ram_I_rden : std_logic;
   signal ram_i_clka : std_logic;
   signal ram_i_clkb : std_logic;
   signal ram_i_rstb : std_logic;
@@ -328,6 +331,11 @@ architecture Behavioral of ZJUprojects is
   signal fft_xk_im_I : std_logic_vector(7 downto 0);
   signal fft_ovflo_I : std_logic;
   -----------------------------------------------------------------------------
+  signal upld_finish : std_logic;
+  signal CH_flag : std_logic_vector(7 downto 0);
+  signal CH_stat : std_logic_vector(1 downto 0);
+  
+  -----------------------------------------------------------------------------
   component CDCE62005_config
     port(
       clk         : in  std_logic;
@@ -355,85 +363,88 @@ architecture Behavioral of ZJUprojects is
       );
   end component;
 -------------------------------------------------------------------------------
-  COMPONENT fft
-  PORT (
-    clk : IN STD_LOGIC;
-    ce : IN STD_LOGIC;
-    sclr : IN STD_LOGIC;
-    start : IN STD_LOGIC;
-    xn_re : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-    xn_im : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-    fwd_inv : IN STD_LOGIC;
-    fwd_inv_we : IN STD_LOGIC;
-    scale_sch : IN STD_LOGIC_VECTOR(13 DOWNTO 0);
-    scale_sch_we : IN STD_LOGIC;
-    rfd : OUT STD_LOGIC;
-    xn_index : OUT STD_LOGIC_VECTOR(13 DOWNTO 0);
-    busy : OUT STD_LOGIC;
-    edone : OUT STD_LOGIC;
-    done : OUT STD_LOGIC;
-    dv : OUT STD_LOGIC;
-    xk_index : OUT STD_LOGIC_VECTOR(13 DOWNTO 0);
-    xk_re : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
-    xk_im : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
-    ovflo : OUT STD_LOGIC
-  );
-END COMPONENT;
+--   COMPONENT fft
+--   PORT (
+--     clk : IN STD_LOGIC;
+--     ce : IN STD_LOGIC;
+--     sclr : IN STD_LOGIC;
+--     start : IN STD_LOGIC;
+--     xn_re : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+--     xn_im : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+--     fwd_inv : IN STD_LOGIC;
+--     fwd_inv_we : IN STD_LOGIC;
+--     scale_sch : IN STD_LOGIC_VECTOR(13 DOWNTO 0);
+--     scale_sch_we : IN STD_LOGIC;
+--     rfd : OUT STD_LOGIC;
+--     xn_index : OUT STD_LOGIC_VECTOR(13 DOWNTO 0);
+--     busy : OUT STD_LOGIC;
+--     edone : OUT STD_LOGIC;
+--     done : OUT STD_LOGIC;
+--     dv : OUT STD_LOGIC;
+--     xk_index : OUT STD_LOGIC_VECTOR(13 DOWNTO 0);
+--     xk_re : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+--     xk_im : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+--     ovflo : OUT STD_LOGIC
+--   );
+-- END COMPONENT;
   -----------------------------------------------------------------------------
 	COMPONENT G_ethernet_top
 	PORT(
-		rst_n_gb_i : IN std_logic;
-		user_pushbutton : IN std_logic;
-		fifo_upload_data : IN std_logic_vector(7 downto 0);
-		Rd_clk : IN std_logic;
-		Rd_en : IN std_logic;
-		Rd_Addr : IN std_logic_vector(13 downto 0);
-		PHY_RXD : IN std_logic_vector(3 downto 0);
-		PHY_RXC : IN std_logic;
-		PHY_RXDV : IN std_logic;
-		CLK_125M : IN std_logic;
-		CLK_125M_quar : IN std_logic;          
-		PHY_TXD_o : OUT std_logic_vector(3 downto 0);
-		PHY_GTXclk_quar : OUT std_logic;
-		phy_txen_quar : OUT std_logic;
-		phy_txer_o : OUT std_logic;
-		rst_n_o : OUT std_logic;
-		Rd_data : OUT std_logic_vector(7 downto 0);
-		Frm_valid : OUT std_logic;
-		ram_wren : buffer std_logic;
-		ram_rden : OUT std_logic;
-           ram_start : in std_logic;
-           srcc1_p_trigin : in std_logic;
-           ram_last : in std_logic;
-           SRCC1_n_upload_sma_trigin : in std_logic;
-           upload_trig_ethernet : in std_logic;
-           posedge_upload_trig : in std_logic;
-           TX_dst_MAC_addr : in std_logic_vector(47 downto 0);
-           sample_en : in std_logic
-		);
-	END COMPONENT;
+          -- rst_n_gb_i                : in     std_logic;
+          user_pushbutton           : in     std_logic;
+          fifo_upload_data          : in     std_logic_vector(7 downto 0);
+          Rd_clk                    : in     std_logic;
+          Rd_en                     : in     std_logic;
+          Rd_Addr                   : in     std_logic_vector(13 downto 0);
+          PHY_RXD                   : in     std_logic_vector(3 downto 0);
+          PHY_RXC                   : in     std_logic;
+          PHY_RXDV                  : in     std_logic;
+          CLK_125M                  : in     std_logic;
+          CLK_125M_quar             : in     std_logic;
+          PHY_TXD_o                 : out    std_logic_vector(3 downto 0);
+          PHY_GTXclk_quar           : out    std_logic;
+          phy_txen_quar             : out    std_logic;
+          phy_txer_o                : out    std_logic;
+          -- rst_n_o                   : out    std_logic;
+          Rd_data                   : out    std_logic_vector(7 downto 0);
+          Frm_valid                 : out    std_logic;
+          ram_wren                  : buffer std_logic;
+          ram_rden                  : out    std_logic;
+          ram_start                 : in     std_logic;
+          srcc1_p_trigin            : in     std_logic;
+          ram_last                  : in     std_logic;
+          SRCC1_n_upload_sma_trigin : in     std_logic;
+          upload_trig_ethernet      : in     std_logic;
+          posedge_upload_trig       : in     std_logic;
+          TX_dst_MAC_addr           : in     std_logic_vector(47 downto 0);
+          sample_en                 : in     std_logic;
+          CH_flag                   : in     std_logic_vector(7 downto 0);
+          CH_stat                   : in     std_logic_vector(1 downto 0);
+          upld_finish               : in     std_logic
+          );
+        end component;
   -----------------------------------------------------------------------------
-        COMPONENT command_analysis
-	PORT(
-		rd_data : IN std_logic_vector(7 downto 0);
-		rd_clk : IN std_logic;
-		rd_addr : IN std_logic_vector(13 downto 0);
-		rd_en : IN std_logic;          
-		frm_length : OUT std_logic_vector(15 downto 0);
-		frm_type : OUT std_logic_vector(15 downto 0);
-		-- mac_dst : OUT std_logic_vector(47 downto 0);
-		-- mac_src : OUT std_logic_vector(47 downto 0);
-		-- reg_addr : OUT std_logic_vector(15 downto 0);
-		-- reg_data : OUT std_logic_vector(31 downto 0);
-	         ram_start  : buffer std_logic;
-                user_pushbutton : in std_logic;
-                ram_switch : out std_logic_vector(2 downto 0);
-                upload_trig_ethernet : buffer std_logic;
-                TX_dst_MAC_addr : out STD_LOGIC_VECTOR(47 downto 0);
-                cmd_smpl_en: out std_logic;
-                cmd_smpl_depth: out STD_LOGIC_VECTOR(15 downto 0)
-		);
-	END COMPONENT;
+        component command_analysis
+          port(
+            rd_data              : in     std_logic_vector(7 downto 0);
+            rd_clk               : in     std_logic;
+            rd_addr              : in     std_logic_vector(13 downto 0);
+            rd_en                : in     std_logic;
+            frm_length           : out    std_logic_vector(15 downto 0);
+            frm_type             : out    std_logic_vector(15 downto 0);
+            -- mac_dst : OUT std_logic_vector(47 downto 0);
+            -- mac_src : OUT std_logic_vector(47 downto 0);
+            -- reg_addr : OUT std_logic_vector(15 downto 0);
+            -- reg_data : OUT std_logic_vector(31 downto 0);
+            ram_start            : buffer std_logic;
+            user_pushbutton      : in     std_logic;
+            ram_switch           : out    std_logic_vector(2 downto 0);
+            upload_trig_ethernet : buffer std_logic;
+            TX_dst_MAC_addr      : out    std_logic_vector(47 downto 0);
+            cmd_smpl_en          : buffer    std_logic;
+            cmd_smpl_depth       : out    std_logic_vector(15 downto 0)
+            );
+        end component;
   -----------------------------------------------------------------------------
 
   component dcm_adc_clkoi
@@ -479,6 +490,24 @@ port
   locked : out std_logic
  );
 end component;
+
+COMPONENT Channel_switch
+  PORT(
+    clk_125M : in STD_LOGIC;
+    Ram_Q_last : IN std_logic;
+    Ram_I_last : IN std_logic;
+    Ram_I_doutb : IN std_logic_vector(7 downto 0);
+    Ram_Q_doutb : IN std_logic_vector(7 downto 0);
+    Ram_Q_rden : buffer std_logic;
+    Ram_I_rden : buffer std_logic;
+    rst_n : IN std_logic;
+    Ram_rden : IN std_logic;          
+    Upld_finish : OUT std_logic;
+    CH_flag : out std_logic_vector(7 downto 0);
+    CH_stat : buffer std_logic_vector(1 downto 0);
+    FIFO_upload_data : OUT std_logic_vector(7 downto 0)
+    );
+END COMPONENT;
 -------------------------------------------------------------------------------
   COMPONENT fifo
   PORT (
@@ -525,6 +554,8 @@ END COMPONENT;
     doutb : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
   );
 END COMPONENT;
+
+
 -------------------------------------------------------------------------------
 	COMPONENT IDDR_inst
 	PORT(
@@ -1101,7 +1132,7 @@ IDELAYCTRL_inst : IDELAYCTRL
 -------------------------------------------------------------------------------
   Inst_ADC_interface : ADC_interface port map(
     ADC_Mode        => ADC_Mode,
-    user_pushbutton => user_pushbutton_g or lck_rst_n,
+    user_pushbutton => user_pushbutton_g and lck_rst_n,
     ADC_sclk_OUT    => ADC_sclk_OUT,
     ADC_sldn_OUT    => ADC_sldn_OUT,
     ADC_sdata       => ADC_sdata,
@@ -1159,13 +1190,13 @@ IDELAYCTRL_inst : IDELAYCTRL
   
 -------------------------------------------------------------------------------
 	Inst_G_ethernet_top: G_ethernet_top PORT MAP(
-		rst_n_gb_i => ethernet_rst_n_gb_i,
+		-- rst_n_gb_i => ethernet_rst_n_gb_i,
 		PHY_TXD_o => PHY_TXD_o,
 		PHY_GTXclk_quar => PHY_GTXclk_quar,
 		phy_txen_quar => phy_txen_quar,
 		phy_txer_o => phy_txer_o,
-		user_pushbutton => user_pushbutton_g or lck_rst_n,
-		rst_n_o => phy_rst_n_o,
+		user_pushbutton => user_pushbutton_g and lck_rst_n,
+		-- rst_n_o => phy_rst_n_o,
 		fifo_upload_data =>ethernet_fifo_upload_data,
 		Rd_clk => ethernet_Rd_clk,
 		Rd_en => ethernet_Rd_en,
@@ -1186,7 +1217,10 @@ IDELAYCTRL_inst : IDELAYCTRL
                 upload_trig_ethernet=>upload_trig_ethernet,
                 posedge_upload_trig=>posedge_upload_trig,
                 TX_dst_MAC_addr =>TX_dst_MAC_addr,
-                sample_en=>sample_en
+                sample_en=>sample_en,
+                CH_flag=>CH_flag,
+                CH_stat=>CH_stat,
+                Upld_finish=>Upld_finish
                 
 	);
 -------------------------------------------------------------------------------
@@ -1202,7 +1236,7 @@ IDELAYCTRL_inst : IDELAYCTRL
 		-- reg_addr =>mac_reg_addr ,
 		-- reg_data =>mac_reg_data ,
 	        ram_start => ram_start,
-                user_pushbutton => user_pushbutton_g or lck_rst_n,
+                user_pushbutton => user_pushbutton_g and lck_rst_n,
                 ram_switch =>ram_switch,
                 upload_trig_ethernet=> upload_trig_ethernet,
                 TX_dst_MAC_addr=>TX_dst_MAC_addr,
@@ -1279,13 +1313,13 @@ IDELAYCTRL_inst : IDELAYCTRL
     rstb => ram_rstb,
     enb => ram_enb,
     addrb => ram_addrb,
-    doutb => ram_doutb
+    doutb => ram_q_doutb
   );
   -- ram_dina<=ADC_DOQA_1_d&ADC_DOQB_1_d&ADC_DOQA_2_d&ADC_DOQB_2_d;
   ram_dina<=ADC_DOQB_2_d&ADC_DOQA_2_d&ADC_DOQB_1_d&ADC_DOQA_1_d;
   ram_clka<=ADC_clkoq;
   ram_CLKb<=CLK_125M;
-  ram_enb<=ram_rden;
+  ram_enb<=ram_Q_rden;
   ram_ena<=ram_wren and (not ram_q_full);     --ram_wren 在trig信号后一拍到来在endstate后一拍结束，ram输入端使能信号要从trig_i开始一直到满或者20us结束。可以考虑重做ram_wren
   ram_wea(0)<=ram_wren and (not ram_q_full);
   ram_rstb<=not rst_n;
@@ -1306,14 +1340,27 @@ IDELAYCTRL_inst : IDELAYCTRL
     doutb => ram_i_doutb
   );
   ram_i_dina<=ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
-  -- ram_i_dina<=ram_i_doutb_sim&ram_i_doutb_sim&ram_i_doutb_sim&ram_i_doutb_sim;
-  -- ram_i_dina<=x"7f807f80";
   ram_i_clkb<=CLK_125M;
-  ram_i_enb<=ram_rden;
+  ram_i_enb<=ram_I_rden;
   ram_i_ena<=ram_wren and (not ram_i_full);
   ram_i_wea(0)<=ram_wren and (not ram_i_full);
   ram_i_rstb<=not rst_n;
-  -- clr_n_ram<=rst_n;
+
+  Inst_Channel_switch: Channel_switch PORT MAP(
+    Ram_Q_last => Ram_Q_last,
+    Ram_I_last => Ram_I_last,
+    Ram_I_doutb => Ram_I_doutb,
+    Ram_Q_doutb => Ram_Q_doutb,
+    Ram_Q_rden => Ram_Q_rden,
+    Ram_I_rden => Ram_I_rden,
+    Upld_finish => Upld_finish,
+    CH_flag => CH_flag,
+    CH_stat => CH_stat,
+    FIFO_upload_data => ethernet_FIFO_upload_data,
+    rst_n => rst_n,
+    Ram_rden => Ram_rden,
+    CLK_125M => CLK_125M
+    );
 -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
 dcm1_locked_d_ps: process (CLK_125M) is
@@ -1337,31 +1384,31 @@ end process dcm1_locked_d_ps;
     end if;
   end process lck_rst_n_ps;
   -----------------------------------------------------------------------------
-  ram_switch_ps: process (CLK_125M, rst_n) is
-  begin  -- process ram_switch_ps
-    if rst_n ='0' then
-      ethernet_fifo_upload_data<=ram_doutb;
-    elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-      case ram_switch is
-        when "001" =>
-          ethernet_fifo_upload_data<=ram_doutb;
-          -- ram_last<=ram_q_last;
-          -- ram_full<=ram_q_full;
-        when "010" =>
-          ethernet_fifo_upload_data<=ram_i_doutb;
-          -- ram_last<=ram_i_last;
-          -- ram_full<=ram_i_full;
-        when "100" =>
-          ethernet_fifo_upload_data<=fft_xk_re_I;
-        when others =>
-         ethernet_fifo_upload_data<=ram_doutb;
-         -- ram_last<=ram_q_last;
-         -- ram_full<=ram_q_full;
-      end case;
-    end if;
-  end process ram_switch_ps;
-  ram_last<=ram_q_last;
-  -- ram_full<=ram_i_full;
+  -- ram_switch_ps: process (CLK_125M, rst_n) is
+  -- begin  -- process ram_switch_ps
+  --   if rst_n ='0' then
+  --     ethernet_fifo_upload_data<=ram_q_doutb;
+  --   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+  --     case ram_switch is
+  --       when "001" =>
+  --         ethernet_fifo_upload_data<=ram_q_doutb;
+  --         -- ram_last<=ram_q_last;
+  --         -- ram_full<=ram_q_full;
+  --       when "010" =>
+  --         ethernet_fifo_upload_data<=ram_i_doutb;
+  --         -- ram_last<=ram_i_last;
+  --         -- ram_full<=ram_i_full;
+  --       when "100" =>
+  --         ethernet_fifo_upload_data<=fft_xk_re_I;
+  --       when others =>
+  --        ethernet_fifo_upload_data<=ram_q_doutb;
+  --        -- ram_last<=ram_q_last;
+  --        -- ram_full<=ram_q_full;
+  --     end case;
+  --   end if;
+  -- end process ram_switch_ps;
+  -- ram_last<=ram_q_last;
+  -- -- ram_full<=ram_i_full;
   -----------------------------------------------------------------------------
   -- purpose: to combine all the conditions
   -- type   : sequential
@@ -1469,8 +1516,8 @@ begin  -- process addrb_ps
   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
   if posedge_upload_trig='1' then    --比真正的trig上升沿到来晚一拍
     ram_addrb<=(others => '0');                 --edit at 8.25 for a bug
-    ram_q_last<='1';
-    elsif ram_rden='1' then
+    ram_q_last<='0';                    --edit at 11.9
+    elsif ram_Q_rden='1' then
      -- if ram_addrb<x"9c37" then
     if ram_addrb<cmd_smpl_depth(14 downto 0) then    --edit at 9.5
       ram_addrb<=ram_addrb+1;                   --只读一轮 测试阶段先循环读出,现在ram的深度为10000 位宽32bit,对于8bit的读出位宽深度为40000，x“9c40"
@@ -1509,8 +1556,8 @@ begin  -- process addrb_ps
   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
     if posedge_upload_trig ='1' then  --比真正的trig上升沿到来晚一拍
     ram_i_addrb<=(others => '0');               --edit at 8.25
-    ram_i_last<='1';                    --如果为0状态机不会被强制中止
-    elsif ram_rden='1' then
+    ram_i_last<='0';                    --如果为0状态机不会被强制中止
+    elsif ram_I_rden='1' then
      if ram_i_addrb<=cmd_smpl_depth(14 downto 0) then
       ram_i_addrb<=ram_i_addrb+1;                   --只读一轮 测试阶段先循环读出,现在ram的深度为10000 位宽32bit,对于8bit的读出位宽深度为40000，x“9c40"
       ram_i_last<='0';
@@ -1731,7 +1778,7 @@ end process Rd_Addr_ps;
   -- SRCC1_n<=data_in_usb(0);--j8
    MRCC2_p<=data_test_pin;--j12
   -- MRCC2_n<=ADC_sdata;
- rst_n<=user_pushbutton_g or lck_rst_n;
+ rst_n<=user_pushbutton_g and lck_rst_n;
  ethernet_rd_clk<= CLK_125M;
  -- ethernet_fifo_upload_data<=ADC_DOQA_1_d;
   -- usb_rst<= user_pushbutton;
