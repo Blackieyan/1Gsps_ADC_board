@@ -9,6 +9,7 @@
 -- Target Devices: 
 -- Tool versions: 
 -- Description: 
+
 --
 -- Dependencies: 
 --
@@ -86,8 +87,8 @@ entity ZJUprojects is
     PHY_TXD_o                : OUT    std_logic_vector(3 downto 0);
     PHY_GTXclk_quar          : OUT    std_logic;
     PHy_txen_quar            : OUT    std_logic;
-    phy_txer_o               : OUT    std_logic
-    -- phy_rst_n_o : out std_logic
+    phy_txer_o               : OUT    std_logic;
+    phy_rst_n_o : out std_logic
     ---------------------------------------------------------------------------
     -- qdriip_cq_p                : in std_logic_vector(NUM_DEVICES-1 downto 0); --Memory Interface
     -- qdriip_cq_n                : in std_logic_vector(NUM_DEVICES-1 downto 0);
@@ -333,8 +334,9 @@ architecture Behavioral of ZJUprojects is
   -----------------------------------------------------------------------------
   signal upld_finish : std_logic;
   signal CH_flag : std_logic_vector(7 downto 0);
-  signal CH_stat : std_logic_vector(1 downto 0);
-  
+  signal ch_stat : std_logic_vector(1 downto 0);
+  signal data_strobe : std_logic;
+  signal sw_ram_last : std_logic;
   -----------------------------------------------------------------------------
   component CDCE62005_config
     port(
@@ -405,7 +407,7 @@ architecture Behavioral of ZJUprojects is
           PHY_GTXclk_quar           : out    std_logic;
           phy_txen_quar             : out    std_logic;
           phy_txer_o                : out    std_logic;
-          -- rst_n_o                   : out    std_logic;
+          rst_n_o                   : out    std_logic;
           Rd_data                   : out    std_logic_vector(7 downto 0);
           Frm_valid                 : out    std_logic;
           ram_wren                  : buffer std_logic;
@@ -419,8 +421,10 @@ architecture Behavioral of ZJUprojects is
           TX_dst_MAC_addr           : in     std_logic_vector(47 downto 0);
           sample_en                 : in     std_logic;
           CH_flag                   : in     std_logic_vector(7 downto 0);
-          CH_stat                   : in     std_logic_vector(1 downto 0);
-          upld_finish               : in     std_logic
+          ch_stat                   : in     std_logic_vector(1 downto 0);
+          upld_finish               : in     std_logic;
+          sw_ram_last : in std_logic;
+          data_strobe : out std_logic
           );
         end component;
   -----------------------------------------------------------------------------
@@ -504,8 +508,10 @@ COMPONENT Channel_switch
     Ram_rden : IN std_logic;          
     Upld_finish : OUT std_logic;
     CH_flag : out std_logic_vector(7 downto 0);
-    CH_stat : buffer std_logic_vector(1 downto 0);
-    FIFO_upload_data : OUT std_logic_vector(7 downto 0)
+    ch_stat : buffer std_logic_vector(1 downto 0);
+    FIFO_upload_data : OUT std_logic_vector(7 downto 0);
+    data_strobe : in std_logic;
+    sw_ram_last : out std_logic
     );
 END COMPONENT;
 -------------------------------------------------------------------------------
@@ -1196,7 +1202,7 @@ IDELAYCTRL_inst : IDELAYCTRL
 		phy_txen_quar => phy_txen_quar,
 		phy_txer_o => phy_txer_o,
 		user_pushbutton => user_pushbutton_g and lck_rst_n,
-		-- rst_n_o => phy_rst_n_o,
+		rst_n_o => phy_rst_n_o,
 		fifo_upload_data =>ethernet_fifo_upload_data,
 		Rd_clk => ethernet_Rd_clk,
 		Rd_en => ethernet_Rd_en,
@@ -1219,9 +1225,10 @@ IDELAYCTRL_inst : IDELAYCTRL
                 TX_dst_MAC_addr =>TX_dst_MAC_addr,
                 sample_en=>sample_en,
                 CH_flag=>CH_flag,
-                CH_stat=>CH_stat,
-                Upld_finish=>Upld_finish
-                
+                ch_stat=>ch_stat,
+                Upld_finish=>Upld_finish,
+                sw_ram_last =>sw_ram_last,
+                Data_strobe =>data_strobe
 	);
 -------------------------------------------------------------------------------
   	Inst_command_analysis: command_analysis PORT MAP(
@@ -1243,6 +1250,24 @@ IDELAYCTRL_inst : IDELAYCTRL
                 cmd_smpl_en=>cmd_smpl_en,
                 cmd_smpl_depth=>cmd_smpl_depth
 	);
+  -----------------------------------------------------------------------------
+   Inst_Channel_switch: Channel_switch PORT MAP(
+    Ram_Q_last => Ram_Q_last,
+    Ram_I_last => Ram_I_last,
+    Ram_I_doutb => Ram_I_doutb,
+    Ram_Q_doutb => Ram_Q_doutb,
+    Ram_Q_rden => Ram_Q_rden,
+    Ram_I_rden => Ram_I_rden,
+    Upld_finish => Upld_finish,
+    CH_flag => CH_flag,
+    ch_stat => ch_stat,
+    FIFO_upload_data => ethernet_FIFO_upload_data,
+    rst_n => rst_n,
+    Ram_rden => Ram_rden,
+    CLK_125M => CLK_125M,
+    data_strobe =>data_strobe,
+    sw_ram_last => sw_ram_last
+    );
 -- -------------------------------------------------------------------------------
 --   inst_SRAM : SRAM_interface
 --   generic map(
@@ -1346,21 +1371,7 @@ IDELAYCTRL_inst : IDELAYCTRL
   ram_i_wea(0)<=ram_wren and (not ram_i_full);
   ram_i_rstb<=not rst_n;
 
-  Inst_Channel_switch: Channel_switch PORT MAP(
-    Ram_Q_last => Ram_Q_last,
-    Ram_I_last => Ram_I_last,
-    Ram_I_doutb => Ram_I_doutb,
-    Ram_Q_doutb => Ram_Q_doutb,
-    Ram_Q_rden => Ram_Q_rden,
-    Ram_I_rden => Ram_I_rden,
-    Upld_finish => Upld_finish,
-    CH_flag => CH_flag,
-    CH_stat => CH_stat,
-    FIFO_upload_data => ethernet_FIFO_upload_data,
-    rst_n => rst_n,
-    Ram_rden => Ram_rden,
-    CLK_125M => CLK_125M
-    );
+ 
 -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
 dcm1_locked_d_ps: process (CLK_125M) is

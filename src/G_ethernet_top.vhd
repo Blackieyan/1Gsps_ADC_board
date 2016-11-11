@@ -40,7 +40,7 @@ entity G_ethernet_top is
     phy_txen_quar             : out    std_logic; 
     phy_txer_o                : out    std_logic; 
     user_pushbutton           : in     std_logic; 
-    -- rst_n_o                   : out    std_logic;  --for test,generate from Gcnt
+    rst_n_o                   : out    std_logic;  --for test,generate from Gcnt
     fifo_upload_data          : in     std_logic_vector(7 downto 0);  --测试时在中间层用叫做data的计数器代替了这个外部数据流
     ---------------------------------------------------------------------------
     Rd_data                   : out    std_logic_vector(7 downto 0); 
@@ -67,8 +67,10 @@ entity G_ethernet_top is
     sample_en                 : in     std_logic;
  ------------------------------------------------------------------------------
     CH_flag                   : in     std_logic_vector(7 downto 0);
-    CH_stat                   : in     std_logic_vector(1 downto 0);
-    upld_finish               : in     std_logic
+    ch_stat                   : in     std_logic_vector(1 downto 0);
+    upld_finish               : in     std_logic;
+    sw_ram_last : in std_logic;
+    data_strobe : out std_logic
     );
 end G_ethernet_top; 
 
@@ -102,7 +104,7 @@ architecture Behavioral of G_ethernet_top is
       PHY_GTXclk_quar           : out    std_logic; 
       phy_txen_quar             : out    std_logic; 
       phy_txer_o                : out    std_logic; 
-      -- rst_n_o                   : out    std_logic; 
+      rst_n_o                   : out    std_logic;
       ram_wren                  : buffer std_logic; 
       ram_rden                  : out    std_logic; 
       ram_start                 : in     std_logic;
@@ -115,8 +117,10 @@ architecture Behavioral of G_ethernet_top is
       TX_dst_MAC_addr           : in     std_logic_vector(47 downto 0);
       sample_en                 : in     std_logic;
       CH_flag                   : in     std_logic_vector(7 downto 0);
-      CH_stat                   : in     std_logic_vector(1 downto 0);
-      upld_finish               : in     std_logic
+      ch_stat                   : in     std_logic_vector(1 downto 0);
+      upld_finish               : in     std_logic;
+      sw_ram_last : in std_logic;
+      data_strobe :out std_logic
       );
   end component;
 
@@ -158,7 +162,7 @@ begin
     phy_txen_quar             => phy_txen_quar, 
     phy_txer_o                => phy_txer_o, 
     user_pushbutton           => user_pushbutton, 
-    -- rst_n_o                   => rst_n_o, 
+    rst_n_o                   => rst_n_o,
     fifo_upload_data          => fifo_upload_data, 
     ram_rden                  => ram_rden, 
     ram_wren                  => ram_wren, 
@@ -171,8 +175,10 @@ begin
     TX_dst_MAC_addr           => TX_dst_MAC_addr,
     sample_en                 => sample_en,
     CH_flag                   => CH_flag,
-    CH_stat                   => CH_stat,
-    Upld_finish               => Upld_finish
+    ch_stat                   => ch_stat,
+    Upld_finish               => Upld_finish,
+    sw_ram_last =>sw_ram_last,                                                    
+    data_strobe =>data_strobe                                                    
     );
 
 

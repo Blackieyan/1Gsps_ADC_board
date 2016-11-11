@@ -40,7 +40,7 @@ entity G_ethernet_Tx_data is
     phy_txen_quar   : out std_logic;
     phy_txer_o      : out std_logic;
     user_pushbutton : in  std_logic;
-    -- rst_n_o         : out std_logic;    --for test,generate from Gcnt
+    rst_n_o         : out std_logic; 
     fifo_upload_data : in std_logic_vector(7 downto 0);
     ram_wren : buffer std_logic;
     ram_rden : out std_logic;
@@ -53,8 +53,10 @@ entity G_ethernet_Tx_data is
     TX_dst_MAC_addr : in std_logic_vector(47 downto 0);
     sample_en : in std_logic;
     CH_flag : in std_logic_vector(7 downto 0);
-    CH_stat : in std_logic_vector(1 downto 0);
-    Upld_finish : in std_logic
+    ch_stat : in std_logic_vector(1 downto 0);
+    Upld_finish : in std_logic;
+    sw_ram_last : in std_logic;
+    data_strobe : out std_logic
     );
 end G_ethernet_Tx_data;
 
@@ -64,7 +66,7 @@ architecture Behavioral of G_ethernet_Tx_data is
   signal next_state : state_type;
   attribute keep             : boolean;
   signal Busy                : std_logic:='0';
-  signal Data_Strobe         : std_logic:='0';
+  -- signal Data_Strobe         : std_logic:='0';
   signal data_in             : std_logic_vector(7 downto 0):=x"00";
   signal wr_addr             : std_logic_vector(15 downto 0)  := x"0000";
   signal wr_data             : std_logic_vector(7 downto 0):=x"00";
@@ -125,10 +127,12 @@ architecture Behavioral of G_ethernet_Tx_data is
   signal frame_gap_d : std_logic;
   signal frame_gap_d2 : std_logic;
   signal ram_rden_stop : std_logic;
-  signal Upld_finish_d4 : std_logic;
-  signal Upld_finish_d3 :std_logic;
   signal Upld_finish_d2 : std_logic;
   signal Upld_finish_d : std_logic;
+  signal sw_ram_last_d3 : std_logic;
+  signal sw_ram_last_d2 : std_logic;
+  signal sw_ram_last_d : std_logic;
+  
 -------------------------------------------------------------------------------
   type array_header is array (7 downto 0) of std_logic_vector(7 downto 0);
   constant header : array_header := (x"d5",x"55",x"55",x"55",x"55",x"55",x"55",x"55");
@@ -196,7 +200,7 @@ begin
   phy_GTXclk_quar <= not CLK_125M_quar;
   data_in         <= wr_data;
   phy_txer_o      <= '0';
-  -- rst_n_o         <= rst_n;
+  rst_n_o         <= rst_n;
   rst_n           <= user_pushbutton;
   phy_txen_quar   <= phy_txen_o;
 --  SRCC1_p <= PHY_TXD_o(0);
@@ -340,20 +344,30 @@ begin
   end process wren_ethernet_ps;
   ---wren_ethernet为来自上位机的采样使能
 -------------------------------------------------------------------------------
-  Upld_finish_d4_ps: process (CLK_125M, rst_n) is
+  Upld_finish_d2_ps: process (CLK_125M, rst_n) is
   begin  -- process trig_in_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      Upld_finish_d<='0';
-      Upld_finish_d2<='0';
-      Upld_finish_d3<='0';
-      Upld_finish_d4<='0';
+      Upld_finish_d<='1';
+      Upld_finish_d2<='1';
     elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
       Upld_finish_d<=Upld_finish;
       Upld_finish_d2<=Upld_finish_d;
-      Upld_finish_d3<=Upld_finish_d2;
-      Upld_finish_d4<=Upld_finish_d3;
     end if;
-  end process Upld_finish_d4_ps;
+  end process Upld_finish_d2_ps;
+
+   sw_ram_last_d3_ps: process (CLK_125M, rst_n) is
+  begin  -- process trig_in_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      sw_ram_last_d2<='0';
+      sw_ram_last_d<='0';
+      sw_ram_last_d3<='0';
+    elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+      sw_ram_last_d3<=sw_ram_last_d2;
+      sw_ram_last_d2<=sw_ram_last_d;
+      sw_ram_last_d<=sw_ram_last;
+    end if;
+  end process sw_ram_last_d3_ps;
+
 
     trigin_d_ps: process (CLK_125M, rst_n) is
   begin  -- process trig_in_ps
@@ -602,12 +616,12 @@ begin
        ram_rden_stop<='0';
     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
       -- if wr_addr = x"05db" then          
-      if wr_addr =x"05d8" then
+      if wr_addr =x"05d7" or sw_ram_last ='1' then
         ram_rden_stop<='1';
         else
           ram_rden_stop<='0';
-        end if;                         --让ram_rden比last_byte提前3周期结束，可以保证每帧数据连续
-      if wr_addr = x"05db" then  --帧长1500
+        end if;                         --让ram_rden比last_byte提前3周期结束，可以保证每帧数据连续.11.10改动提前4周期，因为ram_x_rden<=ram_rden又消耗掉一个周期
+      if wr_addr = x"05db" or sw_ram_last_d ='1'then  --帧长1500 如果想一通道传输的帧结束没有相同数据拖尾就sw_ram_last代替sw_ram_last_d3
         last_byte <= '1';
       else
         last_byte <= '0';
@@ -806,12 +820,14 @@ begin
           when frame_num_state1 =>
             addr_cnt<=0;
             wr_data<=frame_cnt(15 downto 8);
-            -- ram_rden<='1'; --edit at 11.8 由于增加了ch_sw_state，增加了一个周期，所以ram_rden也延后一周期。但是忘了为什么ram_rden信号要提前两个周期。。
+            ram_rden<='1'; --edit at 11.8 由于增加了ch_sw_state，增加了一个周期，所以ram_rden也延后一周期。但是忘了为什么ram_rden信号要提前两个周期。。
+            --edit at 11.10,因为真内数据部分有空白，所以要提前读数。ram_rden还是得在这个周期拉高
           when frame_num_state2 =>          
             wr_data<=frame_cnt(7 downto 0);
              ram_rden<='1';
           when ch_sw_state =>
             wr_data<=CH_flag;
+             ram_rden<='1';
           when data_state =>
             wr_data<=fifo_upload_data;
             ram_rden<='1';
