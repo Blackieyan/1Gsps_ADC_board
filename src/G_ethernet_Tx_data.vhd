@@ -410,7 +410,15 @@ begin
   end process trigin_cnt_ps;
 
   -- ram_wren<=wren_ethernet or wren_reset or wren_trigin;
-   ram_wren<=wren_ethernet or wren_trigin;  --ram的采样使能由这一层提供，决定了采样深度
+  ram_wren_ps: process (clk_125m, rst_n) is
+  begin  -- process ram_wren_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      ram_wren<='0';
+    elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
+      ram_wren<=wren_ethernet or wren_trigin;  --ram的采样使能由这一层提供，决定了采样深度
+    end if;
+  end process ram_wren_ps;
+   
   -----------------------------------------------------------------------------
   upload_trig_ethernet_ps: process (CLK_125M, rst_n) is
   begin  -- process trig_in_ps

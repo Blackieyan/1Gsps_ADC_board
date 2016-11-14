@@ -490,7 +490,7 @@ port
   CLK_OUT1          : out    std_logic;
   CLK_OUT2          : out    std_logic;
   clk_out3 :out std_logic;
-  CLK_OUT4          : out    std_logic;
+  -- CLK_OUT4          : out    std_logic;
   locked : out std_logic
  );
 end component;
@@ -670,7 +670,7 @@ begin
     CLK_OUT1 => CLK_125M,
     CLK_OUT2 => CLK_125M_quar,
     CLK_OUT3 => CLK_200M,
-    CLK_OUT4 => CLK_OUT4,
+    -- CLK_OUT4 => CLK_OUT4,
     locked => dcm1_locked
     );
   
@@ -1341,7 +1341,13 @@ IDELAYCTRL_inst : IDELAYCTRL
     doutb => ram_q_doutb
   );
   -- ram_dina<=ADC_DOQA_1_d&ADC_DOQB_1_d&ADC_DOQA_2_d&ADC_DOQB_2_d;
-  ram_dina<=ADC_DOQB_2_d&ADC_DOQA_2_d&ADC_DOQB_1_d&ADC_DOQA_1_d;
+  ram_dina_ps: process (ADC_clkoq, rst_n) is
+  begin  -- process ram_dina_ps
+    if ADC_clkoq'event and ADC_clkoq = '1' then  -- rising clock edge
+      ram_dina<=ADC_DOQB_2_d&ADC_DOQA_2_d&ADC_DOQB_1_d&ADC_DOQA_1_d;
+    end if;
+  end process ram_dina_ps;
+
   ram_clka<=ADC_clkoq;
   ram_CLKb<=CLK_125M;
   ram_enb<=ram_Q_rden;
@@ -1364,7 +1370,13 @@ IDELAYCTRL_inst : IDELAYCTRL
     addrb => ram_i_addrb,
     doutb => ram_i_doutb
   );
-  ram_i_dina<=ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
+ram_i_dina_ps: process (ADC_clkoi, rst_n) is
+begin  -- process ram_i_dina_ps
+   if ADC_clkoi'event and ADC_clkoi = '1' then  -- rising clock edge
+      ram_i_dina<=ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
+  end if;
+end process ram_i_dina_ps;
+
   ram_i_clkb<=CLK_125M;
   ram_i_enb<=ram_I_rden;
   ram_i_ena<=ram_wren and (not ram_i_full);
