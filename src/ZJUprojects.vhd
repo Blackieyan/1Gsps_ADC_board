@@ -1330,13 +1330,13 @@ IDELAYCTRL_inst : IDELAYCTRL
     ram_data_inst : ram_data
   PORT MAP (
     clka =>ADC_clkoq,
-    ena => ram_ena,
+    ena => '1',
     wea => ram_wea,
     addra => ram_addra,
     dina => ram_dina,
     clkb => ram_clkb,
     rstb => ram_rstb,
-    enb => ram_enb,
+    enb => '1',
     addrb => ram_addrb,
     doutb => ram_q_doutb
   );
@@ -1360,13 +1360,13 @@ IDELAYCTRL_inst : IDELAYCTRL
      ram_data_inst2 : ram_data_i
   PORT MAP (
     clka =>ADC_clkoi,
-    ena => ram_i_ena,
+    ena => '1',
     wea => ram_i_wea,
     addra => ram_i_addra,
     dina => ram_i_dina,
     clkb => ram_i_clkb,
     rstb => ram_i_rstb,
-    enb => ram_i_enb,
+    enb => '1',
     addrb => ram_i_addrb,
     doutb => ram_i_doutb
   );
@@ -1516,6 +1516,7 @@ ram_addra_ps: process (ADC_CLKOQ, clr_n_ram, posedge_sample_trig) is --trigin «s
 begin  -- process addra_ps
   if clr_n_ram = '0' or posedge_sample_trig='1' then                   -- asynchronous reset (active low)
     ram_addra<=(others => '0');
+    ram_q_full<='0';
   elsif ADC_CLKOQ'event and ADC_CLKOQ = '1' then  -- rising clock edge
     -- if posedge_sample_trig='1' then
     --   ram_addra<=(others => '0');
@@ -1557,6 +1558,7 @@ ram_i_addra_ps: process (ADC_CLKOi, clr_n_ram, posedge_sample_trig) is
 begin  -- process addra_ps
   if clr_n_ram = '0' or posedge_sample_trig='1' then                   -- asynchronous reset (active low)
     ram_i_addra<=(others => '0');
+    ram_i_full<='0';
   elsif ADC_CLKOi'event and ADC_CLKOi = '1' then  -- rising clock edge
     -- if posedge_sample_trig ='1' then
     --  ram_i_addra<=(others => '0');     
