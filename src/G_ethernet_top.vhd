@@ -57,11 +57,11 @@ entity G_ethernet_top is
 -------------------------------------------------------------------------------
     ram_wren                  : buffer std_logic; 
     ram_rden                  : out    std_logic; 
-    ram_start                 : in     std_logic;
-    ram_last                  : in     std_logic;
-    srcc1_p_trigin            : in     std_logic;
-    SRCC1_n_upload_sma_trigin : in     std_logic;
-    upload_trig_ethernet      : in     std_logic;
+    -- ram_start                 : in     std_logic;
+    -- ram_last                  : in     std_logic;
+    -- srcc1_p_trigin            : in     std_logic;
+    -- SRCC1_n_upload_sma_trigin : in     std_logic;
+    -- upload_trig_ethernet      : in     std_logic;
     posedge_upload_trig       : in     std_logic;
     TX_dst_MAC_addr           : in     std_logic_vector(47 downto 0);
     sample_en                 : in     std_logic;
@@ -70,7 +70,8 @@ entity G_ethernet_top is
     ch_stat                   : in     std_logic_vector(1 downto 0);
     upld_finish               : in     std_logic;
     sw_ram_last : in std_logic;
-    data_strobe : out std_logic
+    data_strobe : out std_logic;
+    posedge_sample_trig : in std_logic
     );
 end G_ethernet_top; 
 
@@ -107,12 +108,12 @@ architecture Behavioral of G_ethernet_top is
       rst_n_o                   : out    std_logic;
       ram_wren                  : buffer std_logic; 
       ram_rden                  : out    std_logic; 
-      ram_start                 : in     std_logic;
-      srcc1_p_trigin            : in     std_logic;  --trigger from sma srcc1_p to trig the
+      -- ram_start                 : in     std_logic;
+      -- srcc1_p_trigin            : in     std_logic;  --trigger from sma srcc1_p to trig the
                                                      --ram writing
-      SRCC1_n_upload_sma_trigin : in     std_logic;
-      ram_last                  : in     std_logic;
-      upload_trig_ethernet      : in     std_logic;
+      -- SRCC1_n_upload_sma_trigin : in     std_logic;
+      -- ram_last                  : in     std_logic;
+      -- upload_trig_ethernet      : in     std_logic;
       posedge_upload_trig       : in     std_logic;
       TX_dst_MAC_addr           : in     std_logic_vector(47 downto 0);
       sample_en                 : in     std_logic;
@@ -120,7 +121,8 @@ architecture Behavioral of G_ethernet_top is
       ch_stat                   : in     std_logic_vector(1 downto 0);
       upld_finish               : in     std_logic;
       sw_ram_last : in std_logic;
-      data_strobe :out std_logic
+      data_strobe :out std_logic;
+      posedge_sample_trig : in std_logic
       );
   end component;
 
@@ -166,11 +168,11 @@ begin
     fifo_upload_data          => fifo_upload_data, 
     ram_rden                  => ram_rden, 
     ram_wren                  => ram_wren, 
-    ram_start                 => ram_start,
-    srcc1_p_trigin            => srcc1_p_trigin,
-    SRCC1_n_upload_sma_trigin => SRCC1_n_upload_sma_trigin,
-    upload_trig_ethernet      => upload_trig_ethernet,
-    ram_last                  => ram_last,
+    -- ram_start                 => ram_start,
+    -- srcc1_p_trigin            => srcc1_p_trigin,
+    -- SRCC1_n_upload_sma_trigin => SRCC1_n_upload_sma_trigin,
+    -- upload_trig_ethernet      => upload_trig_ethernet,
+    -- ram_last                  => ram_last,
     posedge_upload_trig       => posedge_upload_trig,
     TX_dst_MAC_addr           => TX_dst_MAC_addr,
     sample_en                 => sample_en,
@@ -178,7 +180,8 @@ begin
     ch_stat                   => ch_stat,
     Upld_finish               => Upld_finish,
     sw_ram_last =>sw_ram_last,                                                    
-    data_strobe =>data_strobe                                                    
+    data_strobe =>data_strobe,
+    posedge_sample_trig =>posedge_sample_trig                                                    
     );
 
 

@@ -252,7 +252,7 @@ architecture Behavioral of ZJUprojects is
   signal ram_addra : std_logic_vector(12 downto 0);  --edit at 9.6
   signal ram_addrb : std_logic_vector(14 downto 0);  --edit at 9.6
   signal clr_n_ram : std_logic;
-  signal ram_last : std_logic;
+  -- signal ram_last : std_logic;
   signal ram_q_last : std_logic;
   signal ram_i_last : std_logic;
   signal ram_rst : std_logic;
@@ -412,11 +412,11 @@ architecture Behavioral of ZJUprojects is
           Frm_valid                 : out    std_logic;
           ram_wren                  : buffer std_logic;
           ram_rden                  : out    std_logic;
-          ram_start                 : in     std_logic;
-          srcc1_p_trigin            : in     std_logic;
-          ram_last                  : in     std_logic;
-          SRCC1_n_upload_sma_trigin : in     std_logic;
-          upload_trig_ethernet      : in     std_logic;
+          -- ram_start                 : in     std_logic;
+          -- srcc1_p_trigin            : in     std_logic;
+          -- ram_last                  : in     std_logic;
+          -- SRCC1_n_upload_sma_trigin : in     std_logic;
+          -- upload_trig_ethernet      : in     std_logic;
           posedge_upload_trig       : in     std_logic;
           TX_dst_MAC_addr           : in     std_logic_vector(47 downto 0);
           sample_en                 : in     std_logic;
@@ -424,7 +424,8 @@ architecture Behavioral of ZJUprojects is
           ch_stat                   : in     std_logic_vector(1 downto 0);
           upld_finish               : in     std_logic;
           sw_ram_last : in std_logic;
-          data_strobe : out std_logic
+          data_strobe : out std_logic;
+          posedge_sample_trig : in std_logic
           );
         end component;
   -----------------------------------------------------------------------------
@@ -1216,11 +1217,11 @@ IDELAYCTRL_inst : IDELAYCTRL
 		CLK_125M_quar => CLK_125M_quar,
                 ram_wren => ram_wren,
                 ram_rden => ram_rden,
-                ram_start =>ram_start,
-                srcc1_p_trigin => SRCC1_p_trigin,
-                ram_last => ram_last,
-                SRCC1_n_upload_sma_trigin=>SRCC1_n_upload_sma_trigin,
-                upload_trig_ethernet=>upload_trig_ethernet,
+                -- ram_start =>ram_start,
+                -- srcc1_p_trigin => SRCC1_p_trigin,
+                -- ram_last => ram_last,
+                -- SRCC1_n_upload_sma_trigin=>SRCC1_n_upload_sma_trigin,
+                -- upload_trig_ethernet=>upload_trig_ethernet,
                 posedge_upload_trig=>posedge_upload_trig,
                 TX_dst_MAC_addr =>TX_dst_MAC_addr,
                 sample_en=>sample_en,
@@ -1228,7 +1229,8 @@ IDELAYCTRL_inst : IDELAYCTRL
                 ch_stat=>ch_stat,
                 Upld_finish=>Upld_finish,
                 sw_ram_last =>sw_ram_last,
-                Data_strobe =>data_strobe
+                Data_strobe =>data_strobe,
+                posedge_sample_trig =>posedge_sample_trig
 	);
 -------------------------------------------------------------------------------
   	Inst_command_analysis: command_analysis PORT MAP(
@@ -1407,48 +1409,23 @@ end process dcm1_locked_d_ps;
     end if;
   end process lck_rst_n_ps;
   -----------------------------------------------------------------------------
-  -- ram_switch_ps: process (CLK_125M, rst_n) is
-  -- begin  -- process ram_switch_ps
-  --   if rst_n ='0' then
-  --     ethernet_fifo_upload_data<=ram_q_doutb;
-  --   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-  --     case ram_switch is
-  --       when "001" =>
-  --         ethernet_fifo_upload_data<=ram_q_doutb;
-  --         -- ram_last<=ram_q_last;
-  --         -- ram_full<=ram_q_full;
-  --       when "010" =>
-  --         ethernet_fifo_upload_data<=ram_i_doutb;
-  --         -- ram_last<=ram_i_last;
-  --         -- ram_full<=ram_i_full;
-  --       when "100" =>
-  --         ethernet_fifo_upload_data<=fft_xk_re_I;
-  --       when others =>
-  --        ethernet_fifo_upload_data<=ram_q_doutb;
-  --        -- ram_last<=ram_q_last;
-  --        -- ram_full<=ram_q_full;
-  --     end case;
-  --   end if;
-  -- end process ram_switch_ps;
-  -- ram_last<=ram_q_last;
-  -- -- ram_full<=ram_i_full;
   -----------------------------------------------------------------------------
   -- purpose: to combine all the conditions
   -- type   : sequential
   -- inputs : CLK_125M, rst_n
   -- outputs: 
-  posedge_upload_trig_ps: process (CLK_125M, rst_n, ram_start_d, ram_start_d2, trigin_d2, trigin_d, SRCC1_n_upload_sma_trigin_d, SRCC1_n_upload_sma_trigin_d2, upload_trig_ethernet_d, upload_trig_ethernet_d2,sample_en) is
-  begin  -- process posedge_upload_trig_ps
-    if rst_n = '0' then                 -- asynchronous reset (active low)
-     posedge_upload_trig<='0';
-    elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-      if (ram_start_d = '1' and ram_start_d2='0') or (trigin_d2 ='0' and trigin_d='1' and sample_en='1') or (SRCC1_n_upload_sma_trigin_d = '1' and SRCC1_n_upload_sma_trigin_d2 = '0') or (upload_trig_ethernet_d = '1' and upload_trig_ethernet_d2 = '0') then
-      posedge_upload_trig<='1';
-      else
-        posedge_upload_trig<='0';
-      end if;
-    end if;
-  end process posedge_upload_trig_ps;
+  -- posedge_upload_trig_ps: process (CLK_125M, rst_n, ram_start_d, ram_start_d2, trigin_d2, trigin_d, SRCC1_n_upload_sma_trigin_d, SRCC1_n_upload_sma_trigin_d2, upload_trig_ethernet_d, upload_trig_ethernet_d2,sample_en) is
+  -- begin  -- process posedge_upload_trig_ps
+  --   if rst_n = '0' then                 -- asynchronous reset (active low)
+  --     posedge_upload_trig<='0';
+  --   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+  --     if (ram_start_d = '1' and ram_start_d2='0') or (trigin_d2 ='0' and trigin_d='1' and sample_en='1') or (SRCC1_n_upload_sma_trigin_d = '1' and SRCC1_n_upload_sma_trigin_d2 = '0') or (upload_trig_ethernet_d = '1' and upload_trig_ethernet_d2 = '0') then
+  --     posedge_upload_trig<='1';
+  --     else
+  --       posedge_upload_trig<='0';
+  --     end if;
+  --   end if;
+  -- end process posedge_upload_trig_ps;
   --只上传ram的内容而不重新写ram。
   --敏感命令为：
   -- 1.来自上位机的采数指令ram_start
@@ -1502,7 +1479,7 @@ end process dcm1_locked_d_ps;
     if rst_n = '0' then                 -- asynchronous reset (active low)
       sample_en<='0';
     elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-      if sample_trig_cnt =x"7D0" then   --2000个posedge_sample_trig
+      if sample_trig_cnt >=x"7D0" then   --2000个posedge_sample_trig
         sample_en<='0';
       elsif cmd_smpl_en_d ='1' and cmd_smpl_en_d2='0' then
         sample_en<='1';
@@ -1514,21 +1491,21 @@ end process dcm1_locked_d_ps;
     --ram_addr
 ram_addra_ps: process (ADC_CLKOQ, clr_n_ram, posedge_sample_trig) is --trigin是sma触发，ram_start是上位机的触发
 begin  -- process addra_ps
-  if clr_n_ram = '0' or posedge_sample_trig='1' then                   -- asynchronous reset (active low)
+  if clr_n_ram = '0' then                   -- asynchronous reset (active low)
     ram_addra<=(others => '0');
     ram_q_full<='0';
   elsif ADC_CLKOQ'event and ADC_CLKOQ = '1' then  -- rising clock edge
-    -- if posedge_sample_trig='1' then
-    --   ram_addra<=(others => '0');
-    if ram_wren='1' then                --收到wren控制，希望wren是上位机的trig到来后的10us或者20us这样一个持续，ram_wren来自tx_module
-    -- if ram_addra<x"270e" then        --只写入一次 10000的ram深度
-       if ram_addra< cmd_smpl_depth(14 downto 2)then --cmd_smpl_depth/4
-      ram_addra<=ram_addra+1;
+    if posedge_sample_trig='1' then
+      ram_addra<=(others => '0');
       ram_q_full<='0';
-    elsif ram_addra>= cmd_smpl_depth(14 downto 2) then       --270f是最后一个地址 留一个余量防止ram崩溃
-      ram_q_full<='1';                    --为了保持这个full的状态，ram_addra不能清零
+    elsif ram_wren='1' then       --收到wren控制，希望wren是上位机的trig到来后的10us或者20us这样一个持续，ram_wren来自tx_module
+      if ram_addra< cmd_smpl_depth(14 downto 2)then --cmd_smpl_depth/4
+        ram_addra<=ram_addra+1;
+        ram_q_full<='0';
+      elsif ram_addra>= cmd_smpl_depth(14 downto 2) then       --270f是最后一个地址 留一个余量防止ram崩溃
+        ram_q_full<='1';             --为了保持这个full的状态，ram_addra不能清零
+      end if;
     end if;
-  end if;
   end if;
 end process ram_addra_ps;
 
@@ -1538,38 +1515,38 @@ begin  -- process addrb_ps
     ram_addrb<=(others => '0');
     ram_q_last<='1';
   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-  if posedge_upload_trig='1' then    --比真正的trig上升沿到来晚一拍
-    ram_addrb<=(others => '0');                 --edit at 8.25 for a bug
-    ram_q_last<='0';                    --edit at 11.9
+    if posedge_sample_trig='1' then    --比真正的trig上升沿到来晚一拍
+      ram_addrb<=(others => '0');         --edit at 8.25 for a bug
+      ram_q_last<='0';                    --edit at 11.9
     elsif ram_Q_rden='1' then
      -- if ram_addrb<x"9c37" then
-    if ram_addrb<cmd_smpl_depth(14 downto 0) then    --edit at 9.5
-      ram_addrb<=ram_addrb+1;                   --只读一轮 测试阶段先循环读出,现在ram的深度为10000 位宽32bit,对于8bit的读出位宽深度为40000，x“9c40"
-      ram_q_last<='0';
-    elsif ram_addrb>=cmd_smpl_depth(14 downto 0) then        --不要读满。。余几个量
-      ram_q_last<='1';
-             --根据方针前4个值为空，9c40为x
-     end if;
+      if ram_addrb<cmd_smpl_depth(14 downto 0) then    --edit at 9.5
+        ram_addrb<=ram_addrb+1;   --只读一轮 测试阶段先循环读出,现在ram的深度为10000 位宽32bit,对于8bit的读出位宽深度为40000，x“9c40"
+        ram_q_last<='0';
+      elsif ram_addrb>=cmd_smpl_depth(14 downto 0) then        --不要读满。。余几个量
+        ram_q_last<='1';
+      end if;
+    end if;
   end if;
-end if;
 end process ram_addrb_ps;
 -------------------------------------------------------------------------------
 ram_i_addra_ps: process (ADC_CLKOi, clr_n_ram, posedge_sample_trig) is
 begin  -- process addra_ps
-  if clr_n_ram = '0' or posedge_sample_trig='1' then                   -- asynchronous reset (active low)
+  if clr_n_ram = '0' then                   -- asynchronous reset (active low)
     ram_i_addra<=(others => '0');
     ram_i_full<='0';
   elsif ADC_CLKOi'event and ADC_CLKOi = '1' then  -- rising clock edge
-    -- if posedge_sample_trig ='1' then
-    --  ram_i_addra<=(others => '0');     
-    if ram_wren='1' then                --收到wren控制，希望wren是上位机的trig到来后的10us或者20us这样一个持续
-    if ram_i_addra<=cmd_smpl_depth(14 downto 2) then        --只写入一次 10000的ram深度
-      ram_i_addra<=ram_i_addra+1;
+    if posedge_sample_trig ='1' then
+      ram_i_addra<=(others => '0');
       ram_i_full<='0';
+    elsif ram_wren='1' then         --收到wren控制，希望wren是上位机的trig到来后的10us或者20us这样一个持续
+      if ram_i_addra<=cmd_smpl_depth(14 downto 2) then        --只写入一次 10000的ram深度
+        ram_i_addra<=ram_i_addra+1;
+        ram_i_full<='0';
+      end if;
     elsif ram_i_addra>=cmd_smpl_depth(14 downto 2) then       --270f是最后一个地址 留一个余量防止ram崩溃
-      ram_i_full<='1';                    --为了保持这个full的状态，ram_addra不能清零
+        ram_i_full<='1';                    --为了保持这个full的状态，ram_addra不能清零
     end if;
-  end if;
   end if;
 end process ram_i_addra_ps;
 
@@ -1579,19 +1556,18 @@ begin  -- process addrb_ps
     ram_i_addrb<=(others => '0');
     ram_i_last<='1';
   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-    if posedge_upload_trig ='1' then  --比真正的trig上升沿到来晚一拍
-    ram_i_addrb<=(others => '0');               --edit at 8.25
-    ram_i_last<='0';                    --如果为0状态机不会被强制中止
+    if posedge_sample_trig ='1' then  --比真正的trig上升沿到来晚一拍
+      ram_i_addrb<=(others => '0');               --edit at 8.25
+      ram_i_last<='0';                    --如果为1将无法切换ch
     elsif ram_I_rden='1' then
-     if ram_i_addrb<=cmd_smpl_depth(14 downto 0) then
-      ram_i_addrb<=ram_i_addrb+1;                   --只读一轮 测试阶段先循环读出,现在ram的深度为10000 位宽32bit,对于8bit的读出位宽深度为40000，x“9c40"
-      ram_i_last<='0';
-    elsif ram_i_addrb>=cmd_smpl_depth(14 downto 0) then        --不要读满。。余几个量
-      ram_i_last<='1';
-            --根据方针前4个值为空，9c40为x
-     end if;
+      if ram_i_addrb<=cmd_smpl_depth(14 downto 0) then
+        ram_i_addrb<=ram_i_addrb+1; 
+        ram_i_last<='0';
+      elsif ram_i_addrb>=cmd_smpl_depth(14 downto 0) then        --不要读满。。余几个量
+        ram_i_last<='1';
+      end if;
+    end if;
   end if;
-end if;
 end process ram_i_addrb_ps;
 
 -------------------------------------------------------------------------------

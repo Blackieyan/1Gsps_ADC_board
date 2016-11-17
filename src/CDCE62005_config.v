@@ -73,6 +73,8 @@ module CDCE62005_config(clk,clk_spi,en,spi_clk,spi_mosi,spi_miso,spi_le,spi_syn,
 
 
 
+
+/* -----\/----- EXCLUDED -----\/-----
    localparam  Value_register0=32'h81400320,	//1000MHZ aux in analog lock 也会飘
      Value_register1=32'h81400321,	        
      Value_register2=32'h81400302,
@@ -85,6 +87,7 @@ module CDCE62005_config(clk,clk_spi,en,spi_clk,spi_mosi,spi_miso,spi_le,spi_syn,
      Value_toEEPROM =32'h0000001f,
      Value_PDPre    =32'h80001008,	//for calibration
      Value_PDDone   =32'h80001808;
+ -----/\----- EXCLUDED -----/\----- */
 
 
 
@@ -93,7 +96,8 @@ module CDCE62005_config(clk,clk_spi,en,spi_clk,spi_mosi,spi_miso,spi_le,spi_syn,
 
 
 
-/* -----\/----- EXCLUDED -----\/-----
+
+
    localparam  Value_register0=32'h81400320,	//1000MHZ sec ttl in 不会飘
      Value_register1=32'h81400321,	        
      Value_register2=32'h81400302,
@@ -106,7 +110,8 @@ module CDCE62005_config(clk,clk_spi,en,spi_clk,spi_mosi,spi_miso,spi_le,spi_syn,
      Value_toEEPROM =32'h0000001f,
      Value_PDPre    =32'h80001008,	//for calibration
      Value_PDDone   =32'h80001808;
- -----/\----- EXCLUDED -----/\----- */
+
+ 
  
 
  
