@@ -57,7 +57,6 @@ architecture behavior of ZJUprojects_TB is
       spi_revdata     : out std_logic_vector(31 downto 0);
       cfg_finish      : out std_logic;
       -------------------------------------------------------------------------
-      test            : out std_logic_vector(0 downto 0);
       user_pushbutton : in  std_logic;  --glbclr_n
       -------------------------------------------------------------------------
       ADC_CLKOI_p     : in  std_logic;  -- ADC CLKOI 500MHz/250MHz
@@ -76,8 +75,6 @@ architecture behavior of ZJUprojects_TB is
       DOIRI_n         : in  std_logic;
       DOIRQ_p         : in  std_logic;
       DOIRQ_n         : in  std_logic;
-      GHz_in_p        : in  std_logic;
-      GHz_in_n        : in  std_logic;
       SRCC1_p_trigin         : in std_logic;
       SRCC1_n_upload_sma_trigin  : in    std_logic;
       MRCC2_p         : out std_logic;
@@ -116,11 +113,9 @@ architecture behavior of ZJUprojects_TB is
   signal spi_powerdn        : std_logic;
   signal spi_revdata        : std_logic_vector(31 downto 0);
   signal cfg_finish         : std_logic;
-  signal test               : std_logic_vector(0 downto 0);
   signal OSC_in_p           : std_logic;
   signal OSC_in_n           : std_logic;
-  signal GHz_in_p           : std_logic                    := '1';
-  signal GHz_in_n           : std_logic                    := '0';
+
   -----------------------------------------------------------------------------
   signal ADC_CLKOI_p        : std_logic;  -- ADC CLKOI 500MHz/250MHz
   signal ADC_CLKOI_n        : std_logic;
@@ -174,8 +169,6 @@ begin
   Inst_ZJUprojects : ZJUprojects port map(
     OSC_in_n        => OSC_in_n,
     OSC_in_p        => OSC_in_p,
-    GHz_in_n        => GHz_in_n,
-    GHz_in_p        => GHz_in_p,
     ADC_Mode        => ADC_Mode,
     ADC_sclk_OUT    => ADC_sclk_OUT,
     ADC_sldn_OUT    => ADC_sldn_OUT,
@@ -188,7 +181,6 @@ begin
     spi_powerdn     => spi_powerdn,
     spi_revdata     => spi_revdata,
     cfg_finish      => cfg_finish,
-    test            => test,
     user_pushbutton => user_pushbutton,
     ADC_CLKOI_p     => ADC_CLKOI_p,
     ADC_CLKOI_n     => ADC_CLKOI_n,
@@ -300,33 +292,33 @@ begin
   end process sim_DOQB;
   ADC_DOQB_n <= not ADC_DOQB_p;
   -----------------------------------------------------------------------------
-  -- purpose: set a counter to simulate DOIA
+--   purpose: set a counter to simulate DOIA
 -- type   : sequential
 -- inputs : CLK_500M, rst
 -- outputs: DOIA
-  -- sim_DOIA : process (CLK_500M, rst, user_pushbutton) is
-  -- begin  -- process sim_DOIA
-  --   if user_pushbutton = '0' then       -- asynchronous reset (active low)
-  --     ADC_DOIA_p <= (others => '0');
-  --   elsif CLK_500M'event and CLK_500M = '1' then  -- rising clock edge
-  --     ADC_DOIA_p <= ADC_DOIA_p+2;
-  --   end if;
-  -- end process sim_DOIA;
-  -- ADC_DOIA_n <= not ADC_DOIA_p;
+  sim_DOIA : process (CLK_500M, rst, user_pushbutton) is
+  begin  -- process sim_DOIA
+    if user_pushbutton = '0' then       -- asynchronous reset (active low)
+      ADC_DOIA_p <= (others => '0');
+    elsif CLK_500M'event and CLK_500M = '1' then  -- rising clock edge
+      ADC_DOIA_p <= ADC_DOIA_p+2;
+    end if;
+  end process sim_DOIA;
+  ADC_DOIA_n <= not ADC_DOIA_p;
 
-  -- purpose: set a counter to simulate DOIB
+--   purpose: set a counter to simulate DOIB
 -- type   : sequential
 -- inputs : CLK_500M, rst
 -- outputs: DOIB
-  -- sim_DOIB : process (CLK_500M, rst, user_pushbutton) is
-  -- begin  -- process sim_DOIB
-  --   if user_pushbutton = '0' then       -- asynchronous reset (active low)
-  --     ADC_DOIB_p <= x"01";
-  --   elsif CLK_500M'event and CLK_500M = '1' then  -- rising clock edge
-  --     ADC_DOIB_p <= ADC_DOIB_p+2;
-  --   end if;
-  -- end process sim_DOIB;
-  -- ADC_DOIB_n <= not ADC_DOIB_p;
+  sim_DOIB : process (CLK_500M, rst, user_pushbutton) is
+  begin  -- process sim_DOIB
+    if user_pushbutton = '0' then       -- asynchronous reset (active low)
+      ADC_DOIB_p <= x"01";
+    elsif CLK_500M'event and CLK_500M = '1' then  -- rising clock edge
+      ADC_DOIB_p <= ADC_DOIB_p+2;
+    end if;
+  end process sim_DOIB;
+  ADC_DOIB_n <= not ADC_DOIB_p;
   -----------------------------------------------------------------------------
   -- Stimulus process
   stim_proc : process
