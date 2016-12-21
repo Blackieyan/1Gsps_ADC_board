@@ -40,13 +40,13 @@ entity Channel_switch is
     Ram_I_last : in std_logic;
     Ram_I_doutb : in std_logic_vector(7 downto 0);
     Ram_Q_doutb : in std_logic_vector(7 downto 0);
-    Ram_Q_rden : buffer std_logic;
-    Ram_I_rden : buffer std_logic;
+    Ram_Q_rden : out std_logic;
+    Ram_I_rden : out std_logic;
     -- Ram_Q_sw : out std_logic;
     -- Ram_I_sw : out std_logic;
     Upld_finish : out std_logic;
     CH_flag : out std_logic_vector(7 downto 0);
-    CH_stat : buffer std_logic_vector(1 downto 0);
+    CH_stat_o: out std_logic_vector(1 downto 0);
     FIFO_upload_data : out std_logic_vector(7 downto 0);
     rst_n : in std_logic;
     Ram_rden : in std_logic;
@@ -69,12 +69,14 @@ signal  Ram_Q_last_d5 : std_logic;
 signal  Ram_I_last_d5 : std_logic;
 signal psedge_ram_Q_last : std_logic;
 signal psedge_ram_I_last : std_logic;
+signal CH_stat : std_logic_vector(1 downto 0);
 signal CH_stat_d : std_logic_vector(1 downto 0);
 signal CH_stat_d2 : std_logic_vector(1 downto 0);
 signal CH_stat_d3 : std_logic_vector(1 downto 0);
 signal CH_stat_d4 : std_logic_vector(1 downto 0);
   
 begin
+  CH_stat_o<=CH_stat;
 -- purpose: generate Channel_states
 -- type   : sequential
 -- inputs : CLK_125M, rst_n
@@ -167,14 +169,14 @@ begin
   
 
 
-ram_rden_ps: process (CLK_125M, rst_n, Ram_I_rden, Ram_Q_rden, ram_rden) is
+ram_rden_ps: process (CLK_125M, rst_n, ram_rden, CH_stat_d4) is
 begin  -- process ram_rden_ps
   if rst_n = '0' then                   -- asynchronous reset (active low)
     Ram_I_rden<=ram_rden;
     Ram_Q_rden<='0';
-  elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+  -- elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
     -- elsif data_strobe ='0' then
-    if ram_rden='1' then
+   elsif ram_rden='1' then
       case CH_stat_d4 is                --必须>=d4不然会使得ram_i_rden在帧内拉高，导致i通道帧开始读的地址不从0开始
         when "00" =>
           Ram_Q_rden<=ram_rden;
@@ -192,7 +194,7 @@ begin  -- process ram_rden_ps
     else
       Ram_I_rden<='0';
       Ram_Q_rden<='0';
-    end if;
+    -- end if;
     -- else
     --   Ram_I_rden<=Ram_I_rden;
     --   Ram_Q_rden<=Ram_Q_rden;
@@ -244,9 +246,9 @@ end process CH_flag_ps;
 -- type   : sequential
 -- inputs : CLK_125M, rst_n
 -- outputs: 
-FIFO_upload_data_ps: process (CLK_125M, rst_n) is
+FIFO_upload_data_ps: process (CLK_125M, rst_n, CH_stat_d4, Ram_Q_doutb, Ram_I_doutb) is
 begin  -- process FIFO_upload_data_ps
-  if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+  -- if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
     -- if data_strobe ='0' then
     case CH_stat_d4 is
       when "00" =>
@@ -257,7 +259,7 @@ begin  -- process FIFO_upload_data_ps
         FIFO_upload_data<=Ram_Q_doutb;
     end case;
     -- end if;
-  end if;
+  -- end if;
 end process FIFO_upload_data_ps;
 
 upld_finish_ps: process (CLK_125M, rst_n) is

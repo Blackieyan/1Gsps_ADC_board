@@ -45,13 +45,14 @@ entity command_analysis is
     -- mac_src    : out std_logic_vector(47 downto 0);
     -- reg_addr   : out std_logic_vector(15 downto 0);
     -- reg_data   : out std_logic_vector(31 downto 0);
-    ram_start   : buffer std_logic;
-     upload_trig_ethernet : buffer std_logic;
-    user_pushbutton : in  std_logic;
+    ram_start_o   : out std_logic;
+     upload_trig_ethernet_o : out std_logic;
+    rst_n : in  std_logic;
     ram_switch : out std_logic_vector(2 downto 0);
     TX_dst_MAC_addr : out std_logic_vector(47 downto 0);
-    cmd_smpl_en : buffer std_logic;
-    cmd_smpl_depth : out std_logic_vector(15 downto 0)
+    cmd_smpl_en_o : out std_logic;
+    cmd_smpl_depth : out std_logic_vector(15 downto 0);
+    cmd_smpl_trig_cnt : out std_logic_vector(15 downto 0)
     );
 end command_analysis;
 
@@ -60,14 +61,21 @@ architecture Behavioral of command_analysis is
   signal mac_src  : std_logic_vector(47 downto 0);  -- 为了反馈地址预留的信号
   signal reg_addr : std_logic_vector(15 downto 0);
   signal reg_data : std_logic_vector(47 downto 0);
-  signal rst_n    : std_logic;
   signal reg_clr_cnt : std_logic_vector(7 downto 0);
   signal upload_trig_ethernet_cnt : std_logic_vector(7 downto 0);
   signal rd_en_d : std_logic;
   signal cmd_smpl_en_cnt : std_logic_vector(7 downto 0);
+  signal upload_trig_ethernet : std_logic;
+  signal ram_start : std_logic;
+  signal cmd_smpl_en : std_logic;
+
+  
   -- signal reg_clr_cnt : std_logic_vector(7 downto 0);
 begin
-  rst_n <= user_pushbutton;
+  
+ram_start_o<=ram_start;
+cmd_smpl_en_o<=cmd_smpl_en;
+upload_trig_ethernet_o<=upload_trig_ethernet;
 
   rd_en_d_ps: process (rd_clk, rst_n) is
   begin  -- process rd_en_d
@@ -277,4 +285,16 @@ begin  -- process ram_smpl_depth_ps
     end if;
   end if;
 end process cmd_smpl_depth_ps;
+-------------------------------------------------------------------------------
+cmd_trig_cnt_ps: process (rd_clk, rst_n) is
+begin  -- process ram_smpl_depth_ps
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    cmd_smpl_trig_cnt<=x"07D0";         -- reponse to trig 2000 times default 
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
+    if reg_addr =x"0013" then
+     cmd_smpl_trig_cnt<=reg_data(47 downto 32);
+    end if;
+  end if;
+end process cmd_trig_cnt_ps;
+
 end Behavioral;

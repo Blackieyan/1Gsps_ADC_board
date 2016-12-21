@@ -57,7 +57,6 @@ architecture behavior of ZJUprojects_TB is
       spi_revdata     : out std_logic_vector(31 downto 0);
       cfg_finish      : out std_logic;
       -------------------------------------------------------------------------
-      test            : out std_logic_vector(0 downto 0);
       user_pushbutton : in  std_logic;  --glbclr_n
       -------------------------------------------------------------------------
       ADC_CLKOI_p     : in  std_logic;  -- ADC CLKOI 500MHz/250MHz
@@ -76,8 +75,6 @@ architecture behavior of ZJUprojects_TB is
       DOIRI_n         : in  std_logic;
       DOIRQ_p         : in  std_logic;
       DOIRQ_n         : in  std_logic;
-      GHz_in_p        : in  std_logic;
-      GHz_in_n        : in  std_logic;
       SRCC1_p_trigin         : in std_logic;
       SRCC1_n_upload_sma_trigin  : in    std_logic;
       MRCC2_p         : out std_logic;
@@ -116,7 +113,6 @@ architecture behavior of ZJUprojects_TB is
   signal spi_powerdn        : std_logic;
   signal spi_revdata        : std_logic_vector(31 downto 0);
   signal cfg_finish         : std_logic;
-  signal test               : std_logic_vector(0 downto 0);
   signal OSC_in_p           : std_logic;
   signal OSC_in_n           : std_logic;
   signal GHz_in_p           : std_logic                    := '1';
@@ -174,8 +170,6 @@ begin
   Inst_ZJUprojects : ZJUprojects port map(
     OSC_in_n        => OSC_in_n,
     OSC_in_p        => OSC_in_p,
-    GHz_in_n        => GHz_in_n,
-    GHz_in_p        => GHz_in_p,
     ADC_Mode        => ADC_Mode,
     ADC_sclk_OUT    => ADC_sclk_OUT,
     ADC_sldn_OUT    => ADC_sldn_OUT,
@@ -188,7 +182,6 @@ begin
     spi_powerdn     => spi_powerdn,
     spi_revdata     => spi_revdata,
     cfg_finish      => cfg_finish,
-    test            => test,
     user_pushbutton => user_pushbutton,
     ADC_CLKOI_p     => ADC_CLKOI_p,
     ADC_CLKOI_n     => ADC_CLKOI_n,
