@@ -609,7 +609,7 @@ begin
 -------------------------------------------------------------------------------
   Inst_ADC_interface : ADC_interface port map(
     ADC_Mode        => ADC_Mode,
-    user_pushbutton => user_pushbutton_g and lck_rst_n,
+    user_pushbutton => rst_n,
     ADC_sclk_OUT    => ADC_sclk_OUT,
     ADC_sldn_OUT    => ADC_sldn_OUT,
     ADC_sdata       => ADC_sdata,

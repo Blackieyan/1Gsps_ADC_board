@@ -56,6 +56,7 @@ architecture Behavioral of CDCE62005_interface is
   signal div_sclk     : std_logic;
   signal div_sclk_cnt : std_logic_vector(31 downto 0);
   signal cdce62005_en : std_logic;
+  signal clk_spi : std_logic;
 
   component CDCE62005_config
     port(
@@ -77,7 +78,7 @@ begin
 
   Inst_CDCE62005_config : CDCE62005_config port map(
     clk         => div_SCLK,
-    clk_spi     => not div_SCLK,
+    clk_spi     => clk_spi,
     en          => cdce62005_en,
     spi_clk     => spi_clk,
     spi_mosi    => spi_mosi,
@@ -88,6 +89,7 @@ begin
     cfg_finish  => cfg_finish,
     spi_revdata => spi_revdata
     );
+  clk_spi <= not div_SCLK;
 
   set_clk_div_cnt : process (CLK, rst_n) is  --usb data
   begin  -- process set_clk_div_cnt
@@ -126,7 +128,7 @@ begin
     end if;
   end process div_SCLK_cnt_ps;
 
-  set_cdce62005_en : process (CLK, cdce62005_en) is
+  set_cdce62005_en : process (CLK, rst_n) is
   begin  -- process cdce62005_en
     if rst_n = '0' then
         cdce62005_en <= '0';

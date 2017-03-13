@@ -70,6 +70,22 @@ module CDCE62005_config(clk,clk_spi,en,spi_clk,spi_mosi,spi_miso,spi_le,spi_syn,
 
 
 
+/* -----\/----- EXCLUDED -----\/-----
+   localparam  Value_register0=32'h81400320,	//1000MHZ aux in10MHz  digital lock
+     Value_register1=32'h81400301,	        
+     Value_register2=32'h81400302,
+     Value_register3=32'h68860303,
+     Value_register4=32'hEB060314,								
+     Value_register5=32'h90000B35,
+     Value_register6=32'h04BE09E6,
+     Value_register7=32'hBD0037F7,
+     Value_register8=32'h80001808, 
+     Value_toEEPROM =32'h0000001f,
+     Value_PDPre    =32'h80001008,	//for calibration
+     Value_PDDone   =32'h80001808;
+ -----/\----- EXCLUDED -----/\----- */
+
+
 
 
 
@@ -95,18 +111,21 @@ module CDCE62005_config(clk,clk_spi,en,spi_clk,spi_mosi,spi_miso,spi_le,spi_syn,
 
 
 
-   localparam  Value_register0=32'h81400320,	//1000MHZ sec ttl in 不会飘,channel3,5 100MHz output 
+
+   localparam  Value_register0=32'h81400320,	//1000MHZ sec ttl in 不会飘,channel5 100MHz output 
      Value_register1=32'h81400321,	        
-     Value_register2=32'hEB060302,
+     Value_register2=32'h81400302,
      Value_register3=32'h68860303,
      Value_register4=32'hEB060314,								
-     Value_register5=32'h90000FF5,
-     Value_register6=32'h04BE09E6,
+     Value_register5=32'h90000EB5,
+     Value_register6=32'h04BF09E6,
      Value_register7=32'hBD0037F7,
      Value_register8=32'h80001808, 
      Value_toEEPROM =32'h0000001f,
      Value_PDPre    =32'h80001008,	//for calibration
      Value_PDDone   =32'h80001808;
+
+
 
 
 

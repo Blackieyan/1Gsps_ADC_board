@@ -103,19 +103,19 @@ begin
   mult_accum2_b <= dds_sin;             --Qdata.*sinwt or Idata.*sinwt
   accm_data_x_sin <= mult_accum2_s;
 -------------------------------------------------------------------------------
-  identify_IQdata_ps: process (mult_accum_clk, multi_accum_sclr) is
-  begin  -- process identify_Qdata_ps
-    if multi_accum_sclr = '1' then      -- asynchronous reset (active low)
+  -- identify_IQdata_ps: process (mult_accum_clk, multi_accum_sclr) is
+  -- begin  -- process identify_Qdata_ps
+  --   if multi_accum_sclr = '1' then      -- asynchronous reset (active low)
       
-    elsif mult_accum_clk'event and mult_accum_clk = '1' then  -- rising clock edge
-      if ram_q_addra =  then
-          Q_x_sin<=accm_data_x_sin;
-          else
-          Q_x_sin
-        end if;
-      end if;
-    end if;
-  end process identify_Qdata_ps;
+  --   elsif mult_accum_clk'event and mult_accum_clk = '1' then  -- rising clock edge
+  --     if ram_q_addra =  then
+  --         Q_x_sin<=accm_data_x_sin;
+  --         else
+  --         Q_x_sin
+  --       end if;
+  --     end if;
+  --   end if;
+  -- end process identify_Qdata_ps;
   
 end Behavioral;
 

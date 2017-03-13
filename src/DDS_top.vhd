@@ -74,7 +74,7 @@ begin
       clk        => dds_clk,
       sclr       => dds_sclr,
       we         => dds_we,
-      data       => dds_phase_shift,
+      data       => dds_phase_shift,    --fout = clk*data/2^N
       rdy        => dds_rdy,
       rfd        => dds_rfd,
       cosine     => dds_cos,
