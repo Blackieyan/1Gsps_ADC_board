@@ -40,8 +40,8 @@ entity DDS_top is
     dds_sclr : in std_logic;
     dds_we : in std_logic;
     dds_phase_shift : in std_logic_vector(15 downto 0);
-    dds_cos : out std_logic_vector(15 downto 0);
-    dds_sin : out std_logic_vector(15 downto 0)
+    dds_cos : out std_logic_vector(7 downto 0);
+    dds_sin : out std_logic_vector(7 downto 0)
     );
 end DDS_top;
 
@@ -62,8 +62,8 @@ architecture Behavioral of DDS_top is
       data       : in  std_logic_vector(15 downto 0);
       rdy        : out std_logic;
       rfd        : out std_logic;
-      cosine     : out std_logic_vector(15 downto 0);
-      sine       : out std_logic_vector(15 downto 0);
+      cosine     : out std_logic_vector(7 downto 0);
+      sine       : out std_logic_vector(7 downto 0);
       phase_out  : out std_logic_vector(15 downto 0));
   end component;
 begin
@@ -74,7 +74,7 @@ begin
       clk        => dds_clk,
       sclr       => dds_sclr,
       we         => dds_we,
-      data       => dds_phase_shift,
+      data       => dds_phase_shift,    --fout = clk*data/2^N
       rdy        => dds_rdy,
       rfd        => dds_rfd,
       cosine     => dds_cos,

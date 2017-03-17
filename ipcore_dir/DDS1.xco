@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 13.3
-# Date: Tue Dec 13 14:09:36 2016
+# Date: Wed Mar 01 07:05:04 2017
 #
 ##############################################################
 #
@@ -74,7 +74,7 @@ CSET output_frequency7=0
 CSET output_frequency8=0
 CSET output_frequency9=0
 CSET output_selection=Sine_and_Cosine
-CSET output_width=16
+CSET output_width=8
 CSET parameter_entry=Hardware_Parameters
 CSET partspresent=Phase_Generator_and_SIN_COS_LUT
 CSET period=1
@@ -139,4 +139,4 @@ CSET spurious_free_dynamic_range=36
 MISC pkg_timestamp=2011-10-05T00:23:11.000Z
 # END Extra information
 GENERATE
-# CRC: c0139412
+# CRC:  5eaa9db

@@ -426,7 +426,7 @@ begin
     if rst_n = '0' then                 -- asynchronous reset (active low)
       ram_wren_cnt<=(others => '0');
     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-      if ram_wren<='0' then
+      if ram_wren ='0' then
         ram_wren_cnt<=(others => '0');
       elsif ram_wren='1' then
         if Gclk_d2 = '0' and Gclk_d = '1'  then
