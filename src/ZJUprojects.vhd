@@ -247,7 +247,7 @@ architecture Behavioral of ZJUprojects is
   signal cmd_smpl_en_d                : std_logic;
   signal cmd_smpl_en_d2               : std_logic;
   signal cmd_smpl_depth               : std_logic_vector(15 downto 0);
-  signal cmd_smpl_trig_cnt : std_logic_vector(15 downto 0);
+  signal cmd_smpl_trig_cnt            : std_logic_vector(15 downto 0);
   signal dcm1_locked                  : std_logic;
   signal dcm1_locked_d                : std_logic;
   signal dcm1_locked_d2               : std_logic;
@@ -277,6 +277,23 @@ architecture Behavioral of ZJUprojects is
   signal ch_stat                      : std_logic_vector(1 downto 0);
   signal data_strobe                  : std_logic;
   signal sw_ram_last                  : std_logic;
+  -----------------------------------------------------------------------------
+  signal pstprc_ram_wren              : std_logic;
+  signal Pstprc_RAMQ_clka             : std_logic;
+  signal Pstprc_RAMQ_clkb             : std_logic;
+  signal Pstprc_RAMI_clka             : std_logic;
+  signal Pstprc_RAMI_clkb             : std_logic;
+  signal Pstprc_RAMx_rden             : std_logic;
+
+  signal Pstprc_RAMQ_dina : std_logic_vector(31 downto 0);
+  signal Pstprc_RAMI_dina : std_logic_vector(31 downto 0);
+
+  signal demowinln    : std_logic_vector(14 downto 0):= "000"&x"096";
+  signal demowinstart : std_logic_vector(14 downto 0):= "000"&x"096";
+
+  signal Pstprc_dps : std_logic_vector(15 downto 0):= x"4000";
+  -----------------------------------------------------------------------------
+
   -----------------------------------------------------------------------------
   component CDCE62005_interface
     port(
@@ -439,7 +456,7 @@ architecture Behavioral of ZJUprojects is
       clk                   : in  std_logic;
       rst_n                 : in  std_logic;
       cmd_smpl_en           : in  std_logic;
-      cmd_smpl_trig_cnt : in std_logic_vector(15 downto 0);
+      cmd_smpl_trig_cnt     : in  std_logic_vector(15 downto 0);
       ram_start             : in  std_logic;
       SRCC1_p_trigin        : in  std_logic;
       posedge_sample_trig_o : out std_logic
@@ -491,6 +508,24 @@ architecture Behavioral of ZJUprojects is
   end component;
 -------------------------------------------------------------------------------
 
+  component Dmod_Seg
+    port(
+      clk                 : in std_logic;
+      pstprc_ram_wren     : in std_logic;
+      posedge_sample_trig : in std_logic;
+      rst_n               : in std_logic;
+      cmd_smpl_depth      : in std_logic_vector(15 downto 0);
+      Pstprc_RAMQ_dina    : in std_logic_vector(31 downto 0);
+      Pstprc_RAMQ_clka    : in std_logic;
+      Pstprc_RAMQ_clkb    : in std_logic;
+      Pstprc_RAMI_dina    : in std_logic_vector(31 downto 0);
+      Pstprc_RAMI_clka    : in std_logic;
+      Pstprc_RAMI_clkb    : in std_logic;
+      demoWinln           : in std_logic_vector(14 downto 0);
+      demoWinstart        : in std_logic_vector(14 downto 0);
+      Pstprc_DPS          : in std_logic_vector(15 downto 0)
+      );
+  end component;
 -------------------------------------------------------------------------------
 -- component SRAM_interface
 --   generic (
@@ -664,7 +699,7 @@ begin
     clk                   => CLK_125M,
     rst_n                 => rst_n,
     cmd_smpl_en           => cmd_smpl_en,
-    cmd_smpl_trig_cnt =>cmd_smpl_trig_cnt,
+    cmd_smpl_trig_cnt     => cmd_smpl_trig_cnt,
     ram_start             => ram_start,
     SRCC1_p_trigin        => SRCC1_p_trigin,
     posedge_sample_trig_o => posedge_sample_trig
@@ -822,16 +857,42 @@ begin
     ram_I_last          => ram_I_last,
     ram_I_full          => ram_I_full
     );
-  ram_Q_dina      <= ADC_DOQB_2_d&ADC_DOQA_2_d&ADC_DOQB_1_d&ADC_DOQA_1_d;
-  ram_I_dina      <= ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
-  ram_Q_clkb      <= CLK_125M;
-  ram_I_clkb      <= CLK_125M;
-  ram_Q_clka      <= ADC_clkoq;
-  ram_I_clka      <= ADC_clkoi;
+  ram_Q_dina <= ADC_DOQB_2_d&ADC_DOQA_2_d&ADC_DOQB_1_d&ADC_DOQA_1_d;
+  ram_I_dina <= ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
+  ram_Q_clkb <= CLK_125M;
+  ram_I_clkb <= CLK_125M;
+  ram_Q_clka <= ADC_clkoq;
+  ram_I_clka <= ADC_clkoi;
 -----------------------------------------------------------------------------
+  Inst_Dmod_Seg : Dmod_Seg port map(
+    clk                 => CLK_125M,
+    pstprc_ram_wren     => pstprc_ram_wren,
+    posedge_sample_trig => posedge_sample_trig,
+    rst_n               => rst_n,
+    cmd_smpl_depth      => cmd_smpl_depth,
+    Pstprc_RAMQ_dina    => Pstprc_RAMQ_dina,
+    Pstprc_RAMQ_clka    => Pstprc_RAMQ_clka,
+    Pstprc_RAMQ_clkb    => Pstprc_RAMQ_clkb,
+    Pstprc_RAMI_dina    => Pstprc_RAMI_dina,
+    Pstprc_RAMI_clka    => Pstprc_RAMI_clka,
+    Pstprc_RAMI_clkb    => Pstprc_RAMI_clkb,
+    demoWinln           => demoWinln,
+    demoWinstart        => demoWinstart,
+    Pstprc_DPS          => Pstprc_DPS
+    );
+  Pstprc_RAMQ_clka <= ADC_clkoq;
+  Pstprc_RAMQ_clkb <= CLK_125M;
+  Pstprc_RAMI_clka <= ADC_clkoi;
+  Pstprc_RAMI_clkb <= CLK_125M;
+  Pstprc_RAMQ_dina <= ADC_DOQB_2_d&ADC_DOQA_2_d&ADC_DOQB_1_d&ADC_DOQA_1_d;
+  Pstprc_RAMI_dina <= ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
+  pstprc_ram_wren <= ram_wren;
+
+  ------------------------------------------------------------------------------
   MRCC2_p         <= data_test_pin;     --j12
   rst_n           <= user_pushbutton_g and lck_rst_n;
   ethernet_rd_clk <= CLK_125M;
+
 end Behavioral;
 
 

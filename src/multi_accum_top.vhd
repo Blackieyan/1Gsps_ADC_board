@@ -35,6 +35,9 @@ use UNISIM.vcomponents.all;
 --use UNISIM.VComponents.all;
 
 entity multi_accum_top is
+  generic (
+    mult_accum_s_width : integer := 24
+   );
   port(
     mult_accum_clk    : in  std_logic;
     mult_accum_ce     : in  std_logic;
@@ -46,10 +49,10 @@ entity multi_accum_top is
     dds_sin           : in  std_logic_vector(7 downto 0);
     dds_cos           : in  std_logic_vector(7 downto 0);
     -------------------------------------------------------------------------
-    accm_I_x_cos   : out std_logic_vector(17 downto 0);
-    accm_I_x_sin   : out std_logic_vector(17 downto 0);
-    accm_Q_x_cos   : out std_logic_vector(17 downto 0);
-    accm_Q_x_sin   : out std_logic_vector(17 downto 0)
+    accm_I_x_cos   : out std_logic_vector(mult_accum_s_width-1 downto 0);
+    accm_I_x_sin   : out std_logic_vector(mult_accum_s_width-1 downto 0);
+    accm_Q_x_cos   : out std_logic_vector(mult_accum_s_width-1 downto 0);
+    accm_Q_x_sin   : out std_logic_vector(mult_accum_s_width-1 downto 0)
     );
 end multi_accum_top;
 
@@ -57,16 +60,16 @@ architecture Behavioral of multi_accum_top is
 
   signal mult_accum0_a   : std_logic_vector(7 downto 0);
   signal mult_accum0_b   : std_logic_vector(7 downto 0);
-  signal mult_accum0_s   : std_logic_vector(17 downto 0);
+  signal mult_accum0_s   : std_logic_vector(mult_accum_s_width-1 downto 0);
   signal mult_accum1_a   : std_logic_vector(7 downto 0);
   signal mult_accum1_b   : std_logic_vector(7 downto 0);
-  signal mult_accum1_s   : std_logic_vector(17 downto 0);
+  signal mult_accum1_s   : std_logic_vector(mult_accum_s_width-1 downto 0);
   signal mult_accum2_a   : std_logic_vector(7 downto 0);
   signal mult_accum2_b   : std_logic_vector(7 downto 0);
-  signal mult_accum2_s   : std_logic_vector(17 downto 0);
+  signal mult_accum2_s   : std_logic_vector(mult_accum_s_width-1 downto 0);
   signal mult_accum3_a   : std_logic_vector(7 downto 0);
   signal mult_accum3_b   : std_logic_vector(7 downto 0);
-  signal mult_accum3_s   : std_logic_vector(17 downto 0);
+  signal mult_accum3_s   : std_logic_vector(mult_accum_s_width-1 downto 0);
 
   -- signal accm_Q_x_cos : std_logic_vector(17 downto 0);
   -- signal accm_Q_x_sin : std_logic_vector(17 downto 0);
@@ -82,7 +85,7 @@ COMPONENT multi_accum
     bypass : IN STD_LOGIC;
     a : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
     b : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-    s : OUT STD_LOGIC_VECTOR(17 DOWNTO 0)
+    s : OUT STD_LOGIC_VECTOR(mult_accum_s_width-1 DOWNTO 0)
   );
 END COMPONENT;
 -------------------------------------------------------------------------------

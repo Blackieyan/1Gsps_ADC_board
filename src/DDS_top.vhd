@@ -55,7 +55,6 @@ architecture Behavioral of DDS_top is
   component DDS1
     port (
       reg_select : in  std_logic;
-      ce         : in  std_logic;
       clk        : in  std_logic;
       sclr       : in  std_logic;
       we         : in  std_logic;
@@ -69,8 +68,7 @@ architecture Behavioral of DDS_top is
 begin
   DDS_inst : DDS1
     port map (
-      reg_select => dds_reg_select,
-      ce         => dds_ce,
+      reg_select => '0',
       clk        => dds_clk,
       sclr       => dds_sclr,
       we         => dds_we,
