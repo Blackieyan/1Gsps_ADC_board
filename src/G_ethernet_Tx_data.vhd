@@ -42,7 +42,7 @@ entity G_ethernet_Tx_data is
     user_pushbutton : in  std_logic;
     rst_n_o         : out std_logic; 
     fifo_upload_data : in std_logic_vector(7 downto 0);
-    ram_wren : buffer std_logic;
+    -- ram_wren : buffer std_logic;
     ram_rden : out std_logic;
     -- ram_start : in std_logic;
     -- srcc1_p_trigin : in std_logic;
@@ -53,11 +53,11 @@ entity G_ethernet_Tx_data is
     TX_dst_MAC_addr : in std_logic_vector(47 downto 0);
     sample_en : in std_logic;
     CH_flag : in std_logic_vector(7 downto 0);
-    ch_stat : in std_logic_vector(1 downto 0);
-    Upld_finish : in std_logic;
+    -- ch_stat : in std_logic_vector(1 downto 0);
+    mult_frame_en : in std_logic;
     sw_ram_last : in std_logic;
     data_strobe : out std_logic;
-    posedge_sample_trig : in std_logic
+    ether_trig : in std_logic
     );
 end G_ethernet_Tx_data;
 
@@ -128,8 +128,8 @@ architecture Behavioral of G_ethernet_Tx_data is
   signal frame_gap_d : std_logic;
   signal frame_gap_d2 : std_logic;
   signal ram_rden_stop : std_logic;
-  signal Upld_finish_d2 : std_logic;
-  signal Upld_finish_d : std_logic;
+  signal mult_frame_en_d2 : std_logic;
+  signal mult_frame_en_d : std_logic;
   signal sw_ram_last_d3 : std_logic;
   signal sw_ram_last_d2 : std_logic;
   signal sw_ram_last_d : std_logic;
@@ -149,7 +149,8 @@ architecture Behavioral of G_ethernet_Tx_data is
   -- constant header(7) :=x"d5";
 -------------------------------------------------------------------------------
   type array_address is array (13 downto 0) of std_logic_vector(7 downto 0);
-  signal address : array_address := (x"55",x"AA",x"00",x"00",x"00",x"00",x"00",x"00",x"40",x"73",x"31",x"4C",x"A4",x"60");
+  signal address : array_address := (x"55",x"AA",x"00",x"00",x"00",x"00",x"00",x"00",x"ff",x"ff",x"ff",x"ff",x"ff",x"ff");
+    -- signal address : array_address ;
    -- constant address : array_address :=
    -- (x"55",x"AA",x"00",x"00",x"00",x"00",x"00",x"00",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF"); --广播地址也能通过交换机
 
@@ -225,79 +226,79 @@ begin
 
 
 -------------------------------------------------------------------------------
-  set_clk_div_cnt : process (CLK_125M) is
-  begin  -- process set_clk_div_cnt
-    -- if rst_n = '0' then                           -- asynchronous reset (active
-    --   clk_div_cnt <= x"00";
-    if CLK_125m'event and CLK_125m = '1' then  -- rising clock edge
-      if clk_div_cnt <= Div_multi then
-        clk_div_cnt <= clk_div_cnt+1;
-      else
-        clk_div_cnt <= x"00";
-      end if;
-    end if;
-  end process set_clk_div_cnt;
+--   set_clk_div_cnt : process (CLK_125M) is
+--   begin  -- process set_clk_div_cnt
+--     -- if rst_n = '0' then                           -- asynchronous reset (active
+--     --   clk_div_cnt <= x"00";
+--     if CLK_125m'event and CLK_125m = '1' then  -- rising clock edge
+--       if clk_div_cnt <= Div_multi then
+--         clk_div_cnt <= clk_div_cnt+1;
+--       else
+--         clk_div_cnt <= x"00";
+--       end if;
+--     end if;
+--   end process set_clk_div_cnt;
 
-  set_ADC_sclk : process (CLK_125M) is
-  begin  -- process set_ADC_sclk
-    if CLK_125m'event and CLK_125m = '1' then  -- rising clock edge
-      if clk_div_cnt <= Div_multi(3 downto 1) then
-        GCLK <= '0';
-      else
-        GCLK <= '1';
-      end if;
-    end if;
-  end process set_ADC_sclk;
+--   set_ADC_sclk : process (CLK_125M) is
+--   begin  -- process set_ADC_sclk
+--     if CLK_125m'event and CLK_125m = '1' then  -- rising clock edge
+--       if clk_div_cnt <= Div_multi(3 downto 1) then
+--         GCLK <= '0';
+--       else
+--         GCLK <= '1';
+--       end if;
+--     end if;
+--   end process set_ADC_sclk;
 
-  Gclk_d_ps : process (clk_125m, rst_n) is
-  begin  -- process Gclk_ps
-    if rst_n ='0' then
-      gclk_d<='0';
-   elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-      GCLK_d <= GCLK;
-    end if;
-  end process Gclk_d_ps;
+--   Gclk_d_ps : process (clk_125m, rst_n) is
+--   begin  -- process Gclk_ps
+--     if rst_n ='0' then
+--       gclk_d<='0';
+--    elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
+--       GCLK_d <= GCLK;
+--     end if;
+--   end process Gclk_d_ps;
 
-  Gclk_d2_ps : process (clk_125m, rst_n) is
-  begin  -- process Gclk_d2_ps
-    if rst_n ='0' then
-      gclk_d2<='0';
-    elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-      Gclk_d2 <= GCLK_d;
-    end if;
-  end process Gclk_d2_ps;
+--   Gclk_d2_ps : process (clk_125m, rst_n) is
+--   begin  -- process Gclk_d2_ps
+--     if rst_n ='0' then
+--       gclk_d2<='0';
+--     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
+--       Gclk_d2 <= GCLK_d;
+--     end if;
+--   end process Gclk_d2_ps;
 
-  Gcnt_ps : process (clk_125m, GCLK_d, GCLK_d2, rst_n) is
-  begin
-    if rst_n = '0' then
-      gcnt <= (others => '0');
-    elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-      if Gclk_d2 = '0' and Gclk_d = '1' then
-        -- elsif GCLK'event and GCLK = '1' then
--- if Gcnt <= x"ffffffff" then
-        Gcnt <= Gcnt+1;
-      end if;
-    end if;
--- end if; 
-  end process Gcnt_ps;
+--   Gcnt_ps : process (clk_125m, GCLK_d, GCLK_d2, rst_n) is
+--   begin
+--     if rst_n = '0' then
+--       gcnt <= (others => '0');
+--     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
+--       if Gclk_d2 = '0' and Gclk_d = '1' then
+--         -- elsif GCLK'event and GCLK = '1' then
+-- -- if Gcnt <= x"ffffffff" then
+--         Gcnt <= Gcnt+1;
+--       end if;
+--     end if;
+-- -- end if; 
+--   end process Gcnt_ps;
 
 
 
-  O_Gcnt_ps : process (clk_125m, rst_n, GCLK_d, GCLK_d2) is
-  begin  -- process O_Gcnt_ps
-    if rst_n = '0' then
-      O_Gcnt <= (others => '0');
-    elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-      if Gclk_d2 = '0' and Gclk_d = '1' then
-        -- elsif GCLK'event and GCLK = '1' then
-        if Gcnt = x"ffff" and O_Gcnt <= x"F5" then
-          O_Gcnt <= O_Gcnt+1;
-        else
-          O_Gcnt <= (others => '0');
-        end if;
-      end if;
-    end if;
-  end process O_Gcnt_ps;
+--   O_Gcnt_ps : process (clk_125m, rst_n, GCLK_d, GCLK_d2) is
+--   begin  -- process O_Gcnt_ps
+--     if rst_n = '0' then
+--       O_Gcnt <= (others => '0');
+--     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
+--       if Gclk_d2 = '0' and Gclk_d = '1' then
+--         -- elsif GCLK'event and GCLK = '1' then
+--         if Gcnt = x"ffff" and O_Gcnt <= x"F5" then
+--           O_Gcnt <= O_Gcnt+1;
+--         else
+--           O_Gcnt <= (others => '0');
+--         end if;
+--       end if;
+--     end if;
+--   end process O_Gcnt_ps;
 
   -- ram_start_d_ps : process (CLK_125M) is
   -- begin  -- process ram_start_d_ps
@@ -346,16 +347,16 @@ begin
   -- end process wren_ethernet_ps;
   -- ---wren_ethernet为来自上位机的采样使能
 -------------------------------------------------------------------------------
-  Upld_finish_d2_ps: process (CLK_125M, rst_n) is
+  mult_frame_en_d2_ps: process (CLK_125M, rst_n) is
   begin  -- process trig_in_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      Upld_finish_d<='1';
-      Upld_finish_d2<='1';
+      mult_frame_en_d<='1';
+      mult_frame_en_d2<='1';
     elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-      Upld_finish_d<=Upld_finish;
-      Upld_finish_d2<=Upld_finish_d;
+      mult_frame_en_d<=mult_frame_en;
+      mult_frame_en_d2<=mult_frame_en_d;
     end if;
-  end process Upld_finish_d2_ps;
+  end process mult_frame_en_d2_ps;
 
    sw_ram_last_d3_ps: process (CLK_125M, rst_n) is
   begin  -- process trig_in_ps
@@ -408,33 +409,33 @@ begin
 --     end if;
 --   end process trigin_cnt_ps;
   -----------------------------------------------------------------------------
-  ram_wren_ps: process (clk_125m, rst_n) is
-  begin  -- process ram_wren_ps
-    if rst_n = '0' then                 -- asynchronous reset (active low)
-      ram_wren<='0';
-    elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-      if ram_wren_cnt =x"3e1" then
-        ram_wren<='0';
-      elsif posedge_sample_trig='1' then
-        ram_wren<='1';
-      end if;
-    end if;
-  end process ram_wren_ps;
+  -- ram_wren_ps: process (clk_125m, rst_n) is
+  -- begin  -- process ram_wren_ps
+  --   if rst_n = '0' then                 -- asynchronous reset (active low)
+  --     ram_wren<='0';
+  --   elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
+  --     if ram_wren_cnt =x"3e1" then
+  --       ram_wren<='0';
+  --     elsif posedge_sample_trig='1' then
+  --       ram_wren<='1';
+  --     end if;
+  --   end if;
+  -- end process ram_wren_ps;
 
-  ram_wren_cnt_ps: process (clk_125m, rst_n) is
-  begin  -- process ram_wren_cnt_ps
-    if rst_n = '0' then                 -- asynchronous reset (active low)
-      ram_wren_cnt<=(others => '0');
-    elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-      if ram_wren ='0' then
-        ram_wren_cnt<=(others => '0');
-      elsif ram_wren='1' then
-        if Gclk_d2 = '0' and Gclk_d = '1'  then
-          ram_wren_cnt<=ram_wren_cnt+1;
-        end if;
-      end if;
-    end if;
-  end process ram_wren_cnt_ps;
+  -- ram_wren_cnt_ps: process (clk_125m, rst_n) is
+  -- begin  -- process ram_wren_cnt_ps
+  --   if rst_n = '0' then                 -- asynchronous reset (active low)
+  --     ram_wren_cnt<=(others => '0');
+  --   elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
+  --     if ram_wren ='0' then
+  --       ram_wren_cnt<=(others => '0');
+  --     elsif ram_wren='1' then
+  --       if Gclk_d2 = '0' and Gclk_d = '1'  then
+  --         ram_wren_cnt<=ram_wren_cnt+1;
+  --       end if;
+  --     end if;
+  --   end if;
+  -- end process ram_wren_cnt_ps;
 -------------------------------------------------------------------------------
   -- ram_wren_ps: process (clk_125m, rst_n) is
   -- begin  process ram_wren_ps
@@ -468,16 +469,16 @@ begin
   --   end if;
   -- end process SRCC1_n_upload_sma_trigin_ps;
 
-    ram_wren_d_ps: process (CLK_125M, rst_n) is
-  begin  -- process trig_in_ps
-    if rst_n = '0' then                 -- asynchronous reset (active low)
-      ram_wren_d<='0';
-      ram_wren_d2<='0';
-    elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-      ram_wren_d<=ram_wren;
-      ram_wren_d2<=ram_wren_d;
-    end if;
-  end process ram_wren_d_ps;
+  --   ram_wren_d_ps: process (CLK_125M, rst_n) is
+  -- begin  -- process trig_in_ps
+  --   if rst_n = '0' then                 -- asynchronous reset (active low)
+  --     ram_wren_d<='0';
+  --     ram_wren_d2<='0';
+  --   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+  --     ram_wren_d<=ram_wren;
+  --     ram_wren_d2<=ram_wren_d;
+  --   end if;
+  -- end process ram_wren_d_ps;
 -------------------------
   --   upload_sma_trigin_ps: process (clk_125m, rst_n, SRCC1_n_upload_sma_trigin_d, SRCC1_n_upload_sma_trigin_d2) is
   -- begin  
@@ -609,24 +610,24 @@ begin
     end if;
   end process frame_gap_d_ps;
   -----------------------------------------------------------------------------
- -- 当RAM没有被读完时即Upld_finish_d2='0',trig_i在每次frame_gap结束下降沿后触发。当ram被读完一遍时，Upld_finish_d2='1',ram读到最后一位，并且frame_gap释放,等待外部触发，
+ -- 当RAM没有被读完时即mult_frame_en_d2='0',trig_i在每次frame_gap结束下降沿后触发。当ram被读完一遍时，mult_frame_en_d2='1',ram读到最后一位，并且frame_gap释放,等待外部触发，
   trig_i_ps: process (clk_125m, rst_n) is
   begin  -- process trig_i_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
       trig_i<='0';
     elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
-      if Upld_finish_d2 ='0' then
+      if mult_frame_en_d2 ='1' then
         if Trig_i_cnt = x"A" then
           trig_i <= '0';
         elsif frame_gap_d2='1' and frame_gap_d='0' then
           trig_i <= '1';
         end if;
-      elsif Upld_finish_d2='1' and frame_gap='0' and busy ='0' then  --保证了死时间。以防下次外部触发太快。
+      elsif mult_frame_en_d2='0' and frame_gap='0' and busy ='0' then  --保证了死时间。以防下次外部触发太快。
       
       -- trig_i<=upload_sma_trigin or upload_ethernet_trigin or upload_wren_trigin;
         
 --可以通过sma trig读ram，上位机读ram，写ram(上位机，sma)这三个统计来控制trig_i
-        trig_i<=posedge_sample_trig;
+        trig_i<=ether_trig;
       end if;
     end if;
   end process trig_i_ps;

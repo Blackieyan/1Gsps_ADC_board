@@ -123,6 +123,7 @@ architecture Behavioral of ZJUprojects is
 
   signal OSC_in                      : std_logic;
   signal CLK_200M                    : std_logic;
+  signal CLK_250M                    : std_logic;
 --   signal spi_mosi : std_logic;
 -------------------------------------------------------------------------------
   -----------------------------------------------------------------------------
@@ -248,6 +249,10 @@ architecture Behavioral of ZJUprojects is
   signal cmd_smpl_en_d2               : std_logic;
   signal cmd_smpl_depth               : std_logic_vector(15 downto 0);
   signal cmd_smpl_trig_cnt            : std_logic_vector(15 downto 0);
+  signal cmd_pstprc_IQ_sw : std_logic_vector(1 downto 0) := "10";
+  signal cmd_demowinln    : std_logic_vector(14 downto 0) := "000"&x"096";
+  signal cmd_demowinstart : std_logic_vector(14 downto 0) := "000"&x"096";
+  
   signal dcm1_locked                  : std_logic;
   signal dcm1_locked_d                : std_logic;
   signal dcm1_locked_d2               : std_logic;
@@ -273,10 +278,15 @@ architecture Behavioral of ZJUprojects is
   -- signal fft_ovflo_I : std_logic;
   -----------------------------------------------------------------------------
   signal upld_finish                  : std_logic;
-  signal CH_flag                      : std_logic_vector(7 downto 0);
+  signal CW_CH_flag                      : std_logic_vector(7 downto 0);
   signal ch_stat                      : std_logic_vector(1 downto 0);
   signal data_strobe                  : std_logic;
   signal sw_ram_last                  : std_logic;
+  signal CW_mult_frame_en             : std_logic;
+  signal cw_ether_trig : std_logic;
+  signal CM_Ram_I_rden : std_logic;
+  signal CM_Ram_Q_rden : std_logic;
+  signal CW_Pstprc_fifo_rden : std_logic;
   -----------------------------------------------------------------------------
   signal pstprc_ram_wren              : std_logic;
   signal Pstprc_RAMQ_clka             : std_logic;
@@ -288,12 +298,21 @@ architecture Behavioral of ZJUprojects is
   signal Pstprc_RAMQ_dina : std_logic_vector(31 downto 0);
   signal Pstprc_RAMI_dina : std_logic_vector(31 downto 0);
 
-  signal demowinln    : std_logic_vector(14 downto 0):= "000"&x"096";
-  signal demowinstart : std_logic_vector(14 downto 0):= "000"&x"096";
+  signal demowinln    : std_logic_vector(14 downto 0) := "000"&x"096";
+  signal demowinstart : std_logic_vector(14 downto 0) := "000"&x"096";
 
-  signal Pstprc_dps : std_logic_vector(15 downto 0):= x"4000";
+  signal cmd_Pstprc_dps         : std_logic_vector(15 downto 0) := x"4000";
   -----------------------------------------------------------------------------
-
+  signal Pstprc_fifo_din    : std_logic_vector(63 downto 0);
+  signal Pstprc_finish      : std_logic;
+  signal Pstprc_fifo_wren   : std_logic;
+  -- signal pstprc_rs : std_logic;
+  signal pstprc_fifo_dout   : std_logic_vector(7 downto 0);
+  signal Pstprc_fifo_pempty : std_logic;
+  signal Pstprc_fifo_valid  : std_logic;
+  signal Pstprc_IQ          : std_logic_vector(63 downto 0);
+  signal Pstprc_fifo_rden   : std_logic;
+  signal pstprc_fifo_alempty : std_logic;
   -----------------------------------------------------------------------------
   component CDCE62005_interface
     port(
@@ -349,61 +368,65 @@ architecture Behavioral of ZJUprojects is
   component G_ethernet_top
     port(
       -- rst_n_gb_i                : in     std_logic;
-      user_pushbutton     : in     std_logic;
-      fifo_upload_data    : in     std_logic_vector(7 downto 0);
-      Rd_clk              : in     std_logic;
-      Rd_en               : in     std_logic;
-      Rd_Addr             : in     std_logic_vector(13 downto 0);
-      PHY_RXD             : in     std_logic_vector(3 downto 0);
-      PHY_RXC             : in     std_logic;
-      PHY_RXDV            : in     std_logic;
-      CLK_125M            : in     std_logic;
-      CLK_125M_quar       : in     std_logic;
-      PHY_TXD_o           : out    std_logic_vector(3 downto 0);
-      PHY_GTXclk_quar     : out    std_logic;
-      phy_txen_quar       : out    std_logic;
-      phy_txer_o          : out    std_logic;
-      rst_n_o             : out    std_logic;
-      Rd_data             : out    std_logic_vector(7 downto 0);
-      Frm_valid           : out    std_logic;
-      ram_wren            : buffer std_logic;
-      ram_rden            : out    std_logic;
+      user_pushbutton     : in  std_logic;
+      fifo_upload_data    : in  std_logic_vector(7 downto 0);
+      Rd_clk              : in  std_logic;
+      Rd_en               : in  std_logic;
+      Rd_Addr             : in  std_logic_vector(13 downto 0);
+      PHY_RXD             : in  std_logic_vector(3 downto 0);
+      PHY_RXC             : in  std_logic;
+      PHY_RXDV            : in  std_logic;
+      CLK_125M            : in  std_logic;
+      CLK_125M_quar       : in  std_logic;
+      PHY_TXD_o           : out std_logic_vector(3 downto 0);
+      PHY_GTXclk_quar     : out std_logic;
+      phy_txen_quar       : out std_logic;
+      phy_txer_o          : out std_logic;
+      rst_n_o             : out std_logic;
+      Rd_data             : out std_logic_vector(7 downto 0);
+      Frm_valid           : out std_logic;
+      -- ram_wren            : buffer std_logic;
+      ram_rden            : out std_logic;
       -- ram_start                 : in     std_logic;
       -- srcc1_p_trigin            : in     std_logic;
       -- ram_last                  : in     std_logic;
       -- SRCC1_n_upload_sma_trigin : in     std_logic;
       -- upload_trig_ethernet      : in     std_logic;
-      posedge_upload_trig : in     std_logic;
-      TX_dst_MAC_addr     : in     std_logic_vector(47 downto 0);
-      sample_en           : in     std_logic;
-      CH_flag             : in     std_logic_vector(7 downto 0);
-      ch_stat             : in     std_logic_vector(1 downto 0);
-      upld_finish         : in     std_logic;
-      sw_ram_last         : in     std_logic;
-      data_strobe         : out    std_logic;
-      posedge_sample_trig : in     std_logic
+      posedge_upload_trig : in  std_logic;
+      TX_dst_MAC_addr     : in  std_logic_vector(47 downto 0);
+      sample_en           : in  std_logic;
+      CH_flag             : in  std_logic_vector(7 downto 0);
+      -- ch_stat             : in     std_logic_vector(1 downto 0);
+      mult_frame_en       : in  std_logic;
+      sw_ram_last         : in  std_logic;
+      data_strobe         : out std_logic;
+      ether_trig          : in  std_logic
       );
   end component;
   -----------------------------------------------------------------------------
-  component cmd_ana_top
-    port(
-      rd_clk               : in  std_logic;
-      rst_n                : in  std_logic;
-      ethernet_frm_valid   : in  std_logic;
-      ethernet_rd_data     : in  std_logic_vector(7 downto 0);
-      frm_length           : out std_logic_vector(15 downto 0);
-      frm_type             : out std_logic_vector(15 downto 0);
-      ram_start            : out std_logic;
-      upload_trig_ethernet : out std_logic;
-      ram_switch           : out std_logic_vector(2 downto 0);
-      TX_dst_MAC_addr      : out std_logic_vector(47 downto 0);
-      cmd_smpl_en          : out std_logic;
-      cmd_smpl_depth       : out std_logic_vector(15 downto 0);
-      cmd_smpl_trig_cnt    : out std_logic_vector(15 downto 0);
-      ethernet_Rd_en       : out std_logic;
-      ethernet_Rd_Addr     : out std_logic_vector(13 downto 0)
-      );
-  end component;
+	COMPONENT cmd_ana_top
+	PORT(
+		rd_clk : IN std_logic;
+		rst_n : IN std_logic;
+		ethernet_frm_valid : IN std_logic;
+		ethernet_rd_data : IN std_logic_vector(7 downto 0);          
+		frm_length : OUT std_logic_vector(15 downto 0);
+		frm_type : OUT std_logic_vector(15 downto 0);
+		ram_start : OUT std_logic;
+		upload_trig_ethernet : OUT std_logic;
+		ram_switch : OUT std_logic_vector(2 downto 0);
+		TX_dst_MAC_addr : OUT std_logic_vector(47 downto 0);
+		cmd_smpl_en : OUT std_logic;
+		cmd_smpl_depth : OUT std_logic_vector(15 downto 0);
+		cmd_smpl_trig_cnt : OUT std_logic_vector(15 downto 0);
+		cmd_pstprc_IQ_sw : OUT std_logic_vector(1 downto 0);
+		ethernet_Rd_en : OUT std_logic;
+		ethernet_Rd_Addr : OUT std_logic_vector(13 downto 0);
+		Cmd_demowinln : OUT std_logic_vector(14 downto 0);
+		Cmd_demowinstart : OUT std_logic_vector(14 downto 0);
+                cmd_Pstprc_DPS : out std_logic_vector(15 downto 0)
+		);
+	END COMPONENT;
   -----------------------------------------------------------------------------
   component crg_dcms
     port(
@@ -423,6 +446,7 @@ architecture Behavioral of ZJUprojects is
       lck_rst_n         : out std_logic;
       CLK_125M          : out std_logic;
       CLK_200M          : out std_logic;
+      CLK_250M : out std_logic;
       CLK_125M_quar     : out std_logic
       );
   end component;
@@ -465,28 +489,34 @@ architecture Behavioral of ZJUprojects is
 
   component Channel_switch
     port(
-      clk_125M         : in  std_logic;
-      Ram_Q_last       : in  std_logic;
-      Ram_I_last       : in  std_logic;
-      Ram_I_doutb      : in  std_logic_vector(7 downto 0);
-      Ram_Q_doutb      : in  std_logic_vector(7 downto 0);
-      Ram_Q_rden       : out std_logic;
-      Ram_I_rden       : out std_logic;
-      rst_n            : in  std_logic;
-      Ram_rden         : in  std_logic;
-      Upld_finish      : out std_logic;
-      CH_flag          : out std_logic_vector(7 downto 0);
-      ch_stat_o        : out std_logic_vector(1 downto 0);
-      FIFO_upload_data : out std_logic_vector(7 downto 0);
-      data_strobe      : in  std_logic;
-      sw_ram_last      : out std_logic
+      rst_n                 : in  std_logic;
+      CLK                   : in  std_logic;
+      cmd_pstprc_IQ_sw      : in  std_logic_vector(1 downto 0);
+      posedge_sample_trig   : in  std_logic;
+      Ram_Q_last            : in  std_logic;
+      Ram_I_last            : in  std_logic;
+      Ram_I_doutb           : in  std_logic_vector(7 downto 0);
+      Ram_Q_doutb           : in  std_logic_vector(7 downto 0);
+      Ram_rden              : in  std_logic;
+      pstprc_fifo_data    : in  std_logic_vector(7 downto 0);
+      pstprc_fifo_pempty     : in  std_logic;
+      pstprc_finish         : in  std_logic;
+      CM_Ram_Q_rden_o       : out std_logic;
+      CM_Ram_I_rden_o       : out std_logic;
+      CW_Pstprc_fifo_rden_o : out std_logic;
+      sw_RAM_last           : out std_logic;
+      CW_ether_trig         : out std_logic;
+      CW_mult_frame_en_o    : out std_logic;
+      FIFO_upload_data      : out std_logic_vector(7 downto 0);
+      CW_CH_flag            : out std_logic_vector(7 downto 0)
       );
   end component;
 -------------------------------------------------------------------------------
 
   component RAM_top
     port(
-      ram_wren            : in  std_logic;
+      clk_125M            : in  std_logic;
+      -- ram_wren            : in  std_logic;
       posedge_sample_trig : in  std_logic;
       rst_n               : in  std_logic;
       cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
@@ -510,20 +540,39 @@ architecture Behavioral of ZJUprojects is
 
   component Dmod_Seg
     port(
-      clk                 : in std_logic;
-      pstprc_ram_wren     : in std_logic;
-      posedge_sample_trig : in std_logic;
-      rst_n               : in std_logic;
-      cmd_smpl_depth      : in std_logic_vector(15 downto 0);
-      Pstprc_RAMQ_dina    : in std_logic_vector(31 downto 0);
-      Pstprc_RAMQ_clka    : in std_logic;
-      Pstprc_RAMQ_clkb    : in std_logic;
-      Pstprc_RAMI_dina    : in std_logic_vector(31 downto 0);
-      Pstprc_RAMI_clka    : in std_logic;
-      Pstprc_RAMI_clkb    : in std_logic;
-      demoWinln           : in std_logic_vector(14 downto 0);
-      demoWinstart        : in std_logic_vector(14 downto 0);
-      Pstprc_DPS          : in std_logic_vector(15 downto 0)
+      clk                 : in  std_logic;
+      clk_125M            : in  std_logic;
+      -- pstprc_ram_wren : IN std_logic;
+      posedge_sample_trig : in  std_logic;
+      rst_n               : in  std_logic;
+      cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
+      Pstprc_RAMQ_dina    : in  std_logic_vector(31 downto 0);
+      Pstprc_RAMQ_clka    : in  std_logic;
+      Pstprc_RAMQ_clkb    : in  std_logic;
+      Pstprc_RAMI_dina    : in  std_logic_vector(31 downto 0);
+      Pstprc_RAMI_clka    : in  std_logic;
+      Pstprc_RAMI_clkb    : in  std_logic;
+      demoWinln           : in  std_logic_vector(14 downto 0);
+      demoWinstart        : in  std_logic_vector(14 downto 0);
+      Pstprc_DPS          : in  std_logic_vector(15 downto 0);
+      Pstprc_IQ           : out std_logic_vector(63 downto 0);
+      Pstprc_finish       : out std_logic
+      );
+  end component;
+  -----------------------------------------------------------------------------
+  component Pstprc_fifo_top
+    port(
+      rst_n              : in  std_logic;
+      Pstprc_fifo_wr_clk : in  std_logic;
+      Pstprc_fifo_rd_clk : in  std_logic;
+      Pstprc_fifo_din    : in  std_logic_vector(63 downto 0);
+      Pstprc_fifo_wren   : in  std_logic;
+      Pstprc_fifo_rden   : in  std_logic;
+      prog_empty_thresh  : in  std_logic_vector(6 downto 0);
+      Pstprc_fifo_dout   : out std_logic_vector(7 downto 0);
+      Pstprc_fifo_valid  : out std_logic;
+      Pstprc_fifo_pempty : out std_logic;
+      pstprc_fifo_alempty : out STD_LOGIC
       );
   end component;
 -------------------------------------------------------------------------------
@@ -606,6 +655,7 @@ begin
     user_pushbutton_g => user_pushbutton_g,
     CLK_125M          => CLK_125M,
     CLK_200M          => CLK_200M,
+    CLK_250M          => CLK_250M,
     CLK_125M_quar     => CLK_125M_quar
     );
 
@@ -696,7 +746,7 @@ begin
   -- fft_scale_sch_I<="01010101010101";        --14bit,7bit scaling factor=128 
   ------------------------------------------------------------------------------ 
   Inst_TRIG_ctrl : TRIG_ctrl port map(
-    clk                   => CLK_125M,
+    clk                   => CLK_250M,
     rst_n                 => rst_n,
     cmd_smpl_en           => cmd_smpl_en,
     cmd_smpl_trig_cnt     => cmd_smpl_trig_cnt,
@@ -725,22 +775,17 @@ begin
     Frm_valid           => ethernet_Frm_valid,
     CLK_125M            => CLK_125M,
     CLK_125M_quar       => CLK_125M_quar,
-    ram_wren            => ram_wren,
+    -- ram_wren            => ram_wren,
     ram_rden            => ram_rden,
-    -- ram_start =>ram_start,
-    -- srcc1_p_trigin => SRCC1_p_trigin,
-    -- ram_last => ram_last,
-    -- SRCC1_n_upload_sma_trigin=>SRCC1_n_upload_sma_trigin,
-    -- upload_trig_ethernet=>upload_trig_ethernet,
     posedge_upload_trig => posedge_upload_trig,
     TX_dst_MAC_addr     => TX_dst_MAC_addr,
     sample_en           => sample_en,
-    CH_flag             => CH_flag,
-    ch_stat             => ch_stat,
-    Upld_finish         => Upld_finish,
+    CH_flag             => CW_CH_flag,
+    -- ch_stat             => ch_stat,
+    mult_frame_en       => CW_mult_frame_en,
     sw_ram_last         => sw_ram_last,
     Data_strobe         => data_strobe,
-    posedge_sample_trig => posedge_sample_trig
+    ether_trig          => CW_ether_trig
     );
 -------------------------------------------------------------------------------
   Inst_cmd_ana_top : cmd_ana_top port map(
@@ -750,34 +795,43 @@ begin
     ram_start            => ram_start,
     upload_trig_ethernet => upload_trig_ethernet,
     rst_n                => rst_n,
-    ram_switch           => ram_switch,
     TX_dst_MAC_addr      => TX_dst_MAC_addr,
     cmd_smpl_en          => cmd_smpl_en,
     cmd_smpl_depth       => cmd_smpl_depth,
     cmd_smpl_trig_cnt    => cmd_smpl_trig_cnt,
+    cmd_pstprc_IQ_sw => cmd_pstprc_IQ_sw,
     ethernet_Rd_en       => ethernet_Rd_en,
     ethernet_Rd_Addr     => ethernet_Rd_Addr,
     ethernet_frm_valid   => ethernet_frm_valid,
-    ethernet_rd_data     => ethernet_rd_data
+    ethernet_rd_data     => ethernet_rd_data,
+    cmd_demowinln => cmd_demowinln,
+    cmd_demowinstart => cmd_demowinstart,
+    cmd_Pstprc_DPS => cmd_Pstprc_DPS
     );
   -----------------------------------------------------------------------------
   Inst_Channel_switch : Channel_switch port map(
-    Ram_Q_last       => Ram_Q_last,
-    Ram_I_last       => Ram_I_last,
-    Ram_I_doutb      => Ram_I_doutb,
-    Ram_Q_doutb      => Ram_Q_doutb,
-    Ram_Q_rden       => Ram_Q_rden,
-    Ram_I_rden       => Ram_I_rden,
-    Upld_finish      => Upld_finish,
-    CH_flag          => CH_flag,
-    ch_stat_o        => ch_stat,
-    FIFO_upload_data => ethernet_FIFO_upload_data,
-    rst_n            => rst_n,
-    Ram_rden         => Ram_rden,
-    CLK_125M         => CLK_125M,
-    data_strobe      => data_strobe,
-    sw_ram_last      => sw_ram_last
+    rst_n                 => rst_n,
+    CLK                   => CLK_125M,
+    cmd_pstprc_IQ_sw      => cmd_pstprc_IQ_sw,
+    posedge_sample_trig   => posedge_sample_trig,
+    Ram_Q_last            => Ram_Q_last,
+    Ram_I_last            => Ram_I_last,
+    Ram_I_doutb           => Ram_I_doutb,
+    Ram_Q_doutb           => Ram_Q_doutb,
+    Ram_rden              => Ram_rden,
+    pstprc_fifo_data    => pstprc_fifo_dout,
+    Pstprc_fifo_pempty     =>pstprc_fifo_alempty,
+    pstprc_finish         => pstprc_finish,
+    CM_Ram_Q_rden_o       => CM_Ram_Q_rden,
+    CM_Ram_I_rden_o       => CM_Ram_I_rden,
+    CW_Pstprc_fifo_rden_o => CW_Pstprc_fifo_rden,
+    sw_RAM_last           => sw_RAM_last,
+    CW_ether_trig         => CW_ether_trig,
+    CW_mult_frame_en_o    => CW_mult_frame_en,
+    FIFO_upload_data      => ethernet_FIFO_upload_data,
+    CW_CH_flag            => CW_CH_flag
     );
+
 -- -------------------------------------------------------------------------------
 --   inst_SRAM : SRAM_interface
 --   generic map(
@@ -838,21 +892,22 @@ begin
 
   -----------------------------------------------------------------------------
   Inst_RAM_top : RAM_top port map(
-    ram_wren            => ram_wren,
+    clk_125m            => clk_125m,
+    -- ram_wren            => ram_wren,
     posedge_sample_trig => posedge_sample_trig,
     rst_n               => rst_n,
     cmd_smpl_depth      => cmd_smpl_depth,
     ram_Q_dina          => ram_Q_dina,
     ram_Q_clka          => ram_Q_clka,
     ram_Q_clkb          => ram_Q_clkb,
-    ram_Q_rden          => ram_Q_rden,
+    ram_Q_rden          => CM_Ram_Q_rden,
     ram_Q_doutb         => ram_Q_doutb,
     ram_Q_last          => ram_Q_last,
     ram_Q_full          => ram_Q_full,
     ram_I_dina          => ram_I_dina,
     ram_I_clka          => ram_I_clka,
     ram_I_clkb          => ram_I_clkb,
-    ram_I_rden          => ram_I_rden,
+    ram_I_rden          => CM_Ram_I_rden,
     ram_I_doutb         => ram_I_doutb,
     ram_I_last          => ram_I_last,
     ram_I_full          => ram_I_full
@@ -866,7 +921,8 @@ begin
 -----------------------------------------------------------------------------
   Inst_Dmod_Seg : Dmod_Seg port map(
     clk                 => CLK_125M,
-    pstprc_ram_wren     => pstprc_ram_wren,
+    clk_125m            => clk_125m,
+    -- pstprc_ram_wren     => pstprc_ram_wren,
     posedge_sample_trig => posedge_sample_trig,
     rst_n               => rst_n,
     cmd_smpl_depth      => cmd_smpl_depth,
@@ -876,9 +932,12 @@ begin
     Pstprc_RAMI_dina    => Pstprc_RAMI_dina,
     Pstprc_RAMI_clka    => Pstprc_RAMI_clka,
     Pstprc_RAMI_clkb    => Pstprc_RAMI_clkb,
-    demoWinln           => demoWinln,
-    demoWinstart        => demoWinstart,
-    Pstprc_DPS          => Pstprc_DPS
+    demoWinln           => cmd_demoWinln,
+    demoWinstart        => cmd_demoWinstart,
+    Pstprc_DPS          => cmd_Pstprc_DPS,
+    Pstprc_IQ           => Pstprc_IQ,
+    Pstprc_finish       => Pstprc_finish
+
     );
   Pstprc_RAMQ_clka <= ADC_clkoq;
   Pstprc_RAMQ_clkb <= CLK_125M;
@@ -886,8 +945,21 @@ begin
   Pstprc_RAMI_clkb <= CLK_125M;
   Pstprc_RAMQ_dina <= ADC_DOQB_2_d&ADC_DOQA_2_d&ADC_DOQB_1_d&ADC_DOQA_1_d;
   Pstprc_RAMI_dina <= ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
-  pstprc_ram_wren <= ram_wren;
-
+  pstprc_ram_wren  <= ram_wren;
+  -----------------------------------------------------------------------------
+  Inst_Pstprc_fifo_top : Pstprc_fifo_top port map(
+    rst_n              => rst_n,
+    Pstprc_fifo_wr_clk => clk_125M,     --same with the clk in dmog_seg
+    Pstprc_fifo_rd_clk => clk_125M,     --same with the clk in pstprc
+    Pstprc_fifo_din    => Pstprc_IQ,
+    Pstprc_fifo_wren   => Pstprc_finish,
+    Pstprc_fifo_rden   => CW_Pstprc_fifo_rden,
+    prog_empty_thresh  => "0000001",
+    Pstprc_fifo_dout   => Pstprc_fifo_dout,
+    Pstprc_fifo_valid  => Pstprc_fifo_valid,
+    Pstprc_fifo_pempty => Pstprc_fifo_pempty,
+    pstprc_fifo_alempty => pstprc_fifo_alempty
+    );
   ------------------------------------------------------------------------------
   MRCC2_p         <= data_test_pin;     --j12
   rst_n           <= user_pushbutton_g and lck_rst_n;

@@ -48,11 +48,14 @@ entity command_analysis is
     ram_start_o   : out std_logic;
      upload_trig_ethernet_o : out std_logic;
     rst_n : in  std_logic;
-    ram_switch : out std_logic_vector(2 downto 0);
+    cmd_pstprc_IQ_sw : out std_logic_vector(1 downto 0);
     TX_dst_MAC_addr : out std_logic_vector(47 downto 0);
     cmd_smpl_en_o : out std_logic;
     cmd_smpl_depth : out std_logic_vector(15 downto 0);
-    cmd_smpl_trig_cnt : out std_logic_vector(15 downto 0)
+    cmd_smpl_trig_cnt : out std_logic_vector(15 downto 0);
+    Cmd_demowinln : out std_logic_vector(14 downto 0);
+    Cmd_demowinstart : out std_logic_vector(14 downto 0);
+    cmd_Pstprc_DPS : out std_logic_vector(15 downto 0)
     );
 end command_analysis;
 
@@ -180,14 +183,14 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
   ram_switch_ps: process (rd_clk, rst_n) is
   begin  -- process ram_switch_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      ram_switch<=(others => '0');
+     cmd_pstprc_IQ_sw <= "10";
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
       if reg_addr=x"0101" and reg_data = x"111111111111" then
-        ram_switch <= "001";
+        cmd_pstprc_IQ_sw <= "01";
       elsif reg_addr=x"0101" and reg_data =x"222222222222" then
-        ram_switch<="010";
-      elsif reg_addr=x"0101" and reg_data = x"333333333333"  then
-        ram_switch<="100";              --fft channel
+        cmd_pstprc_IQ_sw <="10";
+      -- elsif reg_addr=x"0101" and reg_data = x"333333333333"  then
+      --   ram_switch<="100";              --fft channel
       end if;
     end if;
   end process ram_switch_ps;
@@ -296,5 +299,38 @@ begin  -- process ram_smpl_depth_ps
     end if;
   end if;
 end process cmd_trig_cnt_ps;
+
+cmd_demowinln_ps: process (rd_clk, rst_n) is
+begin  -- process ram_smpl_depth_ps
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    cmd_demowinln<="000"&x"109";         -- reponse to trig 2000 times default 
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
+    if reg_addr =x"0014" then
+     cmd_demowinln<=reg_data(46 downto 32);
+    end if;
+  end if;
+end process cmd_demowinln_ps;
+
+cmd_demowinstart_ps: process (rd_clk, rst_n) is
+begin  -- process ram_smpl_depth_ps
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    cmd_demowinstart<="000"&x"030";         -- reponse to trig 2000 times default 
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
+    if reg_addr =x"0015" then
+     cmd_demowinstart<=reg_data(46 downto 32);
+    end if;
+  end if;
+end process cmd_demowinstart_ps;
+
+Pstprc_DPS_ps: process (rd_clk, rst_n) is
+begin  -- process Pstprc_DPS_ps
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    cmd_Pstprc_DPS <= x"4000";
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
+    if reg_addr =x"0016" then
+      cmd_Pstprc_DPS<=reg_data(47 downto 32);
+    end if;
+  end if;
+end process Pstprc_DPS_ps;
 
 end Behavioral;

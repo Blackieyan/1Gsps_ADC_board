@@ -46,10 +46,14 @@ entity cmd_ana_top is
     cmd_smpl_en          : out std_logic;
     cmd_smpl_depth       : out std_logic_vector(15 downto 0);
     cmd_smpl_trig_cnt    : out std_logic_vector(15 downto 0);
+    cmd_pstprc_IQ_sw     : out std_logic_vector(1 downto 0);
     ethernet_Rd_en       : out std_logic;
     ethernet_Rd_Addr     : out std_logic_vector(13 downto 0);
     ethernet_frm_valid   : in  std_logic;
-    ethernet_rd_data     : in  std_logic_vector(7 downto 0)
+    ethernet_rd_data     : in  std_logic_vector(7 downto 0);
+    Cmd_demowinln        : out std_logic_vector(14 downto 0);
+    Cmd_demowinstart     : out std_logic_vector(14 downto 0);
+    cmd_Pstprc_DPS : out std_logic_vector(15 downto 0)
     );
 end cmd_ana_top;
 architecture Behavioral of cmd_ana_top is
@@ -73,11 +77,14 @@ architecture Behavioral of cmd_ana_top is
       frm_type               : out std_logic_vector(15 downto 0);
       ram_start_o            : out std_logic;
       upload_trig_ethernet_o : out std_logic;
-      ram_switch             : out std_logic_vector(2 downto 0);
+      cmd_pstprc_IQ_sw       : out std_logic_vector(1 downto 0);
       TX_dst_MAC_addr        : out std_logic_vector(47 downto 0);
       cmd_smpl_en_o          : out std_logic;
       cmd_smpl_depth         : out std_logic_vector(15 downto 0);
-      cmd_smpl_trig_cnt      : out std_logic_vector(15 downto 0)
+      cmd_smpl_trig_cnt      : out std_logic_vector(15 downto 0);
+      Cmd_demowinln          : out std_logic_vector(14 downto 0);
+      Cmd_demowinstart       : out std_logic_vector(14 downto 0);
+      cmd_Pstprc_DPS : out std_logic_vector(15 downto 0)
       );
   end component;
 
@@ -99,11 +106,14 @@ begin
     ram_start_o            => ram_start,
     upload_trig_ethernet_o => upload_trig_ethernet,
     rst_n                  => rst_n,
-    ram_switch             => ram_switch,
     TX_dst_MAC_addr        => TX_dst_MAC_addr,
     cmd_smpl_en_o          => cmd_smpl_en,
     cmd_smpl_depth         => cmd_smpl_depth,
-    cmd_smpl_trig_cnt      => cmd_smpl_trig_cnt
+    cmd_smpl_trig_cnt      => cmd_smpl_trig_cnt,
+    cmd_pstprc_IQ_sw       => cmd_pstprc_IQ_sw,
+    cmd_demowinln          => cmd_demowinln,
+    cmd_demowinstart       => cmd_demowinstart,
+    cmd_Pstprc_DPS => cmd_Pstprc_DPS
     );
   -----------------------------------------------------------------------------
   Rd_en_ps : process (rd_clk, rst_n, ethernet_frm_valid, frm_valid_d) is

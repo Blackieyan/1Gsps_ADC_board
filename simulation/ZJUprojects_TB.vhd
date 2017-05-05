@@ -154,15 +154,19 @@ architecture behavior of ZJUprojects_TB is
   signal user_pushbutton    : std_logic;
   signal rd_data : std_ulogic_vector(7 downto 0) := x"00";
   -- Clock period definitions
-  constant OSC_in_p_period    : time := 12.5 ns;
-  constant OSC_in_n_period    : time := 12.5 ns;
+  constant OSC_in_p_period    : time := 10 ns;
+  constant OSC_in_n_period    : time := 10 ns;
   constant ADC_CLKOQ_p_period : time := 4 ns;
     constant ADC_CLKOi_p_period : time := 4 ns;
   constant CLK_500M_period    : time := 2 ns;
   constant phy_rxc_period     : time := 8 ns;
   signal MRCC2_p              : std_logic;
   signal MRCC2_n              : std_logic_vector(0 downto 0);
-  signal SRCC1_n_upload_sma_trigin              : std_logic := '0'; 
+  signal SRCC1_n_upload_sma_trigin              : std_logic := '0';
+  signal demoWinln : std_logic_vector(14 downto 0) := "000"&x"096";
+  signal demowinstart : std_logic_vector(14 downto 0):= "000"&x"096";
+  signal cmd_pstprc_IQ_sw : std_logic_vector(1 downto 0) := "10";
+  signal posedge_sample_trig_f : std_logic;
 begin
 
   -- Instantiate the Unit Under Test (UUT)
@@ -427,7 +431,89 @@ begin
     -- phy_rxd  <= x"0";
     -- wait for 4 ns;                      --crc from chipscope
     -- phy_rxdv <= '0';
-    wait for 1000us;
+    
+    wait for 100us;
+    SRCC1_p_trigin <='1';
+    wait for 10ns;
+    SRCC1_p_trigin <= '0';
+      
+    -- phy_rxdv <= '1';
+    -- phy_rxd  <= x"f";
+    -- wait for 16 ns;
+    -- phy_rxd  <= x"5";
+    -- wait for 60 ns;
+    -- phy_rxd  <= x"d";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"0";
+    -- wait for 48 ns;
+    -- --mac dst
+    -- phy_rxd  <= x"0";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"6";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"4";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"A";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"c";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"4";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"1";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"3";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"3";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"7";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"0";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"4";
+    -- wait for 4 ns;
+    -- --mac src
+    -- phy_rxd  <= x"a";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"a";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"5";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"5";
+    -- wait for 4 ns;
+    -- --type
+    -- phy_rxd  <= x"0";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"0";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"1";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"0";
+    -- wait for 4 ns;
+    -- --reg addr
+    -- phy_rxd  <= x"e";
+    -- wait for 48 ns;
+    --     phy_rxd  <= x"0";
+    -- wait for 304 ns;
+    -- -- blank 40 byte
+    -- phy_rxd  <= x"0";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"a";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"5";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"c";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"9";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"9";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"2";
+    -- wait for 4 ns;
+    -- phy_rxd  <= x"2";
+    -- wait for 4 ns;                      --crc from chipscope
+    -- phy_rxdv <= '0';
+    
+    wait for 500us;
 
     phy_rxdv <= '1';
     phy_rxd  <= x"f";

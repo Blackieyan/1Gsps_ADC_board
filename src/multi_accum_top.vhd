@@ -36,7 +36,7 @@ use UNISIM.vcomponents.all;
 
 entity multi_accum_top is
   generic (
-    mult_accum_s_width : integer := 24
+    mult_accum_s_width : integer := 32
    );
   port(
     mult_accum_clk    : in  std_logic;

@@ -47,6 +47,7 @@ entity crg_dcms is
     user_pushbutton_g : in std_logic;
     CLK_125M : out std_logic;
     CLK_200M : out std_logic;
+    CLK_250M : out std_logic;
     CLK_125M_quar : out std_logic
     );
 end crg_dcms;
@@ -58,6 +59,7 @@ architecture Behavioral of crg_dcms is
   signal clk1 : std_logic;
   signal clk2 : std_logic;
   signal clk3 : std_logic;
+   signal clk4 : std_logic;
   component dcm_adc_clkoi
     port
       (                                 -- Clock in ports
@@ -97,7 +99,7 @@ architecture Behavioral of crg_dcms is
         CLK_OUT1  : out std_logic;
         CLK_OUT2  : out std_logic;
         clk_out3  : out std_logic;
-        -- CLK_OUT4          : out    std_logic;
+        CLK_OUT4          : out    std_logic;
         locked    : out std_logic
         );
   end component;
@@ -106,6 +108,8 @@ begin
   CLK_125M<=CLK1;
   CLK_125M_quar<=CLK2;
   CLK_200M<=CLK3;
+  CLK_250M<=CLK4;
+  
   dcm2 : dcm_adc_clkoi
     port map
     (                                   -- Clock in ports
@@ -133,6 +137,7 @@ begin
       CLK_OUT1  => CLK1,
       CLK_OUT2  => CLK2,
       CLK_OUT3  => CLK3,
+      CLK_OUT4  => CLK4,
       locked    => dcm1_locked
       );
 

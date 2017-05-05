@@ -55,7 +55,7 @@ entity G_ethernet_top is
     CLK_125M                  : in     std_logic; 
     CLK_125M_quar             : in     std_logic; 
 -------------------------------------------------------------------------------
-    ram_wren                  : buffer std_logic; 
+    -- ram_wren                  : buffer std_logic; 
     ram_rden                  : out    std_logic; 
     -- ram_start                 : in     std_logic;
     -- ram_last                  : in     std_logic;
@@ -67,11 +67,11 @@ entity G_ethernet_top is
     sample_en                 : in     std_logic;
  ------------------------------------------------------------------------------
     CH_flag                   : in     std_logic_vector(7 downto 0);
-    ch_stat                   : in     std_logic_vector(1 downto 0);
-    upld_finish               : in     std_logic;
+    -- ch_stat                   : in     std_logic_vector(1 downto 0);
+    mult_frame_en               : in     std_logic;
     sw_ram_last : in std_logic;
     data_strobe : out std_logic;
-    posedge_sample_trig : in std_logic
+    ether_trig : in std_logic
     );
 end G_ethernet_top; 
 
@@ -98,7 +98,6 @@ architecture Behavioral of G_ethernet_top is
     port(
       CLK_125M_quar             : in     std_logic; 
       CLK_125M                  : in     std_logic; 
-      -- rst_n_gb_i                : in     std_logic; 
       user_pushbutton           : in     std_logic; 
       fifo_upload_data          : in     std_logic_vector(7 downto 0); 
       PHY_TXD_o                 : out    std_logic_vector(3 downto 0); 
@@ -106,23 +105,17 @@ architecture Behavioral of G_ethernet_top is
       phy_txen_quar             : out    std_logic; 
       phy_txer_o                : out    std_logic; 
       rst_n_o                   : out    std_logic;
-      ram_wren                  : buffer std_logic; 
+      -- ram_wren                  : buffer std_logic; 
       ram_rden                  : out    std_logic; 
-      -- ram_start                 : in     std_logic;
-      -- srcc1_p_trigin            : in     std_logic;  --trigger from sma srcc1_p to trig the
-                                                     --ram writing
-      -- SRCC1_n_upload_sma_trigin : in     std_logic;
-      -- ram_last                  : in     std_logic;
-      -- upload_trig_ethernet      : in     std_logic;
       posedge_upload_trig       : in     std_logic;
       TX_dst_MAC_addr           : in     std_logic_vector(47 downto 0);
       sample_en                 : in     std_logic;
       CH_flag                   : in     std_logic_vector(7 downto 0);
-      ch_stat                   : in     std_logic_vector(1 downto 0);
-      upld_finish               : in     std_logic;
+      -- ch_stat                   : in     std_logic_vector(1 downto 0);
+      mult_frame_en               : in     std_logic;
       sw_ram_last : in std_logic;
       data_strobe :out std_logic;
-      posedge_sample_trig : in std_logic
+      ether_trig : in std_logic
       );
   end component;
 
@@ -167,7 +160,7 @@ begin
     rst_n_o                   => rst_n_o,
     fifo_upload_data          => fifo_upload_data, 
     ram_rden                  => ram_rden, 
-    ram_wren                  => ram_wren, 
+    -- ram_wren                  => ram_wren, 
     -- ram_start                 => ram_start,
     -- srcc1_p_trigin            => srcc1_p_trigin,
     -- SRCC1_n_upload_sma_trigin => SRCC1_n_upload_sma_trigin,
@@ -177,11 +170,11 @@ begin
     TX_dst_MAC_addr           => TX_dst_MAC_addr,
     sample_en                 => sample_en,
     CH_flag                   => CH_flag,
-    ch_stat                   => ch_stat,
-    Upld_finish               => Upld_finish,
+    -- ch_stat                   => ch_stat,
+    mult_frame_en              => mult_frame_en,
     sw_ram_last =>sw_ram_last,                                                    
     data_strobe =>data_strobe,
-    posedge_sample_trig =>posedge_sample_trig                                                    
+    ether_trig =>ether_trig                                                    
     );
 
 
