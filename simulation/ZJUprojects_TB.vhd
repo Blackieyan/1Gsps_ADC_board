@@ -278,7 +278,8 @@ begin
     if user_pushbutton = '0' then       -- asynchronous reset (active low)
       ADC_DOQA_p <= (others => '0');
     elsif CLK_500M'event and CLK_500M = '1' then  -- rising clock edge
-      ADC_DOQA_p <= ADC_DOQA_p+2;
+      -- ADC_DOQA_p <= ADC_DOQA_p+2;
+      ADC_DOQA_p<=x"7f";
     end if;
   end process sim_DOQA;
   ADC_DOQA_n <= not ADC_DOQA_p;
@@ -292,7 +293,8 @@ begin
     if user_pushbutton = '0' then       -- asynchronous reset (active low)
       ADC_DOQB_p <= x"01";
     elsif CLK_500M'event and CLK_500M = '1' then  -- rising clock edge
-      ADC_DOQB_p <= ADC_DOQB_p+2;
+      -- ADC_DOQB_p <= ADC_DOQB_p+2;
+      ADC_DOQB_p<=x"7f";
     end if;
   end process sim_DOQB;
   ADC_DOQB_n <= not ADC_DOQB_p;
@@ -306,7 +308,8 @@ begin
     if user_pushbutton = '0' then       -- asynchronous reset (active low)
       ADC_DOIA_p <= (others => '0');
     elsif CLK_500M'event and CLK_500M = '1' then  -- rising clock edge
-      ADC_DOIA_p <= ADC_DOIA_p+2;
+      -- ADC_DOIA_p <= ADC_DOIA_p+2;
+      ADC_DOIA_p<=x"7f";
     end if;
   end process sim_DOIA;
   ADC_DOIA_n <= not ADC_DOIA_p;
@@ -320,7 +323,8 @@ begin
     if user_pushbutton = '0' then       -- asynchronous reset (active low)
       ADC_DOIB_p <= x"01";
     elsif CLK_500M'event and CLK_500M = '1' then  -- rising clock edge
-      ADC_DOIB_p <= ADC_DOIB_p+2;
+      -- ADC_DOIB_p <= ADC_DOIB_p+2;
+      ADC_DOIB_p<=x"7f";
     end if;
   end process sim_DOIB;
   ADC_DOIB_n <= not ADC_DOIB_p;

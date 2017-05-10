@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 13.3
-# Date: Mon Mar 27 15:19:25 2017
+# Date: Wed May 10 06:41:46 2017
 #
 ##############################################################
 #
@@ -45,7 +45,7 @@ CSET channels=1
 CSET clock_enable=false
 CSET component_name=DDS1
 CSET dds_clock_rate=125
-CSET dsp48_use=Maximal
+CSET dsp48_use=Minimal
 CSET explicit_period=false
 CSET frequency_resolution=0.4
 CSET gui_behaviour=Coregen
@@ -53,8 +53,8 @@ CSET has_phase_out=true
 CSET latency=1
 CSET latency_configuration=Configurable
 CSET memory_type=Auto
-CSET negative_cosine=false
-CSET negative_sine=false
+CSET negative_cosine=true
+CSET negative_sine=true
 CSET noise_shaping=None
 CSET optimization_goal=Auto
 CSET output_frequency1=0
@@ -139,4 +139,4 @@ CSET spurious_free_dynamic_range=36
 MISC pkg_timestamp=2011-10-05T00:23:11.000Z
 # END Extra information
 GENERATE
-# CRC: 478b25b8
+# CRC: d3c1548a
