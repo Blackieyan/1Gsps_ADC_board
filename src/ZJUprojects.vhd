@@ -252,6 +252,8 @@ architecture Behavioral of ZJUprojects is
   signal cmd_pstprc_IQ_sw : std_logic_vector(1 downto 0) := "10";
   signal cmd_demowinln    : std_logic_vector(14 downto 0) := "000"&x"096";
   signal cmd_demowinstart : std_logic_vector(14 downto 0) := "000"&x"096";
+signal cmd_Pstprc_dps_en : std_logic;
+  signal cmd_Pstprc_dps         : std_logic_vector(15 downto 0) := x"4000";
   
   signal dcm1_locked                  : std_logic;
   signal dcm1_locked_d                : std_logic;
@@ -301,9 +303,9 @@ architecture Behavioral of ZJUprojects is
   signal demowinln    : std_logic_vector(14 downto 0) := "000"&x"096";
   signal demowinstart : std_logic_vector(14 downto 0) := "000"&x"096";
 
-  signal cmd_Pstprc_dps         : std_logic_vector(15 downto 0) := x"4000";
   -----------------------------------------------------------------------------
   signal Pstprc_fifo_din    : std_logic_vector(63 downto 0);
+  signal Pstprc_DPS_en : std_logic;
   signal Pstprc_finish      : std_logic;
   signal Pstprc_fifo_wren   : std_logic;
   -- signal pstprc_rs : std_logic;
@@ -425,6 +427,7 @@ architecture Behavioral of ZJUprojects is
 		Cmd_demowinln : OUT std_logic_vector(14 downto 0);
 		Cmd_demowinstart : OUT std_logic_vector(14 downto 0);
                 cmd_Pstprc_DPS : out std_logic_vector(15 downto 0)
+                -- cmd_Pstprc_dps_en : out std_logic
 		);
 	END COMPONENT;
   -----------------------------------------------------------------------------
@@ -541,7 +544,6 @@ architecture Behavioral of ZJUprojects is
   component Dmod_Seg
     port(
       clk                 : in  std_logic;
-      clk_125M            : in  std_logic;
       -- pstprc_ram_wren : IN std_logic;
       posedge_sample_trig : in  std_logic;
       rst_n               : in  std_logic;
@@ -554,6 +556,7 @@ architecture Behavioral of ZJUprojects is
       Pstprc_RAMI_clkb    : in  std_logic;
       demoWinln           : in  std_logic_vector(14 downto 0);
       demoWinstart        : in  std_logic_vector(14 downto 0);
+      -- Pstprc_dps_en       : in std_logic;
       Pstprc_DPS          : in  std_logic_vector(15 downto 0);
       Pstprc_IQ           : out std_logic_vector(63 downto 0);
       Pstprc_finish       : out std_logic
@@ -807,6 +810,7 @@ begin
     cmd_demowinln => cmd_demowinln,
     cmd_demowinstart => cmd_demowinstart,
     cmd_Pstprc_DPS => cmd_Pstprc_DPS
+    -- cmd_Pstprc_DPS_en => cmd_Pstprc_DPS_en
     );
   -----------------------------------------------------------------------------
   Inst_Channel_switch : Channel_switch port map(
@@ -921,7 +925,6 @@ begin
 -----------------------------------------------------------------------------
   Inst_Dmod_Seg : Dmod_Seg port map(
     clk                 => CLK_125M,
-    clk_125m            => clk_125m,
     -- pstprc_ram_wren     => pstprc_ram_wren,
     posedge_sample_trig => posedge_sample_trig,
     rst_n               => rst_n,
@@ -934,6 +937,7 @@ begin
     Pstprc_RAMI_clkb    => Pstprc_RAMI_clkb,
     demoWinln           => cmd_demoWinln,
     demoWinstart        => cmd_demoWinstart,
+    -- Pstprc_dps_en       => cmd_Pstprc_dps_en,
     Pstprc_DPS          => cmd_Pstprc_DPS,
     Pstprc_IQ           => Pstprc_IQ,
     Pstprc_finish       => Pstprc_finish

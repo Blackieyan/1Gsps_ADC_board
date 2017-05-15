@@ -44,24 +44,31 @@ entity post_process is
     Q_data               : in  std_logic_vector(63 downto 0);
     I_data               : in  std_logic_vector(63 downto 0);
     DDS_phase_shift      : in  std_logic_vector(15 downto 0);
+    -- pstprc_dps_en        : in std_logic;
     pstprc_en            : in  std_logic;
     rst_n                : in  std_logic;
     Pstprc_RAMx_rden_stp : in  std_logic;
     Pstprc_finish        : out std_logic;
     pstprc_Idata         : out std_logic_vector(mult_accum_s_width-1 downto 0);
     pstprc_Qdata         : out std_logic_vector(mult_accum_s_width-1 downto 0)
-
     );
 end post_process;
 
 architecture Behavioral of post_process is
 
-  type array_data_x_cos is array (7 downto 0) of std_logic_vector(mult_accum_s_width-1 downto 0);
-  signal accm_Q_x_cos : array_data_x_cos;
-  signal accm_I_x_cos : array_data_x_cos;
-  signal accm_Q_x_sin : array_data_x_cos;
-  signal accm_I_x_sin : array_data_x_cos;
+  type array_tc_adc_data is array (7 downto 0) of std_logic_vector(7 downto 0);
+  signal tc_Q_data : array_tc_adc_data;
+  signal tc_I_data : array_tc_adc_data;
 
+    type array_tc_dds_data is array (7 downto 0) of std_logic_vector(11 downto 0);
+  signal tc_dds_sin : array_tc_dds_data;
+  signal tc_dds_cos : array_tc_dds_data;
+  
+  type array_data_x_cos is array (7 downto 0) of std_logic_vector(mult_accum_s_width-1 downto 0);
+  signal accm_Q_x_cos  : array_data_x_cos;
+  signal accm_I_x_cos  : array_data_x_cos;
+  signal accm_Q_x_sin  : array_data_x_cos;
+  signal accm_I_x_sin  : array_data_x_cos;
   type array_base0_data_x_cos is array (3 downto 0) of std_logic_vector(mult_accum_s_width-1 downto 0);
   signal base0_Q_x_cos : array_base0_data_x_cos;
   signal base0_I_x_cos : array_base0_data_x_cos;
@@ -132,12 +139,13 @@ architecture Behavioral of post_process is
   signal IxSIN : std_logic_vector(19 downto 0);
   signal QxCOS : std_logic_vector(19 downto 0);
   signal QxSIN : std_logic_vector(19 downto 0);
-
-  signal dds_sclr : std_logic;
-  signal dds_we   : std_logic;
-  signal dds_cos  : std_logic_vector(7 downto 0);
-  signal dds_sin  : std_logic_vector(7 downto 0);
-
+  signal dds_en : std_logic;
+  signal dds_sclr          : std_logic;
+  signal dds_fifo_rden     : std_logic;
+  signal dds_cos           : std_logic_vector(95 downto 0);
+  signal dds_sin           : std_logic_vector(95 downto 0);
+  -- signal tc_dds_cos        : std_logic_vector(96 downto 0);
+  -- signal tc_dds_sin        : std_logic_vector(96 downto 0);
   signal add_clk           : std_logic;
   signal mult_accum_clk    : std_logic;
   signal mult_accum_ce     : std_logic;
@@ -174,16 +182,16 @@ architecture Behavioral of post_process is
   signal q_quo    : std_logic_vector(31 downto 0);
   signal I_quo    : std_logic_vector(31 downto 0);
 -------------------------------------------------------------------------------
-  component DDS_top
-    port(
-      dds_clk         : in  std_logic;
-      dds_sclr        : in  std_logic;
-      dds_we          : in  std_logic;
-      dds_phase_shift : in  std_logic_vector(15 downto 0);
-      dds_cos         : out std_logic_vector(7 downto 0);
-      dds_sin         : out std_logic_vector(7 downto 0)
-      );
-  end component;
+	COMPONENT DDS_top
+	PORT(
+		dds_clk : IN std_logic;
+		dds_sclr : IN std_logic;
+		dds_en : IN std_logic;
+		dds_phase_shift : IN std_logic_vector(15 downto 0);          
+		cos_out : OUT std_logic_vector(95 downto 0);
+		sin_out : OUT std_logic_vector(95 downto 0)
+		);
+	END COMPONENT;
 
   component multi_accum_top
     port(
@@ -193,8 +201,8 @@ architecture Behavioral of post_process is
       mult_accum_bypass : in  std_logic;
       Q_data            : in  std_logic_vector(7 downto 0);
       I_data            : in  std_logic_vector(7 downto 0);
-      dds_sin           : in  std_logic_vector(7 downto 0);
-      dds_cos           : in  std_logic_vector(7 downto 0);
+      dds_sin           : in  std_logic_vector(11 downto 0);
+      dds_cos           : in  std_logic_vector(11 downto 0);
       accm_I_x_cos      : out std_logic_vector(mult_accum_s_width-1 downto 0);
       accm_I_x_sin      : out std_logic_vector(mult_accum_s_width-1 downto 0);
       accm_Q_x_cos      : out std_logic_vector(mult_accum_s_width-1 downto 0);
@@ -219,26 +227,41 @@ architecture Behavioral of post_process is
 
 -------------------------------------------------------------------------------
 begin
+
+
   Inst_DDS : DDS_top port map(
     dds_clk         => clk,
     dds_sclr        => dds_sclr,
-    dds_we          => dds_we,
+    dds_en =>dds_en,
+    -- pstprc_dps_en => pstprc_dps_en,
     dds_phase_shift => dds_phase_shift,
-    dds_cos         => dds_cos,
-    dds_sin         => dds_sin
+    cos_out         => dds_cos,
+    sin_out         => dds_sin
     );
 
   multi_accum_inst : for i in 0 to 7 generate
   begin
+
+    -- tc_dds_cos(i)   <= not(dds_cos(8*i+11))&dds_cos(8*i+10 downto 8*i);
+    -- tc_dds_sin(i)   <= not(dds_sin(8*i+11))&dds_sin(8*i+10 downto 8*i);
+    tc_dds_cos(i)<= dds_cos(12*i+11 downto 12*i);
+    tc_dds_sin(i)<= dds_sin(12*i+11 downto 12*i);
+    tc_I_data(i) <= not(I_data(8*i+7))& I_data(8*i+6 downto 8*i);
+    tc_Q_data(i) <= not(Q_data(8*i+7))& Q_data(8*i+6 downto 8*i);
+
     Inst_multi_accum_top : multi_accum_top port map(
       mult_accum_clk    => mult_accum_clk,
       mult_accum_ce     => mult_accum_ce,
       mult_accum_sclr   => mult_accum_sclr,
       mult_accum_bypass => mult_accum_bypass,
-      Q_data            => Q_data(8*i+7 downto 8*i),
-      I_data            => I_data(8*i+7 downto 8*i),
-      dds_sin           => dds_sin,
-      dds_cos           => dds_cos,
+      -- Q_data            => Q_data(8*i+7 downto 8*i),
+      -- I_data            => I_data(8*i+7 downto 8*i),
+      Q_data            => tc_Q_data(i),
+      I_data            => tc_I_data(i), --two's complement
+      -- dds_sin           => dds_sin,
+      -- dds_cos           => dds_cos,
+      dds_sin           => tc_dds_sin(i),
+      dds_cos           => tc_dds_cos(i),  --two's comlement
       accm_Q_x_cos      => accm_Q_x_cos(i),
       accm_I_x_sin      => accm_I_x_sin(i),
       accm_I_x_cos      => accm_I_x_cos(i),
@@ -578,12 +601,12 @@ begin
     if rst_n = '0' then                 -- asynchronous reset (active low)
       mult_accum_sclr <= '1';
     elsif clk'event and clk = '1' then  -- rising clock edge
-        if add_cnt = x"06" then
-          mult_accum_sclr <= '1';
-        else
-          mult_accum_sclr <= '0';
-        end if;
+      if add_cnt = x"06" then
+        mult_accum_sclr <= '1';
+      else
+        mult_accum_sclr <= '0';
       end if;
+    end if;
   end process mult_accum_sclr_ps;
 
   Adder_en_ps : process (clk, rst_n) is
@@ -645,12 +668,13 @@ begin
 
 -----------------------------------------------------------------------------
   mult_accum_clk    <= clk;
-  mult_accum_ce     <= pstprc_en;
+  mult_accum_ce     <= pstprc_en and adder_en_d;  --delay 2 clk after ram_rden
+                                                  --and low at 1 clk after ram_rden
   mult_accum_bypass <= '0';
 
 
   dds_sclr <= not rst_n;
-  dds_we   <= pstprc_en;
+  dds_en  <= pstprc_en;
 
   ADD_clk <= clk;
   ADD_RST <= not rst_n;

@@ -54,6 +54,7 @@ entity cmd_ana_top is
     Cmd_demowinln        : out std_logic_vector(14 downto 0);
     Cmd_demowinstart     : out std_logic_vector(14 downto 0);
     cmd_Pstprc_DPS : out std_logic_vector(15 downto 0)
+    -- cmd_Pstprc_DPS_en : out std_logic
     );
 end cmd_ana_top;
 architecture Behavioral of cmd_ana_top is
@@ -66,6 +67,7 @@ architecture Behavioral of cmd_ana_top is
   signal cmd_ana_rd_addr : std_logic_vector(13 downto 0);
   signal cmd_ana_rd_en   : std_logic;
 
+  
   component command_analysis
     port(
       rd_data                : in  std_logic_vector(7 downto 0);
@@ -85,6 +87,7 @@ architecture Behavioral of cmd_ana_top is
       Cmd_demowinln          : out std_logic_vector(14 downto 0);
       Cmd_demowinstart       : out std_logic_vector(14 downto 0);
       cmd_Pstprc_DPS : out std_logic_vector(15 downto 0)
+      -- cmd_Pstprc_DPS_en : out std_logic
       );
   end component;
 
@@ -114,6 +117,7 @@ begin
     cmd_demowinln          => cmd_demowinln,
     cmd_demowinstart       => cmd_demowinstart,
     cmd_Pstprc_DPS => cmd_Pstprc_DPS
+    -- cmd_Pstprc_DPS_en => cmd_Pstprc_DPS_en
     );
   -----------------------------------------------------------------------------
   Rd_en_ps : process (rd_clk, rst_n, ethernet_frm_valid, frm_valid_d) is

@@ -56,6 +56,7 @@ entity command_analysis is
     Cmd_demowinln : out std_logic_vector(14 downto 0);
     Cmd_demowinstart : out std_logic_vector(14 downto 0);
     cmd_Pstprc_DPS : out std_logic_vector(15 downto 0)
+    -- cmd_Pstprc_DPS_en : out std_logic
     );
 end command_analysis;
 
@@ -71,6 +72,7 @@ architecture Behavioral of command_analysis is
   signal upload_trig_ethernet : std_logic;
   signal ram_start : std_logic;
   signal cmd_smpl_en : std_logic;
+  -- signal cmd_Pstprc_DPS_d : std_logic_vector(15 downto 0);
 
   
   -- signal reg_clr_cnt : std_logic_vector(7 downto 0);
@@ -79,7 +81,8 @@ begin
 ram_start_o<=ram_start;
 cmd_smpl_en_o<=cmd_smpl_en;
 upload_trig_ethernet_o<=upload_trig_ethernet;
-
+-- cmd_Pstprc_DPS_en <= Pstprc_DPS_en;
+  
   rd_en_d_ps: process (rd_clk, rst_n) is
   begin  -- process rd_en_d
     if rd_clk'event and rd_clk = '1' then  -- rising clock edge
@@ -118,7 +121,7 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
           reg_addr<=reg_addr;
       end if;
     end if;
-    end if;
+ end if;
   end process reg_addr_ps;
 
   reg_data_ps : process (rd_clk, rst_n, rd_en_d, rd_en) is
@@ -325,12 +328,15 @@ end process cmd_demowinstart_ps;
 Pstprc_DPS_ps: process (rd_clk, rst_n) is
 begin  -- process Pstprc_DPS_ps
   if rst_n = '0' then                   -- asynchronous reset (active low)
-    cmd_Pstprc_DPS <= x"4000";
+    cmd_Pstprc_DPS <= x"1500";
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
     if reg_addr =x"0016" then
       cmd_Pstprc_DPS<=reg_data(47 downto 32);
     end if;
   end if;
 end process Pstprc_DPS_ps;
+
+
+
 
 end Behavioral;
