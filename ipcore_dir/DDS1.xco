@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 13.3
-# Date: Wed May 10 06:41:46 2017
+# Date: Sun May 14 09:01:39 2017
 #
 ##############################################################
 #
@@ -53,9 +53,9 @@ CSET has_phase_out=true
 CSET latency=1
 CSET latency_configuration=Configurable
 CSET memory_type=Auto
-CSET negative_cosine=true
-CSET negative_sine=true
-CSET noise_shaping=None
+CSET negative_cosine=false
+CSET negative_sine=false
+CSET noise_shaping=Taylor_Series_Corrected
 CSET optimization_goal=Auto
 CSET output_frequency1=0
 CSET output_frequency10=0
@@ -74,7 +74,7 @@ CSET output_frequency7=0
 CSET output_frequency8=0
 CSET output_frequency9=0
 CSET output_selection=Sine_and_Cosine
-CSET output_width=8
+CSET output_width=12
 CSET parameter_entry=Hardware_Parameters
 CSET partspresent=Phase_Generator_and_SIN_COS_LUT
 CSET period=1
@@ -139,4 +139,4 @@ CSET spurious_free_dynamic_range=36
 MISC pkg_timestamp=2011-10-05T00:23:11.000Z
 # END Extra information
 GENERATE
-# CRC: d3c1548a
+# CRC: 639f1941

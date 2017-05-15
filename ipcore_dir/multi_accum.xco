@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 13.3
-# Date: Mon Apr 17 01:38:03 2017
+# Date: Mon May 15 03:31:11 2017
 #
 ##############################################################
 #
@@ -39,12 +39,12 @@ SET vhdlsim = true
 SELECT Multiply_Accumulator xilinx.com:ip:xbip_multaccum:2.0
 # END Select
 # BEGIN Parameters
-CSET a_input_type=Unsigned
+CSET a_input_type=Signed
 CSET a_input_width=8
 CSET accum_mode=Add
 CSET accum_width=32
-CSET b_input_type=Unsigned
-CSET b_input_width=8
+CSET b_input_type=Signed
+CSET b_input_width=12
 CSET bypass=true
 CSET bypass_sense=Active_High
 CSET component_name=multi_accum
@@ -58,4 +58,4 @@ CSET sync_ce_priority=Sync_Overrides_CE
 MISC pkg_timestamp=2011-07-15T13:55:21.000Z
 # END Extra information
 GENERATE
-# CRC: de42bccd
+# CRC:   61b7f9
