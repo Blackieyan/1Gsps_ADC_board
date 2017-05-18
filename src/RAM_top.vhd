@@ -207,11 +207,11 @@ begin
     end if;
   end process O_Gcnt_ps;
 -------------------------------------------------------------------------------  
-  ram_wren_ps: process (clk_125M, rst_n) is
+  ram_wren_ps: process (ram_Q_clka, rst_n) is
   begin  -- process ram_wren_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
       ram_wren<='0';
-    elsif clk_125M'event and clk_125M = '1' then  -- rising clock edge
+    elsif ram_Q_clka'event and ram_Q_clka = '1' then  -- rising clock edge
       if ram_wren_cnt =x"3e1" then
         ram_wren<='0';
       elsif posedge_sample_trig='1' then
@@ -220,11 +220,11 @@ begin
     end if;
   end process ram_wren_ps;
 
-  ram_wren_cnt_ps: process (clk_125M, rst_n) is
+  ram_wren_cnt_ps: process (ram_Q_clka, rst_n) is
   begin  -- process ram_wren_cnt_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
       ram_wren_cnt<=(others => '0');
-    elsif clk_125M'event and clk_125M = '1' then  -- rising clock edge
+    elsif ram_Q_clka'event and ram_Q_clka = '1' then  -- rising clock edge
       if ram_wren ='0' then
         ram_wren_cnt<=(others => '0');
       elsif ram_wren='1' then

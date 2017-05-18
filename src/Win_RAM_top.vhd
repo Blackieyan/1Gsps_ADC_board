@@ -234,12 +234,13 @@ begin
       end if;
     end if;
   end process O_Gcnt_ps;
+
   
-  pstprc_ram_wren_ps: process (Pstprc_RAMq_clkb, rst_n) is
+  pstprc_ram_wren_ps: process (Pstprc_RAMq_clka, rst_n) is
   begin  -- process pstprc_ram_wren_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
       pstprc_ram_wren<='0';
-    elsif Pstprc_RAMq_clkb'event and Pstprc_RAMq_clkb = '1' then  -- rising clock edge
+    elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
       if pstprc_ram_wren_cnt =x"3e1" then
         pstprc_ram_wren<='0';
       elsif posedge_sample_trig='1' then
@@ -248,11 +249,11 @@ begin
     end if;
   end process pstprc_ram_wren_ps;
 
-  pstprc_ram_wren_cnt_ps: process (Pstprc_RAMq_clkb, rst_n) is
+  pstprc_ram_wren_cnt_ps: process (Pstprc_RAMq_clka, rst_n) is
   begin  -- process pstprc_ram_wren_cnt_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
       pstprc_ram_wren_cnt<=(others => '0');
-    elsif Pstprc_RAMq_clkb'event and Pstprc_RAMq_clkb = '1' then  -- rising clock edge
+    elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
       if pstprc_ram_wren ='0' then
         pstprc_ram_wren_cnt<=(others => '0');
       elsif pstprc_ram_wren='1' then

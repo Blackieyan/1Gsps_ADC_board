@@ -58,25 +58,29 @@ entity Channel_switch is
     pstprc_finish       : in  std_logic;  --switch_signal 31 input 
     posedge_sample_trig : in  std_logic;  --switch_signal 30 input
     CW_ether_trig       : out std_logic;  --switch_signal 3 output
-
+    
     CW_mult_frame_en_o : out std_logic;  -- frame_en
-
+    CW_demo_smpl_trig_o : out std_logic;
+    CW_wave_smpl_trig_o : out std_logic;
     CW_CH_flag : out std_logic_vector(7 downto 0)
     );
 end Channel_switch;
 
 architecture Behavioral of Channel_switch is
 
-  signal CM_RAM_rden        : std_logic;
+  signal CM_RAM_rden          : std_logic;
 -- signal CM_Ram_Q_rden_o    : std_logic;
 -- signal CM_Ram_I_rden_o    : std_logic;
-  signal CM_mult_frame_en_o : std_logic;
-  signal CM_CH_flag_o       : std_logic_vector(7 downto 0);
+  signal CM_mult_frame_en_o   : std_logic;
+  signal CM_CH_flag_o         : std_logic_vector(7 downto 0);
 -- signal CM_CH_stat_o : std_logic_vector(1 downto 0);
-  signal CM_RAM_QI_data_o   : std_logic_vector(7 downto 0);
-  signal Pstprc_fifo_rden   : std_logic;
-  signal CM_RAM_last_o      : std_logic;
-
+  signal CM_RAM_QI_data_o     : std_logic_vector(7 downto 0);
+  signal Pstprc_fifo_rden     : std_logic;
+  signal CM_RAM_last_o        : std_logic;
+  signal posedge_pempty       : std_logic;
+  signal pstprc_fifo_pempty_d : std_logic;
+  signal wave_smpl_trig : std_logic;
+  signal demo_smpl_trig : std_logic;
   component Channel_multiplex
     port(
       clk              : in  std_logic;
@@ -98,6 +102,8 @@ architecture Behavioral of Channel_switch is
 begin
 
   CW_Pstprc_fifo_rden_o <= Pstprc_fifo_rden;
+  CW_demo_smpl_trig_o <=demo_smpl_trig;
+    CW_wave_smpl_trig_o <=wave_smpl_trig;
   -- CH_stat_o <= CM_CH_stat_o;
 
   Inst_Channel_multiplex : Channel_multiplex port map(
@@ -121,10 +127,10 @@ begin
   rden_mux_ps : process (clk, rst_n) is
   begin  -- process rden_mux_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      Pstprc_fifo_rden <= '0';
-      CM_RAM_rden      <= Ram_rden;
+      Pstprc_fifo_rden <= Ram_rden;
+      CM_RAM_rden      <= '0';
     -- elsif clk'event and clk = '1' then  -- rising clock edge
-      else
+    else
       case cmd_pstprc_IQ_sw is
         when "01" =>
           Pstprc_fifo_rden <= '0';
@@ -133,8 +139,8 @@ begin
           Pstprc_fifo_rden <= Ram_rden;
           CM_RAM_rden      <= '0';
         when others =>
-          Pstprc_fifo_rden <= '0';
-          CM_RAM_rden      <= Ram_rden;
+          Pstprc_fifo_rden <= Ram_rden;
+          CM_RAM_rden      <= '0';
       end case;
     end if;
   end process rden_mux_ps;
@@ -142,9 +148,9 @@ begin
   data_mux_ps : process (clk, rst_n) is
   begin  -- process data_mux_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      FIFO_upload_data <= CM_RAM_QI_data_o;
+      FIFO_upload_data <=  Pstprc_fifo_data;
     -- elsif clk'event and clk = '1' then  -- rising clock edge
-      else
+    else
       case cmd_pstprc_IQ_sw is
         when "01" =>
           FIFO_upload_data <= CM_RAM_QI_data_o;
@@ -159,9 +165,9 @@ begin
   state_mux_ps : process (clk, rst_n) is
   begin  -- process state_mux_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      CW_CH_flag <= CM_CH_flag_o;
-      else
-    -- elsif clk'event and clk = '1' then  -- rising clock edge
+      CW_CH_flag <=  x"22";
+    else
+      -- elsif clk'event and clk = '1' then  -- rising clock edge
       case cmd_pstprc_IQ_sw is
         when "01" =>
           CW_CH_flag <= CM_CH_flag_o;
@@ -176,14 +182,14 @@ begin
   last_byte_mux_ps : process (clk, rst_n) is
   begin  -- process   last_byte_mux_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      sw_ram_last <= CM_RAM_last_o;
-      else
-    -- elsif clk'event and clk = '1' then  -- rising clock edge
+      sw_ram_last <= posedge_pempty;
+    else
+      -- elsif clk'event and clk = '1' then  -- rising clock edge
       case cmd_pstprc_IQ_sw is
         when "01" =>
           sw_ram_last <= CM_RAM_last_o;
         when "10" =>
-          sw_ram_last <= Pstprc_fifo_pempty;
+          sw_ram_last <= posedge_pempty;
         when others =>
           sw_ram_last <= CM_RAM_last_o;
       end case;
@@ -193,9 +199,9 @@ begin
   ether_trig_mux_ps : process (clk, rst_n) is
   begin  -- process ether_trig_mux_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      CW_ether_trig <= posedge_sample_trig;
-      else
-    -- elsif clk'event and clk = '1' then  -- rising clock edge
+      CW_ether_trig <= Pstprc_finish;
+    else
+      -- elsif clk'event and clk = '1' then  -- rising clock edge
       case cmd_pstprc_IQ_sw is
         when "01" =>
           CW_ether_trig <= posedge_sample_trig;
@@ -210,9 +216,9 @@ begin
   mult_frame_en_ps : process (clk, rst_n) is
   begin  -- process mult_frame_en_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      CW_mult_frame_en_o <= CM_mult_frame_en_o;
-      else
-    -- elsif clk'event and clk = '1' then  -- rising clock edge
+      CW_mult_frame_en_o <= '0';
+    else
+      -- elsif clk'event and clk = '1' then  -- rising clock edge
       case cmd_pstprc_IQ_sw is
         when "01" =>
           CW_mult_frame_en_o <= CM_mult_frame_en_o;
@@ -223,6 +229,52 @@ begin
       end case;
     end if;
   end process mult_frame_en_ps;
+
+  Pstprc_fifo_pempty_d_ps : process (clk, rst_n) is
+  begin  -- process Pstprc_fifo_pempty_d
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      Pstprc_fifo_pempty_d <= '0';
+    elsif clk'event and clk = '1' then  -- rising clock edge
+      Pstprc_fifo_pempty_d <= Pstprc_fifo_pempty;
+    end if;
+  end process Pstprc_fifo_pempty_d_ps;
+
+  posedge_pempty_ps : process (clk, rst_n) is
+  begin  -- process posedge_pempty_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      posedge_pempty <= '0';
+    elsif clk'event and clk = '1' then  -- rising clock edge
+      if Pstprc_fifo_pempty = '1' and Pstprc_fifo_pempty_d = '0' then
+        posedge_pempty <= '1';
+      else
+        posedge_pempty <= '0';
+      end if;
+    end if;
+  end process posedge_pempty_ps;
+
+  -- purpose: to switch the sample trig between two modes
+  -- type   : sequential
+  -- inputs : clk, rst_n
+  -- outputs: 
+  posedge_sample_trig_switch_ps : process (clk, rst_n) is
+  begin  -- process posedge_sample_trig_switch_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      demo_smpl_trig <=  posedge_sample_trig;
+      wave_smpl_trig <= '0';
+    else
+      case cmd_pstprc_IQ_sw is
+        when "01" =>
+          demo_smpl_trig <= '0';
+          wave_smpl_trig <= posedge_sample_trig;
+        when "10" =>
+          demo_smpl_trig <= posedge_sample_trig;
+          wave_smpl_trig <= '0';
+        when others =>
+          demo_smpl_trig <= posedge_sample_trig;
+          wave_smpl_trig <='0';
+      end case;
+    end if;
+  end process posedge_sample_trig_switch_ps;
 
 end Behavioral;
 

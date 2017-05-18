@@ -289,6 +289,8 @@ signal cmd_Pstprc_dps_en : std_logic;
   signal CM_Ram_I_rden : std_logic;
   signal CM_Ram_Q_rden : std_logic;
   signal CW_Pstprc_fifo_rden : std_logic;
+  signal CW_wave_smpl_trig : std_logic;
+  signal CW_demo_smpl_trig : std_logic;
   -----------------------------------------------------------------------------
   signal pstprc_ram_wren              : std_logic;
   signal Pstprc_RAMQ_clka             : std_logic;
@@ -510,6 +512,8 @@ signal cmd_Pstprc_dps_en : std_logic;
       sw_RAM_last           : out std_logic;
       CW_ether_trig         : out std_logic;
       CW_mult_frame_en_o    : out std_logic;
+      CW_demo_smpl_trig_o : out std_logic;
+      CW_wave_smpl_trig_o : out std_logic;
       FIFO_upload_data      : out std_logic_vector(7 downto 0);
       CW_CH_flag            : out std_logic_vector(7 downto 0)
       );
@@ -824,7 +828,7 @@ begin
     Ram_Q_doutb           => Ram_Q_doutb,
     Ram_rden              => Ram_rden,
     pstprc_fifo_data    => pstprc_fifo_dout,
-    Pstprc_fifo_pempty     =>pstprc_fifo_alempty,
+    Pstprc_fifo_pempty     =>pstprc_fifo_pempty,
     pstprc_finish         => pstprc_finish,
     CM_Ram_Q_rden_o       => CM_Ram_Q_rden,
     CM_Ram_I_rden_o       => CM_Ram_I_rden,
@@ -832,6 +836,8 @@ begin
     sw_RAM_last           => sw_RAM_last,
     CW_ether_trig         => CW_ether_trig,
     CW_mult_frame_en_o    => CW_mult_frame_en,
+    CW_demo_smpl_trig_o        => CW_demo_smpl_trig,
+    CW_wave_smpl_trig_o        => CW_wave_smpl_trig,
     FIFO_upload_data      => ethernet_FIFO_upload_data,
     CW_CH_flag            => CW_CH_flag
     );
@@ -898,7 +904,7 @@ begin
   Inst_RAM_top : RAM_top port map(
     clk_125m            => clk_125m,
     -- ram_wren            => ram_wren,
-    posedge_sample_trig => posedge_sample_trig,
+    posedge_sample_trig => CW_wave_smpl_trig,
     rst_n               => rst_n,
     cmd_smpl_depth      => cmd_smpl_depth,
     ram_Q_dina          => ram_Q_dina,
@@ -926,7 +932,7 @@ begin
   Inst_Dmod_Seg : Dmod_Seg port map(
     clk                 => CLK_125M,
     -- pstprc_ram_wren     => pstprc_ram_wren,
-    posedge_sample_trig => posedge_sample_trig,
+    posedge_sample_trig => CW_demo_smpl_trig,
     rst_n               => rst_n,
     cmd_smpl_depth      => cmd_smpl_depth,
     Pstprc_RAMQ_dina    => Pstprc_RAMQ_dina,
@@ -958,7 +964,7 @@ begin
     Pstprc_fifo_din    => Pstprc_IQ,
     Pstprc_fifo_wren   => Pstprc_finish,
     Pstprc_fifo_rden   => CW_Pstprc_fifo_rden,
-    prog_empty_thresh  => "0000001",
+    prog_empty_thresh  => "0000100",    --modify the repetitation byte 
     Pstprc_fifo_dout   => Pstprc_fifo_dout,
     Pstprc_fifo_valid  => Pstprc_fifo_valid,
     Pstprc_fifo_pempty => Pstprc_fifo_pempty,
