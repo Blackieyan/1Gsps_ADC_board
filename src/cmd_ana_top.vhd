@@ -53,6 +53,8 @@ entity cmd_ana_top is
     ethernet_rd_data     : in  std_logic_vector(7 downto 0);
     Cmd_demowinln        : out std_logic_vector(14 downto 0);
     Cmd_demowinstart     : out std_logic_vector(14 downto 0);
+    cmd_ADC_gain_adj : out std_logic_vector(18 downto 0);
+    cmd_adc_reconfig : buffer std_logic;
     cmd_Pstprc_DPS : out std_logic_vector(15 downto 0)
     -- cmd_Pstprc_DPS_en : out std_logic
     );
@@ -86,6 +88,8 @@ architecture Behavioral of cmd_ana_top is
       cmd_smpl_trig_cnt      : out std_logic_vector(15 downto 0);
       Cmd_demowinln          : out std_logic_vector(14 downto 0);
       Cmd_demowinstart       : out std_logic_vector(14 downto 0);
+      cmd_ADC_gain_adj : out std_logic_vector(18 downto 0);
+      cmd_ADC_reconfig : buffer std_logic;
       cmd_Pstprc_DPS : out std_logic_vector(15 downto 0)
       -- cmd_Pstprc_DPS_en : out std_logic
       );
@@ -116,6 +120,8 @@ begin
     cmd_pstprc_IQ_sw       => cmd_pstprc_IQ_sw,
     cmd_demowinln          => cmd_demowinln,
     cmd_demowinstart       => cmd_demowinstart,
+    cmd_ADC_gain_adj  => cmd_ADC_gain_adj,
+    cmd_ADC_reconfig =>cmd_ADC_reconfig,
     cmd_Pstprc_DPS => cmd_Pstprc_DPS
     -- cmd_Pstprc_DPS_en => cmd_Pstprc_DPS_en
     );

@@ -167,6 +167,7 @@ architecture Behavioral of ZJUprojects is
   signal posedge_upload_trig         : std_logic;
   signal ram_i_doutb_sim             : std_logic_vector(7 downto 0);
   attribute IODELAY_GROUP            : string;
+  signal  cmd_ADC_gain_adj : std_logic_vector(18 downto 0);
   -----------------------------------------------------------------------------
   signal CLK_125M                    : std_logic;
   signal CLK_125M_quar               : std_logic;
@@ -254,6 +255,7 @@ architecture Behavioral of ZJUprojects is
   signal cmd_demowinstart : std_logic_vector(14 downto 0) := "000"&x"096";
 signal cmd_Pstprc_dps_en : std_logic;
   signal cmd_Pstprc_dps         : std_logic_vector(15 downto 0) := x"4000";
+  signal cmd_adc_reconfig : std_logic;
   
   signal dcm1_locked                  : std_logic;
   signal dcm1_locked_d                : std_logic;
@@ -340,6 +342,8 @@ signal cmd_Pstprc_dps_en : std_logic;
       ADC_Mode        : out std_logic;
       ADC_sclk_OUT    : out std_logic;
       ADC_sldn_OUT    : out std_logic;
+      ADC_gain_adj : in std_logic_vector(18 downto 0);
+      ADC_reconfig : in std_logic;
       ADC_sdata       : out std_logic_vector(0 to 0)
       );
   end component;
@@ -428,6 +432,8 @@ signal cmd_Pstprc_dps_en : std_logic;
 		ethernet_Rd_Addr : OUT std_logic_vector(13 downto 0);
 		Cmd_demowinln : OUT std_logic_vector(14 downto 0);
 		Cmd_demowinstart : OUT std_logic_vector(14 downto 0);
+                cmd_ADC_gain_adj : out std_logic_vector(18 downto 0);
+                cmd_ADC_reconfig : buffer std_logic;
                 cmd_Pstprc_DPS : out std_logic_vector(15 downto 0)
                 -- cmd_Pstprc_dps_en : out std_logic
 		);
@@ -705,6 +711,8 @@ begin
     ADC_sclk_OUT    => ADC_sclk_OUT,
     ADC_sldn_OUT    => ADC_sldn_OUT,
     ADC_sdata       => ADC_sdata,
+    ADC_gain_adj =>cmd_ADC_gain_adj,
+    ADC_reconfig => cmd_ADC_reconfig,
     clk1            => CLK_125M
     );
 -------------------------------------------------------------------------------
@@ -813,6 +821,8 @@ begin
     ethernet_rd_data     => ethernet_rd_data,
     cmd_demowinln => cmd_demowinln,
     cmd_demowinstart => cmd_demowinstart,
+    cmd_ADC_gain_adj => cmd_ADC_gain_adj,
+    cmd_ADC_reconfig => cmd_ADC_reconfig,
     cmd_Pstprc_DPS => cmd_Pstprc_DPS
     -- cmd_Pstprc_DPS_en => cmd_Pstprc_DPS_en
     );

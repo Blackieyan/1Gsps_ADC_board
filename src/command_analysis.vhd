@@ -55,6 +55,8 @@ entity command_analysis is
     cmd_smpl_trig_cnt : out std_logic_vector(15 downto 0);
     Cmd_demowinln : out std_logic_vector(14 downto 0);
     Cmd_demowinstart : out std_logic_vector(14 downto 0);
+    cmd_ADC_gain_adj : out std_logic_vector(18 downto 0);
+    cmd_ADC_reconfig : buffer std_logic;
     cmd_Pstprc_DPS : out std_logic_vector(15 downto 0)
     -- cmd_Pstprc_DPS_en : out std_logic
     );
@@ -65,6 +67,7 @@ architecture Behavioral of command_analysis is
   signal mac_src  : std_logic_vector(47 downto 0);  -- 为了反馈地址预留的信号
   signal reg_addr : std_logic_vector(15 downto 0);
   signal reg_data : std_logic_vector(47 downto 0);
+  signal adc_reconfig_cnt : std_logic_vector(7 downto 0);
   signal reg_clr_cnt : std_logic_vector(7 downto 0);
   signal upload_trig_ethernet_cnt : std_logic_vector(7 downto 0);
   signal rd_en_d : std_logic;
@@ -335,8 +338,42 @@ begin  -- process Pstprc_DPS_ps
     end if;
   end if;
 end process Pstprc_DPS_ps;
+-------------------------------------------------------------------------------
+ADC_gain_adj_ps: process (rd_clk, rst_n) is
+begin  -- process ADC_gain_adj_ps
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    cmd_ADC_gain_adj <= "0010000000000000000";
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
+    if reg_addr = x"0017" then
+      cmd_ADC_gain_adj<="001"&reg_data(47 downto 32);
+    end if;
+  end if;
+end process ADC_gain_adj_ps;
 
+cmd_ADC_reconfig_ps: process (rd_clk, rst_n) is
+begin  -- process cmd_ADC_reconfig_ps
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    cmd_ADC_reconfig<='0';
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
+    if adc_reconfig_cnt<=x"10" then
+      cmd_ADC_reconfig<='0';
+    elsif reg_addr=x"0017" then
+      cmd_ADC_reconfig<='1';
+    end if;
+  end if;
+end process cmd_ADC_reconfig_ps;
 
-
+reconfig_ps: process (rd_clk, rst_n) is
+begin  -- process reconfig_ps
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    adc_reconfig_cnt<=(others => '0');
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
+    if cmd_ADC_reconfig<='1' then
+      adc_reconfig_cnt<=adc_reconfig_cnt+1;
+    elsif cmd_ADC_reconfig<='0' then
+      adc_reconfig_cnt<=(others => '0');
+    end if;
+  end if;
+end process reconfig_ps;
 
 end Behavioral;
