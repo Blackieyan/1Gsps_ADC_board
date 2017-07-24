@@ -339,41 +339,41 @@ begin  -- process Pstprc_DPS_ps
   end if;
 end process Pstprc_DPS_ps;
 -------------------------------------------------------------------------------
-ADC_gain_adj_ps: process (rd_clk, rst_n) is
-begin  -- process ADC_gain_adj_ps
-  if rst_n = '0' then                   -- asynchronous reset (active low)
-    cmd_ADC_gain_adj <= "0010000000000000000";
-  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
-    if reg_addr = x"0017" then
-      cmd_ADC_gain_adj<="001"&reg_data(47 downto 32);
-    end if;
-  end if;
-end process ADC_gain_adj_ps;
+-- ADC_gain_adj_ps: process (rd_clk, rst_n) is
+-- begin  -- process ADC_gain_adj_ps
+--   if rst_n = '0' then                   -- asynchronous reset (active low)
+--     cmd_ADC_gain_adj <= "0010000000000000000";
+--   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
+--     if reg_addr = x"0017" then
+--       cmd_ADC_gain_adj<="001"&reg_data(47 downto 32);
+--     end if;
+--   end if;
+-- end process ADC_gain_adj_ps;
 
-cmd_ADC_reconfig_ps: process (rd_clk, rst_n) is
-begin  -- process cmd_ADC_reconfig_ps
-  if rst_n = '0' then                   -- asynchronous reset (active low)
-    cmd_ADC_reconfig<='0';
-  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
-    if adc_reconfig_cnt<=x"10" then
-      cmd_ADC_reconfig<='0';
-    elsif reg_addr=x"0017" then
-      cmd_ADC_reconfig<='1';
-    end if;
-  end if;
-end process cmd_ADC_reconfig_ps;
+-- cmd_ADC_reconfig_ps: process (rd_clk, rst_n) is
+-- begin  -- process cmd_ADC_reconfig_ps
+--   if rst_n = '0' then                   -- asynchronous reset (active low)
+--     cmd_ADC_reconfig<='0';
+--   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
+--     if adc_reconfig_cnt<=x"10" then
+--       cmd_ADC_reconfig<='0';
+--     elsif reg_addr=x"0017" then
+--       cmd_ADC_reconfig<='1';
+--     end if;
+--   end if;
+-- end process cmd_ADC_reconfig_ps;
 
-reconfig_ps: process (rd_clk, rst_n) is
-begin  -- process reconfig_ps
-  if rst_n = '0' then                   -- asynchronous reset (active low)
-    adc_reconfig_cnt<=(others => '0');
-  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
-    if cmd_ADC_reconfig<='1' then
-      adc_reconfig_cnt<=adc_reconfig_cnt+1;
-    elsif cmd_ADC_reconfig<='0' then
-      adc_reconfig_cnt<=(others => '0');
-    end if;
-  end if;
-end process reconfig_ps;
+-- reconfig_ps: process (rd_clk, rst_n) is
+-- begin  -- process reconfig_ps
+--   if rst_n = '0' then                   -- asynchronous reset (active low)
+--     adc_reconfig_cnt<=(others => '0');
+--   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
+--     if cmd_ADC_reconfig<='1' then
+--       adc_reconfig_cnt<=adc_reconfig_cnt+1;
+--     elsif cmd_ADC_reconfig<='0' then
+--       adc_reconfig_cnt<=(others => '0');
+--     end if;
+--   end if;
+-- end process reconfig_ps;
 
 end Behavioral;

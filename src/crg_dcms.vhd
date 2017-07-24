@@ -18,7 +18,12 @@
 --
 ----------------------------------------------------------------------------------
 library IEEE;
+library UNISIM;
+
 use IEEE.STD_LOGIC_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+use UNISIM.vcomponents.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -35,15 +40,15 @@ entity crg_dcms is
     OSC_in_n: in std_logic;
     ADC_CLKOI_p : in std_logic;
     ADC_CLKOI_n : in std_logic;
-    ADC_CLKOQ_p : in std_logic;
-    ADC_CLKOQ_n : in std_logic;
+    -- ADC_CLKOQ_p : in std_logic;
+    -- ADC_CLKOQ_n : in std_logic;
     PHY_RXC : in std_logic;
-    ADC_CLKOI : out std_logic;
+    ADC_CLKOI : buffer std_logic;
     ADC_CLKOQ : out std_logic;
     PHY_RXC_g : out std_logic;
     ADC_clkoi_inv : out std_logic;
     ADC_clkoq_inv : out std_logic;
-    lck_rst_n : out std_logic;
+    lck_rst_n : buffer std_logic;
     user_pushbutton_g : in std_logic;
     CLK_125M : out std_logic;
     CLK_200M : out std_logic;
@@ -60,6 +65,7 @@ architecture Behavioral of crg_dcms is
   signal clk2 : std_logic;
   signal clk3 : std_logic;
    signal clk4 : std_logic;
+  signal lck_rst_cnt : std_logic_vector(7 downto 0);
   component dcm_adc_clkoi
     port
       (                                 -- Clock in ports
@@ -119,14 +125,18 @@ begin
       ADC_clkoi     => ADC_clkoi,
       ADC_clkoi_inv => ADC_clkoi_inv);
 
-  dcm3 : dcm_adc_clkoq
-    port map
-    (                                   -- Clock in ports
-      CLK_IN1_P     => ADC_CLKOQ_p,
-      CLK_IN1_N     => ADC_CLKOQ_n,
-      -- Clock out ports
-      ADC_clkoq     => ADC_clkoq,
-      ADC_clkoq_inv => ADC_clkoq_inv);
+  -- dcm3 : dcm_adc_clkoq
+  --   port map
+  --   (                                   -- Clock in ports
+  --     CLK_IN1_P     => ADC_CLKOQ_p,
+  --     CLK_IN1_N     => ADC_CLKOQ_n,
+  --     -- Clock out ports
+  --     ADC_clkoq     => ADC_clkoq,
+  --     ADC_clkoq_inv => ADC_clkoq_inv);
+  -----------------------------------------------------------------------------
+  ADC_CLKOQ <= ADC_CLKOI;
+
+  -----------------------------------------------------------------------------
 
   dcm_global : dcm_125MHz
     port map
@@ -168,6 +178,19 @@ begin
         end if;
       end if;
   end process lck_rst_n_ps;
+
+  -- lck_rst_cnt_ps: process (clk1, user_pushbutton_g) is
+  -- begin  -- process lck_rst_cnt_ps
+  --   if user_pushbutton_g = '0' then     -- asynchronous reset (active low)
+  --     lck_rst_cnt<=(others => '0');
+  --   elsif clk1'event and clk1 = '1' then  -- rising clock edge
+  --     if lck_rst_n<='0' then
+  --       lck_rst_cnt<=lck_rst_cnt+1;
+  --     elsif lck_rst_n<='1' then
+  --       lck_rst_cnt<=(others => '0');
+  --     end if;
+  --   end if;
+  -- end process lck_rst_cnt_ps;
 
 end Behavioral;
 

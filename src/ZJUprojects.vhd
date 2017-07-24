@@ -59,8 +59,8 @@ entity ZJUprojects is
     ---------------------------------------------------------------------------
     ADC_CLKOI_p               : in    std_logic;  -- ADC CLKOI 500MHz/250MHz
     ADC_CLKOI_n               : in    std_logic;
-    ADC_CLKOQ_p               : in    std_logic;
-    ADC_CLKOQ_n               : in    std_logic;
+    -- ADC_CLKOQ_p               : in    std_logic;
+    -- ADC_CLKOQ_n               : in    std_logic;
     ADC_DOIA_p                : in    std_logic_vector(7 downto 0);
     ADC_DOIA_n                : in    std_logic_vector(7 downto 0);
     ADC_DOIB_p                : in    std_logic_vector(7 downto 0);
@@ -73,10 +73,13 @@ entity ZJUprojects is
     DOIRI_n                   : in    std_logic;
     DOIRQ_p                   : in    std_logic;
     DOIRQ_n                   : in    std_logic;
-    SRCC1_p_trigin            : in    std_logic;
-    SRCC1_n_upload_sma_trigin : in    std_logic;
-    MRCC2_p                   : out   std_logic;
-    MRCC2_n                   : out   std_logic_vector(0 downto 0);
+    SRCC1_p_trigin            : in    std_logic; --J31
+    ---------------------------------------------------------------------------
+    -- SRCC1_n                   : out    std_logic;  --J8
+    -- SRCC1_p                   : out   std_logic;  --J9
+    -- MRCC1_n                   : out std_logic;  --J11
+    -- MRCC1_p                   : out std_logic;  --J10
+    -- MRCC2_n                   : out   std_logic_vector(0 downto 0); -- pinsfor test
     ---------------------------------------------------------------------------
     PHY_RXD                   : in    std_logic_vector(3 downto 0);
     PHY_RXC                   : in    std_logic;
@@ -85,7 +88,10 @@ entity ZJUprojects is
     PHY_GTXclk_quar           : out   std_logic;
     PHy_txen_quar             : out   std_logic;
     phy_txer_o                : out   std_logic;
+    
+    TX_src_MAC_addr : in std_logic_vector(3 downto 0) := "0000";
     phy_rst_n_o               : out   std_logic
+
    ---------------------------------------------------------------------------
    -- qdriip_cq_p                : in std_logic_vector(NUM_DEVICES-1 downto 0); --Memory Interface
    -- qdriip_cq_n                : in std_logic_vector(NUM_DEVICES-1 downto 0);
@@ -164,6 +170,7 @@ architecture Behavioral of ZJUprojects is
   attribute keep of ADC_CLKOI        : signal is true;
   signal ADC_CLKOQ                   : std_logic;
   signal rst_n                       : std_logic;
+  signal rst_n_a                       : std_logic;
   signal posedge_upload_trig         : std_logic;
   signal ram_i_doutb_sim             : std_logic_vector(7 downto 0);
   attribute IODELAY_GROUP            : string;
@@ -403,6 +410,7 @@ signal cmd_Pstprc_dps_en : std_logic;
       posedge_upload_trig : in  std_logic;
       TX_dst_MAC_addr     : in  std_logic_vector(47 downto 0);
       sample_en           : in  std_logic;
+      TX_src_MAC_addr : in std_logic_vector(3 downto 0);
       CH_flag             : in  std_logic_vector(7 downto 0);
       -- ch_stat             : in     std_logic_vector(1 downto 0);
       mult_frame_en       : in  std_logic;
@@ -445,8 +453,8 @@ signal cmd_Pstprc_dps_en : std_logic;
       OSC_in_n          : in  std_logic;
       ADC_CLKOI_p       : in  std_logic;
       ADC_CLKOI_n       : in  std_logic;
-      ADC_CLKOQ_p       : in  std_logic;
-      ADC_CLKOQ_n       : in  std_logic;
+      -- ADC_CLKOQ_p       : in  std_logic;
+      -- ADC_CLKOQ_n       : in  std_logic; 
       PHY_RXC           : in  std_logic;
       user_pushbutton_g : in  std_logic;
       ADC_CLKOI         : out std_logic;
@@ -454,7 +462,7 @@ signal cmd_Pstprc_dps_en : std_logic;
       PHY_RXC_g         : out std_logic;
       ADC_clkoi_inv     : out std_logic;
       ADC_clkoq_inv     : out std_logic;
-      lck_rst_n         : out std_logic;
+      lck_rst_n         : buffer std_logic;
       CLK_125M          : out std_logic;
       CLK_200M          : out std_logic;
       CLK_250M : out std_logic;
@@ -656,8 +664,8 @@ begin
     OSC_in_n          => OSC_in_n,
     ADC_CLKOI_p       => ADC_CLKOI_p,
     ADC_CLKOI_n       => ADC_CLKOI_n,
-    ADC_CLKOQ_p       => ADC_CLKOQ_p,
-    ADC_CLKOQ_n       => ADC_CLKOQ_n,
+    -- ADC_CLKOQ_p       => ADC_CLKOQ_p,
+    -- ADC_CLKOQ_n       => ADC_CLKOQ_n,
     PHY_RXC           => PHY_RXC,
     ADC_CLKOI         => ADC_CLKOI,
     ADC_CLKOQ         => ADC_CLKOQ,
@@ -674,11 +682,11 @@ begin
 
   IBUFG_inst : IBUFG
     generic map (
-      IBUF_LOW_PWR => true,  -- Low power (TRUE) vs. performance (FALSE) setting for refernced I/O standards
+      IBUF_LOW_PWR => FALSE,  -- Low power (TRUE) vs. performance (FALSE) setting for refernced I/O standards
       IOSTANDARD   => "DEFAULT")
     port map (
       O => user_pushbutton_g,           -- Clock buffer output
-      I => user_pushbutton  -- Clock buffer input (connect directly to top-level port)
+      I => user_pushbutton -- Clock buffer input (connect directly to top-level port)
       );
 
   Inst_DATAin_IOB : DATAin_IOB port map(
@@ -761,7 +769,7 @@ begin
   -- fft_scale_sch_I<="01010101010101";        --14bit,7bit scaling factor=128 
   ------------------------------------------------------------------------------ 
   Inst_TRIG_ctrl : TRIG_ctrl port map(
-    clk                   => CLK_250M,
+    clk                   => ADC_CLKOI,
     rst_n                 => rst_n,
     cmd_smpl_en           => cmd_smpl_en,
     cmd_smpl_trig_cnt     => cmd_smpl_trig_cnt,
@@ -794,6 +802,7 @@ begin
     ram_rden            => ram_rden,
     posedge_upload_trig => posedge_upload_trig,
     TX_dst_MAC_addr     => TX_dst_MAC_addr,
+    TX_src_MAC_addr =>TX_src_MAC_addr,
     sample_en           => sample_en,
     CH_flag             => CW_CH_flag,
     -- ch_stat             => ch_stat,
@@ -974,17 +983,30 @@ begin
     Pstprc_fifo_din    => Pstprc_IQ,
     Pstprc_fifo_wren   => Pstprc_finish,
     Pstprc_fifo_rden   => CW_Pstprc_fifo_rden,
-    prog_empty_thresh  => "0000100",    --modify the repetitation byte 
+    prog_empty_thresh  => "0000011",    --modify the repetitation byte 
     Pstprc_fifo_dout   => Pstprc_fifo_dout,
     Pstprc_fifo_valid  => Pstprc_fifo_valid,
     Pstprc_fifo_pempty => Pstprc_fifo_pempty,
     pstprc_fifo_alempty => pstprc_fifo_alempty
     );
   ------------------------------------------------------------------------------
-  MRCC2_p         <= data_test_pin;     --j12
-  rst_n           <= user_pushbutton_g and lck_rst_n;
-  ethernet_rd_clk <= CLK_125M;
+  -- SRCC1_p         <= CLK_250M;     --j12
+  rst_n_a           <= user_pushbutton_g and lck_rst_n;
+  
 
+   BUFG_inst : BUFG
+   port map (
+      O => rst_n, -- 1-bit output: Clock buffer output
+      I => rst_n_a  -- 1-bit input: Clock buffer input
+   );
+
+
+  ethernet_rd_clk <= CLK_125M;
+  -----------------------------------------------------------------------------
+  -- SRCC1_p <= clk_250M;
+  -- SRCC1_n <= ram_Q_clka;
+  -- MRCC1_p <=ram_I_clka;
+  -- MRCC1_n <= ram_wren;
 end Behavioral;
 
 

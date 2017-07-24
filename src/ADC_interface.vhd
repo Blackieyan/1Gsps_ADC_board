@@ -52,10 +52,14 @@ architecture Behavioral of ADC_interface is
   signal SCLK_en     : std_logic;
   -- constant reg000    : std_logic_vector(18 downto 0) := "0000111110011111100";
 --at84ad001b fs/4
-  constant reg000    : std_logic_vector(18 downto 0) := "0000011110011111100";  --
-  --at84ad001c fs/4
-  constant reg001    : std_logic_vector(18 downto 0) := "0011000000010000000";  --
-  --analog gain adjustment 0 dB
+  -- constant reg000    : std_logic_vector(18 downto 0) := "0000011110011111100";  --
+  -- --at84ad001c fs/4
+  constant reg000    : std_logic_vector(18 downto 0) := "0000011110010111100";  --
+  --at84ad001c clki->adci clki->adcq
+  -- constant reg001    : std_logic_vector(18 downto 0) := "0011000000010000000";  --
+  -- --analog gain adjustment 0 dB
+  constant reg001    : std_logic_vector(18 downto 0) := "0010000000000000000"; --
+  -- -1.5dB
   constant reg010    : std_logic_vector(18 downto 0) := "0100000000000000000";
   -- offset compenstation 0 dB
   constant reg011    : std_logic_vector(18 downto 0) := "0110000000000000000";
@@ -119,7 +123,8 @@ begin
       -- if Gcnt >= x"00000010" and Gcnt <= x"00000020" and OGcnt = x"0000" then
       --   rst_n <= '0';
       -- else
-      rst_n <= user_pushbutton and (not ADC_reconfig);
+      -- rst_n <= user_pushbutton and (not ADC_reconfig);
+      rst_n<=user_pushbutton;
     -- end if;
     end if;
   end process set_reset;
@@ -355,7 +360,7 @@ begin  -- process set_reg
       if finish_cnt = "000" then
         reg <= reg000;
       elsif finish_cnt = "001" then
-        reg <= ADC_gain_adj;
+        reg <= reg001;
       elsif finish_cnt = "010" then
         reg <= reg010;
       elsif finish_cnt = "011" then

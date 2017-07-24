@@ -161,11 +161,11 @@ begin
     ini_pstprc_RAMx_addrb => ini_pstprc_RAMx_addrb,
     Pstprc_RAMx_rden_ln   => Pstprc_RAMx_rden_ln
     );
-  set_clk_div_cnt : process (PSTPRC_RAMQ_CLKB) is
+  set_clk_div_cnt : process (Pstprc_RAMq_clka) is
   begin  -- process set_clk_div_cnt
     -- if rst_n = '0' then                           -- asynchronous reset (active
     --   clk_div_cnt <= x"00";
-    if Pstprc_RAMq_clkb'event and Pstprc_RAMq_clkb = '1' then  -- rising clock edge
+    if Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
       if clk_div_cnt <= Div_multi then
         clk_div_cnt <= clk_div_cnt+1;
       else
@@ -174,9 +174,9 @@ begin
     end if;
   end process set_clk_div_cnt;
 
-  set_ADC_sclk : process (PSTPRC_RAMQ_CLKB) is
+  set_ADC_sclk : process (Pstprc_RAMq_clka) is
   begin  -- process set_ADC_sclk
-    if Pstprc_RAMq_clkb'event and Pstprc_RAMq_clkb = '1' then  -- rising clock edge
+    if Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
       if clk_div_cnt <= Div_multi(3 downto 1) then
         GCLK <= '0';
       else
@@ -185,29 +185,29 @@ begin
     end if;
   end process set_ADC_sclk;
 
-  Gclk_d_ps : process (Pstprc_RAMq_clkb, rst_n) is
+  Gclk_d_ps : process (Pstprc_RAMq_clka, rst_n) is
   begin  -- process Gclk_ps
     if rst_n ='0' then
       gclk_d<='0';
-   elsif Pstprc_RAMq_clkb'event and Pstprc_RAMq_clkb = '1' then  -- rising clock edge
+   elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
       GCLK_d <= GCLK;
     end if;
   end process Gclk_d_ps;
 
-  Gclk_d2_ps : process (Pstprc_RAMq_clkb, rst_n) is
+  Gclk_d2_ps : process (Pstprc_RAMq_clka, rst_n) is
   begin  -- process Gclk_d2_ps
     if rst_n ='0' then
       gclk_d2<='0';
-    elsif Pstprc_RAMq_clkb'event and Pstprc_RAMq_clkb = '1' then  -- rising clock edge
+    elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
       Gclk_d2 <= GCLK_d;
     end if;
   end process Gclk_d2_ps;
 
-  Gcnt_ps : process (Pstprc_RAMq_clkb, GCLK_d, GCLK_d2, rst_n) is
+  Gcnt_ps : process (Pstprc_RAMq_clka, GCLK_d, GCLK_d2, rst_n) is
   begin
     if rst_n = '0' then
       gcnt <= (others => '0');
-    elsif Pstprc_RAMq_clkb'event and Pstprc_RAMq_clkb = '1' then  -- rising clock edge
+    elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
       if Gclk_d2 = '0' and Gclk_d = '1' then
         -- elsif GCLK'event and GCLK = '1' then
 -- if Gcnt <= x"ffffffff" then
@@ -219,11 +219,11 @@ begin
 
 
 
-  O_Gcnt_ps : process (Pstprc_RAMq_clkb, rst_n, GCLK_d, GCLK_d2) is
+  O_Gcnt_ps : process (Pstprc_RAMq_clka, rst_n, GCLK_d, GCLK_d2) is
   begin  -- process O_Gcnt_ps
     if rst_n = '0' then
       O_Gcnt <= (others => '0');
-    elsif Pstprc_RAMq_clkb'event and Pstprc_RAMq_clkb = '1' then  -- rising clock edge
+    elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
       if Gclk_d2 = '0' and Gclk_d = '1' then
         -- elsif GCLK'event and GCLK = '1' then
         if Gcnt = x"ffff" and O_Gcnt <= x"F5" then

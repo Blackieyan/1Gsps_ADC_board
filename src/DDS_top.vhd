@@ -53,6 +53,7 @@ architecture Behavioral of DDS_top is
   signal dds_rfd           : std_logic;
   signal dds_phase_out     : std_logic_vector(15 downto 0);
   signal dds_phase_shift_d : std_logic_vector(15 downto 0);
+  signal dds_phase_shift_d2 : std_logic_vector(15 downto 0);
   -- signal dps_en_cnt : std_logic_vector(11 downto 0);
   signal dds_ram_wren     : std_logic_vector(0 downto 0);
   signal dds_ram_addra : std_logic_vector(11 downto 0);
@@ -194,7 +195,7 @@ begin
     if dds_sclr = '1' then              -- asynchronous reset (active low)
       dds_ram_wren <= "1";             --write ram after reset and power on
     elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
-      if dds_phase_shift_d /= dds_phase_shift then
+      if dds_phase_shift_d2 /= dds_phase_shift_d then
         dds_ram_wren <= "1";
       elsif dds_ram_addra = x"FFA" then     --4090
         dds_ram_wren <= "0";
@@ -232,8 +233,10 @@ begin
   begin  -- process dds_phase_shift_d_ps
     if dds_sclr = '1' then              -- asynchronous reset (active low)
       dds_phase_shift_d <= (others => '0');
+      dds_phase_shift_d2 <= (others => '0');
     elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
       dds_phase_shift_d <= dds_phase_shift;
+      dds_phase_shift_d2 <= dds_phase_shift_d;
     end if;
   end process dds_phase_shift_d_ps;
 

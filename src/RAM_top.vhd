@@ -35,7 +35,7 @@ use UNISIM.vcomponents.all;
 entity RAM_top is
   port (
     clk_125M : in std_logic;
-    -- ram_wren            : in  std_logic;
+    -- ram_wren            : buffer  std_logic;
     posedge_sample_trig : in  std_logic;
     rst_n               : in  std_logic;
     cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
@@ -133,11 +133,11 @@ begin
     ram_Q_full_o          => ram_Q_full
     );
   -----------------------------------------------------------------------------
-  set_clk_div_cnt : process (clk_125M) is
+  set_clk_div_cnt : process (ram_Q_clka) is
   begin  -- process set_clk_div_cnt
     -- if rst_n = '0' then                           -- asynchronous reset (active
     --   clk_div_cnt <= x"00";
-    if clk_125M'event and clk_125M = '1' then  -- rising clock edge
+    if ram_Q_clka'event and ram_Q_clka = '1' then  -- rising clock edge
       if clk_div_cnt <= Div_multi then
         clk_div_cnt <= clk_div_cnt+1;
       else
@@ -146,9 +146,9 @@ begin
     end if;
   end process set_clk_div_cnt;
 
-  set_ADC_sclk : process (clk_125M) is
+  set_ADC_sclk : process (ram_Q_clka) is
   begin  -- process set_ADC_sclk
-    if clk_125M'event and clk_125M = '1' then  -- rising clock edge
+    if ram_Q_clka'event and ram_Q_clka = '1' then  -- rising clock edge
       if clk_div_cnt <= Div_multi(3 downto 1) then
         GCLK <= '0';
       else
@@ -157,29 +157,29 @@ begin
     end if;
   end process set_ADC_sclk;
 
-  Gclk_d_ps : process (clk_125M, rst_n) is
+  Gclk_d_ps : process (ram_Q_clka, rst_n) is
   begin  -- process Gclk_ps
     if rst_n ='0' then
       gclk_d<='0';
-   elsif clk_125M'event and clk_125M = '1' then  -- rising clock edge
+   elsif ram_Q_clka'event and ram_Q_clka = '1' then  -- rising clock edge
       GCLK_d <= GCLK;
     end if;
   end process Gclk_d_ps;
 
-  Gclk_d2_ps : process (clk_125M, rst_n) is
+  Gclk_d2_ps : process (ram_Q_clka, rst_n) is
   begin  -- process Gclk_d2_ps
     if rst_n ='0' then
       gclk_d2<='0';
-    elsif clk_125M'event and clk_125M = '1' then  -- rising clock edge
+    elsif ram_Q_clka'event and ram_Q_clka = '1' then  -- rising clock edge
       Gclk_d2 <= GCLK_d;
     end if;
   end process Gclk_d2_ps;
 
-  Gcnt_ps : process (clk_125M, GCLK_d, GCLK_d2, rst_n) is
+  Gcnt_ps : process (ram_Q_clka, GCLK_d, GCLK_d2, rst_n) is
   begin
     if rst_n = '0' then
       gcnt <= (others => '0');
-    elsif clk_125M'event and clk_125M = '1' then  -- rising clock edge
+    elsif ram_Q_clka'event and ram_Q_clka = '1' then  -- rising clock edge
       if Gclk_d2 = '0' and Gclk_d = '1' then
         -- elsif GCLK'event and GCLK = '1' then
 -- if Gcnt <= x"ffffffff" then
@@ -191,11 +191,11 @@ begin
 
 
 
-  O_Gcnt_ps : process (clk_125M, rst_n, GCLK_d, GCLK_d2) is
+  O_Gcnt_ps : process (ram_Q_clka, rst_n, GCLK_d, GCLK_d2) is
   begin  -- process O_Gcnt_ps
     if rst_n = '0' then
       O_Gcnt <= (others => '0');
-    elsif clk_125M'event and clk_125M = '1' then  -- rising clock edge
+    elsif ram_Q_clka'event and ram_Q_clka = '1' then  -- rising clock edge
       if Gclk_d2 = '0' and Gclk_d = '1' then
         -- elsif GCLK'event and GCLK = '1' then
         if Gcnt = x"ffff" and O_Gcnt <= x"F5" then
