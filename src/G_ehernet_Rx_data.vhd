@@ -40,13 +40,14 @@ entity G_ehernet_Rx_data is
     PHY_RXC : in std_logic;
     PHY_RXDV : in std_logic;
     Rd_data : out std_logic_vector(7 downto 0);
+    TX_src_MAC_addr : in std_logic_vector(3 downto 0);
     Frm_valid : out std_logic);
 --    buf_wr_en : out std_logic);
 end G_ehernet_Rx_data;
 
 architecture Behavioral of G_ehernet_Rx_data is
 -- constant MAC_addr : std_logic_vector(47 downto 0):=x"ffffffffffff";--
-   constant MAC_addr : std_logic_vector(47 downto 0):=x"000000000000";--板子的mac地址,配合上位机可以更改                                             
+   signal MAC_addr : std_logic_vector(47 downto 0):=x"000000000000";--板子的mac地址,配合上位机可以更改                                             
 -- signal PHY_RXC_g : std_logic;
 ---- signal Frm_valid : std_logic;
 -- signal frm_valid_d : std_logic;
@@ -116,6 +117,6 @@ Inst_Mac_RX2: Mac_RX2 PORT MAP(
 --  end if;
 --end if;
 --end process Rd_Addr_ps;
-
+MAC_addr<=x"00000000000"&TX_src_MAC_addr(3 downto 0);
 end Behavioral;
 

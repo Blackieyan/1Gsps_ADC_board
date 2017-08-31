@@ -39,15 +39,16 @@
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_Dmod_Seg - Dmod_Seg - Behavioral/Inst_Win_RAM_top - Win_RAM_top - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_Dmod_Seg - Dmod_Seg - Behavioral/Inst_Win_RAM_top - Win_RAM_top - Behavioral/Inst_Pstprc_RAM_I - Pstprc_RAM_I - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_Dmod_Seg - Dmod_Seg - Behavioral/Inst_Win_RAM_top - Win_RAM_top - Behavioral/Inst_Pstprc_RAM_Q - Pstprc_RAM_Q - Behavioral</ClosedNode>
-         <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_Dmod_Seg - Dmod_Seg - Behavioral/Inst_Win_post_process - post_process - Behavioral</ClosedNode>
+         <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_Dmod_Seg - Dmod_Seg - Behavioral/Inst_Win_post_process - post_process - Behavioral/Inst_DDS - DDS_top - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_Dmod_Seg - Dmod_Seg - Behavioral/Inst_Win_post_process - post_process - Behavioral/Inst_multi_accum_top - multi_accum_top - Behavioral</ClosedNode>
+         <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_G_ethernet_top - G_ethernet_top - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_G_ethernet_top - G_ethernet_top - Behavioral/Inst_G_ehernet_Rx_data - G_ehernet_Rx_data - Behavioral/Inst_Mac_RX2 - Mac_RX2</ClosedNode>
-         <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_G_ethernet_top - G_ethernet_top - Behavioral/Inst_G_ethernet_Tx_data - G_ethernet_Tx_data - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_G_ethernet_top - G_ethernet_top - Behavioral/Inst_G_ethernet_Tx_data - G_ethernet_Tx_data - Behavioral/Inst_Mac_TX - Mac_TX</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_Pstprc_fifo_top - Pstprc_fifo_top - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_RAM_top - RAM_top - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_RAM_top - RAM_top - Behavioral/Inst_RAM_I - RAM_I - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_RAM_top - RAM_top - Behavioral/Inst_RAM_Q - RAM_Q - Behavioral</ClosedNode>
+         <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_cmd_ana_top - cmd_ana_top - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_crg_dcms - crg_dcms - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4|src|ZJUprojects.vhd/Inst_CDCE62005_interface - CDCE62005_interface - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4|src|ZJUprojects.vhd/Inst_DATAin_IOB - DATAin_IOB - Behavioral</ClosedNode>
@@ -114,7 +115,7 @@
       <SelectedItems>
          <SelectedItem>C:\Current_Key_Projects\1Gsps_ADC_board_V4_algromth\ipcore_dir\Post_Process_RAM.xco</SelectedItem>
       </SelectedItems>
-      <ScrollbarPosition orientation="vertical" >9</ScrollbarPosition>
+      <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
       <ViewHeaderState orientation="horizontal" >000000ff0000000000000001000000000000000001000000000000000000000000000000000000032e000000010001000100000000000000000000000064ffffffff0000008100000000000000010000032e0000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
@@ -132,7 +133,7 @@
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
-      <ViewHeaderState orientation="horizontal" >000000ff00000000000000010000000100000000000000000000000000000000000000000000000763000000010000000100000000000000000000000064ffffffff000000810000000000000001000007630000000100000000</ViewHeaderState>
+      <ViewHeaderState orientation="horizontal" >000000ff0000000000000001000000010000000000000000000000000000000000000000000000033f000000010000000100000000000000000000000064ffffffff0000008100000000000000010000033f0000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
       <CurrentItem></CurrentItem>
    </ItemView>
@@ -223,7 +224,7 @@
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
-      <ViewHeaderState orientation="horizontal" >000000ff0000000000000001000000010000000000000000000000000000000000000000000000032e000000010000000100000000000000000000000064ffffffff0000008100000000000000010000032e0000000100000000</ViewHeaderState>
+      <ViewHeaderState orientation="horizontal" >000000ff0000000000000001000000010000000000000000000000000000000000000000000000033f000000010000000100000000000000000000000064ffffffff0000008100000000000000010000033f0000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
       <CurrentItem></CurrentItem>
    </ItemView>

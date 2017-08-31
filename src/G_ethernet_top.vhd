@@ -90,7 +90,8 @@ architecture Behavioral of G_ethernet_top is
       PHY_RXD   : in  std_logic_vector(3 downto 0); 
       PHY_RXC   : in  std_logic; 
       PHY_RXDV  : in  std_logic; 
-      Rd_data   : out std_logic_vector(7 downto 0); 
+      Rd_data   : out std_logic_vector(7 downto 0);
+      TX_src_MAC_addr : in std_logic_vector(3 downto 0);
       Frm_valid : out std_logic
       );
   end component; 
@@ -146,6 +147,7 @@ begin
     PHY_RXC   => PHY_RXC,
     PHY_RXDV  => PHY_RXDV,
     Rd_data   => Rd_data,
+    TX_src_MAC_addr => TX_src_MAC_addr,
     Frm_valid => Frm_valid
     -- buf_wr_en => wr_en
     );
