@@ -135,7 +135,7 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
       if rd_addr = x"13" then
         reg_data(47 downto 40) <= rd_data;
       elsif rd_addr = x"14" then
-        reg_data(39 downto 32) <= rd_data;
+        reg_data(39 downto 32) <= rd_data;  
       elsif rd_addr = x"15" then
         reg_data(31 downto 24) <= rd_data;
       elsif rd_addr = x"16" then
@@ -162,7 +162,9 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
       if reg_clr_cnt = x"0F" then
         ram_start <= '0';
       elsif reg_addr = x"0001" and reg_data = x"eeeeeeeeeeee" then
+        if rd_addr=x"19" then
        ram_start <= '1';
+        end if;
       end if;
     -- else
     --   reg_clr <= '0';
@@ -191,12 +193,14 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
     if rst_n = '0' then                 -- asynchronous reset (active low)
      cmd_pstprc_IQ_sw <= "10";
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
-      if reg_addr=x"0101" and reg_data = x"111111111111" then
-        cmd_pstprc_IQ_sw <= "01";
-      elsif reg_addr=x"0101" and reg_data =x"222222222222" then
-        cmd_pstprc_IQ_sw <="10";
+      if rd_addr=x"19" then
+        if reg_addr=x"0101" and reg_data = x"111111111111" then
+          cmd_pstprc_IQ_sw <= "01";
+        elsif reg_addr=x"0101" and reg_data =x"222222222222" then
+          cmd_pstprc_IQ_sw <="10";
       -- elsif reg_addr=x"0101" and reg_data = x"333333333333"  then
       --   ram_switch<="100";              --fft channel
+        end if;
       end if;
     end if;
   end process ram_switch_ps;
@@ -211,7 +215,9 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
       if upload_trig_ethernet_cnt = x"0F" then  --0f是 upload_trig_ethernet的长度，控制命令只能持续一定时间然后消失。配置命令会一直存在直到被覆盖。
         upload_trig_ethernet <= '0';
       elsif reg_addr = x"0002" and reg_data = x"eeeeeeeeeeee" then
-       upload_trig_ethernet <= '1';
+        if rd_addr=x"19" then
+          upload_trig_ethernet <= '1';
+        end if;
       end if;
     -- else
     --   reg_clr <= '0';
@@ -243,7 +249,9 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
       if cmd_smpl_en_cnt=x"0f" then
         cmd_smpl_en<='0';
       elsif reg_addr =x"0003" and reg_data =x"eeeeeeeeeeee" then
-        cmd_smpl_en<='1';
+        if rd_addr=x"19" then
+          cmd_smpl_en<='1';
+        end if;
       end if;
     end if;
   end process cmd_smpl_en_ps;
@@ -254,7 +262,7 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
       cmd_smpl_en_cnt<=(others => '0');
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
       if cmd_smpl_en ='1' then
-      cmd_smpl_en_cnt<=cmd_smpl_en_cnt+1;
+        cmd_smpl_en_cnt<=cmd_smpl_en_cnt+1;
       elsif cmd_smpl_en ='0' then
         cmd_smpl_en_cnt<=(others => '0');
       end if;
@@ -274,7 +282,9 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
       TX_dst_MAC_addr<=x"ffffffffffff";
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
       if reg_addr = x"0011"  then
+        if rd_addr=x"19" then
         TX_dst_MAC_addr<=reg_data;
+        end if;
       end if;
     end if;
   end process TX_dst_MAC_address_ps;
@@ -301,7 +311,9 @@ begin  -- process ram_smpl_depth_ps
     cmd_smpl_trig_cnt<=x"07D0";         -- reponse to trig 2000 times default 
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
     if reg_addr =x"0013" then
-     cmd_smpl_trig_cnt<=reg_data(47 downto 32);
+      if rd_addr=x"19" then
+        cmd_smpl_trig_cnt<=reg_data(47 downto 32);
+      end if;
     end if;
   end if;
 end process cmd_trig_cnt_ps;
@@ -312,7 +324,9 @@ begin  -- process ram_smpl_depth_ps
     cmd_demowinln<="000"&x"109";         -- reponse to trig 2000 times default 
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
     if reg_addr =x"0014" then
-     cmd_demowinln<=reg_data(46 downto 32);
+      if rd_addr=x"19" then
+        cmd_demowinln<=reg_data(46 downto 32);
+      end if;
     end if;
   end if;
 end process cmd_demowinln_ps;
@@ -323,7 +337,9 @@ begin  -- process ram_smpl_depth_ps
     cmd_demowinstart<="000"&x"030";         -- reponse to trig 2000 times default 
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
     if reg_addr =x"0015" then
-     cmd_demowinstart<=reg_data(46 downto 32);
+      if rd_addr=x"19" then
+        cmd_demowinstart<=reg_data(46 downto 32);
+      end if;
     end if;
   end if;
 end process cmd_demowinstart_ps;
@@ -334,7 +350,9 @@ begin  -- process Pstprc_DPS_ps
     cmd_Pstprc_DPS <= x"1500";
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
     if reg_addr =x"0016" then
-      cmd_Pstprc_DPS<=reg_data(47 downto 32);
+      if rd_addr=x"19" then
+        cmd_Pstprc_DPS<=reg_data(47 downto 32);
+      end if;
     end if;
   end if;
 end process Pstprc_DPS_ps;

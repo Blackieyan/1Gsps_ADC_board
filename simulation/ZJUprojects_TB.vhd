@@ -42,54 +42,60 @@ architecture behavior of ZJUprojects_TB is
 
   component ZJUprojects
     port(
-      OSC_in_n        : in  std_logic;
-      OSC_in_p        : in  std_logic;
-      ADC_Mode        : out std_logic;
-      ADC_sclk_OUT    : out std_logic;
-      ADC_sldn_OUT    : out std_logic;
-      ADC_sdata       : out std_logic_vector(0 downto 0);
-      spi_clk         : out std_logic;
-      spi_le          : out std_logic;
-      spi_syn         : out std_logic;
-      spi_mosi        : out std_logic;
-      spi_miso        : in  std_logic;
-      spi_powerdn     : inout std_logic;
-      spi_revdata     : out std_logic_vector(31 downto 0);
-      cfg_finish      : out std_logic;
-      -------------------------------------------------------------------------
-      user_pushbutton : in  std_logic;  --glbclr_n
-      -------------------------------------------------------------------------
-      ADC_CLKOI_p     : in  std_logic;  -- ADC CLKOI 500MHz/250MHz
-      ADC_CLKOI_n     : in  std_logic;
-      ADC_CLKOQ_p     : in  std_logic;
-      ADC_CLKOQ_n     : in  std_logic;
-      ADC_DOIA_p      : in  std_logic_vector(7 downto 0);
-      ADC_DOIA_n      : in  std_logic_vector(7 downto 0);
-      ADC_DOIB_p      : in  std_logic_vector(7 downto 0);
-      ADC_DOIB_n      : in  std_logic_vector(7 downto 0);
-      ADC_DOQA_p      : in  std_logic_vector(7 downto 0);
-      ADC_DOQA_n      : in  std_logic_vector(7 downto 0);
-      ADC_DOQB_p      : in  std_logic_vector(7 downto 0);
-      ADC_DOQB_n      : in  std_logic_vector(7 downto 0);
-      DOIRI_p         : in  std_logic;
-      DOIRI_n         : in  std_logic;
-      DOIRQ_p         : in  std_logic;
-      DOIRQ_n         : in  std_logic;
-      SRCC1_p_trigin         : in std_logic;
-      SRCC1_n_upload_sma_trigin  : in    std_logic;
-      MRCC2_p         : out std_logic;
-      MRCC2_n         : out std_logic_vector(0 downto 0);
-      -------------------------------------------------------------------------
-      -- ethernet_Rd_clk    : in     std_logic;
-      -- ethernet_Rd_en     : in     std_logic;
-      -- ethernet_Rd_Addr   : in     std_logic_vector(13 downto 0);
-      PHY_RXD         : in  std_logic_vector(3 downto 0);
-      PHY_RXC         : in  std_logic;
-      PHY_RXDV        : in  std_logic;
-      PHY_TXD_o       : out std_logic_vector(3 downto 0);
-      PHY_GTXclk_quar : out std_logic;
-      PHy_txen_quar   : out std_logic;
-      phy_txer_o      : out std_logic
+      OSC_in_n                  : in    std_logic;
+      OSC_in_p                  : in    std_logic;
+---------------------------------------------------------------------------
+      ADC_Mode                  : out   std_logic;
+      ADC_sclk_OUT              : out   std_logic;
+      ADC_sldn_OUT              : out   std_logic;
+      ADC_sdata                 : out   std_logic_vector(0 downto 0);  --ADC interface
+-------------------------------------------------------------------------------
+      spi_clk                   : out   std_logic;
+      spi_mosi                  : out   std_logic;
+      spi_le                    : out   std_logic;
+      spi_syn                   : out   std_logic;
+      spi_miso                  : in    std_logic;
+      spi_powerdn               : inout std_logic;
+      spi_revdata               : out   std_logic_vector(31 downto 0);
+      cfg_finish                : out   std_logic;  --CDCE62005
+      -- spi_pd                               : inout std_logic;
+-------------------------------------------------------------------------------
+      user_pushbutton           : in    std_logic;  --glbclr_n
+      ---------------------------------------------------------------------------
+      ADC_CLKOI_p               : in    std_logic;  -- ADC CLKOI 500MHz/250MHz
+      ADC_CLKOI_n               : in    std_logic;
+      -- ADC_CLKOQ_p               : in    std_logic;
+      -- ADC_CLKOQ_n               : in    std_logic;
+      ADC_DOIA_p                : in    std_logic_vector(7 downto 0);
+      ADC_DOIA_n                : in    std_logic_vector(7 downto 0);
+      ADC_DOIB_p                : in    std_logic_vector(7 downto 0);
+      ADC_DOIB_n                : in    std_logic_vector(7 downto 0);
+      ADC_DOQA_p                : in    std_logic_vector(7 downto 0);
+      ADC_DOQA_n                : in    std_logic_vector(7 downto 0);
+      ADC_DOQB_p                : in    std_logic_vector(7 downto 0);
+      ADC_DOQB_n                : in    std_logic_vector(7 downto 0);
+      DOIRI_p                   : in    std_logic;
+      DOIRI_n                   : in    std_logic;
+      DOIRQ_p                   : in    std_logic;
+      DOIRQ_n                   : in    std_logic;
+      SRCC1_p_trigin            : in    std_logic; --J31
+      ---------------------------------------------------------------------------
+      -- SRCC1_n                   : out    std_logic;  --J8
+      -- SRCC1_p                   : out   std_logic;  --J9
+      -- MRCC1_n                   : out std_logic;  --J11
+      -- MRCC1_p                   : out std_logic;  --J10
+      -- MRCC2_n                   : out   std_logic_vector(0 downto 0); -- pinsfor test
+      ---------------------------------------------------------------------------
+      PHY_RXD                   : in    std_logic_vector(3 downto 0);
+      PHY_RXC                   : in    std_logic;
+      PHY_RXDV                  : in    std_logic;
+      PHY_TXD_o                 : out   std_logic_vector(3 downto 0);
+      PHY_GTXclk_quar           : out   std_logic;
+      PHy_txen_quar             : out   std_logic;
+      phy_txer_o                : out   std_logic;
+      
+    TX_src_MAC_addr : in std_logic_vector(3 downto 0) := "0000";
+    phy_rst_n_o               : out   std_logic
       -- ethernet_Rd_data   : out    std_logic_vector(7 downto 0);
       -- ethernet_Frm_valid : out    std_logic;
       -- phy_rst_n_o     : out std_logic
@@ -167,60 +173,53 @@ architecture behavior of ZJUprojects_TB is
   signal demowinstart : std_logic_vector(14 downto 0):= "000"&x"096";
   signal cmd_pstprc_IQ_sw : std_logic_vector(1 downto 0) := "10";
   signal posedge_sample_trig_f : std_logic;
+  signal phy_rst_n_o : std_logic;
+  signal tx_src_mac_addr : std_logic_vector(3 downto 0);
+  
 begin
 
   -- Instantiate the Unit Under Test (UUT)
-
-  Inst_ZJUprojects : ZJUprojects port map(
-    OSC_in_n        => OSC_in_n,
-    OSC_in_p        => OSC_in_p,
-    ADC_Mode        => ADC_Mode,
-    ADC_sclk_OUT    => ADC_sclk_OUT,
-    ADC_sldn_OUT    => ADC_sldn_OUT,
-    ADC_sdata       => ADC_sdata,
-    spi_clk         => spi_clk,
-    spi_mosi        => spi_mosi,
-    spi_le          => spi_le,
-    spi_syn         => spi_syn,
-    spi_miso        => spi_miso,
-    spi_powerdn     => spi_powerdn,
-    spi_revdata     => spi_revdata,
-    cfg_finish      => cfg_finish,
-    user_pushbutton => user_pushbutton,
-    ADC_CLKOI_p     => ADC_CLKOI_p,
-    ADC_CLKOI_n     => ADC_CLKOI_n,
-    ADC_CLKOQ_p     => ADC_CLKOQ_p,
-    ADC_CLKOQ_n     => ADC_CLKOQ_n,
-    ADC_DOIA_p      => ADC_DOIA_p,
-    ADC_DOIA_n      => ADC_DOIA_n,
-    ADC_DOIB_p      => ADC_DOIB_p,
-    ADC_DOIB_n      => ADC_DOIB_n,
-    ADC_DOQA_p      => ADC_DOQA_p,
-    ADC_DOQA_n      => ADC_DOQA_n,
-    ADC_DOQB_p      => ADC_DOQB_p,
-    ADC_DOQB_n      => ADC_DOQB_n,
-    DOIRI_p         => DOIRI_p,
-    DOIRI_n         => DOIRI_n,
-    DOIRQ_p         => DOIRQ_p,
-    DOIRQ_n         => DOIRQ_n,
-    SRCC1_p_trigin         => SRCC1_p_trigin,
-    SRCC1_n_upload_sma_trigin        => SRCC1_n_upload_sma_trigin,
-    MRCC2_p         => MRCC2_p,
-    MRCC2_n         => MRCC2_n,
-    -- ethernet_Rd_clk    => ethernet_Rd_clk,
-    -- ethernet_Rd_en     => ethernet_Rd_en,
-    -- ethernet_Rd_Addr   => ethernet_Rd_Addr,
-    PHY_RXD         => PHY_RXD,
-    PHY_RXC         => PHY_RXC,
-    PHY_RXDV        => PHY_RXDV,
-    PHY_TXD_o       => PHY_TXD_o,
-    PHY_GTXclk_quar => PHY_GTXclk_quar,
-    PHy_txen_quar   => PHy_txen_quar,
-    phy_txer_o      => phy_txer_o
-    -- ethernet_Rd_data   => ethernet_Rd_data,
-    -- ethernet_Frm_valid => ethernet_Frm_valid,
-    -- phy_rst_n_o     => phy_rst_n_o
-    );
+  ZJUprojects_1: entity work.ZJUprojects
+    port map (
+      OSC_in_n        => OSC_in_n,
+      OSC_in_p        => OSC_in_p,
+      ADC_Mode        => ADC_Mode,
+      ADC_sclk_OUT    => ADC_sclk_OUT,
+      ADC_sldn_OUT    => ADC_sldn_OUT,
+      ADC_sdata       => ADC_sdata,
+      spi_clk         => spi_clk,
+      spi_mosi        => spi_mosi,
+      spi_le          => spi_le,
+      spi_syn         => spi_syn,
+      spi_miso        => spi_miso,
+      spi_powerdn     => spi_powerdn,
+      spi_revdata     => spi_revdata,
+      cfg_finish      => cfg_finish,
+      user_pushbutton => user_pushbutton,
+      ADC_CLKOI_p     => ADC_CLKOI_p,
+      ADC_CLKOI_n     => ADC_CLKOI_n,
+      ADC_DOIA_p      => ADC_DOIA_p,
+      ADC_DOIA_n      => ADC_DOIA_n,
+      ADC_DOIB_p      => ADC_DOIB_p,
+      ADC_DOIB_n      => ADC_DOIB_n,
+      ADC_DOQA_p      => ADC_DOQA_p,
+      ADC_DOQA_n      => ADC_DOQA_n,
+      ADC_DOQB_p      => ADC_DOQB_p,
+      ADC_DOQB_n      => ADC_DOQB_n,
+      DOIRI_p         => DOIRI_p,
+      DOIRI_n         => DOIRI_n,
+      DOIRQ_p         => DOIRQ_p,
+      DOIRQ_n         => DOIRQ_n,
+      SRCC1_p_trigin  => SRCC1_p_trigin,
+      PHY_RXD         => PHY_RXD,
+      PHY_RXC         => PHY_RXC,
+      PHY_RXDV        => PHY_RXDV,
+      PHY_TXD_o       => PHY_TXD_o,
+      PHY_GTXclk_quar => PHY_GTXclk_quar,
+      PHy_txen_quar   => PHy_txen_quar,
+      phy_txer_o      => phy_txer_o,
+      TX_src_MAC_addr => TX_src_MAC_addr,
+      phy_rst_n_o     => phy_rst_n_o);
 -------------------------------------------------------------------------------
   -- Clock process definitions
   spi_clk_process : process

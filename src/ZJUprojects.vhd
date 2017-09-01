@@ -457,7 +457,7 @@ signal cmd_Pstprc_dps_en : std_logic;
       -- ADC_CLKOQ_n       : in  std_logic; 
       PHY_RXC           : in  std_logic;
       user_pushbutton_g : in  std_logic;
-      ADC_CLKOI         : out std_logic;
+      ADC_CLKOI         : buffer std_logic;
       ADC_CLKOQ         : out std_logic;
       PHY_RXC_g         : out std_logic;
       ADC_clkoi_inv     : out std_logic;

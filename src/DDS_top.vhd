@@ -38,7 +38,7 @@ entity DDS_top is
   port(
     dds_clk         : in  std_logic;
     dds_sclr        : in  std_logic;
-    dds_en    : in  std_logic;
+    dds_en          : in  std_logic;
     dds_phase_shift : in  std_logic_vector(15 downto 0);
     -- pstprc_dps_en : in std_logic;
     cos_out         : out std_logic_vector(95 downto 0);
@@ -47,20 +47,26 @@ entity DDS_top is
 end DDS_top;
 
 architecture Behavioral of DDS_top is
-  signal dds_reg_select    : std_logic;
-  signal dds_ce            : std_logic;
-  signal dds_rdy           : std_logic;
-  signal dds_rfd           : std_logic;
-  signal dds_phase_out     : std_logic_vector(15 downto 0);
-  signal dds_phase_shift_d : std_logic_vector(15 downto 0);
+  signal dds_reg_select     : std_logic;
+  signal dds_ce             : std_logic;
+  signal dds_rdy            : std_logic;
+  signal dds_rfd            : std_logic;
+  signal dds_phase_out      : std_logic_vector(15 downto 0);
+  signal dds_phase_shift_d  : std_logic_vector(15 downto 0);
   signal dds_phase_shift_d2 : std_logic_vector(15 downto 0);
   -- signal dps_en_cnt : std_logic_vector(11 downto 0);
-  signal dds_ram_wren     : std_logic_vector(0 downto 0);
-  signal dds_ram_addra : std_logic_vector(11 downto 0);
-  signal dds_ram_addrb : std_logic_vector(8 downto 0);
-  signal dds_cos : std_logic_vector(11 downto 0);
-  signal dds_sin : std_logic_vector(11 downto 0);
-  signal dds_ram_rden : std_logic;
+  signal dds_ram_wren       : std_logic_vector(0 downto 0);
+  signal dds_ram_addra      : std_logic_vector(11 downto 0);
+  signal dds_ram_addrb      : std_logic_vector(8 downto 0);
+  signal dds_cos            : std_logic_vector(11 downto 0);
+  signal dds_sin            : std_logic_vector(11 downto 0);
+  signal dds_ram_rden       : std_logic;
+  signal fifo_cos    : std_logic_vector(95 downto 0);
+  signal fifo_sin    : std_logic_vector(95 downto 0);
+  signal finish_sclr : std_logic;
+  signal wren_finish_d  : std_logic;
+  signal wren_finish  : std_logic;
+  signal dds_ram_wren_d : std_logic_vector(0 downto 0);
   
   component DDS1
     port (
@@ -68,6 +74,7 @@ architecture Behavioral of DDS_top is
       clk        : in  std_logic;
       sclr       : in  std_logic;
       we         : in  std_logic;
+      ce         : in  std_logic;
       data       : in  std_logic_vector(15 downto 0);
       rdy        : out std_logic;
       rfd        : out std_logic;
@@ -84,7 +91,7 @@ architecture Behavioral of DDS_top is
       addra : in  std_logic_vector(11 downto 0);
       dina  : in  std_logic_vector(11 downto 0);
       clkb  : in  std_logic;
-      enb : in std_logic;
+      enb   : in  std_logic;
       addrb : in  std_logic_vector(8 downto 0);
       doutb : out std_logic_vector(95 downto 0)
       );
@@ -106,18 +113,17 @@ architecture Behavioral of DDS_top is
   --     );
   -- end component;
 
-  signal fifo_cos : std_logic_vector(95 downto 0);
-  signal fifo_sin : std_logic_vector(95 downto 0);
 
-
+  
 begin
 
   DDS_inst : DDS1
     port map (
       reg_select => '0',
       clk        => dds_clk,
-      sclr       => dds_sclr,
-      we         => dds_ram_wren(0),
+      sclr       => dds_sclr or finish_sclr,
+      we         => '1',
+      ce         => dds_ram_wren(0),
       data       => dds_phase_shift,    --fout = clk*data/2^N
       rdy        => dds_rdy,
       rfd        => dds_rfd,
@@ -125,8 +131,8 @@ begin
       sine       => dds_sin,
       phase_out  => dds_phase_out);
 
-  
-  
+
+
   sin_ram_inst : dds_ram
     port map (
       clka  => dds_clk,
@@ -135,7 +141,7 @@ begin
       addra => dds_ram_addra,
       dina  => dds_sin,
       clkb  => dds_clk,
-      enb => dds_ram_rden,
+      enb   => dds_ram_rden,
       addrb => dds_ram_addrb,
       doutb => sin_out
       );
@@ -148,13 +154,13 @@ begin
       addra => dds_ram_addra,
       dina  => dds_cos,
       clkb  => dds_clk,
-      enb => dds_ram_rden,
+      enb   => dds_ram_rden,
       addrb => dds_ram_addrb,
       doutb => cos_out
       );
 
- dds_ram_rden<= dds_en;                 --control by module input signal 
-   
+  dds_ram_rden <= dds_en;               --control by module input signal 
+
   -- sin_fifo_inst : dds_fifo
   --   port map (
   --     rst         => dds_sclr,
@@ -193,30 +199,43 @@ begin
   dds_ram_wren_ps : process (dds_clk, dds_sclr) is
   begin  -- process dds_ram_wren_ps
     if dds_sclr = '1' then              -- asynchronous reset (active low)
-      dds_ram_wren <= "1";             --write ram after reset and power on
+      dds_ram_wren <= "1";              --write ram after reset and power on
     elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
       if dds_phase_shift_d2 /= dds_phase_shift_d then
         dds_ram_wren <= "1";
-      elsif dds_ram_addra = x"FFA" then     --4090
+      elsif dds_ram_addra = x"FFA" then         --4090
         dds_ram_wren <= "0";
       end if;
     end if;
   end process dds_ram_wren_ps;
 
+  wren_finish_ps : process (dds_clk, dds_sclr) is
+  begin  -- process         finish_sclr_ps
+    if dds_sclr = '1' then              -- asynchronous reset (active low)
+      wren_finish <= '0';
+    elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
+      if dds_ram_wren = "0" and dds_ram_wren_d = "1" then
+        wren_finish <= '1';
+      else
+        wren_finish <= '0';
+      end if;
+    end if;
+  end process wren_finish_ps;
+
   dds_ram_addra_ps : process (dds_clk, dds_sclr) is
   begin  -- process dds_ram_addra_ps
     if dds_sclr = '1' then              -- asynchronous reset (active low)
-      dds_ram_addra <= (others => '0');
+      dds_ram_addra <= x"001";
     elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
       if dds_ram_wren = "0" then
-        dds_ram_addra <= (others => '0');
+        dds_ram_addra <= x"001";        -- Because the data on x"000" is all zero. 
       elsif dds_ram_wren = "1" then
         dds_ram_addra <= dds_ram_addra+1;
       end if;
     end if;
   end process dds_ram_addra_ps;  --actually cnt 4091
 
-    dds_ram_addrb_ps : process (dds_clk, dds_sclr) is
+  dds_ram_addrb_ps : process (dds_clk, dds_sclr) is
   begin  -- process dds_dds_ram_addrb_ps
     if dds_sclr = '1' then              -- asynchronous reset (active low)
       dds_ram_addrb <= (others => '0');
@@ -224,22 +243,34 @@ begin
       if dds_ram_rden = '0' then
         dds_ram_addrb <= (others => '0');
       elsif dds_ram_rden = '1' then
-        dds_ram_addrb <=dds_ram_addrb+1;
+        dds_ram_addrb <= dds_ram_addrb+1;
       end if;
     end if;
   end process dds_ram_addrb_ps;  --actually cnt 4091
-  
+
   dds_phase_shift_d_ps : process (dds_clk, dds_sclr) is
   begin  -- process dds_phase_shift_d_ps
     if dds_sclr = '1' then              -- asynchronous reset (active low)
-      dds_phase_shift_d <= (others => '0');
+      dds_phase_shift_d  <= (others => '0');
       dds_phase_shift_d2 <= (others => '0');
     elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
-      dds_phase_shift_d <= dds_phase_shift;
+      dds_phase_shift_d  <= dds_phase_shift;
       dds_phase_shift_d2 <= dds_phase_shift_d;
     end if;
   end process dds_phase_shift_d_ps;
 
-
+  dds_ram_wren_d_ps : process (dds_clk, dds_sclr) is
+  begin  -- process dds_ram_wren_d_ps
+    if dds_sclr = '1' then              -- asynchronous reset (active low)
+      dds_ram_wren_d  <= (others => '0');
+      wren_finish_d <='0';
+    elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
+      dds_ram_wren_d  <= dds_ram_wren;
+      wren_finish_d <= wren_finish;
+    end if;
+  end process dds_ram_wren_d_ps;
+  
+  finish_sclr<=wren_finish or wren_finish_d;
+  
 end Behavioral;
 
