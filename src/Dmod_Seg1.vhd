@@ -54,7 +54,7 @@ entity Dmod_Seg is
     demoWinstart        : in std_logic_vector(14 downto 0);
     ---------------------------------------------------------------------------
     ---------------------------------------------------------------------------
-    Pstprc_IQ : out std_logic_vector(2*mult_accum_s_width-1 downto 0);
+    Pstprc_IQ : out std_logic_vector(63 downto 0);
     Pstprc_finish : out std_logic;
     -- Pstprc_fifo_rden :  in std_logic;
     -- Pstprc_fifo_rs : out std_logic_vector(7 downto 0);
@@ -84,8 +84,8 @@ architecture Behavioral of Dmod_Seg is
   signal Pstprc_RAMx_rden_ln     : std_logic_vector(11 downto 0);
   -- signal Pstprc_RAMQ_doutb : std_logic_vector(31 downto 0);
   -- signal Pstprc_RAMI_doutb : std_logic_vector(31 downto 0);
-  signal Pstprc_Qdata            : std_logic_vector(mult_accum_s_width-1 downto 0);
-  signal Pstprc_Idata            : std_logic_vector(mult_accum_s_width-1 downto 0);
+  signal Pstprc_Qdata            : std_logic_vector(31 downto 0);
+  signal Pstprc_Idata            : std_logic_vector(31 downto 0);
 
   signal Pstprc_fifo_din : std_logic_vector(63 downto 0);
   -- signal Pstprc_finish : std_logic;
@@ -94,6 +94,8 @@ architecture Behavioral of Dmod_Seg is
   signal Pstprc_fifo_pempty : std_logic;
   signal Pstprc_fifo_valid : std_logic;
   -- signal Pstprc_IQ : std_logic_vector(2*mult_accum_s_width-1 downto 0);
+  signal dds_data_len : std_logic_vector(14 downto 0);
+  signal dds_data_start : std_logic_vector(14 downto 0);
   
   component Win_RAM_top
     port(
@@ -130,8 +132,11 @@ architecture Behavioral of Dmod_Seg is
       Pstprc_en            : in  std_logic;
       Pstprc_RAMx_rden_stp : in  std_logic;
       Pstprc_finish : out std_logic;
-      Pstprc_Qdata : out std_logic_vector(mult_accum_s_width-1 downto 0);
-      Pstprc_Idata : out std_logic_vector(mult_accum_s_width-1 downto 0)
+      Pstprc_Qdata : out std_logic_vector(31 downto 0);
+      Pstprc_Idata : out std_logic_vector(31 downto 0);
+      dds_data_start : in std_logic_vector(14 downto 0);
+      dds_data_len : in std_logic_vector(14 downto 0);
+      cmd_smpl_depth : in std_logic_vector(15 downto 0)
       -- Pstprc_RAMx_rden_ln : in std_logic_vector(11 downto 0)
       );
   end component;
@@ -152,10 +157,14 @@ architecture Behavioral of Dmod_Seg is
   -- end component;
 -----------------------------------------------------------------------------
 begin
-  ini_pstprc_RAMx_addra <= demoWinstart(14 downto 2);  --15bit width for the
-                                                       --BRAM address
-  ini_pstprc_RAMx_addrb <= demoWinstart(14 downto 3);
-
+  -- ini_pstprc_RAMx_addra <= demoWinstart(14 downto 2);  --15bit width for the
+    --BRAM address
+  ini_pstprc_RAMx_addra <= "0"&x"001";  --rdy='1' from addra =1 and begin
+                                          --post processing
+  -- ini_pstprc_RAMx_addrb <= demoWinstart(14 downto 3);
+  ini_pstprc_RAMx_addrb <=(others => '0');  --read data from the beginning
+  dds_data_start<= demoWinstart;
+  dds_data_len<= demoWinln;
 
   Inst_Win_RAM_top : Win_RAM_top port map(
     posedge_sample_trig   => posedge_sample_trig,
@@ -189,7 +198,10 @@ begin
     Pstprc_RAMx_rden_stp => Pstprc_RAMq_rden_stp,
     Pstprc_finish => Pstprc_finish,
     Pstprc_Idata     => Pstprc_Idata,
-    Pstprc_Qdata     => Pstprc_Qdata
+    Pstprc_Qdata     => Pstprc_Qdata,
+    dds_data_start => dds_data_start,
+    dds_data_len => dds_data_len,
+    cmd_smpl_depth => cmd_smpl_depth
     );
 
   -- Inst_Pstprc_fifo_top : Pstprc_fifo_top port map(
@@ -210,7 +222,7 @@ begin
     if rst_n = '0' then                 -- asynchronous reset (active low)
       Pstprc_RAMx_rden_ln<=(others => '0');
     elsif clk'event and clk = '1' then  -- rising clock edge
-        Pstprc_RAMx_rden_ln  <= demoWinln(14 downto 3) + 1;
+        Pstprc_RAMx_rden_ln  <= cmd_smpl_depth(14 downto 3);
     end if;
   end process Pstprc_RAMx_rden_ln_ps;
   -----------------------------------------------------------------------------

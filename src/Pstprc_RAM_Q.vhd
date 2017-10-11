@@ -220,6 +220,7 @@ begin
   begin  -- process Pstprc_RAMq_addrb_ps
     if clr_n_ram = '0' then             -- asynchronous reset (active low)
       Pstprc_RAMq_addrb <= ini_pstprc_RAMx_addrb;
+      -- Pstprc_RAMq_addrb <=(others => '0');
     elsif Pstprc_RAMq_clkb'event and Pstprc_RAMq_clkb = '1' then  -- rising clock edge
       if Pstprc_RAMq_rden = '1' then
         Pstprc_RAMq_addrb <= Pstprc_RAMq_addrb+1;

@@ -50,7 +50,10 @@ entity post_process is
     Pstprc_RAMx_rden_stp : in  std_logic;
     Pstprc_finish        : out std_logic;
     pstprc_Idata         : out std_logic_vector(mult_accum_s_width-1 downto 0);
-    pstprc_Qdata         : out std_logic_vector(mult_accum_s_width-1 downto 0)
+    pstprc_Qdata         : out std_logic_vector(mult_accum_s_width-1 downto 0);
+    dds_data_start : in std_logic_vector(14 downto 0);
+    dds_data_len : in std_logic_vector(14 downto 0);
+    cmd_smpl_depth : in std_logic_vector(15 downto 0)
     );
 end post_process;
 
@@ -189,7 +192,10 @@ architecture Behavioral of post_process is
 		dds_en : IN std_logic;
 		dds_phase_shift : IN std_logic_vector(15 downto 0);          
 		cos_out : OUT std_logic_vector(95 downto 0);
-		sin_out : OUT std_logic_vector(95 downto 0)
+		sin_out : OUT std_logic_vector(95 downto 0);
+                dds_data_start : in std_logic_vector(14 downto 0);
+                dds_data_len : in std_logic_vector(14 downto 0);
+                cmd_smpl_depth : in std_logic_vector(15 downto 0)
 		);
 	END COMPONENT;
 
@@ -236,7 +242,10 @@ begin
     -- pstprc_dps_en => pstprc_dps_en,
     dds_phase_shift => dds_phase_shift,
     cos_out         => dds_cos,
-    sin_out         => dds_sin
+    sin_out         => dds_sin,
+    dds_data_start => dds_data_start,
+    dds_data_len => dds_data_len,
+    cmd_smpl_depth =>cmd_smpl_depth
     );
 
   multi_accum_inst : for i in 0 to 7 generate
