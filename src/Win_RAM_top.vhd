@@ -85,6 +85,8 @@ architecture Behavioral of Win_RAM_top is
   signal Pstprc_RAMq_rden_d    : std_logic;
   signal pstprc_ram_wren : std_logic;
   signal pstprc_ram_wren_cnt : std_logic_vector(11 downto 0);
+  signal Pstprc_RAMq_dina_d :std_logic_vector(31 downto 0);
+  signal Pstprc_RAMi_dina_d :std_logic_vector(31 downto 0);
   -----------------------------------------------------------------------------
   signal Gcnt                : std_logic_vector(11 downto 0) := x"000";
   signal clk_div_cnt         : std_logic_vector(7 downto 0):=x"00";
@@ -138,7 +140,7 @@ begin
     cmd_smpl_depth      => cmd_smpl_depth,
     Pstprc_RAMq_clka    => Pstprc_RAMq_clka,
     Pstprc_RAMq_clkb    => Pstprc_RAMq_clkb,
-    Pstprc_RAMq_dina    => Pstprc_RAMq_dina,
+    Pstprc_RAMq_dina    => Pstprc_RAMq_dina_d,
     Pstprc_RAMq_doutb   => Pstprc_RAMq_doutb,
     ini_pstprc_RAMx_addra => ini_pstprc_RAMx_addra,
     ini_pstprc_RAMx_addrb => ini_pstprc_RAMx_addrb,
@@ -155,12 +157,31 @@ begin
     cmd_smpl_depth        => cmd_smpl_depth,
     Pstprc_RAMi_clka      => Pstprc_RAMi_clka,
     Pstprc_RAMi_clkb      => Pstprc_RAMi_clkb,
-    Pstprc_RAMi_dina      => Pstprc_RAMi_dina,
+    Pstprc_RAMi_dina      => Pstprc_RAMi_dina_d,
     Pstprc_RAMi_doutb     => Pstprc_RAMi_doutb,
     ini_pstprc_RAMx_addra => ini_pstprc_RAMx_addra,
     ini_pstprc_RAMx_addrb => ini_pstprc_RAMx_addrb,
     Pstprc_RAMx_rden_ln   => Pstprc_RAMx_rden_ln
     );
+
+  pstprc_RAMi_dina_ts: process (Pstprc_RAMq_clka, rst_n) is
+  begin  -- process pstprc_RAMi_dina
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      pstprc_RAMi_dina_d<=(others => '0');
+    elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
+      pstprc_RAMi_dina_d<=pstprc_RAMi_dina;
+    end if;
+  end process pstprc_RAMi_dina_ts;
+
+    pstprc_RAMq_dina_ts: process (Pstprc_RAMq_clka, rst_n) is
+  begin  -- process pstprc_Ramq_dina
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      pstprc_Ramq_dina_d<=(others => '0');
+    elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
+      pstprc_Ramq_dina_d<=pstprc_Ramq_dina;
+    end if;
+  end process pstprc_Ramq_dina_ts;
+-------------------------------------------------------------------------------  
   set_clk_div_cnt : process (Pstprc_RAMq_clka) is
   begin  -- process set_clk_div_cnt
     -- if rst_n = '0' then                           -- asynchronous reset (active

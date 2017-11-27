@@ -55,6 +55,8 @@ entity cmd_ana_top is
     Cmd_demowinstart     : out std_logic_vector(14 downto 0);
     cmd_ADC_gain_adj : out std_logic_vector(18 downto 0);
     cmd_adc_reconfig : buffer std_logic;
+    cmd_pstprc_num_en          : out    std_logic;
+    cmd_Pstprc_num         : out    std_logic_vector(3 downto 0);
     cmd_Pstprc_DPS : out std_logic_vector(15 downto 0)
     -- cmd_Pstprc_DPS_en : out std_logic
     );
@@ -70,30 +72,30 @@ architecture Behavioral of cmd_ana_top is
   signal cmd_ana_rd_en   : std_logic;
 
   
-  component command_analysis
-    port(
-      rd_data                : in  std_logic_vector(7 downto 0);
-      rd_clk                 : in  std_logic;
-      rd_addr                : in  std_logic_vector(13 downto 0);
-      rd_en                  : in  std_logic;
-      rst_n                  : in  std_logic;
-      frm_length             : out std_logic_vector(15 downto 0);
-      frm_type               : out std_logic_vector(15 downto 0);
-      ram_start_o            : out std_logic;
-      upload_trig_ethernet_o : out std_logic;
-      cmd_pstprc_IQ_sw       : out std_logic_vector(1 downto 0);
-      TX_dst_MAC_addr        : out std_logic_vector(47 downto 0);
-      cmd_smpl_en_o          : out std_logic;
-      cmd_smpl_depth         : out std_logic_vector(15 downto 0);
-      cmd_smpl_trig_cnt      : out std_logic_vector(15 downto 0);
-      Cmd_demowinln          : out std_logic_vector(14 downto 0);
-      Cmd_demowinstart       : out std_logic_vector(14 downto 0);
-      cmd_ADC_gain_adj : out std_logic_vector(18 downto 0);
-      cmd_ADC_reconfig : buffer std_logic;
-      cmd_Pstprc_DPS : out std_logic_vector(15 downto 0)
-      -- cmd_Pstprc_DPS_en : out std_logic
-      );
-  end component;
+component command_analysis is
+  port (
+    rd_data                : in     std_logic_vector(7 downto 0);
+    rd_clk                 : in     std_logic;
+    rd_addr                : in     std_logic_vector(13 downto 0);
+    rd_en                  : in     std_logic;
+    frm_length             : out    std_logic_vector(15 downto 0);
+    frm_type               : out    std_logic_vector(15 downto 0);
+    ram_start_o            : out    std_logic;
+    upload_trig_ethernet_o : out    std_logic;
+    rst_n                  : in     std_logic;
+    cmd_pstprc_IQ_sw       : out    std_logic_vector(1 downto 0);
+    TX_dst_MAC_addr        : out    std_logic_vector(47 downto 0);
+    cmd_smpl_en_o          : out    std_logic;
+    cmd_smpl_depth         : out    std_logic_vector(15 downto 0);
+    cmd_smpl_trig_cnt      : out    std_logic_vector(15 downto 0);
+    Cmd_demowinln          : out    std_logic_vector(14 downto 0);
+    Cmd_demowinstart       : out    std_logic_vector(14 downto 0);
+    cmd_ADC_gain_adj       : out    std_logic_vector(18 downto 0);
+    cmd_ADC_reconfig       : buffer std_logic;
+    cmd_pstprc_num_en          : out    std_logic;
+    cmd_Pstprc_num         : out    std_logic_vector(3 downto 0);
+    cmd_Pstprc_DPS         : out    std_logic_vector(15 downto 0));
+end component command_analysis;
 
 begin
 
@@ -103,7 +105,8 @@ begin
   cmd_ana_rd_addr  <= rd_addr;          -- for down
   cmd_ana_rd_en    <= rd_en;
 
-  Inst_command_analysis : command_analysis port map(
+command_analysis_1: entity work.command_analysis
+  port map (
     rd_data                => cmd_ana_rd_data,
     rd_clk                 => rd_clk,
     rd_addr                => cmd_ana_rd_addr,
@@ -113,18 +116,18 @@ begin
     ram_start_o            => ram_start,
     upload_trig_ethernet_o => upload_trig_ethernet,
     rst_n                  => rst_n,
+    cmd_pstprc_IQ_sw       => cmd_pstprc_IQ_sw,
     TX_dst_MAC_addr        => TX_dst_MAC_addr,
     cmd_smpl_en_o          => cmd_smpl_en,
     cmd_smpl_depth         => cmd_smpl_depth,
     cmd_smpl_trig_cnt      => cmd_smpl_trig_cnt,
-    cmd_pstprc_IQ_sw       => cmd_pstprc_IQ_sw,
-    cmd_demowinln          => cmd_demowinln,
-    cmd_demowinstart       => cmd_demowinstart,
-    cmd_ADC_gain_adj  => cmd_ADC_gain_adj,
-    cmd_ADC_reconfig =>cmd_ADC_reconfig,
-    cmd_Pstprc_DPS => cmd_Pstprc_DPS
-    -- cmd_Pstprc_DPS_en => cmd_Pstprc_DPS_en
-    );
+    Cmd_demowinln          => Cmd_demowinln,
+    Cmd_demowinstart       => Cmd_demowinstart,
+    cmd_ADC_gain_adj       => cmd_ADC_gain_adj,
+    cmd_ADC_reconfig       => cmd_ADC_reconfig,
+    cmd_pstprc_num_en          => cmd_pstprc_num_en,
+    cmd_Pstprc_num         => cmd_Pstprc_num,
+    cmd_Pstprc_DPS         => cmd_Pstprc_DPS);
   -----------------------------------------------------------------------------
   Rd_en_ps : process (rd_clk, rst_n, ethernet_frm_valid, frm_valid_d) is
   begin  -- process Rd_en_ps

@@ -57,6 +57,8 @@ entity command_analysis is
     Cmd_demowinstart : out std_logic_vector(14 downto 0);
     cmd_ADC_gain_adj : out std_logic_vector(18 downto 0);
     cmd_ADC_reconfig : buffer std_logic;
+    cmd_pstprc_num_en : out std_logic;
+    cmd_Pstprc_num : out std_logic_vector(3 downto 0);
     cmd_Pstprc_DPS : out std_logic_vector(15 downto 0)
     -- cmd_Pstprc_DPS_en : out std_logic
     );
@@ -356,6 +358,23 @@ begin  -- process Pstprc_DPS_ps
     end if;
   end if;
 end process Pstprc_DPS_ps;
+
+pstprc_num_ps: process (rd_clk, rst_n) is
+begin  -- process pstprc_num_ps
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    cmd_Pstprc_num<=(others => '0');
+    cmd_pstprc_num_en<='0';
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+      if reg_addr =x"0018" then
+      if rd_addr=x"19" then
+        cmd_Pstprc_num<=reg_data(47 downto 44);
+        cmd_pstprc_num_en<='1';
+      else
+        cmd_pstprc_num_en<='0';
+      end if;
+    end if;
+  end if;
+end process pstprc_num_ps;
 -------------------------------------------------------------------------------
 -- ADC_gain_adj_ps: process (rd_clk, rst_n) is
 -- begin  -- process ADC_gain_adj_ps

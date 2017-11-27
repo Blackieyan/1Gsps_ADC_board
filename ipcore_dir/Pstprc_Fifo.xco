@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 13.3
-# Date: Thu Apr 27 01:38:10 2017
+# Date: Wed Nov 22 12:20:48 2017
 #
 ##############################################################
 #
@@ -156,7 +156,7 @@ CSET overflow_flag_axi=false
 CSET overflow_sense=Active_High
 CSET overflow_sense_axi=Active_High
 CSET performance_options=Standard_FIFO
-CSET programmable_empty_type=Single_Programmable_Empty_Threshold_Input_Port
+CSET programmable_empty_type=Single_Programmable_Empty_Threshold_Constant
 CSET programmable_empty_type_axis=Empty
 CSET programmable_empty_type_rach=Empty
 CSET programmable_empty_type_rdch=Empty
@@ -214,4 +214,4 @@ CSET wuser_width=1
 MISC pkg_timestamp=2011-03-14T07:12:32.000Z
 # END Extra information
 GENERATE
-# CRC: 3f169ab3
+# CRC: 44c31753

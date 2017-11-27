@@ -40,6 +40,7 @@ entity DDS_top is
     dds_sclr        : in  std_logic;
     dds_en          : in  std_logic;
     dds_phase_shift : in  std_logic_vector(15 downto 0);
+    Pstprc_num_frs : in std_logic;
     -- pstprc_dps_en : in std_logic;
     cos_out         : out std_logic_vector(95 downto 0);
     sin_out         : out std_logic_vector(95 downto 0);
@@ -196,7 +197,7 @@ end process data_switch_ps;
     if dds_sclr = '1' then              -- asynchronous reset (active low)
       dds_ram_wren <= "1";              --write ram after reset and power on
     elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
-      if dds_phase_shift_d2 /= dds_phase_shift_d then
+      if Pstprc_num_frs ='1' then
         dds_ram_wren <= "1";
       elsif dds_ram_addra =  cmd_smpl_depth(14 downto 0) then         --smpl_depth +1
         dds_ram_wren <= "0";

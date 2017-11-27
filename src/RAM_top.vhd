@@ -71,6 +71,8 @@ architecture Behavioral of RAM_top is
   constant Div_multi         : std_logic_vector(3 downto 0)  := "1010";
   signal ram_wren : std_logic;
   signal ram_wren_cnt : std_logic_vector(11 downto 0);
+  signal ram_I_dina_d : std_logic_vector(31 downto 0);
+  signal ram_Q_dina_d : std_logic_vector(31 downto 0);
   component RAM_I
     port(
       rst_n               : in  std_logic;
@@ -110,7 +112,7 @@ begin
     ram_wren            => ram_wren,
     posedge_sample_trig => posedge_sample_trig,
     cmd_smpl_depth      => cmd_smpl_depth,
-    ram_I_dina          => ram_I_dina,
+    ram_I_dina          => ram_I_dina_d,
     ram_I_clka          => ram_I_clka,
     ram_I_clkb          => ram_I_clkb,
     ram_I_rden          => ram_I_rden,
@@ -124,7 +126,7 @@ begin
     posedge_sample_trig => posedge_sample_trig,
     rst_n               => rst_n,
     cmd_smpl_depth      => cmd_smpl_depth,
-    ram_Q_dina          => ram_Q_dina,
+    ram_Q_dina          => ram_Q_dina_d,
     ram_Q_clka          => ram_Q_clka,
     ram_Q_clkb          => ram_Q_clkb,
     ram_Q_rden          => ram_Q_rden,
@@ -234,6 +236,24 @@ begin
       end if;
     end if;
   end process ram_wren_cnt_ps;
+  -----------------------------------------------------------------------------
+  ram_I_dina_d_ts: process (ram_Q_clka, rst_n) is
+  begin  -- process ram_I_dina_d_ts
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      ram_I_dina_d<=(others => '0');
+    elsif ram_Q_clka'event and ram_Q_clka = '1' then  -- rising clock edge
+      ram_I_dina_d<=ram_I_dina;
+    end if;
+  end process ram_I_dina_d_ts;
+
+    ram_Q_dina_d_ts: process (ram_Q_clka, rst_n) is
+  begin  -- process ram_I_dina_d_ts
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      ram_Q_dina_d<=(others => '0');
+    elsif ram_Q_clka'event and ram_Q_clka = '1' then  -- rising clock edge
+      ram_Q_dina_d<=ram_Q_dina;
+    end if;
+  end process ram_Q_dina_d_ts;
   -----------------------------------------------------------------------------
 end Behavioral;
 
