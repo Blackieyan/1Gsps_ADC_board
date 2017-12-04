@@ -96,7 +96,7 @@ architecture Behavioral of post_process is
   signal bs1_IxCOS_CO  : array_bs1_QxCOS_CO;
   signal bs1_QxSIN_CO  : array_bs1_QxCOS_CO;
   signal bs1_IxSIN_CO  : array_bs1_QxCOS_CO;
-
+  
   -- signal rs_Q_x_sin : std_logic_vector(23 downto 0);
   -- signal rs_Q_x_cos : std_logic_vector(23 downto 0);
   -- signal rs_I_x_sin : std_logic_vector(23 downto 0);
@@ -190,6 +190,7 @@ architecture Behavioral of post_process is
 
   signal Q_data_d : std_logic_vector(63 downto 0);
   signal I_data_d : std_logic_vector(63 downto 0);
+  signal pstprc_en_d : std_logic;
 -------------------------------------------------------------------------------
 	COMPONENT DDS_top
 	PORT(
@@ -833,11 +834,11 @@ Q_data_d_ts: process (clk, rst_n) is
     if rst_n = '0' then                 -- asynchronous reset (active low)
       Adder_en <= '0';
     elsif clk'event and clk = '1' then  -- rising clock edge
-      Adder_en <= Pstprc_en;
+      Adder_en <= Pstprc_en_d;
     end if;
   end process Adder_en_ps;
 
-  Pstprc_en_d_ps : process (clk, rst_n) is
+  Adder_en_d_ps : process (clk, rst_n) is
   begin  -- process Pstprc_en_d_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
       Adder_en_d  <= '0';
@@ -847,6 +848,15 @@ Q_data_d_ts: process (clk, rst_n) is
       Adder_en_d2     <= Adder_en_d;
       Adder_en_d3     <= Adder_en_d2;
       mult_accum_ce_d <= mult_accum_ce;
+    end if;
+  end process Adder_en_d_ps;
+
+  Pstprc_en_d_ps: process (clk, rst_n) is
+  begin  -- process Pstprc_en_d_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      Pstprc_en_d<='0';
+    elsif clk'event and clk = '1' then  -- rising clock edge
+      Pstprc_en_d<=Pstprc_en;
     end if;
   end process Pstprc_en_d_ps;
 
@@ -888,13 +898,13 @@ Q_data_d_ts: process (clk, rst_n) is
 
 -----------------------------------------------------------------------------
   mult_accum_clk    <= clk;
-  mult_accum_ce     <= pstprc_en and adder_en_d;  --delay 2 clk after ram_rden
+  mult_accum_ce     <= pstprc_en_d and adder_en_d;  --delay 2 clk after ram_rden
                                                   --and low at 1 clk after ram_rden
   mult_accum_bypass <= '0';
 
 
   dds_sclr <= not rst_n;
-  dds_en  <= pstprc_en;
+  dds_en  <= pstprc_en_d;
 
   ADD_clk <= clk;
   ADD_RST <= not rst_n;

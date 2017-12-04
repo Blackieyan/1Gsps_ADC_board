@@ -75,7 +75,7 @@ architecture Behavioral of DDS_top is
   signal ram_data_sw : std_logic;
   signal dds_sin_mux_out : std_logic_vector(11 downto 0);
   signal dds_cos_mux_out : std_logic_vector(11 downto 0);
-  
+  signal pstprc_en_d : std_logic;
   component DDS1
     port (
       reg_select : in  std_logic;

@@ -82,6 +82,7 @@ architecture Behavioral of Dmod_Seg is
   signal adder_en                : std_logic;
   signal adder_en_d              : std_logic;
   signal adder_en_d2             : std_logic;
+  signal Pstprc_en_d : std_logic;
   signal Pstprc_add_stp          : std_logic;
   signal ini_pstprc_RAMx_addra   : std_logic_vector(12 downto 0);
   signal ini_pstprc_RAMx_addrb   : std_logic_vector(11 downto 0);
@@ -259,7 +260,7 @@ begin
       DDS_phase_shift      => Pstprc_DPS(i),
       -- Pstprc_dps_en => Pstprc_dps_en,
       rst_n                => rst_n,
-      Pstprc_en            => Pstprc_en,
+      Pstprc_en            => Pstprc_en,  --for debugging the timing error
       pstprc_num_frs       => pstprc_num_frs(i),
       Pstprc_RAMx_rden_stp => Pstprc_RAMq_rden_stp,
       Pstprc_finish        => Pstprc_finish_seq(i),
@@ -363,7 +364,7 @@ begin
     end if;
   end process Pstprc_RAMx_rden_d_ps;
 
-  Pstprc_en_d_ps : process (clk, rst_n) is
+  Adder_en_d_ps : process (clk, rst_n) is
   begin  -- process Pstprc_en_d_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
       Adder_en_d  <= '0';
@@ -372,7 +373,7 @@ begin
       Adder_en_d  <= Adder_en;
       Adder_en_d2 <= Adder_en_d;
     end if;
-  end process Pstprc_en_d_ps;
+  end process Adder_en_d_ps;
 
 -- Pstprc_RAMq_rden_stp_d_ps : process (clk, rst_n) is
 -- begin  -- process Pstprc_RAMq_rden_stp_d    
@@ -400,6 +401,14 @@ begin
     end if;
   end process Adder_en_ps;
 
+  Pstprc_en_d_ps: process (clk, rst_n) is
+  begin  -- process Pstprc_en_d_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      Pstprc_en_d<='0';
+    elsif clk'event and clk = '1' then  -- rising clock edge
+      Pstprc_en_d<=Pstprc_en;
+    end if;
+  end process Pstprc_en_d_ps;
 
   Pstprc_en <= Pstprc_RAMq_rden_d or Pstprc_RAMq_rden;
 -------------------------------------------------------------------------------
