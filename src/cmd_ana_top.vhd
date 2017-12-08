@@ -34,6 +34,9 @@ use UNISIM.vcomponents.all;
 --use UNISIM.VComponents.all;
 
 entity cmd_ana_top is
+    generic(
+    dds_phase_width : integer := 24
+    );
   port(
     rd_clk               : in  std_logic;
     frm_length           : out std_logic_vector(15 downto 0);
@@ -57,7 +60,7 @@ entity cmd_ana_top is
     cmd_adc_reconfig : buffer std_logic;
     cmd_pstprc_num_en          : out    std_logic;
     cmd_Pstprc_num         : out    std_logic_vector(3 downto 0);
-    cmd_Pstprc_DPS : out std_logic_vector(15 downto 0)
+    cmd_Pstprc_DPS : out std_logic_vector(dds_phase_width downto 0)
     -- cmd_Pstprc_DPS_en : out std_logic
     );
 end cmd_ana_top;
@@ -94,7 +97,7 @@ component command_analysis is
     cmd_ADC_reconfig       : buffer std_logic;
     cmd_pstprc_num_en          : out    std_logic;
     cmd_Pstprc_num         : out    std_logic_vector(3 downto 0);
-    cmd_Pstprc_DPS         : out    std_logic_vector(15 downto 0));
+    cmd_Pstprc_DPS         : out    std_logic_vector(dds_phase_width downto 0));
 end component command_analysis;
 
 begin

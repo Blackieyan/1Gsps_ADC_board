@@ -36,7 +36,9 @@ use UNISIM.vcomponents.all;
 entity Dmod_Seg is
   generic (
     mult_accum_s_width : integer := 32;
+    dds_phase_width : integer := 24;
     pstprc_ch_num : integer := 12
+    
     );
   port(
     clk                 : in  std_logic;
@@ -60,7 +62,7 @@ entity Dmod_Seg is
     -- Pstprc_fifo_rden :  in std_logic;
     -- Pstprc_fifo_rs : out std_logic_vector(7 downto 0);
     -- Pstprc_fifo_rdclk : in std_logic;   -- same with the ethernet txclk
-    Pstprc_DPS_twelve   : in  std_logic_vector(15 downto 0);
+    Pstprc_DPS_twelve   : in  std_logic_vector(dds_phase_width downto 0);
     pstprc_num_en       : in  std_logic;
     Pstprc_num          : in  std_logic_vector(3 downto 0);
     pstprc_fifo_wren    : out std_logic
@@ -102,7 +104,7 @@ architecture Behavioral of Dmod_Seg is
   type Pstprc_lnstart_array is array (pstprc_ch_num-1 downto 0) of std_logic_vector(14 downto 0);
   signal dds_data_len       : Pstprc_lnstart_array;
   signal dds_data_start     : Pstprc_lnstart_array;
-  type Pstprc_DPS_array is array (pstprc_ch_num-1 downto 0) of std_logic_vector(15 downto 0);
+  type Pstprc_DPS_array is array (pstprc_ch_num-1 downto 0) of std_logic_vector(dds_phase_width downto 0);
   signal Pstprc_DPS         : Pstprc_DPS_array;
   type Pstprc_DATA_array is array (pstprc_ch_num-1 downto 0) of std_logic_vector(31 downto 0);
   signal Pstprc_Qdata       : Pstprc_DATA_array;
@@ -142,7 +144,7 @@ architecture Behavioral of Dmod_Seg is
       rst_n                : in  std_logic;
       Q_data               : in  std_logic_vector(63 downto 0);
       I_data               : in  std_logic_vector(63 downto 0);
-      DDS_phase_shift      : in  std_logic_vector (15 downto 0);
+      DDS_phase_shift      : in  std_logic_vector (dds_phase_width downto 0);
       -- Pstprc_dps_en : in std_logic;
       Pstprc_en            : in  std_logic;
       Pstprc_RAMx_rden_stp : in  std_logic;
@@ -214,7 +216,8 @@ begin
     pstprc_num_select_ps : process (clk, rst_n) is
     begin  -- process pstprc_num_select_ps
       if rst_n = '0' then                 -- asynchronous reset (active low)
-        Pstprc_dps(i)     <= x"1500";
+        Pstprc_dps(i)     <= '0'&x"150000";  --default '0' reprensents positive
+                                             
         dds_data_start(i) <= "000"&x"004";
         dds_data_len(i)   <= "000"&x"109";
       elsif clk'event and clk = '1' then  -- rising clock edge

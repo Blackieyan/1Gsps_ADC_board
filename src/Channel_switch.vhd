@@ -127,8 +127,8 @@ begin
   rden_mux_ps : process (clk, rst_n) is
   begin  -- process rden_mux_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      Pstprc_fifo_rden <= Ram_rden;
-      CM_RAM_rden      <= '0';
+          Pstprc_fifo_rden <= '0';
+          CM_RAM_rden      <= Ram_rden;
     -- elsif clk'event and clk = '1' then  -- rising clock edge
     else
       case cmd_pstprc_IQ_sw is
@@ -139,8 +139,8 @@ begin
           Pstprc_fifo_rden <= Ram_rden;
           CM_RAM_rden      <= '0';
         when others =>
-          Pstprc_fifo_rden <= Ram_rden;
-          CM_RAM_rden      <= '0';
+          Pstprc_fifo_rden <= '0';
+          CM_RAM_rden      <= Ram_rden;
       end case;
     end if;
   end process rden_mux_ps;
@@ -148,7 +148,7 @@ begin
   data_mux_ps : process (clk, rst_n) is
   begin  -- process data_mux_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      FIFO_upload_data <=  Pstprc_fifo_data;
+      FIFO_upload_data <= CM_RAM_QI_data_o;
     -- elsif clk'event and clk = '1' then  -- rising clock edge
     else
       case cmd_pstprc_IQ_sw is
@@ -165,7 +165,7 @@ begin
   state_mux_ps : process (clk, rst_n) is
   begin  -- process state_mux_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      CW_CH_flag <=  x"22";
+      CW_CH_flag <= CM_CH_flag_o;
     else
       -- elsif clk'event and clk = '1' then  -- rising clock edge
       case cmd_pstprc_IQ_sw is
@@ -182,7 +182,7 @@ begin
   last_byte_mux_ps : process (clk, rst_n) is
   begin  -- process   last_byte_mux_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      sw_ram_last <= posedge_pempty;
+          sw_ram_last <= CM_RAM_last_o;
     else
       -- elsif clk'event and clk = '1' then  -- rising clock edge
       case cmd_pstprc_IQ_sw is
@@ -199,7 +199,7 @@ begin
   ether_trig_mux_ps : process (clk, rst_n) is
   begin  -- process ether_trig_mux_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      CW_ether_trig <= Pstprc_finish;
+          CW_ether_trig <= posedge_sample_trig;
     else
       -- elsif clk'event and clk = '1' then  -- rising clock edge
       case cmd_pstprc_IQ_sw is
@@ -216,7 +216,7 @@ begin
   mult_frame_en_ps : process (clk, rst_n) is
   begin  -- process mult_frame_en_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      CW_mult_frame_en_o <= '0';
+      CW_mult_frame_en_o <= CM_mult_frame_en_o;
     else
       -- elsif clk'event and clk = '1' then  -- rising clock edge
       case cmd_pstprc_IQ_sw is
@@ -259,8 +259,8 @@ begin
   posedge_sample_trig_switch_ps : process (clk, rst_n) is
   begin  -- process posedge_sample_trig_switch_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      demo_smpl_trig <=  posedge_sample_trig;
-      wave_smpl_trig <= '0';
+      demo_smpl_trig <= '0';
+      wave_smpl_trig <= posedge_sample_trig;
     else
       case cmd_pstprc_IQ_sw is
         when "01" =>
@@ -270,8 +270,8 @@ begin
           demo_smpl_trig <= posedge_sample_trig;
           wave_smpl_trig <= '0';
         when others =>
-          demo_smpl_trig <= posedge_sample_trig;
-          wave_smpl_trig <='0';
+          demo_smpl_trig <= '0';
+          wave_smpl_trig <= posedge_sample_trig;
       end case;
     end if;
   end process posedge_sample_trig_switch_ps;

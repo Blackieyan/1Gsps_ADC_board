@@ -35,15 +35,21 @@ use UNISIM.vcomponents.all;
 --use UNISIM.VComponents.all;
 
 entity DDS_top is
+  generic(
+    dds_phase_width : integer := 24;
+    dds_output_width : integer :=12
+    );
   port(
     dds_clk         : in  std_logic;
     dds_sclr        : in  std_logic;
     dds_en          : in  std_logic;
-    dds_phase_shift : in  std_logic_vector(15 downto 0);
+    dds_phase_shift : in  std_logic_vector(dds_phase_width downto 0);
+    -- MSB 1 represents the negetive frequency 0 represents positive frequency
+    -- ,default 0
     Pstprc_num_frs : in std_logic;
     -- pstprc_dps_en : in std_logic;
-    cos_out         : out std_logic_vector(95 downto 0);
-    sin_out         : out std_logic_vector(95 downto 0);
+    cos_out         : out std_logic_vector(dds_output_width*8-1 downto 0);
+    sin_out         : out std_logic_vector(dds_output_width*8-1 downto 0);
     dds_data_start : in std_logic_vector(14 downto 0);
     dds_data_len : in std_logic_vector(14 downto 0);
     cmd_smpl_depth : in std_logic_vector(15 downto 0)
@@ -56,26 +62,32 @@ architecture Behavioral of DDS_top is
   signal dds_ce             : std_logic;
   signal dds_rdy            : std_logic;
   signal dds_rfd            : std_logic;
-  signal dds_phase_out      : std_logic_vector(15 downto 0);
-  signal dds_phase_shift_d  : std_logic_vector(15 downto 0);
-  signal dds_phase_shift_d2 : std_logic_vector(15 downto 0);
+  signal dds_phase_out      : std_logic_vector(dds_phase_width-1 downto 0);
+  signal dds_phase_shift_d  : std_logic_vector(dds_phase_width downto 0);
+  signal dds_phase_shift_d2 : std_logic_vector(dds_phase_width downto 0);
   -- signal dps_en_cnt : std_logic_vector(11 downto 0);
   signal dds_ram_wren       : std_logic_vector(0 downto 0);
   signal dds_ram_addra      : std_logic_vector(14 downto 0);
   signal dds_ram_addrb      : std_logic_vector(11 downto 0);
-  signal dds_cos            : std_logic_vector(11 downto 0);
-  signal dds_sin            : std_logic_vector(11 downto 0);
+  signal dds_cos            : std_logic_vector(dds_output_width-1 downto 0);
+  signal dds_cos_d            : std_logic_vector(dds_output_width-1 downto 0);
+  signal dds_sin            : std_logic_vector(dds_output_width-1 downto 0);
   signal dds_ram_rden       : std_logic;
-  signal fifo_cos    : std_logic_vector(95 downto 0);
-  signal fifo_sin    : std_logic_vector(95 downto 0);
+  signal fifo_cos    : std_logic_vector(dds_output_width*8-1 downto 0);
+  signal fifo_sin    : std_logic_vector(dds_output_width*8-1 downto 0);
   signal finish_sclr : std_logic;
   signal wren_finish_d  : std_logic;
   signal wren_finish  : std_logic;
   signal dds_ram_wren_d : std_logic_vector(0 downto 0);
   signal ram_data_sw : std_logic;
-  signal dds_sin_mux_out : std_logic_vector(11 downto 0);
-  signal dds_cos_mux_out : std_logic_vector(11 downto 0);
+  signal dds_sin_mux_out : std_logic_vector(dds_output_width-1 downto 0);
+  signal dds_cos_mux_out : std_logic_vector(dds_output_width-1 downto 0);
   signal pstprc_en_d : std_logic;
+  signal dds_rdy2            : std_logic;
+  signal dds_rfd2            : std_logic;
+  signal dds_phase_out2      : std_logic_vector(dds_phase_width-1 downto 0);
+  signal dds_cos_out: std_logic_vector(dds_output_width-1 downto 0);
+  signal dds_sin_out : std_logic_vector(dds_output_width-1 downto 0);
   component DDS1
     port (
       reg_select : in  std_logic;
@@ -83,13 +95,27 @@ architecture Behavioral of DDS_top is
       sclr       : in  std_logic;
       we         : in  std_logic;
       ce         : in  std_logic;
-      data       : in  std_logic_vector(15 downto 0);
+      data       : in  std_logic_vector(dds_phase_width-1 downto 0);
       rdy        : out std_logic;
       rfd        : out std_logic;
-      cosine     : out std_logic_vector(11 downto 0);
-      sine       : out std_logic_vector(11 downto 0);
-      phase_out  : out std_logic_vector(15 downto 0));
+      cosine     : out std_logic_vector(dds_output_width-1 downto 0);
+      sine       : out std_logic_vector(dds_output_width-1 downto 0);
+      phase_out  : out std_logic_vector(dds_phase_width-1 downto 0));
   end component;
+
+  component DDS2
+	port (
+	reg_select: in std_logic;
+	ce: in std_logic;
+	clk: in std_logic;
+	sclr: in std_logic;
+	we: in std_logic;
+	data: in std_logic_vector(dds_phase_width-1 downto 0);
+	rdy: out std_logic;
+	rfd: out std_logic;
+	sine: out std_logic_vector(dds_output_width-1 downto 0);
+	phase_out: out std_logic_vector(dds_phase_width-1 downto 0));
+end component;
 
   component dds_ram
     port (
@@ -97,11 +123,11 @@ architecture Behavioral of DDS_top is
       ena   : in  std_logic;
       wea   : in  std_logic_vector(0 downto 0);
       addra : in  std_logic_vector(14 downto 0);
-      dina  : in  std_logic_vector(11 downto 0);
+      dina  : in  std_logic_vector(dds_output_width-1 downto 0);
       clkb  : in  std_logic;
       enb   : in  std_logic;
-      addrb : in  std_logic_vector(11 downto 0);
-      doutb : out std_logic_vector(95 downto 0)
+      addrb : in  std_logic_vector(dds_output_width-1 downto 0);
+      doutb : out std_logic_vector(dds_output_width*8-1 downto 0)
       );
   end component;
 
@@ -132,14 +158,25 @@ begin
       sclr       => dds_sclr or finish_sclr,
       we         => '1',
       ce         => dds_ce,             --pull up from the (demoWinstart -2)
-      data       => dds_phase_shift,    --fout = clk*data/2^N
+      data       => dds_phase_shift(dds_phase_width-1 downto 0),    --fout = clk*data/2^N
       rdy        => dds_rdy,
       rfd        => dds_rfd,
-      cosine     => dds_cos,
-      sine       => dds_sin,
+      cosine     => dds_cos_out,
+      sine       => dds_sin_out,
       phase_out  => dds_phase_out);
 
-
+  -- DDS_inst2 : DDS2
+  --   port map (
+  --     reg_select => '0',
+  --     clk        => dds_clk,
+  --     sclr       => dds_sclr or finish_sclr,
+  --     we         => '1',
+  --     ce         => dds_ce,             --pull up from the (demoWinstart -2)
+  --     data       => dds_phase_shift(dds_phase_width-1 downto 0),    --fout = clk*data/2^N
+  --     rdy        => dds_rdy2,
+  --     rfd        => dds_rfd2,
+  --     sine       => neg_sin,
+  --     phase_out  => dds_phase_out2);
 
   sin_ram_inst : dds_ram
     port map (
@@ -169,8 +206,35 @@ begin
 
   dds_ram_rden <= dds_en;               --control by module input signal 
 
+  -----------------------------------------------------------------------------
+  -- purpose: when the frequency is negetive then switch the dds_sin to neg_sin
+  -- type   : sequential
+  -- inputs : dds_clk, dds_sclr
+  -- outputs: 
+  sine_polarity_ps: process (dds_clk, dds_sclr) is
+  begin  -- process sine_polarity_ps
+    if dds_sclr = '1' then              -- asynchronous reset (active low)
+      dds_sin<= (others => '0');
+    elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
+      if dds_phase_shift(dds_phase_width)='1' then
+        dds_sin<=not(dds_sin_out)+1;
+      else
+        dds_sin<=dds_sin_out;
+      end if;
+    end if;
+  end process sine_polarity_ps;
+  
+  dds_cos_d_ps: process (dds_clk, dds_sclr) is
+  begin  -- process dds_cos_d
+    if dds_sclr = '1' then              -- asynchronous reset (active low)
+      dds_cos<=(others => '0');
+    elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
+      dds_cos<=dds_cos_out;
+    end if;
+  end process dds_cos_d_ps;
+  
 data_switch_ps: process (dds_clk, dds_sclr) is
-begin  -- process data_switch_ps
+ begin  -- process data_switch_ps
   if dds_sclr = '1' then                -- asynchronous reset (active low)
     dds_sin_mux_out<=(others => '0');
     dds_cos_mux_out<=(others => '0');
@@ -181,7 +245,7 @@ begin  -- process data_switch_ps
         dds_sin_mux_out<=(others => '0');
       when '1' =>
         dds_sin_mux_out<= dds_sin;
-        dds_cos_mux_out<=dds_cos;
+        dds_cos_mux_out<= dds_cos;
       when others => null;
     end case;
   end if;
@@ -236,7 +300,7 @@ end process data_switch_ps;
     if dds_sclr = '1' then              -- asynchronous reset (active low)
       dds_ce<='0';
     elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
-      if dds_ram_addra = dds_data_start-3 then  --start must equal larger than "4"
+      if dds_ram_addra = dds_data_start-4 then  --start must equal larger than "5"
         dds_ce<='1';
       elsif dds_ram_addra= dds_data_start+dds_data_len-1 then  --remain to be fixed
         dds_ce<='0';

@@ -36,6 +36,9 @@ use UNISIM.vcomponents.all;
 --use UNISIM.VComponents.all;
 
 entity ZJUprojects is
+    generic (
+    dds_phase_width : integer := 24
+    );
   port(
     OSC_in_n        : in    std_logic;
     OSC_in_p        : in    std_logic;
@@ -261,7 +264,8 @@ architecture Behavioral of ZJUprojects is
   signal cmd_demowinln                : std_logic_vector(14 downto 0) := "000"&x"096";
   signal cmd_demowinstart             : std_logic_vector(14 downto 0) := "000"&x"096";
   signal cmd_Pstprc_dps_en            : std_logic;
-  signal cmd_Pstprc_dps               : std_logic_vector(15 downto 0) := x"4000";
+  signal cmd_Pstprc_dps               : std_logic_vector(dds_phase_width downto 0); --
+  --MSB reprensent the polarity of frequency
   signal cmd_adc_reconfig             : std_logic;
   signal cmd_pstprc_num_en          : std_logic;
   signal cmd_Pstprc_num         : std_logic_vector(3 downto 0);
@@ -446,7 +450,7 @@ architecture Behavioral of ZJUprojects is
       cmd_ADC_reconfig     : buffer std_logic;
       cmd_pstprc_num_en    : out    std_logic;
       cmd_Pstprc_num       : out    std_logic_vector(3 downto 0);
-      cmd_Pstprc_DPS       : out    std_logic_vector(15 downto 0)
+      cmd_Pstprc_DPS       : out    std_logic_vector(dds_phase_width downto 0)
      -- cmd_Pstprc_dps_en : out std_logic
       );
   end component;
@@ -579,7 +583,7 @@ architecture Behavioral of ZJUprojects is
       demoWinln_twelve           : in  std_logic_vector(14 downto 0);
       demoWinstart_twelve        : in  std_logic_vector(14 downto 0);
       -- Pstprc_dps_en       : in std_logic;
-      Pstprc_DPS_twelve          : in  std_logic_vector(15 downto 0);
+      Pstprc_DPS_twelve          : in  std_logic_vector(dds_phase_width downto 0);
       Pstprc_IQ_seq_o           : out std_logic_vector(63 downto 0);
       pstprc_fifo_wren    : out std_logic;
       Pstprc_finish       : out std_logic;

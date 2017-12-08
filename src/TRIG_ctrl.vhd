@@ -39,7 +39,7 @@ entity TRIG_ctrl is
     rst_n : in std_logic;
     cmd_smpl_en : in std_logic;
     cmd_smpl_trig_cnt : in std_logic_vector(15 downto 0);
-    ram_start : in std_logic;
+    ram_start : in std_logic;           --force trig from ethernet
     SRCC1_p_trigin : in std_logic;
     posedge_sample_trig_o : out std_logic
     );

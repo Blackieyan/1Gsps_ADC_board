@@ -34,6 +34,9 @@ use UNISIM.vcomponents.all;
 --use UNISIM.VComponents.all;
 
 entity command_analysis is
+  generic(
+  dds_phase_width : integer := 24
+    );
   port(
     rd_data         : in  std_logic_vector(7 downto 0);
     rd_clk          : in  std_logic;
@@ -59,7 +62,7 @@ entity command_analysis is
     cmd_ADC_reconfig : buffer std_logic;
     cmd_pstprc_num_en : out std_logic;
     cmd_Pstprc_num : out std_logic_vector(3 downto 0);
-    cmd_Pstprc_DPS : out std_logic_vector(15 downto 0)
+    cmd_Pstprc_DPS : out std_logic_vector(dds_phase_width downto 0)
     -- cmd_Pstprc_DPS_en : out std_logic
     );
 end command_analysis;
@@ -193,7 +196,7 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
   ram_switch_ps: process (rd_clk, rst_n) is
   begin  -- process ram_switch_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-     cmd_pstprc_IQ_sw <= "10";
+     cmd_pstprc_IQ_sw <= "01";
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
       if rd_addr=x"19" then
         if reg_addr=x"0101" and reg_data = x"111111111111" then
@@ -349,11 +352,11 @@ end process cmd_demowinstart_ps;
 Pstprc_DPS_ps: process (rd_clk, rst_n) is
 begin  -- process Pstprc_DPS_ps
   if rst_n = '0' then                   -- asynchronous reset (active low)
-    cmd_Pstprc_DPS <= x"1500";
+    cmd_Pstprc_DPS <= '0'&x"150000";
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
     if reg_addr =x"0016" then
       if rd_addr=x"19" then
-        cmd_Pstprc_DPS<=reg_data(47 downto 32);
+        cmd_Pstprc_DPS<=reg_data(47 downto 23);
       end if;
     end if;
   end if;

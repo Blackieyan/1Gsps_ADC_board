@@ -38,13 +38,14 @@ use UNISIM.vcomponents.all;
 entity post_process is
   generic (
     mult_accum_s_width : integer := 32;
+    dds_phase_width : integer := 24;
     add_period_cnt : integer :=7 -- dsp:5/fabric:8
     );
   port(
     clk                  : in  std_logic;
     Q_data               : in  std_logic_vector(63 downto 0);
     I_data               : in  std_logic_vector(63 downto 0);
-    DDS_phase_shift      : in  std_logic_vector(15 downto 0);
+    DDS_phase_shift      : in  std_logic_vector(dds_phase_width downto 0);
     -- pstprc_dps_en        : in std_logic;
     pstprc_en            : in  std_logic;
     Pstprc_num_frs       : in std_logic;
@@ -197,7 +198,7 @@ architecture Behavioral of post_process is
 		dds_clk : IN std_logic;
 		dds_sclr : IN std_logic;
 		dds_en : IN std_logic;
-		dds_phase_shift : IN std_logic_vector(15 downto 0);
+		dds_phase_shift : IN std_logic_vector(dds_phase_width downto 0);
                 Pstprc_num_frs : in std_logic;
 		cos_out : OUT std_logic_vector(95 downto 0);
 		sin_out : OUT std_logic_vector(95 downto 0);
