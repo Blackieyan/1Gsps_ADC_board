@@ -40,6 +40,7 @@ entity crg_dcms is
     OSC_in_n: in std_logic;
     ADC_CLKOI_p : in std_logic;
     ADC_CLKOI_n : in std_logic;
+    CLK_EXT_250M : in std_logic;
     -- ADC_CLKOQ_p : in std_logic;
     -- ADC_CLKOQ_n : in std_logic;
     PHY_RXC : in std_logic;
@@ -53,6 +54,8 @@ entity crg_dcms is
     CLK_125M : out std_logic;
     CLK_200M : out std_logic;
     CLK_250M : out std_logic;
+    CLK_500M : out std_logic;
+    CLK_EXT_500M : out std_logic;
     CLK_125M_quar : out std_logic
     );
 end crg_dcms;
@@ -64,7 +67,8 @@ architecture Behavioral of crg_dcms is
   signal clk1 : std_logic;
   signal clk2 : std_logic;
   signal clk3 : std_logic;
-   signal clk4 : std_logic;
+  signal clk4 : std_logic;
+  signal clk5 : std_logic;
   signal lck_rst_cnt : std_logic_vector(7 downto 0);
   component dcm_adc_clkoi
     port
@@ -106,15 +110,26 @@ architecture Behavioral of crg_dcms is
         CLK_OUT2  : out std_logic;
         clk_out3  : out std_logic;
         CLK_OUT4          : out    std_logic;
+        CLK_OUT5 : out std_logic;
         locked    : out std_logic
         );
   end component;
+
+  component dcm_ext_dac
+port
+ (-- Clock in ports
+  CLK_IN1           : in     std_logic;
+  -- Clock out ports
+  CLK_OUT1          : out    std_logic
+ );
+end component;
 -------------------------------------------------------------------------------
 begin
   CLK_125M<=CLK1;
   CLK_125M_quar<=CLK2;
   CLK_200M<=CLK3;
   CLK_250M<=CLK4;
+  CLK_500M<=CLK5;
   
   dcm2 : dcm_adc_clkoi
     port map
@@ -148,6 +163,7 @@ begin
       CLK_OUT2  => CLK2,
       CLK_OUT3  => CLK3,
       CLK_OUT4  => CLK4,
+      CLK_OUT5 => CLK5,                 --500MHz for Oserdes in Estmr module 
       locked    => dcm1_locked
       );
 
@@ -158,6 +174,13 @@ begin
       -- Clock out ports
       CLK_OUT1 => PHY_RXC_g);
 
+  dcm_ext_dac_inst : dcm_ext_dac
+  port map
+   (-- Clock in ports
+    CLK_IN1 => CLK_EXT_250M,
+    -- Clock out ports
+    CLK_OUT1 => CLK_EXT_500M);
+-------------------------------------------------------------------------------
   dcm1_locked_d_ps : process (CLK1) is
   begin  -- process dcm1_locked_d_ps
     if CLK1'event and CLK1 = '1' then  -- rising clock edge

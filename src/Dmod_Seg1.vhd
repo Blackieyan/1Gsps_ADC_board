@@ -23,10 +23,11 @@ library UNISIM;
 use IEEE.STD_LOGIC_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
+
 use UNISIM.vcomponents.all;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+-- use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
@@ -36,9 +37,9 @@ use UNISIM.vcomponents.all;
 entity Dmod_Seg is
   generic (
     mult_accum_s_width : integer := 32;
-    dds_phase_width : integer := 24;
-    pstprc_ch_num : integer := 12
-    
+    dds_phase_width    : integer := 24;
+    pstprc_ch_num      : integer := 12
+
     );
   port(
     clk                 : in  std_logic;
@@ -65,7 +66,19 @@ entity Dmod_Seg is
     Pstprc_DPS_twelve   : in  std_logic_vector(dds_phase_width downto 0);
     pstprc_num_en       : in  std_logic;
     Pstprc_num          : in  std_logic_vector(3 downto 0);
-    pstprc_fifo_wren    : out std_logic
+    pstprc_fifo_wren    : out std_logic;
+    ---------------------------------------------------------------------------
+    Estmr_A_eight : in std_logic_vector(31 downto 0);
+    Estmr_B_eight : in std_logic_vector(31 downto 0);
+    Estmr_C_eight : in std_logic_vector(63 downto 0);
+    Estmr_num_en : in std_logic;
+    Estmr_num : in std_logic_vector(3 downto 0);
+    Estmr_sync_en : in std_logic;
+    clk_Estmr :in std_logic;            --clk250M
+    clk_Oserdes : in std_logic;          --clk500M
+    Estmr_OQ : out std_logic            --Oserdes output
+
+
    -- Pstprc_dps_en : in std_logic
     );
 end Dmod_Seg;
@@ -84,23 +97,18 @@ architecture Behavioral of Dmod_Seg is
   signal adder_en                : std_logic;
   signal adder_en_d              : std_logic;
   signal adder_en_d2             : std_logic;
-  signal Pstprc_en_d : std_logic;
+  signal Pstprc_en_d             : std_logic;
   signal Pstprc_add_stp          : std_logic;
   signal ini_pstprc_RAMx_addra   : std_logic_vector(12 downto 0);
   signal ini_pstprc_RAMx_addrb   : std_logic_vector(11 downto 0);
   signal Pstprc_RAMx_rden_ln     : std_logic_vector(11 downto 0);
-  -- signal Pstprc_RAMQ_doutb : std_logic_vector(31 downto 0);
-  -- signal Pstprc_RAMI_doutb : std_logic_vector(31 downto 0);
-  -- signal Pstprc_Qdata            : std_logic_vector(31 downto 0);
-  -- signal Pstprc_Idata            : std_logic_vector(31 downto 0);
 
-  signal Pstprc_fifo_din : std_logic_vector(63 downto 0);
-  signal Pstprc_finish_seq : std_logic_vector(pstprc_ch_num-1 downto 0);
+  signal Pstprc_fifo_din    : std_logic_vector(63 downto 0);
+  signal Pstprc_finish_seq  : std_logic_vector(pstprc_ch_num-1 downto 0);
   signal Pstprc_add_stp_seq : std_logic_vector(pstprc_ch_num-1 downto 0);
   signal pstprc_rs          : std_logic;
   signal Pstprc_fifo_pempty : std_logic;
   signal Pstprc_fifo_valid  : std_logic;
-  -- signal Pstprc_IQ : std_logic_vector(2*mult_accum_s_width-1 downto 0);
   type Pstprc_lnstart_array is array (pstprc_ch_num-1 downto 0) of std_logic_vector(14 downto 0);
   signal dds_data_len       : Pstprc_lnstart_array;
   signal dds_data_start     : Pstprc_lnstart_array;
@@ -113,7 +121,17 @@ architecture Behavioral of Dmod_Seg is
   type Pstprc_IQ_array is array (pstprc_ch_num-1 downto 0) of std_logic_vector(63 downto 0);
   signal pstprc_IQ          : Pstprc_IQ_array;
   signal pstprc_num_frs     : std_logic_vector(pstprc_ch_num-1 downto 0);
-  
+
+  type Estmr_AB is array (7 downto 0) of std_logic_vector(31 downto 0);
+  type Estmr_CC is array (7 downto 0) of std_logic_vector(63 downto 0);
+  type Estmr_state is array (7 downto 0) of std_logic_vector(1 downto 0);
+  signal stat_rdy : std_logic_vector(7 downto 0);
+  signal Estmr_A : Estmr_AB;
+  signal Estmr_B : Estmr_AB;
+  signal Estmr_C : Estmr_CC;
+  signal state : Estmr_state;
+  signal Estmr_FSM_dout : std_logic_vector(3 downto 0);
+
   component Win_RAM_top
     port(
       posedge_sample_trig   : in     std_logic;
@@ -151,29 +169,61 @@ architecture Behavioral of Dmod_Seg is
       Pstprc_finish        : out std_logic;
       Pstprc_Qdata         : out std_logic_vector(31 downto 0);
       Pstprc_Idata         : out std_logic_vector(31 downto 0);
-      Pstprc_add_stp : out std_logic; 
+      Pstprc_add_stp       : out std_logic;
       dds_data_start       : in  std_logic_vector(14 downto 0);
       dds_data_len         : in  std_logic_vector(14 downto 0);
-      Pstprc_num_frs : in std_logic;
+      Pstprc_num_frs       : in  std_logic;
       cmd_smpl_depth       : in  std_logic_vector(15 downto 0)
      -- Pstprc_RAMx_rden_ln : in std_logic_vector(11 downto 0)
       );
   end component;
 
--- component Pstprc_fifo_top
---   port(
---     rst_n              : in  std_logic;
---     Pstprc_fifo_wr_clk : in  std_logic;
---     Pstprc_fifo_rd_clk : in  std_logic;
---     Pstprc_fifo_din    : in  std_logic_vector(63 downto 0);
---     Pstprc_fifo_wren   : in  std_logic;
---     Pstprc_fifo_rden   : in  std_logic;
---     prog_empty_thresh  : in  std_logic_vector(6 downto 0);
---     Pstprc_fifo_dout   : out std_logic_vector(7 downto 0);
---     Pstprc_fifo_valid  : out std_logic;
---     Pstprc_fifo_pempty : out std_logic
---     );
--- end component;
+  component Estimator
+    port(
+      clk            : in  std_logic;
+      rst_n          : in  std_logic;
+      A              : in  std_logic_vector(31 downto 0);
+      B              : in  std_logic_vector(31 downto 0);
+      C              : in  std_logic_vector(63 downto 0);
+      en             : in  std_logic;
+      I              : in  std_logic_vector(31 downto 0);
+      Q              : in  std_logic_vector(31 downto 0);
+      Pstprc_add_stp : in  std_logic;
+      state          : out std_logic_vector(1 downto 0);
+      stat_rdy       : out std_logic
+      );
+  end component;
+
+  	COMPONENT Sync_data_FSM
+	PORT(
+		clk : IN std_logic;
+		rst_n : IN std_logic;
+		stat_rdy : IN std_logic;
+		sync_en : IN std_logic;
+                state0 : IN std_logic_vector(1 downto 0);
+		state1 : IN std_logic_vector(1 downto 0);
+		state2 : IN std_logic_vector(1 downto 0);
+		state3 : IN std_logic_vector(1 downto 0);
+		state4 : IN std_logic_vector(1 downto 0);
+		state5 : IN std_logic_vector(1 downto 0);
+		state6 : IN std_logic_vector(1 downto 0);
+		state7 : IN std_logic_vector(1 downto 0);
+		dout : OUT std_logic_vector(3 downto 0)
+		);
+	END COMPONENT;
+
+  	COMPONENT Oserdese
+	PORT(
+		rst_n : IN std_logic;
+		clk : IN std_logic;
+		clkdiv : IN std_logic;
+		D1 : IN std_logic;
+		D2 : IN std_logic;
+		D3 : IN std_logic;
+		D4 : IN std_logic;          
+		OQ : OUT std_logic
+		);
+	END COMPONENT;
 -----------------------------------------------------------------------------
 begin
   -- ini_pstprc_RAMx_addra <= demoWinstart(14 downto 2);  --15bit width for the
@@ -215,9 +265,9 @@ begin
 -- outputs: 
     pstprc_num_select_ps : process (clk, rst_n) is
     begin  -- process pstprc_num_select_ps
-      if rst_n = '0' then                 -- asynchronous reset (active low)
-        Pstprc_dps(i)     <= '0'&x"150000";  --default '0' reprensents positive
-                                             
+      if rst_n = '0' then                -- asynchronous reset (active low)
+        Pstprc_dps(i) <= '0'&x"150000";  --default '0' reprensents positive
+
         dds_data_start(i) <= "000"&x"004";
         dds_data_len(i)   <= "000"&x"109";
       elsif clk'event and clk = '1' then  -- rising clock edge
@@ -233,7 +283,7 @@ begin
       end if;
     end process pstprc_num_select_ps;
 
-    pstprc_num_frs_ps : process (clk, rst_n) is
+    pstprc_num_frs_ps : process (clk, rst_n) is  --用来trig载入dds数据
     begin  -- process pstprc_num_frs_ps
       if rst_n = '0' then                 -- asynchronous reset (active low)
         pstprc_num_frs(i) <= '0';
@@ -269,20 +319,87 @@ begin
       Pstprc_finish        => Pstprc_finish_seq(i),
       Pstprc_Idata         => Pstprc_Idata(i),
       Pstprc_Qdata         => Pstprc_Qdata(i),
-      Pstprc_add_stp => Pstprc_add_stp_seq(i),
+      Pstprc_add_stp       => Pstprc_add_stp_seq(i),
       dds_data_start       => dds_data_start(i),
       dds_data_len         => dds_data_len(i),
       cmd_smpl_depth       => cmd_smpl_depth
       );
 
-    Pstprc_finish<= Pstprc_finish_seq(0);   -- pstprc_finish_seq(pstprc_ch_num-1 downto 0) turn '1'                                        -- at the same time
-    pstprc_add_stp<= Pstprc_add_stp_seq(0);
+    Pstprc_finish  <= Pstprc_finish_seq(0);  -- pstprc_finish_seq(pstprc_ch_num-1 downto 0) turn '1'                                        -- at the same time
+    pstprc_add_stp <= Pstprc_add_stp_seq(0);
 
-                                      
+
 -------------------------------------------------------------------------------
   end generate Post_process_insts;
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
+  Estimator_gs : for i in 0 to 7 generate
+    -- purpose: 将上位机下传的信号赋值给指定通道
+    -- type   : sequential
+    -- inputs : clk, rst_n
+    -- outputs: 
+    Estmr_args_trans_ps : process (clk, rst_n) is
+    begin  -- process Estmr_args_trans_ps
+      if rst_n = '0' then                 -- asynchronous reset (active low)
+        Estmr_A(i) <= (others => '0');
+        Estmr_B(i) <= (others => '0');  --default 
+        Estmr_C(i) <= (others => '0');
+      elsif clk'event and clk = '1' then  -- rising clock edge
+        if Estmr_num = i and Estmr_num_en = '1' then
+          Estmr_A(i) <= Estmr_A_eight;
+          Estmr_B(i) <= Estmr_B_eight;
+          Estmr_C(i) <= Estmr_C_eight;
+        else
+          Estmr_A(i) <= Estmr_A(i);
+          Estmr_B(i) <= Estmr_B(i);
+          Estmr_C(i) <= Estmr_C(i);
+        end if;
+      end if;
+    end process Estmr_args_trans_ps;
+
+    Inst_Estimator : Estimator port map(
+      clk            => clk_Estmr,        --250MHz clock
+      rst_n          => rst_n,
+      A              => Estmr_A(i),
+      B              => Estmr_B(i),
+      C              => Estmr_C(i),
+      en             => '0',
+      I              => pstprc_Idata(i),
+      Q              => pstprc_Qdata(i),
+      Pstprc_add_stp => Pstprc_add_stp,
+      state          => state(i),
+      stat_rdy       => stat_rdy(i)
+      );
+    
+  end generate Estimator_gs;
+-----------------------------------------------------------------------------
+	Inst_Sync_data_FSM: Sync_data_FSM PORT MAP(
+		clk => clk_Estmr,
+		rst_n => rst_n,
+		stat_rdy => stat_rdy(0),        --至少要从第0通道开始使用
+		sync_en => Estmr_sync_en,
+                state0 => state(0),
+		state1 => state(1),
+		state2 => state(2),
+		state3 =>  state(3),
+		state4 =>  state(4),
+		state5 =>  state(5),
+		state6 =>  state(6),
+		state7 =>  state(7),
+		dout => Estmr_FSM_dout
+        );
+-----------------------------------------------------------------------------
+  	Inst_Oserdese: Oserdese PORT MAP(
+		rst_n => rst_n,
+		clk => clk_Oserdes,     --500
+		clkdiv => clk_Estmr,    --250
+		D1 => Estmr_FSM_dout(0),
+		D2 => Estmr_FSM_dout(1),
+		D3 => Estmr_FSM_dout(2),
+		D4 => Estmr_FSM_dout(3),                 --详情见设计文档,为了配合林金，修改了顺序。
+		OQ => Estmr_OQ
+	);
+-----------------------------------------------------------------------------
   Pstprc_RAMx_rden_ln_ps : process (clk, rst_n) is
   begin  -- process   Pstprc_RAMx_rden_ln_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
@@ -291,6 +408,7 @@ begin
       Pstprc_RAMx_rden_ln <= cmd_smpl_depth(14 downto 3);
     end if;
   end process Pstprc_RAMx_rden_ln_ps;
+
 -----------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
@@ -404,12 +522,12 @@ begin
     end if;
   end process Adder_en_ps;
 
-  Pstprc_en_d_ps: process (clk, rst_n) is
+  Pstprc_en_d_ps : process (clk, rst_n) is
   begin  -- process Pstprc_en_d_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      Pstprc_en_d<='0';
+      Pstprc_en_d <= '0';
     elsif clk'event and clk = '1' then  -- rising clock edge
-      Pstprc_en_d<=Pstprc_en;
+      Pstprc_en_d <= Pstprc_en;
     end if;
   end process Pstprc_en_d_ps;
 

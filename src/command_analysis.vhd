@@ -62,14 +62,20 @@ entity command_analysis is
     cmd_ADC_reconfig : buffer std_logic;
     cmd_pstprc_num_en : out std_logic;
     cmd_Pstprc_num : out std_logic_vector(3 downto 0);
-    cmd_Pstprc_DPS : out std_logic_vector(dds_phase_width downto 0)
+    cmd_Pstprc_DPS : out std_logic_vector(dds_phase_width downto 0);
+    cmd_Estmr_A : out std_logic_vector(31 downto 0);
+    cmd_Estmr_B : out std_logic_vector(31 downto 0);
+    cmd_Estmr_C : out std_logic_vector(63 downto 0);
+    cmd_Estmr_sync_en : out std_logic;
+    cmd_Estmr_num : out std_logic_vector(3 downto 0);
+    cmd_Estmr_num_en : out std_logic
     -- cmd_Pstprc_DPS_en : out std_logic
     );
 end command_analysis;
 
 architecture Behavioral of command_analysis is
   signal mac_dst  : std_logic_vector(47 downto 0);
-  signal mac_src  : std_logic_vector(47 downto 0);  -- 为了反馈地址预留的信号
+  signal mac_src  : std_logic_vector(47 downto 0);  
   signal reg_addr : std_logic_vector(15 downto 0);
   signal reg_data : std_logic_vector(47 downto 0);
   signal adc_reconfig_cnt : std_logic_vector(7 downto 0);
@@ -122,10 +128,10 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
         reg_addr(15 downto 8) <= rd_data;
       elsif rd_addr = x"12" then
         reg_addr(7 downto 0) <= rd_data;
-      elsif rd_addr=x"1A" or (rd_en_d = '1' and rd_en = '0')then  --地址为0x1A或者rden信号下降,因为rddata有可能全读有可能只读0x11-0x17
-        if reg_addr<=x"0010" then         --控制命令，清零
+      elsif rd_addr=x"1A" or (rd_en_d = '1' and rd_en = '0')then  --碌脴脰路脦陋0x1A禄貌脮脽rden脨脜潞脜脧脗陆碌,脪貌脦陋rddata脫脨驴脡脛脺脠芦露脕脫脨驴脡脛脺脰禄露脕0x11-0x17
+        if reg_addr<=x"0010" then         --驴脴脰脝脙眉脕卯拢卢脟氓脕茫
         reg_addr<=(others => '0');
-        elsif reg_addr>x"0010" then --配置命令，保持
+        elsif reg_addr>x"0010" then --脜盲脰脙脙眉脕卯拢卢卤拢鲁脰
           reg_addr<=reg_addr;
       end if;
     end if;
@@ -149,10 +155,10 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
         reg_data(15 downto 8) <= rd_data;
       elsif rd_addr = x"18" then
         reg_data(7 downto 0) <= rd_data;
-      elsif rd_addr=x"1A" or (rd_en_d = '1' and rd_en = '0')then  --地址为0x1a或者rden信号下降,因为rddata有可能全读有可能只读0x11-0x17,这是为了更容易接受上位机下发的MAC地址更改命令。地址更改命令为48位数据
-        if reg_addr<=x"0010" then         --控制命令，清零
+      elsif rd_addr=x"1A" or (rd_en_d = '1' and rd_en = '0')then  --碌脴脰路脦陋0x1a禄貌脮脽rden脨脜潞脜脧脗陆碌,脪貌脦陋rddata脫脨驴脡脛脺脠芦露脕脫脨驴脡脛脺脰禄露脕0x11-0x17,脮芒脢脟脦陋脕脣赂眉脠脻脪脳陆脫脢脺脡脧脦禄禄煤脧脗路垄碌脛MAC碌脴脰路赂眉赂脛脙眉脕卯隆拢碌脴脰路赂眉赂脛脙眉脕卯脦陋48脦禄脢媒戮脻
+        if reg_addr<=x"0010" then         --驴脴脰脝脙眉脕卯拢卢脟氓脕茫
         reg_data<=(others => '0');
-        elsif reg_addr>x"0010" then       --配置命令,保持
+        elsif reg_addr>x"0010" then       --脜盲脰脙脙眉脕卯,卤拢鲁脰
           reg_data<=reg_data;
         end if;
       end if;
@@ -211,13 +217,13 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
   end process ram_switch_ps;
 
 -------------------------------------------------------------------------------
---上位机可以通过trig来读取ram内部的内容。设计成为：上位机的trig到来控制tx_module工作，tx_module将ram内部的数剧传输出来（通过ram_full来控制，判断ram_full的计数器可以灵活控制想要读取的ram的深度，初步设计为ram写满了ram_full）
+--脡脧脦禄禄煤驴脡脪脭脥篓鹿媒trig脌麓露脕脠隆ram脛脷虏驴碌脛脛脷脠脻隆拢脡猫录脝鲁脡脦陋拢潞脡脧脦禄禄煤碌脛trig碌陆脌麓驴脴脰脝tx_module鹿陇脳梅拢卢tx_module陆芦ram脛脷虏驴碌脛脢媒戮莽麓芦脢盲鲁枚脌麓拢篓脥篓鹿媒ram_full脌麓驴脴脰脝拢卢脜脨露脧ram_full碌脛录脝脢媒脝梅驴脡脪脭脕茅禄卯驴脴脰脝脧毛脪陋露脕脠隆碌脛ram碌脛脡卯露脠拢卢鲁玫虏陆脡猫录脝脦陋ram脨麓脗煤脕脣ram_full拢漏
   upload_trig_ethernet_ps : process (rd_clk, rst_n) is
   begin  -- process reg_clr
     if rst_n = '0' then                 -- asynchronous reset (active low)
      upload_trig_ethernet <= '0';
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
-      if upload_trig_ethernet_cnt = x"0F" then  --0f是 upload_trig_ethernet的长度，控制命令只能持续一定时间然后消失。配置命令会一直存在直到被覆盖。
+      if upload_trig_ethernet_cnt = x"0F" then  --0f脢脟 upload_trig_ethernet碌脛鲁陇露脠拢卢驴脴脰脝脙眉脕卯脰禄脛脺鲁脰脨酶脪禄露篓脢卤录盲脠禄潞贸脧没脢搂隆拢脜盲脰脙脙眉脕卯禄谩脪禄脰卤麓忙脭脷脰卤碌陆卤禄赂虏赂脟隆拢
         upload_trig_ethernet <= '0';
       elsif reg_addr = x"0002" and reg_data = x"eeeeeeeeeeee" then
         if rd_addr=x"19" then
@@ -273,10 +279,10 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
       end if;
     end if;
   end process cmd_smpl_en_cnt_ps;
-  --cmd_smple_en是上位机用来解锁trigin的enable信号，长度由计数器决定。目前设置是固定数2000.
+  --cmd_smple_en脢脟脡脧脦禄禄煤脫脙脌麓陆芒脣酶trigin碌脛enable脨脜潞脜拢卢鲁陇露脠脫脡录脝脢媒脝梅戮枚露篓隆拢脛驴脟掳脡猫脰脙脢脟鹿脤露篓脢媒2000.
   -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
-  --配置命令
+  --脜盲脰脙脙眉脕卯
   -- purpose: to assign new destination MAC address in case that the PC changes.
   -- type   : sequential
   -- inputs : rd_clk, rst_n
@@ -379,6 +385,93 @@ begin  -- process pstprc_num_ps
   end if;
 end process pstprc_num_ps;
 -------------------------------------------------------------------------------
+-- Estmr_sync_en_ps: process (rd_clk, rst_n) is
+-- begin  -- process Estmr_sync_en_ps
+--   if rst_n = '0' then                   -- asynchronous reset (active low)
+--     cmd_Estmr_sync_en<="0";
+--   elsif rd_clk'event and rd_clk = '1' then    -- rising clock edge
+--     if reg_addr =x"0019" then
+--       if rd_addr=x"19" then
+--         cmd_Estmr_sync_en<=reg_data(47);
+--       end if;
+--     end if;
+--   end if;
+-- end process Estmr_sync_en_ps;
+
+Estmr_sync_en_ps: process (rd_clk, rst_n) is
+begin  -- process Estmr_sync_en_ps
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    cmd_Estmr_sync_en<='1';
+  elsif rd_clk'event and rd_clk = '1' then    -- rising clock edge\
+    if rd_addr=x"19" then
+      if reg_addr =x"0019" and reg_data(47 downto 44) = "0000" then
+        cmd_Estmr_sync_en<='0';
+      elsif reg_addr =x"0019" and reg_data(47 downto 44)="1111" then
+        cmd_Estmr_sync_en<='1';
+      end if;
+    end if;
+  end if;
+end process Estmr_sync_en_ps;
+
+Estmr_A_ps: process (rd_clk, rst_n) is
+begin  -- process Estmr_A_ps
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    cmd_Estmr_A <= (others => '0');
+    cmd_Estmr_C(15 downto 0)<=(others => '0'); 
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+      if reg_addr =x"001A" then
+        if rd_addr=x"19" then
+          cmd_Estmr_A<=reg_data(47 downto 16);
+          cmd_Estmr_C(15 downto 0)<=reg_data(15 downto 0);
+        end if;
+      end if;
+  end if;
+end process Estmr_A_ps;
+
+Estmr_B_ps: process (rd_clk, rst_n) is
+begin  -- process Estmr_B_ps
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    cmd_Estmr_B <= (others => '0');
+    cmd_Estmr_C(31 downto 16)<=(others => '0'); 
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+      if reg_addr =x"001B" then
+        if rd_addr=x"19" then
+          cmd_Estmr_B<=reg_data(47 downto 16);
+          cmd_Estmr_C(31 downto 16)<=reg_data(15 downto 0);
+        end if;
+      end if;
+  end if;
+end process Estmr_B_ps;
+
+Estmr_C_ps: process (rd_clk, rst_n) is
+begin  -- process Estmr_C_ps
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    cmd_Estmr_C(63 downto 32)<=(others => '0'); 
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+      if reg_addr =x"001C" then
+        if rd_addr=x"19" then
+          cmd_Estmr_C(63 downto 32)<=reg_data(47 downto 16);
+        end if;
+      end if;
+  end if;
+end process Estmr_C_ps;
+
+Estmr_num_ps: process (rd_clk, rst_n) is
+begin  -- process pstprc_num_ps
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    cmd_Estmr_num<=(others => '0');
+    cmd_Estmr_num_en<='0';
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+      if reg_addr =x"001D" then
+        if rd_addr=x"19" then
+          cmd_Estmr_num<=reg_data(47 downto 44);
+          cmd_Estmr_num_en<='1';
+        else
+          cmd_Estmr_num_en<='0';
+        end if;
+      end if;
+  end if;
+end process Estmr_num_ps;
 -- ADC_gain_adj_ps: process (rd_clk, rst_n) is
 -- begin  -- process ADC_gain_adj_ps
 --   if rst_n = '0' then                   -- asynchronous reset (active low)

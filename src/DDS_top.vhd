@@ -88,6 +88,7 @@ architecture Behavioral of DDS_top is
   signal dds_phase_out2      : std_logic_vector(dds_phase_width-1 downto 0);
   signal dds_cos_out: std_logic_vector(dds_output_width-1 downto 0);
   signal dds_sin_out : std_logic_vector(dds_output_width-1 downto 0);
+  signal dds1_sclr : std_logic;
   component DDS1
     port (
       reg_select : in  std_logic;
@@ -155,7 +156,7 @@ begin
     port map (
       reg_select => '0',
       clk        => dds_clk,
-      sclr       => dds_sclr or finish_sclr,
+      sclr       => dds1_sclr,
       we         => '1',
       ce         => dds_ce,             --pull up from the (demoWinstart -2)
       data       => dds_phase_shift(dds_phase_width-1 downto 0),    --fout = clk*data/2^N
@@ -164,7 +165,7 @@ begin
       cosine     => dds_cos_out,
       sine       => dds_sin_out,
       phase_out  => dds_phase_out);
-
+dds1_sclr<=dds_sclr or finish_sclr;
   -- DDS_inst2 : DDS2
   --   port map (
   --     reg_select => '0',
