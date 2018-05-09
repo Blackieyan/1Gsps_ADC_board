@@ -345,6 +345,8 @@ architecture Behavioral of ZJUprojects is
   signal clk_500M            : std_logic;
   signal clk_ext_500m : std_logic;
   signal clk_EXT_250M_g : std_logic;
+  signal clk_EXT_250M_R : std_logic;
+  signal clk_EXT_500M_R : std_logic;
   -- signal Estmr_OQ : std_logic;
   -----------------------------------------------------------------------------
   component CDCE62005_interface
@@ -709,7 +711,7 @@ begin
     ADC_CLKOI_n       => ADC_CLKOI_n,
     -- ADC_CLKOQ_p       => ADC_CLKOQ_p,
     -- ADC_CLKOQ_n       => ADC_CLKOQ_n,
-    CLK_EXT_250M =>CLK_EXT_250M_g,
+    CLK_EXT_250M =>CLK_EXT_250M,
     PHY_RXC           => PHY_RXC,
     ADC_CLKOI         => ADC_CLKOI,
     ADC_CLKOQ         => ADC_CLKOQ,
@@ -1004,8 +1006,8 @@ begin
 -----------------------------------------------------------------------------
   Inst_Dmod_Seg : Dmod_Seg port map(
     clk                 => CLK_125M,
-    clk_Estmr           => clk_EXT_250M_g,
-    clk_Oserdes         => CLK_EXT_500M,
+    clk_Estmr           => CLK_EXT_250M_R,
+    clk_Oserdes         => CLK_EXT_500M_R,
     -- pstprc_ram_wren     => pstprc_ram_wren,
     posedge_sample_trig => CW_demo_smpl_trig,
     rst_n               => rst_n,
@@ -1078,11 +1080,36 @@ begin
   
   ethernet_rd_clk <= CLK_125M;
   
-    BUFG_inst2 : BUFG
-    port map (
-      O => clk_EXT_250M_g,                       -- 1-bit output: Clock buffer output
-      I => clk_EXT_250M                      -- 1-bit input: Clock buffer input
+    -- BUFG_inst2 : BUFG
+    -- port map (
+    --   O => clk_EXT_250M_g,                       -- 1-bit output: Clock buffer output
+    --   I => clk_EXT_250M                      -- 1-bit input: Clock buffer input
+  --   );
+
+     BUFR_inst0 : BUFR
+   generic map (
+      BUFR_DIVIDE => "2", -- Values: "BYPASS", "1", "2", "3", "4", "5", "6", "7", "8" 
+      SIM_DEVICE => "VIRTEX6"  -- Must be set to "VIRTEX6" 
+   )
+   port map (
+      O => clk_EXT_250M_R,     -- 1-bit output: Clock buffer output
+      CE => '1',   -- 1-bit input: Active high clock enable input
+      CLR => '0', -- 1-bit input: Active high reset input
+      I => CLK_EXT_500M      -- 1-bit input: Clock buffer input driven by an IBUFG, MMCM or local interconnect
       );
+  
+       BUFR_inst1 : BUFR
+   generic map (
+      BUFR_DIVIDE => "1", -- Values: "BYPASS", "1", "2", "3", "4", "5", "6", "7", "8" 
+      SIM_DEVICE => "VIRTEX6"  -- Must be set to "VIRTEX6" 
+   )
+   port map (
+      O => clk_EXT_500M_R,     -- 1-bit output: Clock buffer output
+      CE => '1',   -- 1-bit input: Active high clock enable input
+      CLR => '0', -- 1-bit input: Active high reset input
+      I => CLK_EXT_500M      -- 1-bit input: Clock buffer input driven by an IBUFG, MMCM or local interconnect
+   );
+--注释掉clk_ext_250M的bufG后需要把mmcm的配置 输入端改成普通IO
 -----------------------------------------------------------------------------
 -- SRCC1_p <= clk_250M;
 -- SRCC1_n <= ram_Q_clka;
