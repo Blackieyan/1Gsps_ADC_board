@@ -115,12 +115,14 @@ architecture Behavioral of crg_dcms is
         );
   end component;
 
-  component dcm_ext_dac
+component dcm_ext_dac
 port
  (-- Clock in ports
   CLK_IN1           : in     std_logic;
+  -- CLKFB_IN          : in     std_logic;
   -- Clock out ports
   CLK_OUT1          : out    std_logic
+  -- CLKFB_OUT         : out    std_logic
  );
 end component;
 -------------------------------------------------------------------------------
@@ -176,10 +178,13 @@ begin
 
   dcm_ext_dac_inst : dcm_ext_dac
   port map
-   (-- Clock in ports
+    (-- Clock in ports
+     -- CLKFB_IN1 => CLKFB_IN,
     CLK_IN1 => CLK_EXT_250M,
     -- Clock out ports
-    CLK_OUT1 => CLK_EXT_500M);
+    CLK_OUT1 => CLK_EXT_500M
+    -- CLKFB_OUT => CLKFB_OUT
+    );
 -------------------------------------------------------------------------------
   dcm1_locked_d_ps : process (CLK1) is
   begin  -- process dcm1_locked_d_ps
