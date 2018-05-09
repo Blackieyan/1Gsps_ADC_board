@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 13.3
-# Date: Wed Apr 25 09:15:43 2018
+# Date: Wed Apr 25 09:21:36 2018
 #
 ##############################################################
 #
@@ -40,7 +40,7 @@ SELECT Block_Memory_Generator xilinx.com:ip:blk_mem_gen:6.2
 # END Select
 # BEGIN Parameters
 CSET additional_inputs_for_power_estimation=false
-CSET algorithm=Low_Power
+CSET algorithm=Minimum_Area
 CSET assume_synchronous_clk=false
 CSET axi_id_width=4
 CSET axi_slave_type=Memory_Slave
@@ -48,7 +48,7 @@ CSET axi_type=AXI4_Full
 CSET byte_size=9
 CSET coe_file=no_coe_file_loaded
 CSET collision_warnings=ALL
-CSET component_name=ram_data
+CSET component_name=Post_Process_RAM
 CSET disable_collision_warnings=false
 CSET disable_out_of_range_warnings=false
 CSET ecc=false
@@ -73,7 +73,7 @@ CSET port_b_enable_rate=100
 CSET port_b_write_rate=0
 CSET primitive=8kx2
 CSET read_width_a=32
-CSET read_width_b=8
+CSET read_width_b=64
 CSET register_porta_input_of_softecc=false
 CSET register_porta_output_of_memory_core=false
 CSET register_porta_output_of_memory_primitives=false
@@ -93,13 +93,13 @@ CSET use_error_injection_pins=false
 CSET use_regcea_pin=false
 CSET use_regceb_pin=false
 CSET use_rsta_pin=false
-CSET use_rstb_pin=true
+CSET use_rstb_pin=false
 CSET write_depth_a=5000
 CSET write_width_a=32
-CSET write_width_b=8
+CSET write_width_b=64
 # END Parameters
 # BEGIN Extra information
 MISC pkg_timestamp=2011-03-11T08:24:14.000Z
 # END Extra information
 GENERATE
-# CRC: d6865f4c
+# CRC: e3256976

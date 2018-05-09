@@ -36,82 +36,93 @@ use UNISIM.vcomponents.all;
 --use UNISIM.VComponents.all;
 
 entity ZJUprojects is
+  generic (
+    dds_phase_width : integer := 24
+    );
   port(
-    OSC_in_n                             : in     std_logic;
-    OSC_in_p                             : in     std_logic;
+    OSC_in_n        : in    std_logic;
+    OSC_in_p        : in    std_logic;
 ---------------------------------------------------------------------------
-    ADC_Mode                             : out std_logic;
-    ADC_sclk_OUT                         : out std_logic;
-    ADC_sldn_OUT                         : out std_logic;
-    ADC_sdata                            : out std_logic_vector(0 downto 0);  --ADC interface
+    ADC_Mode        : out   std_logic;
+    ADC_sclk_OUT    : out   std_logic;
+    ADC_sldn_OUT    : out   std_logic;
+    ADC_sdata       : out   std_logic_vector(0 downto 0);  --ADC interface
 -------------------------------------------------------------------------------
-    spi_clk                              : out    std_logic;
-    spi_mosi                             : out    std_logic;
-    spi_le                               : out    std_logic;
-    spi_syn                              : out    std_logic;
-    spi_miso                             : in     std_logic;
-    spi_powerdn                          : inout    std_logic;
-    spi_revdata                          : out    std_logic_vector(31 downto 0);
-    cfg_finish                           : out    std_logic;  --CDCE62005
+    spi_clk         : out   std_logic;
+    spi_mosi        : out   std_logic;
+    spi_le          : out   std_logic;
+    spi_syn         : out   std_logic;
+    spi_miso        : in    std_logic;
+    spi_powerdn     : inout std_logic;
+    spi_revdata     : out   std_logic_vector(31 downto 0);
+    cfg_finish      : out   std_logic;  --CDCE62005
     -- spi_pd                               : inout std_logic;
 -------------------------------------------------------------------------------
-    -- test                                 : out    std_logic_vector(0 downto 0);
-    user_pushbutton                      : in     std_logic;  --glbclr_n
+    user_pushbutton : in    std_logic;  --glbclr_n
     ---------------------------------------------------------------------------
-    ADC_CLKOI_p                          : in     std_logic;  -- ADC CLKOI 500MHz/250MHz
-    ADC_CLKOI_n                          : in     std_logic;
-    ADC_CLKOQ_p                          : in     std_logic;
-    ADC_CLKOQ_n                          : in     std_logic;
-    ADC_DOIA_p                           : in     std_logic_vector(7 downto 0);
-    ADC_DOIA_n                           : in     std_logic_vector(7 downto 0);
-    ADC_DOIB_p                           : in     std_logic_vector(7 downto 0);
-    ADC_DOIB_n                           : in     std_logic_vector(7 downto 0);
-    ADC_DOQA_p                           : in     std_logic_vector(7 downto 0);
-    ADC_DOQA_n                           : in     std_logic_vector(7 downto 0);
-    ADC_DOQB_p                           : in     std_logic_vector(7 downto 0);
-    ADC_DOQB_n                           : in     std_logic_vector(7 downto 0);
-    DOIRI_p                              : in     std_logic;
-    DOIRI_n                              : in     std_logic;
-    DOIRQ_p                              : in     std_logic;
-    DOIRQ_n                              : in     std_logic;
-    SRCC1_p_trigin                       : in    std_logic;
-    SRCC1_n_upload_sma_trigin                : in    std_logic;
-    MRCC2_p                              : out    std_logic;
-    MRCC2_n                              : out    std_logic_vector(0 downto 0);
+    ADC_CLKOI_p     : in    std_logic;  -- ADC CLKOI 500MHz/250MHz
+    ADC_CLKOI_n     : in    std_logic;
+    -- ADC_CLKOQ_p               : in    std_logic;
+    -- ADC_CLKOQ_n               : in    std_logic;
+    ADC_DOIA_p      : in    std_logic_vector(7 downto 0);
+    ADC_DOIA_n      : in    std_logic_vector(7 downto 0);
+    ADC_DOIB_p      : in    std_logic_vector(7 downto 0);
+    ADC_DOIB_n      : in    std_logic_vector(7 downto 0);
+    ADC_DOQA_p      : in    std_logic_vector(7 downto 0);
+    ADC_DOQA_n      : in    std_logic_vector(7 downto 0);
+    ADC_DOQB_p      : in    std_logic_vector(7 downto 0);
+    ADC_DOQB_n      : in    std_logic_vector(7 downto 0);
+    DOIRI_p         : in    std_logic;
+    DOIRI_n         : in    std_logic;
+    DOIRQ_p         : in    std_logic;
+    DOIRQ_n         : in    std_logic;
+    SRCC1_p_trigin  : in    std_logic;  --J31
     ---------------------------------------------------------------------------
-    PHY_RXD                   : IN     std_logic_vector(3 downto 0);
-    PHY_RXC                  : IN     std_logic;
-    PHY_RXDV                 : IN     std_logic;
-    PHY_TXD_o                : OUT    std_logic_vector(3 downto 0);
-    PHY_GTXclk_quar          : OUT    std_logic;
-    PHy_txen_quar            : OUT    std_logic;
-    phy_txer_o               : OUT    std_logic;
-    phy_rst_n_o : out std_logic
+    -- SRCC1_n                   : out    std_logic;  --J8
+    -- SRCC1_p                   : out   std_logic;  --J9
+    -- MRCC1_n                   : out std_logic;  --J11
+    -- MRCC1_p                   : out std_logic;  --J10
+    -- MRCC2_n                   : out   std_logic_vector(0 downto 0); -- pinsfor test
     ---------------------------------------------------------------------------
-    -- qdriip_cq_p                : in std_logic_vector(NUM_DEVICES-1 downto 0); --Memory Interface
-    -- qdriip_cq_n                : in std_logic_vector(NUM_DEVICES-1 downto 0);
-    -- qdriip_q                   : in std_logic_vector(DATA_WIDTH-1 downto 0);
-    -- qdriip_k_p                 : out std_logic_vector(NUM_DEVICES-1 downto 0);
-    -- qdriip_k_n                 : out std_logic_vector(NUM_DEVICES-1 downto 0);
-    -- qdriip_d                   : out std_logic_vector(DATA_WIDTH-1 downto 0);
-    -- qdriip_sa                  : out std_logic_vector(ADDR_WIDTH-1 downto 0);
-    -- qdriip_w_n                 : out std_logic;
-    -- qdriip_r_n                 : out std_logic;
-    -- qdriip_bw_n                : out std_logic_vector(BW_WIDTH-1 downto 0);
-    -- qdriip_dll_off_n           : out std_logic;
-    -- cal_done                   : out std_logic;
-    -- user_wr_cmd0               : in std_logic;      --User interface
-    -- user_wr_addr0              : in std_logic_vector(ADDR_WIDTH-1 downto 0);
-    -- user_rd_cmd0               : in std_logic;
-    -- user_rd_addr0              : in std_logic_vector(ADDR_WIDTH-1 downto 0);
-    -- user_wr_data0              : in std_logic_vector(DATA_WIDTH*BURST_LEN-1 downto 0);
-    -- user_wr_bw_n0              : in std_logic_vector(BW_WIDTH*BURST_LEN-1 downto 0);
-    -- ui_clk                     : out std_logic;
-    -- ui_clk_sync_rst            : out std_logic;
-    -- user_rd_valid0             : out std_logic;
-    -- user_rd_data0              : out std_logic_vector(DATA_WIDTH*BURST_LEN-1 downto 0);
-    -- sys_rst          : in std_logic
-    ---------------------------------------------------------------------------              
+    PHY_RXD         : in    std_logic_vector(3 downto 0);
+    PHY_RXC         : in    std_logic;
+    PHY_RXDV        : in    std_logic;
+    PHY_TXD_o       : out   std_logic_vector(3 downto 0);
+    PHY_GTXclk_quar : out   std_logic;
+    PHy_txen_quar   : out   std_logic;
+    phy_txer_o      : out   std_logic;
+
+    TX_src_MAC_addr : in  std_logic_vector(3 downto 0) := "0000";
+    phy_rst_n_o     : out std_logic;
+    clk_EXT_250M : in std_logic;
+    Estmr_OQ        : out std_logic
+
+
+   ---------------------------------------------------------------------------
+   -- qdriip_cq_p                : in std_logic_vector(NUM_DEVICES-1 downto 0); --Memory Interface
+   -- qdriip_cq_n                : in std_logic_vector(NUM_DEVICES-1 downto 0);
+   -- qdriip_q                   : in std_logic_vector(DATA_WIDTH-1 downto 0);
+   -- qdriip_k_p                 : out std_logic_vector(NUM_DEVICES-1 downto 0);
+   -- qdriip_k_n                 : out std_logic_vector(NUM_DEVICES-1 downto 0);
+   -- qdriip_d                   : out std_logic_vector(DATA_WIDTH-1 downto 0);
+   -- qdriip_sa                  : out std_logic_vector(ADDR_WIDTH-1 downto 0);
+   -- qdriip_w_n                 : out std_logic;
+   -- qdriip_r_n                 : out std_logic;
+   -- qdriip_bw_n                : out std_logic_vector(BW_WIDTH-1 downto 0);
+   -- qdriip_dll_off_n           : out std_logic;
+   -- cal_done                   : out std_logic;
+   -- user_wr_cmd0               : in std_logic;      --User interface
+   -- user_wr_addr0              : in std_logic_vector(ADDR_WIDTH-1 downto 0);
+   -- user_rd_cmd0               : in std_logic;
+   -- user_rd_addr0              : in std_logic_vector(ADDR_WIDTH-1 downto 0);
+   -- user_wr_data0              : in std_logic_vector(DATA_WIDTH*BURST_LEN-1 downto 0);
+   -- user_wr_bw_n0              : in std_logic_vector(BW_WIDTH*BURST_LEN-1 downto 0);
+   -- ui_clk                     : out std_logic;
+   -- ui_clk_sync_rst            : out std_logic;
+   -- user_rd_valid0             : out std_logic;
+   -- user_rd_data0              : out std_logic_vector(DATA_WIDTH*BURST_LEN-1 downto 0);
+   -- sys_rst          : in std_logic
+   ---------------------------------------------------------------------------              
     );
 end ZJUprojects;
 
@@ -122,208 +133,245 @@ architecture Behavioral of ZJUprojects is
   signal clk_spi      : std_logic;  --make clear what is the function of clk_spi
 -------------------------------------------------------------------------------
 
-  signal OSC_in       : std_logic;
-  signal CLK_200M : std_logic;
+  signal OSC_in                      : std_logic;
+  signal CLK_200M                    : std_logic;
+  signal CLK_250M                    : std_logic;
 --   signal spi_mosi : std_logic;
 -------------------------------------------------------------------------------
   -----------------------------------------------------------------------------
-  attribute keep : boolean;
-  signal ADC_DOIA_1 : std_logic_vector(7 downto 0);  -- ADC data receiver
-  signal ADC_DOIA_2 : std_logic_vector(7 downto 0);
-  signal ADC_DOIB_1 : std_logic_vector(7 downto 0);
-  signal ADC_DOIB_2 : std_logic_vector(7 downto 0);
-  signal ADC_DOQA_1 : std_logic_vector(7 downto 0);
-  signal ADC_DOQA_2 : std_logic_vector(7 downto 0);
-  signal ADC_DOQB_1 : std_logic_vector(7 downto 0);
-  signal ADC_DOQB_2 : std_logic_vector(7 downto 0);
-  signal ADC_DOIA_1_out : std_logic_vector(7 downto 0);
-  signal ADC_DOIA_2_out : std_logic_vector(7 downto 0);
-  signal ADC_DOIB_1_out : std_logic_vector(7 downto 0);
-  signal ADC_DOIB_2_out : std_logic_vector(7 downto 0);
-  signal ADC_DOQA_1_out : std_logic_vector(7 downto 0);
-  signal ADC_DOQA_2_out : std_logic_vector(7 downto 0);
-  signal ADC_DOQB_1_out : std_logic_vector(7 downto 0);
-  signal ADC_DOQB_2_out : std_logic_vector(7 downto 0);
-  signal ADC_DOIA       : std_logic_vector(7 downto 0);
-  signal ADC_DOIB : std_logic_vector(7 downto 0);
-  signal ADC_DOQA : std_logic_vector(7 downto 0);
-  signal ADC_DOQB : std_logic_vector(7 downto 0);
-  signal ADC_clkoi_inv : std_logic;
-  signal ADC_clkoq_inv : std_logic;
-  signal ADC_doqa_delay : std_logic_vector(7 downto 0);
-  signal ADC_doqb_delay : std_logic_vector(7 downto 0); 
-  signal ADC_DOQA_1_d : std_logic_vector(7 downto 0);
-  attribute keep of ADC_DOQA_1_d : signal is true;
-  signal ADC_DOQA_2_d : std_logic_vector(7 downto 0);
-  attribute keep of ADC_DOQA_2_d : signal is true;
-  signal ADC_DOQB_1_d : std_logic_vector(7 downto 0);
-  attribute keep of ADC_DOQB_1_d : signal is true;
-  signal ADC_DOQB_2_d : std_logic_vector(7 downto 0);
-  attribute keep of ADC_DOQB_2_d : signal is true;
-  signal ADC_CLKOI : std_logic;
-  attribute keep of ADC_CLKOI : signal is true;
-  signal ADC_CLKOQ            : std_logic;
-  signal rst_n : std_logic;
-  signal posedge_upload_trig : std_logic;
-  signal ram_i_doutb_sim : std_logic_vector(7 downto 0);
-  attribute IODELAY_GROUP     : string;
+  attribute keep                     : boolean;
+  signal ADC_DOIA_1                  : std_logic_vector(7 downto 0);  -- ADC data receiver
+  signal ADC_DOIA_2                  : std_logic_vector(7 downto 0);
+  signal ADC_DOIB_1                  : std_logic_vector(7 downto 0);
+  signal ADC_DOIB_2                  : std_logic_vector(7 downto 0);
+  signal ADC_DOQA_1                  : std_logic_vector(7 downto 0);
+  signal ADC_DOQA_2                  : std_logic_vector(7 downto 0);
+  signal ADC_DOQB_1                  : std_logic_vector(7 downto 0);
+  signal ADC_DOQB_2                  : std_logic_vector(7 downto 0);
+  signal ADC_DOIA_1_out              : std_logic_vector(7 downto 0);
+  signal ADC_DOIA_2_out              : std_logic_vector(7 downto 0);
+  signal ADC_DOIB_1_out              : std_logic_vector(7 downto 0);
+  signal ADC_DOIB_2_out              : std_logic_vector(7 downto 0);
+  signal ADC_DOQA_1_out              : std_logic_vector(7 downto 0);
+  signal ADC_DOQA_2_out              : std_logic_vector(7 downto 0);
+  signal ADC_DOQB_1_out              : std_logic_vector(7 downto 0);
+  signal ADC_DOQB_2_out              : std_logic_vector(7 downto 0);
+  signal ADC_DOIA                    : std_logic_vector(7 downto 0);
+  signal ADC_DOIB                    : std_logic_vector(7 downto 0);
+  signal ADC_DOQA                    : std_logic_vector(7 downto 0);
+  signal ADC_DOQB                    : std_logic_vector(7 downto 0);
+  signal ADC_clkoi_inv               : std_logic;
+  signal ADC_clkoq_inv               : std_logic;
+  signal ADC_doqa_delay              : std_logic_vector(7 downto 0);
+  signal ADC_doqb_delay              : std_logic_vector(7 downto 0);
+  signal ADC_DOQA_1_d                : std_logic_vector(7 downto 0);
+  attribute keep of ADC_DOQA_1_d     : signal is true;
+  signal ADC_DOQA_2_d                : std_logic_vector(7 downto 0);
+  attribute keep of ADC_DOQA_2_d     : signal is true;
+  signal ADC_DOQB_1_d                : std_logic_vector(7 downto 0);
+  attribute keep of ADC_DOQB_1_d     : signal is true;
+  signal ADC_DOQB_2_d                : std_logic_vector(7 downto 0);
+  attribute keep of ADC_DOQB_2_d     : signal is true;
+  signal ADC_CLKOI                   : std_logic;
+  attribute keep of ADC_CLKOI        : signal is true;
+  signal ADC_CLKOQ                   : std_logic;
+  signal rst_n                       : std_logic;
+  signal rst_n_a                     : std_logic;
+  signal posedge_upload_trig         : std_logic;
+  signal ram_i_doutb_sim             : std_logic_vector(7 downto 0);
+  attribute IODELAY_GROUP            : string;
+  signal cmd_ADC_gain_adj            : std_logic_vector(18 downto 0);
   -----------------------------------------------------------------------------
-  attribute keep of CLK_250M : signal is true;
-  signal CLK_125M : std_logic;
-  signal CLK_125M_quar : std_logic;
-  signal CLK_out4 : std_logic;
-  attribute keep of CLK_out4 : signal is true;
-  signal ethernet_Rd_clk : std_logic;
-  signal ethernet_Rd_en : std_logic;
-  signal ethernet_Rd_addr : std_logic_vector(13 downto 0);
-  signal ethernet_frm_valid : std_logic;
-  signal frm_valid_d : std_logic;
-  signal ethernet_rd_data : std_logic_vector(7 downto 0);
+  signal CLK_125M                    : std_logic;
+  signal CLK_125M_quar               : std_logic;
+  signal CLK_out4                    : std_logic;
+  attribute keep of CLK_out4         : signal is true;
+  signal ethernet_Rd_clk             : std_logic;
+  signal ethernet_Rd_en              : std_logic;
+  signal ethernet_Rd_addr            : std_logic_vector(13 downto 0);
+  signal ethernet_frm_valid          : std_logic;
+  signal frm_valid_d                 : std_logic;
+  signal ethernet_rd_data            : std_logic_vector(7 downto 0);
   attribute keep of ethernet_Rd_data : signal is true;
-  signal ethernet_fifo_upload_data : std_logic_vector(7 downto 0);
-  signal ethernet_rst_n_gb_i : std_logic;
-  signal cmd_frm_length : std_logic_vector(15 downto 0);
-  signal cmd_frm_type : std_logic_vector(15 downto 0);
-  signal phy_rxc_g :std_logic;
+  signal ethernet_fifo_upload_data   : std_logic_vector(7 downto 0);
+  signal ethernet_rst_n_gb_i         : std_logic;
+  signal cmd_frm_length              : std_logic_vector(15 downto 0);
+  signal cmd_frm_type                : std_logic_vector(15 downto 0);
+  signal phy_rxc_g                   : std_logic;
   -----------------------------------------------------------------------------
-  signal ram_doutb : std_logic_vector(7 downto 0);  --ram control
-  attribute keep of ram_doutb : signal is true;
-  signal ram_Q_doutb : std_logic_vector(7 downto 0);
-  signal ram_q_rden : std_logic;
-  signal ram_Q_dina : std_logic_vector(31 downto 0);
-  signal ram_Q_clka : std_logic;
-  signal ram_Q_clkb : std_logic;
-  signal ram_rstb : std_logic;
-  signal ram_ena : std_logic;
-  signal ram_enb : std_logic;
-  signal ram_wea : std_logic_vector(0 downto 0);
-  signal ram_addra : std_logic_vector(12 downto 0);  --edit at 9.6
-  signal ram_addrb : std_logic_vector(14 downto 0);  --edit at 9.6
-  signal clr_n_ram : std_logic;
+  signal ram_doutb                   : std_logic_vector(7 downto 0);  --ram control
+  attribute keep of ram_doutb        : signal is true;
+  signal ram_Q_doutb                 : std_logic_vector(7 downto 0);
+  signal ram_q_rden                  : std_logic;
+  signal ram_Q_dina                  : std_logic_vector(31 downto 0);
+  signal ram_Q_clka                  : std_logic;
+  signal ram_Q_clkb                  : std_logic;
+  signal ram_q_full                  : std_logic;
+  signal ram_q_last                  : std_logic;
+  signal clr_n_ram                   : std_logic;
   -- signal ram_last : std_logic;
-  signal ram_q_last : std_logic;
-  signal ram_i_last : std_logic;
-  signal ram_rst : std_logic;
-  attribute keep of ram_rst : signal is true;
-  signal ram_start : std_logic;
-  signal  upload_trig_ethernet : std_logic;
-  signal ram_start_d : std_logic;
-  signal ram_start_d2 : std_logic;
-  signal trigin_d2 : std_logic;
-  signal trigin_d : std_logic;
-  signal ram_wren : std_logic;
-  signal ram_rden : std_logic;
-  signal ram_full : std_logic;
-  signal ram_q_full : std_logic;
-  signal ram_i_full : std_logic;
+
+
+  signal ram_rst              : std_logic;
+  attribute keep of ram_rst   : signal is true;
+  signal ram_start            : std_logic;
+  signal upload_trig_ethernet : std_logic;
+  signal ram_wren             : std_logic;
+  signal ram_rden             : std_logic;
+  signal ram_full             : std_logic;
+
+  signal ram_i_full                   : std_logic;
   -----------------------------------------------------------------------------
-  signal ram_i_doutb : std_logic_vector(7 downto 0);
-  attribute keep of ram_i_doutb : signal is true;
-  signal ram_i_dina : std_logic_vector(31 downto 0);
-  signal Ram_I_rden : std_logic;
-  signal ram_i_clka : std_logic;
-  signal ram_i_clkb : std_logic;
-  signal ram_i_rstb : std_logic;
-  signal ram_i_ena : std_logic;
-  signal ram_i_enb : std_logic;
-  signal ram_i_wea : std_logic_vector(0 downto 0);
-  signal ram_i_addra : std_logic_vector(12 downto 0);  --edit at 9.6
-  signal ram_i_addrb : std_logic_vector(14 downto 0);  --edit at 9.6
-  signal ram_i_rst : std_logic;
-  signal ADC_doia_delay : std_logic_vector(7 downto 0);
-  signal ADC_doib_delay : std_logic_vector(7 downto 0); 
-  signal ADC_DOiA_1_d : std_logic_vector(7 downto 0);
-  attribute keep of ADC_DOiA_1_d : signal is true;
-  signal ADC_DOiA_2_d : std_logic_vector(7 downto 0);
-  attribute keep of ADC_DOiA_2_d : signal is true;
-  signal ADC_DOiB_1_d : std_logic_vector(7 downto 0);
-  attribute keep of ADC_DOiB_1_d : signal is true;
-  signal ADC_DOiB_2_d : std_logic_vector(7 downto 0);
-  attribute keep of ADC_DOiB_2_d : signal is true;
-  signal ram_switch : std_logic_vector(2 downto 0);
-  signal SRCC1_n_upload_sma_trigin_d : std_logic;
+  signal ram_i_doutb                  : std_logic_vector(7 downto 0);
+  attribute keep of ram_i_doutb       : signal is true;
+  signal ram_i_dina                   : std_logic_vector(31 downto 0);
+  signal ram_i_last                   : std_logic;
+  signal Ram_I_rden                   : std_logic;
+  signal ram_i_clka                   : std_logic;
+  signal ram_i_clkb                   : std_logic;
+  signal ram_i_rstb                   : std_logic;
+  signal ram_i_ena                    : std_logic;
+  signal ram_i_enb                    : std_logic;
+  signal ram_i_wea                    : std_logic_vector(0 downto 0);
+  signal ram_i_addra                  : std_logic_vector(12 downto 0);  --edit at 9.6
+  signal ram_i_addrb                  : std_logic_vector(14 downto 0);  --edit at 9.6
+  signal ram_i_rst                    : std_logic;
+  signal ADC_doia_delay               : std_logic_vector(7 downto 0);
+  signal ADC_doib_delay               : std_logic_vector(7 downto 0);
+  signal ADC_DOiA_1_d                 : std_logic_vector(7 downto 0);
+  attribute keep of ADC_DOiA_1_d      : signal is true;
+  signal ADC_DOiA_2_d                 : std_logic_vector(7 downto 0);
+  attribute keep of ADC_DOiA_2_d      : signal is true;
+  signal ADC_DOiB_1_d                 : std_logic_vector(7 downto 0);
+  attribute keep of ADC_DOiB_1_d      : signal is true;
+  signal ADC_DOiB_2_d                 : std_logic_vector(7 downto 0);
+  attribute keep of ADC_DOiB_2_d      : signal is true;
+  signal ram_switch                   : std_logic_vector(2 downto 0);
+  signal SRCC1_n_upload_sma_trigin_d  : std_logic;
   signal SRCC1_n_upload_sma_trigin_d2 : std_logic;
-  signal upload_trig_ethernet_d: std_logic;
-  signal upload_trig_ethernet_d2: std_logic;
-  signal ram_i_doutb_d : std_logic_vector(7 downto 0);
-  signal posedge_sample_trig : std_logic;
-  signal user_pushbutton_g : std_logic;
-  signal data_test_pin :std_logic;
-  signal TX_dst_MAC_addr : std_logic_vector(47 downto 0);
-  signal cmd_smpl_en : std_logic;
-  signal sample_en : std_logic;
-  signal sample_trig_cnt : std_logic_vector(11 downto 0);
-  signal cmd_smpl_en_d : std_logic;
-  signal cmd_smpl_en_d2 : std_logic;
-  signal cmd_smpl_depth : std_logic_vector(15 downto 0);
-  signal dcm1_locked : std_logic;
-  signal dcm1_locked_d : std_logic;
-  signal dcm1_locked_d2 : std_logic;
-  signal lck_rst_n : std_logic;
-  signal div_sclk : std_logic;
-  signal div_sclk_cnt : std_logic_vector(31 downto 0);
+  signal upload_trig_ethernet_d       : std_logic;
+  signal upload_trig_ethernet_d2      : std_logic;
+  signal ram_i_doutb_d                : std_logic_vector(7 downto 0);
+  signal posedge_sample_trig          : std_logic;
+  signal user_pushbutton_g            : std_logic;
+  signal data_test_pin                : std_logic;
+  signal TX_dst_MAC_addr              : std_logic_vector(47 downto 0);
+  signal cmd_smpl_en                  : std_logic;
+  signal sample_en                    : std_logic;
+  signal sample_trig_cnt              : std_logic_vector(11 downto 0);
+  signal cmd_smpl_en_d                : std_logic;
+  signal cmd_smpl_en_d2               : std_logic;
+  signal cmd_smpl_depth               : std_logic_vector(15 downto 0);
+  signal cmd_smpl_trig_cnt            : std_logic_vector(15 downto 0);
+  signal cmd_pstprc_IQ_sw             : std_logic_vector(1 downto 0)  := "10";
+  signal cmd_demowinln                : std_logic_vector(14 downto 0) := "000"&x"096";
+  signal cmd_demowinstart             : std_logic_vector(14 downto 0) := "000"&x"096";
+  signal cmd_Pstprc_dps_en            : std_logic;
+  signal cmd_Pstprc_dps               : std_logic_vector(dds_phase_width downto 0);  --
+  --MSB reprensent the polarity of frequency
+  signal cmd_adc_reconfig             : std_logic;
+  signal cmd_pstprc_num_en            : std_logic;
+  signal cmd_Pstprc_num               : std_logic_vector(3 downto 0);
   -----------------------------------------------------------------------------
-  signal fft_ce_I : std_logic;
-  signal fft_sclr_I : std_logic;
-  signal fft_start_I : std_logic;
-  signal fft_xn_re_I : std_logic_vector(7 downto 0);
-  signal fft_xn_im_I : std_logic_vector(7 downto 0);
-  signal fft_scale_sch_I : std_logic_vector(13 downto 0);
-  signal fft_rfd_I : std_logic;
-  signal fft_xn_index_I : std_logic_vector(13 downto 0);
-  signal fft_busy_I : std_logic;
-  signal fft_edone_I : std_logic;
-  signal fft_done_I : std_logic;
-  signal fft_dv_I : std_logic;
-  signal fft_xk_index_I : std_logic_vector(13 downto 0);
-  signal fft_xk_re_I : std_logic_vector(7 downto 0);
-  signal fft_xk_im_I : std_logic_vector(7 downto 0);
-  signal fft_ovflo_I : std_logic;
+  signal dcm1_locked                  : std_logic;
+  signal dcm1_locked_d                : std_logic;
+  signal dcm1_locked_d2               : std_logic;
+  signal lck_rst_n                    : std_logic;
+  signal div_sclk                     : std_logic;
+  signal div_sclk_cnt                 : std_logic_vector(31 downto 0);
   -----------------------------------------------------------------------------
-  signal upld_finish : std_logic;
-  signal CH_flag : std_logic_vector(7 downto 0);
-  signal ch_stat : std_logic_vector(1 downto 0);
-  signal data_strobe : std_logic;
-  signal sw_ram_last : std_logic;
+  -- signal fft_ce_I : std_logic;
+  -- signal fft_sclr_I : std_logic;
+  -- signal fft_start_I : std_logic;
+  -- signal fft_xn_re_I : std_logic_vector(7 downto 0);
+  -- signal fft_xn_im_I : std_logic_vector(7 downto 0);
+  -- signal fft_scale_sch_I : std_logic_vector(13 downto 0);
+  -- signal fft_rfd_I : std_logic;
+  -- signal fft_xn_index_I : std_logic_vector(13 downto 0);
+  -- signal fft_busy_I : std_logic;
+  -- signal fft_edone_I : std_logic;
+  -- signal fft_done_I : std_logic;
+  -- signal fft_dv_I : std_logic;
+  -- signal fft_xk_index_I : std_logic_vector(13 downto 0);
+  -- signal fft_xk_re_I : std_logic_vector(7 downto 0);
+  -- signal fft_xk_im_I : std_logic_vector(7 downto 0);
+  -- signal fft_ovflo_I : std_logic;
   -----------------------------------------------------------------------------
-  -- component CDCE62005_config
-  --   port(
-  --     clk         : in  std_logic;
-  --     clk_spi     : in  std_logic;
-  --     en          : in  std_logic;
-  --     spi_miso    : in  std_logic;
-  --     spi_clk     : out std_logic;
-  --     spi_mosi    : out std_logic;
-  --     spi_le      : out std_logic;
-  --     spi_syn     : out std_logic;
-  --     spi_powerdn : out std_logic;
-  --     cfg_finish  : out std_logic;
-  --     spi_revdata : out std_logic_vector(31 downto 0)
-  --     );
-  -- end component;
-  	COMPONENT CDCE62005_interface
-	PORT(
-		clk : IN std_logic;
-		rst_n : IN std_logic;
-		spi_miso : IN std_logic;          
-		spi_clk : OUT std_logic;
-		spi_mosi : OUT std_logic;
-		spi_le : OUT std_logic;
-		spi_syn : OUT std_logic;
-		spi_powerdn : OUT std_logic;
-		spi_revdata : OUT std_logic_vector(31 downto 0);
-		cfg_finish : OUT std_logic
-		);
-	END COMPONENT;
+  signal upld_finish                  : std_logic;
+  signal CW_CH_flag                   : std_logic_vector(7 downto 0);
+  signal ch_stat                      : std_logic_vector(1 downto 0);
+  signal data_strobe                  : std_logic;
+  signal sw_ram_last                  : std_logic;
+  signal CW_mult_frame_en             : std_logic;
+  signal cw_ether_trig                : std_logic;
+  signal CM_Ram_I_rden                : std_logic;
+  signal CM_Ram_Q_rden                : std_logic;
+  signal CW_Pstprc_fifo_rden          : std_logic;
+  signal CW_wave_smpl_trig            : std_logic;
+  signal CW_demo_smpl_trig            : std_logic;
+  -----------------------------------------------------------------------------
+  signal pstprc_ram_wren              : std_logic;
+  signal Pstprc_RAMQ_clka             : std_logic;
+  signal Pstprc_RAMQ_clkb             : std_logic;
+  signal Pstprc_RAMI_clka             : std_logic;
+  signal Pstprc_RAMI_clkb             : std_logic;
+  signal Pstprc_RAMx_rden             : std_logic;
+
+  signal Pstprc_RAMQ_dina : std_logic_vector(31 downto 0);
+  signal Pstprc_RAMI_dina : std_logic_vector(31 downto 0);
+
+  signal demowinln    : std_logic_vector(14 downto 0) := "000"&x"096";
+  signal demowinstart : std_logic_vector(14 downto 0) := "000"&x"096";
+
+  -----------------------------------------------------------------------------
+  signal Pstprc_fifo_din     : std_logic_vector(63 downto 0);
+  signal Pstprc_DPS_en       : std_logic;
+  signal Pstprc_finish       : std_logic;
+  signal Pstprc_fifo_wren    : std_logic;
+  -- signal pstprc_rs : std_logic;
+  signal pstprc_fifo_dout    : std_logic_vector(7 downto 0);
+  signal Pstprc_fifo_pempty  : std_logic;
+  signal Pstprc_fifo_valid   : std_logic;
+  signal Pstprc_IQ_seq_o     : std_logic_vector(63 downto 0);
+  signal Pstprc_fifo_rden    : std_logic;
+  signal pstprc_fifo_alempty : std_logic;
+  -----------------------------------------------------------------------------
+  signal cmd_Estmr_num_en    : std_logic;
+  signal cmd_Estmr_num       : std_logic_vector(3 downto 0);
+  signal cmd_Estmr_A             : std_logic_vector(31 downto 0);
+  signal cmd_Estmr_B             : std_logic_vector(31 downto 0);
+  signal cmd_Estmr_C             : std_logic_vector(63 downto 0);
+  signal cmd_Estmr_sync_en       : std_logic;
+  signal clk_500M            : std_logic;
+  signal clk_ext_500m : std_logic;
+  signal clk_EXT_250M_g : std_logic;
+  -- signal Estmr_OQ : std_logic;
+  -----------------------------------------------------------------------------
+  component CDCE62005_interface
+    port(
+      clk         : in  std_logic;
+      rst_n       : in  std_logic;
+      spi_miso    : in  std_logic;
+      spi_clk     : out std_logic;
+      spi_mosi    : out std_logic;
+      spi_le      : out std_logic;
+      spi_syn     : out std_logic;
+      spi_powerdn : out std_logic;
+      spi_revdata : out std_logic_vector(31 downto 0);
+      cfg_finish  : out std_logic
+      );
+  end component;
   -------------------------------------------------------------------------------
   component ADC_interface
     port(
-      CLK1         : in  std_logic;
-      user_pushbutton : in std_logic;
-      ADC_Mode     : out std_logic;
-      ADC_sclk_OUT : out std_logic;
-      ADC_sldn_OUT : out std_logic;
-      ADC_sdata    : out std_logic_vector(0 to 0)
+      CLK1            : in  std_logic;
+      user_pushbutton : in  std_logic;
+      ADC_Mode        : out std_logic;
+      ADC_sclk_OUT    : out std_logic;
+      ADC_sldn_OUT    : out std_logic;
+      ADC_gain_adj    : in  std_logic_vector(18 downto 0);
+      ADC_reconfig    : in  std_logic;
+      ADC_sdata       : out std_logic_vector(0 to 0)
       );
   end component;
 -------------------------------------------------------------------------------
@@ -352,291 +400,245 @@ architecture Behavioral of ZJUprojects is
 --   );
 -- END COMPONENT;
   -----------------------------------------------------------------------------
-	COMPONENT G_ethernet_top
-	PORT(
-          -- rst_n_gb_i                : in     std_logic;
-          user_pushbutton           : in     std_logic;
-          fifo_upload_data          : in     std_logic_vector(7 downto 0);
-          Rd_clk                    : in     std_logic;
-          Rd_en                     : in     std_logic;
-          Rd_Addr                   : in     std_logic_vector(13 downto 0);
-          PHY_RXD                   : in     std_logic_vector(3 downto 0);
-          PHY_RXC                   : in     std_logic;
-          PHY_RXDV                  : in     std_logic;
-          CLK_125M                  : in     std_logic;
-          CLK_125M_quar             : in     std_logic;
-          PHY_TXD_o                 : out    std_logic_vector(3 downto 0);
-          PHY_GTXclk_quar           : out    std_logic;
-          phy_txen_quar             : out    std_logic;
-          phy_txer_o                : out    std_logic;
-          rst_n_o                   : out    std_logic;
-          Rd_data                   : out    std_logic_vector(7 downto 0);
-          Frm_valid                 : out    std_logic;
-          ram_wren                  : buffer std_logic;
-          ram_rden                  : out    std_logic;
-          -- ram_start                 : in     std_logic;
-          -- srcc1_p_trigin            : in     std_logic;
-          -- ram_last                  : in     std_logic;
-          -- SRCC1_n_upload_sma_trigin : in     std_logic;
-          -- upload_trig_ethernet      : in     std_logic;
-          posedge_upload_trig       : in     std_logic;
-          TX_dst_MAC_addr           : in     std_logic_vector(47 downto 0);
-          sample_en                 : in     std_logic;
-          CH_flag                   : in     std_logic_vector(7 downto 0);
-          ch_stat                   : in     std_logic_vector(1 downto 0);
-          upld_finish               : in     std_logic;
-          sw_ram_last : in std_logic;
-          data_strobe : out std_logic;
-          posedge_sample_trig : in std_logic
-          );
-        end component;
+  component G_ethernet_top
+    port(
+      -- rst_n_gb_i                : in     std_logic;
+      user_pushbutton     : in  std_logic;
+      fifo_upload_data    : in  std_logic_vector(7 downto 0);
+      Rd_clk              : in  std_logic;
+      Rd_en               : in  std_logic;
+      Rd_Addr             : in  std_logic_vector(13 downto 0);
+      PHY_RXD             : in  std_logic_vector(3 downto 0);
+      PHY_RXC             : in  std_logic;
+      PHY_RXDV            : in  std_logic;
+      CLK_125M            : in  std_logic;
+      CLK_125M_quar       : in  std_logic;
+      PHY_TXD_o           : out std_logic_vector(3 downto 0);
+      PHY_GTXclk_quar     : out std_logic;
+      phy_txen_quar       : out std_logic;
+      phy_txer_o          : out std_logic;
+      rst_n_o             : out std_logic;
+      Rd_data             : out std_logic_vector(7 downto 0);
+      Frm_valid           : out std_logic;
+      -- ram_wren            : buffer std_logic;
+      ram_rden            : out std_logic;
+      -- ram_start                 : in     std_logic;
+      -- srcc1_p_trigin            : in     std_logic;
+      -- ram_last                  : in     std_logic;
+      -- SRCC1_n_upload_sma_trigin : in     std_logic;
+      -- upload_trig_ethernet      : in     std_logic;
+      posedge_upload_trig : in  std_logic;
+      TX_dst_MAC_addr     : in  std_logic_vector(47 downto 0);
+      sample_en           : in  std_logic;
+      TX_src_MAC_addr     : in  std_logic_vector(3 downto 0);
+      CH_flag             : in  std_logic_vector(7 downto 0);
+      -- ch_stat             : in     std_logic_vector(1 downto 0);
+      mult_frame_en       : in  std_logic;
+      sw_ram_last         : in  std_logic;
+      data_strobe         : out std_logic;
+      ether_trig          : in  std_logic
+      );
+  end component;
   -----------------------------------------------------------------------------
-        -- component command_analysis
-        --   port(
-        --     rd_data              : in     std_logic_vector(7 downto 0);
-        --     rd_clk               : in     std_logic;
-        --     rd_addr              : in     std_logic_vector(13 downto 0);
-        --     rd_en                : in     std_logic;
-        --     frm_length           : out    std_logic_vector(15 downto 0);
-        --     frm_type             : out    std_logic_vector(15 downto 0);
-        --     -- mac_dst : OUT std_logic_vector(47 downto 0);
-        --     -- mac_src : OUT std_logic_vector(47 downto 0);
-        --     -- reg_addr : OUT std_logic_vector(15 downto 0);
-        --     -- reg_data : OUT std_logic_vector(31 downto 0);
-        --     ram_start            : buffer std_logic;
-        --     user_pushbutton      : in     std_logic;
-        --     ram_switch           : out    std_logic_vector(2 downto 0);
-        --     upload_trig_ethernet : buffer std_logic;
-        --     TX_dst_MAC_addr      : out    std_logic_vector(47 downto 0);
-        --     cmd_smpl_en          : buffer    std_logic;
-        --     cmd_smpl_depth       : out    std_logic_vector(15 downto 0)
-        --     );
-        -- end component;
-  	COMPONENT cmd_ana_top
-	PORT(
-		rd_clk : IN std_logic;
-		rst_n : IN std_logic;
-		ethernet_frm_valid : IN std_logic;
-		ethernet_rd_data : IN std_logic_vector(7 downto 0);          
-		frm_length : OUT std_logic_vector(15 downto 0);
-		frm_type : OUT std_logic_vector(15 downto 0);
-		ram_start : OUT std_logic;
-		upload_trig_ethernet : OUT std_logic;
-		ram_switch : OUT std_logic_vector(2 downto 0);
-		TX_dst_MAC_addr : OUT std_logic_vector(47 downto 0);
-		cmd_smpl_en : OUT std_logic;
-		cmd_smpl_depth : OUT std_logic_vector(15 downto 0);
-		ethernet_Rd_en : OUT std_logic;
-		ethernet_Rd_Addr : OUT std_logic_vector(13 downto 0)
-		);
-	END COMPONENT;
+  component cmd_ana_top
+    port(
+      rd_clk               : in     std_logic;
+      rst_n                : in     std_logic;
+      ethernet_frm_valid   : in     std_logic;
+      ethernet_rd_data     : in     std_logic_vector(7 downto 0);
+      frm_length           : out    std_logic_vector(15 downto 0);
+      frm_type             : out    std_logic_vector(15 downto 0);
+      ram_start            : out    std_logic;
+      upload_trig_ethernet : out    std_logic;
+      ram_switch           : out    std_logic_vector(2 downto 0);
+      TX_dst_MAC_addr      : out    std_logic_vector(47 downto 0);
+      cmd_smpl_en          : out    std_logic;
+      cmd_smpl_depth       : out    std_logic_vector(15 downto 0);
+      cmd_smpl_trig_cnt    : out    std_logic_vector(15 downto 0);
+      cmd_pstprc_IQ_sw     : out    std_logic_vector(1 downto 0);
+      ethernet_Rd_en       : out    std_logic;
+      ethernet_Rd_Addr     : out    std_logic_vector(13 downto 0);
+      Cmd_demowinln        : out    std_logic_vector(14 downto 0);
+      Cmd_demowinstart     : out    std_logic_vector(14 downto 0);
+      cmd_ADC_gain_adj     : out    std_logic_vector(18 downto 0);
+      cmd_ADC_reconfig     : buffer std_logic;
+      cmd_pstprc_num_en    : out    std_logic;
+      cmd_Pstprc_num       : out    std_logic_vector(3 downto 0);
+      cmd_Pstprc_DPS       : out    std_logic_vector(dds_phase_width downto 0);
+      cmd_Estmr_A          : out    std_logic_vector(31 downto 0);
+      cmd_Estmr_B          : out    std_logic_vector(31 downto 0);
+      cmd_Estmr_C          : out    std_logic_vector(63 downto 0);
+      cmd_Estmr_sync_en    : out    std_logic;
+      cmd_Estmr_num        : out    std_logic_vector(3 downto 0);
+      cmd_Estmr_num_en     : out    std_logic
+     -- cmd_Pstprc_dps_en : out std_logic
+      );
+  end component;
   -----------------------------------------------------------------------------
-
---   component dcm_adc_clkoi
--- port
---  (-- Clock in ports
---   CLK_IN1_P         : in     std_logic;
---   CLK_IN1_N         : in     std_logic;
---   -- Clock out ports
---   ADC_clkoi          : out    std_logic;
---   ADC_clkoi_inv          : out    std_logic
---  );
--- end component;
-
--- component dcm_adc_clkoq
--- port
---  (-- Clock in ports
---   CLK_IN1_P         : in     std_logic;
---   CLK_IN1_N         : in     std_logic;
---   -- Clock out ports
---   ADC_clkoq          : out    std_logic;
---   ADC_clkoq_inv          : out    std_logic
---  );
--- end component;
--- component dcm_rxc
--- port
---  (-- Clock in ports
---   CLK_IN1           : in     std_logic;
---   -- Clock out ports
---   CLK_OUT1          : out    std_logic
---  );
--- end component;
-
--- component dcm_125MHz
--- port
---  (-- Clock in ports
---   CLK_IN1_P         : in     std_logic;
---   CLK_IN1_N         : in     std_logic;
---   -- Clock out ports
---   CLK_OUT1          : out    std_logic;
---   CLK_OUT2          : out    std_logic;
---   clk_out3 :out std_logic;
---   -- CLK_OUT4          : out    std_logic;
---   locked : out std_logic
---  );
--- end component;
-  	COMPONENT crg_dcms
-	PORT(
-		OSC_in_p : IN std_logic;
-		OSC_in_n : IN std_logic;
-		ADC_CLKOI_p : IN std_logic;
-		ADC_CLKOI_n : IN std_logic;
-		ADC_CLKOQ_p : IN std_logic;
-		ADC_CLKOQ_n : IN std_logic;
-		PHY_RXC : IN std_logic;
-		user_pushbutton_g : IN std_logic;          
-		ADC_CLKOI : OUT std_logic;
-		ADC_CLKOQ : OUT std_logic;
-		PHY_RXC_g : OUT std_logic;
-		ADC_clkoi_inv : OUT std_logic;
-		ADC_clkoq_inv : OUT std_logic;
-		lck_rst_n : OUT std_logic;
-		CLK_125M : OUT std_logic;
-		CLK_200M : OUT std_logic;
-		CLK_125M_quar : OUT std_logic
-		);
-	END COMPONENT;
+  component crg_dcms
+    port(
+      OSC_in_p          : in     std_logic;
+      OSC_in_n          : in     std_logic;
+      ADC_CLKOI_p       : in     std_logic;
+      ADC_CLKOI_n       : in     std_logic;
+      -- ADC_CLKOQ_p       : in  std_logic;
+      -- ADC_CLKOQ_n       : in  std_logic;
+      CLK_EXT_250M : in std_logic;
+      PHY_RXC           : in     std_logic;
+      user_pushbutton_g : in     std_logic;
+      ADC_CLKOI         : buffer std_logic;
+      ADC_CLKOQ         : out    std_logic;
+      PHY_RXC_g         : out    std_logic;
+      ADC_clkoi_inv     : out    std_logic;
+      ADC_clkoq_inv     : out    std_logic;
+      lck_rst_n         : buffer std_logic;
+      CLK_125M          : out    std_logic;
+      CLK_200M          : out    std_logic;
+      CLK_250M          : out    std_logic;
+      CLK_500M : out std_logic;
+      CLK_EXT_500M :out std_logic;
+      CLK_125M_quar     : out    std_logic
+      );
+  end component;
 -------------------------------------------------------------------------------
-	COMPONENT DATAin_IOB
-	PORT(
-		CLK_200M : IN std_logic;
-		ADC_CLKOI : IN std_logic;
-		ADC_CLKOQ : IN std_logic;
-		ADC_DOQB_p : IN std_logic_vector(7 downto 0);
-		ADC_DOQB_n : IN std_logic_vector(7 downto 0);
-		ADC_DOQA_p : IN std_logic_vector(7 downto 0);
-		ADC_DOQA_n : IN std_logic_vector(7 downto 0);
-		ADC_DOIB_p : IN std_logic_vector(7 downto 0);
-		ADC_DOIB_n : IN std_logic_vector(7 downto 0);
-		ADC_DOIA_p : IN std_logic_vector(7 downto 0);
-		ADC_DOIA_n : IN std_logic_vector(7 downto 0);          
-		ADC_DOQB_2_d : OUT std_logic_vector(7 downto 0);
-		ADC_DOQA_2_d : OUT std_logic_vector(7 downto 0);
-		ADC_DOQB_1_d : OUT std_logic_vector(7 downto 0);
-		ADC_DOQA_1_d : OUT std_logic_vector(7 downto 0);
-		ADC_DOIB_2_d : OUT std_logic_vector(7 downto 0);
-		ADC_DOIA_2_d : OUT std_logic_vector(7 downto 0);
-		ADC_DOIB_1_d : OUT std_logic_vector(7 downto 0);
-		ADC_DOIA_1_d : OUT std_logic_vector(7 downto 0)
-		);
-	END COMPONENT;
-  
-COMPONENT TRIG_ctrl
-  PORT(
-    clk : IN std_logic;
-    rst_n : IN std_logic;
-    cmd_smpl_en : IN std_logic;
-    ram_start : IN std_logic;
-    SRCC1_p_trigin : IN std_logic;          
-    posedge_sample_trig_o : OUT std_logic
-    );
-END COMPONENT;
+  component DATAin_IOB
+    port(
+      CLK_200M     : in  std_logic;
+      ADC_CLKOI    : in  std_logic;
+      ADC_CLKOQ    : in  std_logic;
+      ADC_DOQB_p   : in  std_logic_vector(7 downto 0);
+      ADC_DOQB_n   : in  std_logic_vector(7 downto 0);
+      ADC_DOQA_p   : in  std_logic_vector(7 downto 0);
+      ADC_DOQA_n   : in  std_logic_vector(7 downto 0);
+      ADC_DOIB_p   : in  std_logic_vector(7 downto 0);
+      ADC_DOIB_n   : in  std_logic_vector(7 downto 0);
+      ADC_DOIA_p   : in  std_logic_vector(7 downto 0);
+      ADC_DOIA_n   : in  std_logic_vector(7 downto 0);
+      ADC_DOQB_2_d : out std_logic_vector(7 downto 0);
+      ADC_DOQA_2_d : out std_logic_vector(7 downto 0);
+      ADC_DOQB_1_d : out std_logic_vector(7 downto 0);
+      ADC_DOQA_1_d : out std_logic_vector(7 downto 0);
+      ADC_DOIB_2_d : out std_logic_vector(7 downto 0);
+      ADC_DOIA_2_d : out std_logic_vector(7 downto 0);
+      ADC_DOIB_1_d : out std_logic_vector(7 downto 0);
+      ADC_DOIA_1_d : out std_logic_vector(7 downto 0)
+      );
+  end component;
 
-COMPONENT Channel_switch
-  PORT(
-    clk_125M : in STD_LOGIC;
-    Ram_Q_last : IN std_logic;
-    Ram_I_last : IN std_logic;
-    Ram_I_doutb : IN std_logic_vector(7 downto 0);
-    Ram_Q_doutb : IN std_logic_vector(7 downto 0);
-    Ram_Q_rden : out std_logic;
-    Ram_I_rden : out std_logic;
-    rst_n : IN std_logic;
-    Ram_rden : IN std_logic;          
-    Upld_finish : OUT std_logic;
-    CH_flag : out std_logic_vector(7 downto 0);
-    ch_stat_o : out std_logic_vector(1 downto 0);
-    FIFO_upload_data : OUT std_logic_vector(7 downto 0);
-    data_strobe : in std_logic;
-    sw_ram_last : out std_logic
-    );
-END COMPONENT;
+  component TRIG_ctrl
+    port(
+      clk                   : in  std_logic;
+      rst_n                 : in  std_logic;
+      cmd_smpl_en           : in  std_logic;
+      cmd_smpl_trig_cnt     : in  std_logic_vector(15 downto 0);
+      ram_start             : in  std_logic;
+      SRCC1_p_trigin        : in  std_logic;
+      posedge_sample_trig_o : out std_logic
+      );
+  end component;
+
+  component Channel_switch
+    port(
+      rst_n                 : in  std_logic;
+      CLK                   : in  std_logic;
+      cmd_pstprc_IQ_sw      : in  std_logic_vector(1 downto 0);
+      posedge_sample_trig   : in  std_logic;
+      Ram_Q_last            : in  std_logic;
+      Ram_I_last            : in  std_logic;
+      Ram_I_doutb           : in  std_logic_vector(7 downto 0);
+      Ram_Q_doutb           : in  std_logic_vector(7 downto 0);
+      Ram_rden              : in  std_logic;
+      pstprc_fifo_data      : in  std_logic_vector(7 downto 0);
+      pstprc_fifo_pempty    : in  std_logic;
+      pstprc_finish         : in  std_logic;
+      CM_Ram_Q_rden_o       : out std_logic;
+      CM_Ram_I_rden_o       : out std_logic;
+      CW_Pstprc_fifo_rden_o : out std_logic;
+      sw_RAM_last           : out std_logic;
+      CW_ether_trig         : out std_logic;
+      CW_mult_frame_en_o    : out std_logic;
+      CW_demo_smpl_trig_o   : out std_logic;
+      CW_wave_smpl_trig_o   : out std_logic;
+      FIFO_upload_data      : out std_logic_vector(7 downto 0);
+      CW_CH_flag            : out std_logic_vector(7 downto 0)
+      );
+  end component;
 -------------------------------------------------------------------------------
---   COMPONENT fifo
---   PORT (
---     rst : IN STD_LOGIC;
---     wr_clk : IN STD_LOGIC;
---     rd_clk : IN STD_LOGIC;
---     din : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
---     wr_en : IN STD_LOGIC;
---     rd_en : IN STD_LOGIC;
---     dout : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
---     full : OUT STD_LOGIC;
---     almost_full : OUT STD_LOGIC;
---     empty : OUT STD_LOGIC;
---     valid : OUT STD_LOGIC
---   );
--- END COMPONENT;
 
---   COMPONENT ram_data
---   PORT (
---     clka : IN STD_LOGIC;
---     ena : IN STD_LOGIC;
---     wea : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
---     addra : IN STD_LOGIC_VECTOR(12 DOWNTO 0);
---     dina : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
---     clkb : IN STD_LOGIC;
---     rstb : IN STD_LOGIC;
---     enb : IN STD_LOGIC;
---     addrb : IN STD_LOGIC_VECTOR(14 DOWNTO 0);
---     doutb : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
---   );
--- END COMPONENT;
-
---   COMPONENT ram_data_i
---   PORT (
---     clka : IN STD_LOGIC;
---     ena : IN STD_LOGIC;
---     wea : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
---     addra : IN STD_LOGIC_VECTOR(12 DOWNTO 0);
---     dina : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
---     clkb : IN STD_LOGIC;
---     rstb : IN STD_LOGIC;
---     enb : IN STD_LOGIC;
---     addrb : IN STD_LOGIC_VECTOR(14 DOWNTO 0);
---     doutb : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
---   );
--- END COMPONENT;
-
-	COMPONENT RAM_top
-	PORT(
-		ram_wren : IN std_logic;
-		posedge_sample_trig : IN std_logic;
-		rst_n : IN std_logic;
-		cmd_smpl_depth : IN std_logic_vector(15 downto 0);
-		ram_Q_dina : IN std_logic_vector(31 downto 0);
-		ram_Q_clka : IN std_logic;
-		ram_Q_clkb : IN std_logic;
-		ram_Q_rden : IN std_logic;
-		ram_I_dina : IN std_logic_vector(31 downto 0);
-		ram_I_clka : IN std_logic;
-		ram_I_clkb : IN std_logic;
-		ram_I_rden : IN std_logic;          
-		ram_Q_doutb : OUT std_logic_vector(7 downto 0);
-		ram_Q_last : OUT std_logic;
-		ram_Q_full : OUT std_logic;
-		ram_I_doutb : OUT std_logic_vector(7 downto 0);
-		ram_I_last : OUT std_logic;
-		ram_I_full : OUT std_logic
-		);
-	END COMPONENT;
+  component RAM_top
+    port(
+      clk_125M            : in  std_logic;
+      -- ram_wren            : in  std_logic;
+      posedge_sample_trig : in  std_logic;
+      rst_n               : in  std_logic;
+      cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
+      ram_Q_dina          : in  std_logic_vector(31 downto 0);
+      ram_Q_clka          : in  std_logic;
+      ram_Q_clkb          : in  std_logic;
+      ram_Q_rden          : in  std_logic;
+      ram_I_dina          : in  std_logic_vector(31 downto 0);
+      ram_I_clka          : in  std_logic;
+      ram_I_clkb          : in  std_logic;
+      ram_I_rden          : in  std_logic;
+      ram_Q_doutb         : out std_logic_vector(7 downto 0);
+      ram_Q_last          : out std_logic;
+      ram_Q_full          : out std_logic;
+      ram_I_doutb         : out std_logic_vector(7 downto 0);
+      ram_I_last          : out std_logic;
+      ram_I_full          : out std_logic
+      );
+  end component;
 -------------------------------------------------------------------------------
--- 	COMPONENT IDDR_inst
--- 	PORT(
--- 		CLK : IN std_logic;
--- 		D : IN std_logic_vector(7 downto 0);          
--- 		Q1 : OUT std_logic_vector(7 downto 0);
--- 		Q2 : OUT std_logic_vector(7 downto 0)
--- 		);
--- 	END COMPONENT;
--- -------------------------------------------------------------------------------
---   	COMPONENT IBUFD_8bit
--- 	PORT(
--- 		I : IN std_logic_vector(7 downto 0);
--- 		IB : IN std_logic_vector(7 downto 0);          
--- 		O : OUT std_logic_vector(7 downto 0)
--- 		);
--- 	END COMPONENT;      
+
+  component Dmod_Seg
+    port(
+      clk                 : in  std_logic;
+      -- pstprc_ram_wren : IN std_logic;
+      posedge_sample_trig : in  std_logic;
+      rst_n               : in  std_logic;
+      cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
+      Pstprc_RAMQ_dina    : in  std_logic_vector(31 downto 0);
+      Pstprc_RAMQ_clka    : in  std_logic;
+      Pstprc_RAMQ_clkb    : in  std_logic;
+      Pstprc_RAMI_dina    : in  std_logic_vector(31 downto 0);
+      Pstprc_RAMI_clka    : in  std_logic;
+      Pstprc_RAMI_clkb    : in  std_logic;
+      demoWinln_twelve    : in  std_logic_vector(14 downto 0);
+      demoWinstart_twelve : in  std_logic_vector(14 downto 0);
+      -- Pstprc_dps_en       : in std_logic;
+      Pstprc_DPS_twelve   : in  std_logic_vector(dds_phase_width downto 0);
+      Pstprc_IQ_seq_o     : out std_logic_vector(63 downto 0);
+      pstprc_fifo_wren    : out std_logic;
+      Pstprc_finish       : out std_logic;
+      pstprc_num_en       : in  std_logic;
+      pstprc_num          : in  std_logic_vector(3 downto 0);
+      Estmr_A_eight       : in  std_logic_vector(31 downto 0);
+      Estmr_B_eight       : in  std_logic_vector(31 downto 0);
+      Estmr_C_eight       : in  std_logic_vector(63 downto 0);
+      Estmr_num_en        : in  std_logic;
+      Estmr_num           : in  std_logic_vector(3 downto 0);
+      Estmr_sync_en       : in  std_logic;
+      clk_Estmr           : in  std_logic;  --clk250M
+      clk_Oserdes         : in  std_logic;  --clk500M
+      Estmr_OQ            : out std_logic   --Oserdes output
+      );
+  end component;
+  -----------------------------------------------------------------------------
+  component Pstprc_fifo_top
+    port(
+      rst_n               : in  std_logic;
+      Pstprc_fifo_wr_clk  : in  std_logic;
+      Pstprc_fifo_rd_clk  : in  std_logic;
+      Pstprc_fifo_din     : in  std_logic_vector(63 downto 0);
+      Pstprc_fifo_wren    : in  std_logic;
+      Pstprc_fifo_rden    : in  std_logic;
+      -- prog_empty_thresh   : in  std_logic_vector(6 downto 0);
+      Pstprc_fifo_dout    : out std_logic_vector(7 downto 0);
+      Pstprc_fifo_valid   : out std_logic;
+      Pstprc_fifo_pempty  : out std_logic;
+      pstprc_fifo_alempty : out std_logic
+      );
+  end component;
 -------------------------------------------------------------------------------
 -- component SRAM_interface
 --   generic (
@@ -700,574 +702,87 @@ END COMPONENT;
 ---------------------------------------------------------------------------------primitive instantiation       
 begin
 
-
- -- dcm2 : dcm_adc_clkoi
- --  port map
- --   (-- Clock in ports
- --    CLK_IN1_P => ADC_CLKOI_p,
- --    CLK_IN1_N => ADC_CLKOI_n,
- --    -- Clock out ports
- --    ADC_clkoi => ADC_clkoi,
- --    ADC_clkoi_inv =>  ADC_clkoi_inv);
-
- --  dcm3 : dcm_adc_clkoq
- --  port map
- --   (-- Clock in ports
- --    CLK_IN1_P => ADC_CLKOQ_p,
- --    CLK_IN1_N => ADC_CLKOQ_n,
- --    -- Clock out ports
- --    ADC_clkoq => ADC_clkoq,
- --    ADC_clkoq_inv => ADC_clkoq_inv);
-
- --  dcm_global : dcm_125MHz
- --  port map
- --   (-- Clock in ports
- --    CLK_IN1_P => OSC_in_p,
- --    CLK_IN1_N => OSC_in_n,
- --    -- Clock out ports
- --    CLK_OUT1 => CLK_125M,
- --    CLK_OUT2 => CLK_125M_quar,
- --    CLK_OUT3 => CLK_200M,
- --    -- CLK_OUT4 => CLK_OUT4,
- --    locked => dcm1_locked
- --    );
-  	Inst_crg_dcms: crg_dcms PORT MAP(
-		OSC_in_p => OSC_in_p,
-		OSC_in_n => OSC_in_n,
-		ADC_CLKOI_p => ADC_CLKOI_p,
-		ADC_CLKOI_n => ADC_CLKOI_n,
-		ADC_CLKOQ_p => ADC_CLKOQ_p,
-		ADC_CLKOQ_n => ADC_CLKOQ_n,
-		PHY_RXC => PHY_RXC,
-		ADC_CLKOI => ADC_CLKOI,
-		ADC_CLKOQ => ADC_CLKOQ,
-		PHY_RXC_g => PHY_RXC_g,
-		ADC_clkoi_inv => ADC_clkoi_inv,
-		ADC_clkoq_inv => ADC_clkoq_inv,
-		lck_rst_n => lck_rst_n,
-		user_pushbutton_g => user_pushbutton_g,
-		CLK_125M => CLK_125M,
-		CLK_200M => CLK_200M,
-		CLK_125M_quar => CLK_125M_quar
-	);
-        
-            IBUFG_inst : IBUFG
-    generic map (
-       IBUF_LOW_PWR => TRUE, -- Low power (TRUE) vs. performance (FALSE) setting for refernced I/O standards
-       IOSTANDARD => "DEFAULT")
-    port map (
-       O => user_pushbutton_g, -- Clock buffer output
-       I => user_pushbutton  -- Clock buffer input (connect directly to top-level port)
+  Inst_crg_dcms : crg_dcms port map(
+    OSC_in_p          => OSC_in_p,
+    OSC_in_n          => OSC_in_n,
+    ADC_CLKOI_p       => ADC_CLKOI_p,
+    ADC_CLKOI_n       => ADC_CLKOI_n,
+    -- ADC_CLKOQ_p       => ADC_CLKOQ_p,
+    -- ADC_CLKOQ_n       => ADC_CLKOQ_n,
+    CLK_EXT_250M =>CLK_EXT_250M_g,
+    PHY_RXC           => PHY_RXC,
+    ADC_CLKOI         => ADC_CLKOI,
+    ADC_CLKOQ         => ADC_CLKOQ,
+    PHY_RXC_g         => PHY_RXC_g,
+    ADC_clkoi_inv     => ADC_clkoi_inv,
+    ADC_clkoq_inv     => ADC_clkoq_inv,
+    lck_rst_n         => lck_rst_n,
+    user_pushbutton_g => user_pushbutton_g,
+    CLK_125M          => CLK_125M,
+    CLK_200M          => CLK_200M,
+    CLK_250M          => CLK_250M,
+    CLK_500M          => CLK_500M,
+    CLK_EXT_500M => CLK_EXT_500M,
+    CLK_125M_quar     => CLK_125M_quar
     );
 
-        Inst_DATAin_IOB: DATAin_IOB PORT MAP(
-          CLK_200M => CLK_200M,
-          ADC_CLKOI => ADC_CLKOI,
-          ADC_CLKOQ => ADC_CLKOQ,
-          ADC_DOQB_p => ADC_DOQB_p,
-          ADC_DOQB_n => ADC_DOQB_n,
-          ADC_DOQA_p => ADC_DOQA_p,
-          ADC_DOQA_n => ADC_DOQA_n,
-          ADC_DOIB_p => ADC_DOIB_p,
-          ADC_DOIB_n => ADC_DOIB_n,
-          ADC_DOIA_p => ADC_DOIA_p,
-          ADC_DOIA_n => ADC_DOIA_n,
-          ADC_DOQB_2_d => ADC_DOQB_2_d,
-          ADC_DOQA_2_d => ADC_DOQA_2_d,
-          ADC_DOQB_1_d => ADC_DOQB_1_d,
-          ADC_DOQA_1_d => ADC_DOQA_1_d,
-          ADC_DOIB_2_d => ADC_DOIB_2_d,
-          ADC_DOIA_2_d => ADC_DOIA_2_d,
-          ADC_DOIB_1_d => ADC_DOIB_1_d,
-          ADC_DOIA_1_d => ADC_DOIA_1_d
-	);
--- dcm_rxc_inst : dcm_rxc
---   port map
---    (-- Clock in ports
---     CLK_IN1 => PHY_RXC,
---     -- Clock out ports
---     CLK_OUT1 => PHY_RXC_g);
+  IBUFG_inst : IBUFG
+    generic map (
+      IBUF_LOW_PWR => false,  -- Low power (TRUE) vs. performance (FALSE) setting for refernced I/O standards
+      IOSTANDARD   => "DEFAULT")
+    port map (
+      O => user_pushbutton_g,           -- Clock buffer output
+      I => user_pushbutton  -- Clock buffer input (connect directly to top-level port)
+      );
+
+  Inst_DATAin_IOB : DATAin_IOB port map(
+    CLK_200M     => CLK_200M,
+    ADC_CLKOI    => ADC_CLKOI,
+    ADC_CLKOQ    => ADC_CLKOQ,
+    ADC_DOQB_p   => ADC_DOQB_p,
+    ADC_DOQB_n   => ADC_DOQB_n,
+    ADC_DOQA_p   => ADC_DOQA_p,
+    ADC_DOQA_n   => ADC_DOQA_n,
+    ADC_DOIB_p   => ADC_DOIB_p,
+    ADC_DOIB_n   => ADC_DOIB_n,
+    ADC_DOIA_p   => ADC_DOIA_p,
+    ADC_DOIA_n   => ADC_DOIA_n,
+    ADC_DOQB_2_d => ADC_DOQB_2_d,
+    ADC_DOQA_2_d => ADC_DOQA_2_d,
+    ADC_DOQB_1_d => ADC_DOQB_1_d,
+    ADC_DOQA_1_d => ADC_DOQA_1_d,
+    ADC_DOIB_2_d => ADC_DOIB_2_d,
+    ADC_DOIA_2_d => ADC_DOIA_2_d,
+    ADC_DOIB_1_d => ADC_DOIB_1_d,
+    ADC_DOIA_1_d => ADC_DOIA_1_d
+    );
+
 -------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------
-  	-- Inst_IBUFD_8bit1: IBUFD_8bit PORT MAP(  
-	-- 	O =>ADC_DOQB ,
-	-- 	I =>ADC_DOQB_p ,
-	-- 	IB =>ADC_DOQB_n 
-	-- );
-
-  	-- Inst_IBUFD_8bit2: IBUFD_8bit PORT MAP(
-	-- 	O =>ADC_DOQA ,
-	-- 	I =>ADC_DOQA_p ,
-	-- 	IB =>ADC_DOQA_n 
-	-- );
-    	-- Inst_IBUFD_8bit3: IBUFD_8bit PORT MAP(
-	-- 	O =>ADC_DOIB ,
-	-- 	I =>ADC_DOIB_p ,
-	-- 	IB =>ADC_DOIB_n 
-	-- );
-    	-- Inst_IBUFD_8bit4: IBUFD_8bit PORT MAP(
-	-- 	O =>ADC_DOIA ,
-	-- 	I =>ADC_DOIA_p ,
-	-- 	IB =>ADC_DOIA_n 
-	-- );
--------------------------------------------------------------------------------
-  -----------------------------------------------------------------------------
-  -- io delay
--- ADC_doqa_inst: FOR i in 0 to 7 generate
--- begin
---   specify_one: if i = 5 generate       
---     begin
--- IODELAYE1_inst : IODELAYE1
---   generic map (
---      CINVCTRL_SEL => FALSE,          -- Enable dynamic clock inversion (TRUE/FALSE)
---      DELAY_SRC => "I",               -- Delay input ("I", "CLKIN", "DATAIN", "IO", "O")
---      HIGH_PERFORMANCE_MODE => FALSE, -- Reduced jitter (TRUE), Reduced power (FALSE)
---      IDELAY_TYPE => "FIXED",       -- "DEFAULT", "FIXED", "VARIABLE", or "VAR_LOADABLE" 
---      IDELAY_VALUE => 0,              -- Input delay tap setting (0-31)
---      ODELAY_TYPE => "FIXED",         -- "FIXED", "VARIABLE", or "VAR_LOADABLE" 
---      ODELAY_VALUE => 0,              -- Output delay tap setting (0-31)
---      REFCLK_FREQUENCY => 200.0,      -- IDELAYCTRL clock input frequency in MHz
---      SIGNAL_PATTERN => "DATA"        -- "DATA" or "CLOCK" input signal
---   )
---   port map (
---      CNTVALUEOUT => open, -- 5-bit output: Counter value output
---      DATAOUT => ADC_doqa_delay(i),         -- 1-bit output: Delayed data output
---      C =>  '0',                     -- 1-bit input: Clock input
---      CE => '0',                   -- 1-bit input: Active high enable increment/decrement input
---      CINVCTRL => '0',       -- 1-bit input: Dynamic clock inversion input
---      CLKIN => '0',             -- 1-bit input: Clock delay input
---      CNTVALUEIN => "00000",   -- 5-bit input: Counter value input
---      DATAIN => '0',           -- 1-bit input: Internal delay data input
---      IDATAIN => ADC_doqa(i),         -- 1-bit input: Data input from the I/O
---      INC => '0',                 -- 1-bit input: Increment / Decrement tap delay input
---      ODATAIN => '0',         -- 1-bit input: Output delay data input
---      RST => '0',                 -- 1-bit input: Active-high reset tap-delay input
---      T => '0'                      -- 1-bit input: 3-state input
---   );
---   end generate specify_one;
-  
---   universal: if i/=5 generate
--- IODELAYE1_inst : IODELAYE1
---   generic map (
---      CINVCTRL_SEL => FALSE,          -- Enable dynamic clock inversion (TRUE/FALSE)
---      DELAY_SRC => "I",               -- Delay input ("I", "CLKIN", "DATAIN", "IO", "O")
---      HIGH_PERFORMANCE_MODE => FALSE, -- Reduced jitter (TRUE), Reduced power (FALSE)
---      IDELAY_TYPE => "FIXED",       -- "DEFAULT", "FIXED", "VARIABLE", or "VAR_LOADABLE" 
---      IDELAY_VALUE => 0,              -- Input delay tap setting (0-31)
---      ODELAY_TYPE => "FIXED",         -- "FIXED", "VARIABLE", or "VAR_LOADABLE" 
---      ODELAY_VALUE => 0,              -- Output delay tap setting (0-31)
---      REFCLK_FREQUENCY => 200.0,      -- IDELAYCTRL clock input frequency in MHz
---      SIGNAL_PATTERN => "DATA"        -- "DATA" or "CLOCK" input signal
---   )
---   port map (
---      CNTVALUEOUT => open, -- 5-bit output: Counter value output
---      DATAOUT => ADC_doqa_delay(i),         -- 1-bit output: Delayed data output
---      C =>  '0',                     -- 1-bit input: Clock input
---      CE => '0',                   -- 1-bit input: Active high enable increment/decrement input
---      CINVCTRL => '0',       -- 1-bit input: Dynamic clock inversion input
---      CLKIN => '0',             -- 1-bit input: Clock delay input
---      CNTVALUEIN => "00000",   -- 5-bit input: Counter value input
---      DATAIN => '0',           -- 1-bit input: Internal delay data input
---      IDATAIN => ADC_doqa(i),         -- 1-bit input: Data input from the I/O
---      INC => '0',                 -- 1-bit input: Increment / Decrement tap delay input
---      ODATAIN => '0',         -- 1-bit input: Output delay data input
---      RST => '0',                 -- 1-bit input: Active-high reset tap-delay input
---      T => '0'                      -- 1-bit input: 3-state input
---   );
---   end generate universal;
--- end generate;
-
--- -------------------------------------------------------------------------------
---  ADC_doqb_inst: FOR i in 0 to 7 generate
--- begin
---   specify_one: if i = 5 generate
---     begin
--- IODELAYE1_inst : IODELAYE1
---   generic map (
---      CINVCTRL_SEL => FALSE,          -- Enable dynamic clock inversion (TRUE/FALSE)
---      DELAY_SRC => "I",               -- Delay input ("I", "CLKIN", "DATAIN", "IO", "O")
---      HIGH_PERFORMANCE_MODE => FALSE, -- Reduced jitter (TRUE), Reduced power (FALSE)
---      IDELAY_TYPE => "FIXED",       -- "DEFAULT", "FIXED", "VARIABLE", or "VAR_LOADABLE" 
---      IDELAY_VALUE => 0,              -- Input delay tap setting (0-31)
---      ODELAY_TYPE => "FIXED",         -- "FIXED", "VARIABLE", or "VAR_LOADABLE" 
---      ODELAY_VALUE => 0,              -- Output delay tap setting (0-31)
---      REFCLK_FREQUENCY => 200.0,      -- IDELAYCTRL clock input frequency in MHz
---      SIGNAL_PATTERN => "DATA"        -- "DATA" or "CLOCK" input signal
---   )
---   port map (
---      CNTVALUEOUT => open, -- 5-bit output: Counter value output
---      DATAOUT => ADC_doqb_delay(i),         -- 1-bit output: Delayed data output
---      C =>  '0',                     -- 1-bit input: Clock input
---      CE => '0',                   -- 1-bit input: Active high enable increment/decrement input
---      CINVCTRL => '0',       -- 1-bit input: Dynamic clock inversion input
---      CLKIN => '0',             -- 1-bit input: Clock delay input
---      CNTVALUEIN => "00000",   -- 5-bit input: Counter value input
---      DATAIN => '0',           -- 1-bit input: Internal delay data input
---      IDATAIN => ADC_doqb(i),         -- 1-bit input: Data input from the I/O
---      INC => '0',                 -- 1-bit input: Increment / Decrement tap delay input
---      ODATAIN => '0',         -- 1-bit input: Output delay data input
---      RST => '0',                 -- 1-bit input: Active-high reset tap-delay input
---      T => '0'                      -- 1-bit input: 3-state input
---   );
---   end generate specify_one;
-  
---   universal: if i/=5 generate
--- IODELAYE1_inst : IODELAYE1
---   generic map (
---      CINVCTRL_SEL => FALSE,          -- Enable dynamic clock inversion (TRUE/FALSE)
---      DELAY_SRC => "I",               -- Delay input ("I", "CLKIN", "DATAIN", "IO", "O")
---      HIGH_PERFORMANCE_MODE => FALSE, -- Reduced jitter (TRUE), Reduced power (FALSE)
---      IDELAY_TYPE => "FIXED",       -- "DEFAULT", "FIXED", "VARIABLE", or "VAR_LOADABLE" 
---      IDELAY_VALUE => 0,              -- Input delay tap setting (0-31)
---      ODELAY_TYPE => "FIXED",         -- "FIXED", "VARIABLE", or "VAR_LOADABLE" 
---      ODELAY_VALUE => 0,              -- Output delay tap setting (0-31)
---      REFCLK_FREQUENCY => 200.0,      -- IDELAYCTRL clock input frequency in MHz
---      SIGNAL_PATTERN => "DATA"        -- "DATA" or "CLOCK" input signal
---   )
---   port map (
---      CNTVALUEOUT => open, -- 5-bit output: Counter value output
---      DATAOUT => ADC_doqb_delay(i),         -- 1-bit output: Delayed data output
---      C =>  '0',                     -- 1-bit input: Clock input
---      CE => '0',                   -- 1-bit input: Active high enable increment/decrement input
---      CINVCTRL => '0',       -- 1-bit input: Dynamic clock inversion input
---      CLKIN => '0',             -- 1-bit input: Clock delay input
---      CNTVALUEIN => "00000",   -- 5-bit input: Counter value input
---      DATAIN => '0',           -- 1-bit input: Internal delay data input
---      IDATAIN => ADC_doqb(i),         -- 1-bit input: Data input from the I/O
---      INC => '0',                 -- 1-bit input: Increment / Decrement tap delay input
---      ODATAIN => '0',         -- 1-bit input: Output delay data input
---      RST => '0',                 -- 1-bit input: Active-high reset tap-delay input
---      T => '0'                      -- 1-bit input: 3-state input
---   );
---   end generate universal;
--- end generate;
--- -------------------------------------------------------------------------------
--- ADC_doia_inst: FOR i in 0 to 7 generate
--- begin
---   specify_one: if i = 5 generate        
---     begin
--- IODELAYE1_inst : IODELAYE1
---   generic map (
---      CINVCTRL_SEL => FALSE,          -- Enable dynamic clock inversion (TRUE/FALSE)
---      DELAY_SRC => "I",               -- Delay input ("I", "CLKIN", "DATAIN", "IO", "O")
---      HIGH_PERFORMANCE_MODE => FALSE, -- Reduced jitter (TRUE), Reduced power (FALSE)
---      IDELAY_TYPE => "FIXED",       -- "DEFAULT", "FIXED", "VARIABLE", or "VAR_LOADABLE" 
---      IDELAY_VALUE => 0,              -- Input delay tap setting (0-31)
---      ODELAY_TYPE => "FIXED",         -- "FIXED", "VARIABLE", or "VAR_LOADABLE" 
---      ODELAY_VALUE => 0,              -- Output delay tap setting (0-31)
---      REFCLK_FREQUENCY => 200.0,      -- IDELAYCTRL clock input frequency in MHz
---      SIGNAL_PATTERN => "DATA"        -- "DATA" or "CLOCK" input signal
---   )
---   port map (
---      CNTVALUEOUT => open, -- 5-bit output: Counter value output
---      DATAOUT => ADC_doia_delay(i),         -- 1-bit output: Delayed data output
---      C =>  '0',                     -- 1-bit input: Clock input
---      CE => '0',                   -- 1-bit input: Active high enable increment/decrement input
---      CINVCTRL => '0',       -- 1-bit input: Dynamic clock inversion input
---      CLKIN => '0',             -- 1-bit input: Clock delay input
---      CNTVALUEIN => "00000",   -- 5-bit input: Counter value input
---      DATAIN => '0',           -- 1-bit input: Internal delay data input
---      IDATAIN => ADC_doia(i),         -- 1-bit input: Data input from the I/O
---      INC => '0',                 -- 1-bit input: Increment / Decrement tap delay input
---      ODATAIN => '0',         -- 1-bit input: Output delay data input
---      RST => '0',                 -- 1-bit input: Active-high reset tap-delay input
---      T => '0'                      -- 1-bit input: 3-state input
---   );
---   end generate specify_one;
-  
---   universal: if i/=5 generate
--- IODELAYE1_inst : IODELAYE1
---   generic map (
---      CINVCTRL_SEL => FALSE,          -- Enable dynamic clock inversion (TRUE/FALSE)
---      DELAY_SRC => "I",               -- Delay input ("I", "CLKIN", "DATAIN", "IO", "O")
---      HIGH_PERFORMANCE_MODE => FALSE, -- Reduced jitter (TRUE), Reduced power (FALSE)
---      IDELAY_TYPE => "FIXED",       -- "DEFAULT", "FIXED", "VARIABLE", or "VAR_LOADABLE" 
---      IDELAY_VALUE => 0,              -- Input delay tap setting (0-31)
---      ODELAY_TYPE => "FIXED",         -- "FIXED", "VARIABLE", or "VAR_LOADABLE" 
---      ODELAY_VALUE => 0,              -- Output delay tap setting (0-31)
---      REFCLK_FREQUENCY => 200.0,      -- IDELAYCTRL clock input frequency in MHz
---      SIGNAL_PATTERN => "DATA"        -- "DATA" or "CLOCK" input signal
---   )
---   port map (
---      CNTVALUEOUT => open, -- 5-bit output: Counter value output
---      DATAOUT => ADC_doia_delay(i),         -- 1-bit output: Delayed data output
---      C =>  '0',                     -- 1-bit input: Clock input
---      CE => '0',                   -- 1-bit input: Active high enable increment/decrement input
---      CINVCTRL => '0',       -- 1-bit input: Dynamic clock inversion input
---      CLKIN => '0',             -- 1-bit input: Clock delay input
---      CNTVALUEIN => "00000",   -- 5-bit input: Counter value input
---      DATAIN => '0',           -- 1-bit input: Internal delay data input
---      IDATAIN => ADC_doia(i),         -- 1-bit input: Data input from the I/O
---      INC => '0',                 -- 1-bit input: Increment / Decrement tap delay input
---      ODATAIN => '0',         -- 1-bit input: Output delay data input
---      RST => '0',                 -- 1-bit input: Active-high reset tap-delay input
---      T => '0'                      -- 1-bit input: 3-state input
---   );
---   end generate universal;
--- end generate;
-
--- -------------------------------------------------------------------------------
---  ADC_doib_inst: FOR i in 0 to 7 generate
--- begin
---   specify_one: if i = 5 generate
---     begin
--- IODELAYE1_inst : IODELAYE1
---   generic map (
---      CINVCTRL_SEL => FALSE,          -- Enable dynamic clock inversion (TRUE/FALSE)
---      DELAY_SRC => "I",               -- Delay input ("I", "CLKIN", "DATAIN", "IO", "O")
---      HIGH_PERFORMANCE_MODE => FALSE, -- Reduced jitter (TRUE), Reduced power (FALSE)
---      IDELAY_TYPE => "FIXED",       -- "DEFAULT", "FIXED", "VARIABLE", or "VAR_LOADABLE" 
---      IDELAY_VALUE => 0,              -- Input delay tap setting (0-31)
---      ODELAY_TYPE => "FIXED",         -- "FIXED", "VARIABLE", or "VAR_LOADABLE" 
---      ODELAY_VALUE => 0,              -- Output delay tap setting (0-31)
---      REFCLK_FREQUENCY => 200.0,      -- IDELAYCTRL clock input frequency in MHz
---      SIGNAL_PATTERN => "DATA"        -- "DATA" or "CLOCK" input signal
---   )
---   port map (
---      CNTVALUEOUT => open, -- 5-bit output: Counter value output
---      DATAOUT => ADC_doib_delay(i),         -- 1-bit output: Delayed data output
---      C =>  '0',                     -- 1-bit input: Clock input
---      CE => '0',                   -- 1-bit input: Active high enable increment/decrement input
---      CINVCTRL => '0',       -- 1-bit input: Dynamic clock inversion input
---      CLKIN => '0',             -- 1-bit input: Clock delay input
---      CNTVALUEIN => "00000",   -- 5-bit input: Counter value input
---      DATAIN => '0',           -- 1-bit input: Internal delay data input
---      IDATAIN => ADC_doib(i),         -- 1-bit input: Data input from the I/O
---      INC => '0',                 -- 1-bit input: Increment / Decrement tap delay input
---      ODATAIN => '0',         -- 1-bit input: Output delay data input
---      RST => '0',                 -- 1-bit input: Active-high reset tap-delay input
---      T => '0'                      -- 1-bit input: 3-state input
---   );
---   end generate specify_one;
-  
---   universal: if i/=5 generate
--- IODELAYE1_inst : IODELAYE1
---   generic map (
---      CINVCTRL_SEL => FALSE,          -- Enable dynamic clock inversion (TRUE/FALSE)
---      DELAY_SRC => "I",               -- Delay input ("I", "CLKIN", "DATAIN", "IO", "O")
---      HIGH_PERFORMANCE_MODE => FALSE, -- Reduced jitter (TRUE), Reduced power (FALSE)
---      IDELAY_TYPE => "FIXED",       -- "DEFAULT", "FIXED", "VARIABLE", or "VAR_LOADABLE" 
---      IDELAY_VALUE => 0,              -- Input delay tap setting (0-31)
---      ODELAY_TYPE => "FIXED",         -- "FIXED", "VARIABLE", or "VAR_LOADABLE" 
---      ODELAY_VALUE => 0,              -- Output delay tap setting (0-31)
---      REFCLK_FREQUENCY => 200.0,      -- IDELAYCTRL clock input frequency in MHz
---      SIGNAL_PATTERN => "DATA"        -- "DATA" or "CLOCK" input signal
---   )
---   port map (
---      CNTVALUEOUT => open, -- 5-bit output: Counter value output
---      DATAOUT => ADC_doib_delay(i),         -- 1-bit output: Delayed data output
---      C =>  '0',                     -- 1-bit input: Clock input
---      CE => '0',                   -- 1-bit input: Active high enable increment/decrement input
---      CINVCTRL => '0',       -- 1-bit input: Dynamic clock inversion input
---      CLKIN => '0',             -- 1-bit input: Clock delay input
---      CNTVALUEIN => "00000",   -- 5-bit input: Counter value input
---      DATAIN => '0',           -- 1-bit input: Internal delay data input
---      IDATAIN => ADC_doib(i),         -- 1-bit input: Data input from the I/O
---      INC => '0',                 -- 1-bit input: Increment / Decrement tap delay input
---      ODATAIN => '0',         -- 1-bit input: Output delay data input
---      RST => '0',                 -- 1-bit input: Active-high reset tap-delay input
---      T => '0'                      -- 1-bit input: 3-state input
---   );
---   end generate universal;
--- end generate;
-	
--- IDELAYCTRL_inst : IDELAYCTRL
---   port map (
---      RDY => open,       -- 1-bit output indicates validity of the REFCLK
---      REFCLK => CLK_200M, -- 1-bit reference clock input
---      RST => '0'        -- 1-bit reset input
---   );
--- -------------------------------------------------------------------------------
---   -----------------------------------------------------------------------------
--- -- iddr(iob)
---         Inst_IDDR_inst1: IDDR_inst PORT MAP(
--- 		CLK =>ADC_CLKOI ,
--- 		Q1 =>ADC_DOIA_1 ,
--- 		Q2 =>ADC_DOIA_2 ,
--- 		D =>ADC_DOIA_delay
--- 	);
---     	Inst_IDDR_inst2: IDDR_inst PORT MAP(
--- 		CLK =>ADC_CLKOI ,
--- 		Q1 =>ADC_DOIB_1 ,
--- 		Q2 =>ADC_DOIB_2 ,
--- 		D =>ADC_DOIB_delay 
--- 	);
---     	Inst_IDDR_inst3: IDDR_inst PORT MAP(
--- 		CLK =>ADC_CLKOQ ,
--- 		Q1 =>ADC_DOQA_1 ,
--- 		Q2 =>ADC_DOQA_2 ,
--- 		D =>ADC_DOQA_delay 
--- 	);
---     	Inst_IDDR_inst4: IDDR_inst PORT MAP(
--- 		CLK =>ADC_CLKOQ ,
--- 		Q1 =>ADC_DOQB_1 ,
--- 		Q2 =>ADC_DOQB_2 ,
--- 		D =>ADC_DOQB_delay 
--- 	);
-
---   -----------------------------------------------------------------------------
--- -------------------------------------------------------------------------------
--- -- dff(iob->dff)为了更好地约束走线
---   DFF_doqA_1_inst1: for i in 0 to 7 generate
---   begin  
---    FDCE_inst : FDCE
---    generic map (
---       INIT => '0') -- Initial value of register ('0' or '1')  
---    port map (
---       Q =>ADC_DOQA_1_d(i) ,      -- Data output
---       C => ADC_clkoq,      -- Clock input
---       CE => '1',    -- Clock enable input
---       CLR => '0',  -- Asynchronous clear input
---       D =>ADC_DOQA_1(i)        -- Data input
---    );
---   end generate DFF_doqA_1_inst1;
-
---     DFF_doqA_2_inst2: for i in 0 to 7 generate
---   begin  
---      FDCE_inst : FDCE
---    generic map (
---       INIT => '0') -- Initial value of register ('0' or '1')  
---    port map (
---       Q =>ADC_DOQA_2_d(i) ,      -- Data output
---       C => ADC_clkoq,      -- Clock input
---       CE => '1',    -- Clock enable input
---       CLR => '0',  -- Asynchronous clear input
---       D =>ADC_DOQA_2(i)        -- Data input
---    );
---   end generate DFF_doqA_2_inst2;
-
---       DFF_doqB_1_inst3: for i in 0 to 7 generate
---   begin  
---      FDCE_inst : FDCE
---    generic map (
---       INIT => '0') -- Initial value of register ('0' or '1')  
---    port map (
---       Q =>ADC_DOQB_1_d(i) ,      -- Data output
---       C =>  ADC_clkoq,      -- Clock input
---       CE => '1',    -- Clock enable input
---       CLR => '0',  -- Asynchronous clear input
---       D =>ADC_DOQB_1(i)        -- Data input
---    );
---   end generate DFF_doqB_1_inst3;
-
---       DFF_doqB_2_inst4: for i in 0 to 7 generate
---   begin  
---      FDCE_inst : FDCE
---    generic map (
---       INIT => '0') -- Initial value of register ('0' or '1')  
---    port map (
---       Q =>ADC_DOQB_2_d(i) ,      -- Data output
---       C =>  ADC_clkoq,      -- Clock input
---       CE => '1',    -- Clock enable input
---       CLR => '0',  -- Asynchronous clear input
---       D =>ADC_DOQB_2(i)        -- Data input
---    );
---   end generate DFF_doqB_2_inst4;
---   -----------------------------------------------------------------------------
---     DFF_doiA_1_inst1: for i in 0 to 7 generate
---   begin  
---    FDCE_inst : FDCE
---    generic map (
---       INIT => '0') -- Initial value of register ('0' or '1')  
---    port map (
---       Q =>ADC_DOiA_1_d(i) ,      -- Data output
---       C => ADC_clkoi,      -- Clock input
---       CE => '1',    -- Clock enable input
---       CLR => '0',  -- Asynchronous clear input
---       D =>ADC_DOiA_1(i)        -- Data input
---    );
---   end generate DFF_doiA_1_inst1;
-
---     DFF_doiA_2_inst2: for i in 0 to 7 generate
---   begin  
---      FDCE_inst : FDCE
---    generic map (
---       INIT => '0') -- Initial value of register ('0' or '1')  
---    port map (
---       Q =>ADC_DOiA_2_d(i) ,      -- Data output
---       C => ADC_clkoi,      -- Clock input
---       CE => '1',    -- Clock enable input
---       CLR => '0',  -- Asynchronous clear input
---       D =>ADC_DOiA_2(i)        -- Data input
---    );
---   end generate DFF_doiA_2_inst2;
-
---       DFF_doiB_1_inst3: for i in 0 to 7 generate
---   begin  
---      FDCE_inst : FDCE
---    generic map (
---       INIT => '0') -- Initial value of register ('0' or '1')  
---    port map (
---       Q =>ADC_DOiB_1_d(i) ,      -- Data output
---       C =>  ADC_clkoi,      -- Clock input
---       CE => '1',    -- Clock enable input
---       CLR => '0',  -- Asynchronous clear input
---       D =>ADC_DOiB_1(i)        -- Data input
---    );
---   end generate DFF_doiB_1_inst3;
-
---       DFF_doiB_2_inst4: for i in 0 to 7 generate
---   begin  
---      FDCE_inst : FDCE
---    generic map (
---       INIT => '0') -- Initial value of register ('0' or '1')  
---    port map (
---       Q =>ADC_DOiB_2_d(i) ,      -- Data output
---       C =>  ADC_clkoi,      -- Clock input
---       CE => '1',    -- Clock enable input
---       CLR => '0',  -- Asynchronous clear input
---       D =>ADC_DOiB_2(i)        -- Data input
---    );
---   end generate DFF_doiB_2_inst4;
-  -----------------------------------------------------------------------------
-
-  --     IBUFGDS_inst3 : IBUFGDS
-  --  generic map (
-  --     DIFF_TERM    => FALSE,            -- Differential Termination 
-  --     IBUF_LOW_PWR => TRUE,  -- Low power (TRUE) vs. performance (FALSE) setting for refernced I/O standards
-  --     IOSTANDARD   => "DEFAULT")
-  --  port map (
-  --     O  => GHz_in,                     -- Clock buffer output
-  --     I  => GHz_in_p,  -- Diff_p clock buffer input (connect directly to top-level port)
-  --     IB => GHz_in_n  -- Diff_n clock buffer input (connect directly to top-level port)
-  -- );
--------------------------------------------------------------------------------
-
 -------------------------------------------------------------------------------
   Inst_ADC_interface : ADC_interface port map(
     ADC_Mode        => ADC_Mode,
-    user_pushbutton => user_pushbutton_g and lck_rst_n,
+    user_pushbutton => rst_n,
     ADC_sclk_OUT    => ADC_sclk_OUT,
     ADC_sldn_OUT    => ADC_sldn_OUT,
     ADC_sdata       => ADC_sdata,
+    ADC_gain_adj    => cmd_ADC_gain_adj,
+    ADC_reconfig    => cmd_ADC_reconfig,
     clk1            => CLK_125M
     );
 -------------------------------------------------------------------------------
-  -- Inst_CDCE62005_config : CDCE62005_config port map(
-  --   clk         => div_SCLK,
-  --   clk_spi     => not div_SCLK,
-  --   en          => cdce62005_en,
-  --   spi_clk     => spi_clk,
-  --   spi_mosi    => spi_mosi,
-  --   spi_miso    => spi_miso,
-  --   spi_le      => spi_le,
-  --   spi_syn     => spi_syn,
-  --   spi_powerdn => spi_powerdn,
-  --   cfg_finish  => cfg_finish,
-  --   spi_revdata => spi_revdata
-  --   );
-	Inst_CDCE62005_interface: CDCE62005_interface PORT MAP(
-		clk => CLK_125M,
-		rst_n => rst_n,
-		spi_clk => spi_clk,
-		spi_mosi => spi_mosi,
-		spi_miso => spi_miso,
-		spi_le => spi_le,
-		spi_syn => spi_syn,
-		spi_powerdn => spi_powerdn,
-		spi_revdata => spi_revdata,
-		cfg_finish =>cfg_finish 
-	);
+
+  Inst_CDCE62005_interface : CDCE62005_interface port map(
+    clk         => CLK_125M,
+    rst_n       => rst_n,
+    spi_clk     => spi_clk,
+    spi_mosi    => spi_mosi,
+    spi_miso    => spi_miso,
+    spi_le      => spi_le,
+    spi_syn     => spi_syn,
+    spi_powerdn => spi_powerdn,
+    spi_revdata => spi_revdata,
+    cfg_finish  => cfg_finish
+    );
 -------------------------------------------------------------------------------
   -- fft_I : fft
   -- PORT MAP (
@@ -1298,107 +813,108 @@ begin
   -- fft_sclr_I<='0';
   -- fft_start_I<=ram_rden;
   -- fft_scale_sch_I<="01010101010101";        --14bit,7bit scaling factor=128 
- ------------------------------------------------------------------------------ 
-  Inst_TRIG_ctrl: TRIG_ctrl PORT MAP(
-		clk => CLK_125M,
-		rst_n => rst_n,
-		cmd_smpl_en => cmd_smpl_en,
-		ram_start => ram_start,
-		SRCC1_p_trigin => SRCC1_p_trigin,
-		posedge_sample_trig_o => posedge_sample_trig
-	);
-  
--------------------------------------------------------------------------------
-	Inst_G_ethernet_top: G_ethernet_top PORT MAP(
-		-- rst_n_gb_i => ethernet_rst_n_gb_i,
-		PHY_TXD_o => PHY_TXD_o,
-		PHY_GTXclk_quar => PHY_GTXclk_quar,
-		phy_txen_quar => phy_txen_quar,
-		phy_txer_o => phy_txer_o,
-		user_pushbutton => user_pushbutton_g and lck_rst_n,
-		rst_n_o => phy_rst_n_o,
-		fifo_upload_data =>ethernet_fifo_upload_data,
-		Rd_clk => ethernet_Rd_clk,
-		Rd_en => ethernet_Rd_en,
-		Rd_Addr => ethernet_Rd_Addr,
-		PHY_RXD => PHY_RXD,
-		PHY_RXC => phy_rxc_g,
-		PHY_RXDV => PHY_RXDV,
-		Rd_data => ethernet_Rd_data,
-		Frm_valid => ethernet_Frm_valid,
-		CLK_125M => CLK_125M,
-		CLK_125M_quar => CLK_125M_quar,
-                ram_wren => ram_wren,
-                ram_rden => ram_rden,
-                -- ram_start =>ram_start,
-                -- srcc1_p_trigin => SRCC1_p_trigin,
-                -- ram_last => ram_last,
-                -- SRCC1_n_upload_sma_trigin=>SRCC1_n_upload_sma_trigin,
-                -- upload_trig_ethernet=>upload_trig_ethernet,
-                posedge_upload_trig=>posedge_upload_trig,
-                TX_dst_MAC_addr =>TX_dst_MAC_addr,
-                sample_en=>sample_en,
-                CH_flag=>CH_flag,
-                ch_stat=>ch_stat,
-                Upld_finish=>Upld_finish,
-                sw_ram_last =>sw_ram_last,
-                Data_strobe =>data_strobe,
-                posedge_sample_trig =>posedge_sample_trig
-	);
--------------------------------------------------------------------------------
-  	-- Inst_command_analysis: command_analysis PORT MAP(
-	-- 	rd_data =>ethernet_Rd_data ,
-	-- 	rd_clk => ethernet_Rd_clk,
-	-- 	rd_addr =>ethernet_rd_addr ,
-	-- 	rd_en => ethernet_Rd_en,
-	-- 	frm_length =>cmd_frm_length ,
-	-- 	frm_type =>cmd_frm_type ,
-	-- 	-- mac_dst =>mac_dst ,
-	-- 	-- mac_src =>mac_src ,
-	-- 	-- reg_addr =>mac_reg_addr ,
-	-- 	-- reg_data =>mac_reg_data ,
-	--         ram_start => ram_start,
-        --         user_pushbutton => user_pushbutton_g and lck_rst_n,
-        --         ram_switch =>ram_switch,
-        --         upload_trig_ethernet=> upload_trig_ethernet,
-        --         TX_dst_MAC_addr=>TX_dst_MAC_addr,
-        --         cmd_smpl_en=>cmd_smpl_en,
-        --         cmd_smpl_depth=>cmd_smpl_depth
-	-- );
-  	Inst_cmd_ana_top: cmd_ana_top PORT MAP(
-		rd_clk => ethernet_Rd_clk,
-		frm_length => cmd_frm_length,
-		frm_type => cmd_frm_type,
-		ram_start => ram_start,
-		upload_trig_ethernet =>upload_trig_ethernet ,
-		rst_n => rst_n,
-		ram_switch => ram_switch,
-		TX_dst_MAC_addr => TX_dst_MAC_addr,
-		cmd_smpl_en => cmd_smpl_en,
-		cmd_smpl_depth => cmd_smpl_depth,
-		ethernet_Rd_en => ethernet_Rd_en,
-		ethernet_Rd_Addr => ethernet_Rd_Addr,
-		ethernet_frm_valid => ethernet_frm_valid,
-		ethernet_rd_data => ethernet_rd_data
-	);
-  -----------------------------------------------------------------------------
-   Inst_Channel_switch: Channel_switch PORT MAP(
-    Ram_Q_last => Ram_Q_last,
-    Ram_I_last => Ram_I_last,
-    Ram_I_doutb => Ram_I_doutb,
-    Ram_Q_doutb => Ram_Q_doutb,
-    Ram_Q_rden => Ram_Q_rden,
-    Ram_I_rden => Ram_I_rden,
-    Upld_finish => Upld_finish,
-    CH_flag => CH_flag,
-    ch_stat_o => ch_stat,
-    FIFO_upload_data => ethernet_FIFO_upload_data,
-    rst_n => rst_n,
-    Ram_rden => Ram_rden,
-    CLK_125M => CLK_125M,
-    data_strobe =>data_strobe,
-    sw_ram_last => sw_ram_last
+  ------------------------------------------------------------------------------ 
+  Inst_TRIG_ctrl : TRIG_ctrl port map(
+    clk                   => ADC_CLKOI,
+    rst_n                 => rst_n,
+    cmd_smpl_en           => cmd_smpl_en,
+    cmd_smpl_trig_cnt     => cmd_smpl_trig_cnt,
+    ram_start             => ram_start,
+    SRCC1_p_trigin        => SRCC1_p_trigin,
+    posedge_sample_trig_o => posedge_sample_trig
     );
+
+-------------------------------------------------------------------------------
+  Inst_G_ethernet_top : G_ethernet_top port map(
+    -- rst_n_gb_i => ethernet_rst_n_gb_i,
+    PHY_TXD_o           => PHY_TXD_o,
+    PHY_GTXclk_quar     => PHY_GTXclk_quar,
+    phy_txen_quar       => phy_txen_quar,
+    phy_txer_o          => phy_txer_o,
+    user_pushbutton     => rst_n,
+    rst_n_o             => phy_rst_n_o,
+    fifo_upload_data    => ethernet_fifo_upload_data,
+    Rd_clk              => ethernet_Rd_clk,
+    Rd_en               => ethernet_Rd_en,
+    Rd_Addr             => ethernet_Rd_Addr,
+    PHY_RXD             => PHY_RXD,
+    PHY_RXC             => phy_rxc_g,
+    PHY_RXDV            => PHY_RXDV,
+    Rd_data             => ethernet_Rd_data,
+    Frm_valid           => ethernet_Frm_valid,
+    CLK_125M            => CLK_125M,
+    CLK_125M_quar       => CLK_125M_quar,
+    -- ram_wren            => ram_wren,
+    ram_rden            => ram_rden,
+    posedge_upload_trig => posedge_upload_trig,
+    TX_dst_MAC_addr     => TX_dst_MAC_addr,
+    TX_src_MAC_addr     => TX_src_MAC_addr,
+    sample_en           => sample_en,
+    CH_flag             => CW_CH_flag,
+    -- ch_stat             => ch_stat,
+    mult_frame_en       => CW_mult_frame_en,
+    sw_ram_last         => sw_ram_last,
+    Data_strobe         => data_strobe,
+    ether_trig          => CW_ether_trig
+    );
+-------------------------------------------------------------------------------
+  Inst_cmd_ana_top : cmd_ana_top port map(
+    rd_clk               => ethernet_Rd_clk,
+    frm_length           => cmd_frm_length,
+    frm_type             => cmd_frm_type,
+    ram_start            => ram_start,
+    upload_trig_ethernet => upload_trig_ethernet,
+    rst_n                => rst_n,
+    TX_dst_MAC_addr      => TX_dst_MAC_addr,
+    cmd_smpl_en          => cmd_smpl_en,
+    cmd_smpl_depth       => cmd_smpl_depth,
+    cmd_smpl_trig_cnt    => cmd_smpl_trig_cnt,
+    cmd_pstprc_IQ_sw     => cmd_pstprc_IQ_sw,
+    ethernet_Rd_en       => ethernet_Rd_en,
+    ethernet_Rd_Addr     => ethernet_Rd_Addr,
+    ethernet_frm_valid   => ethernet_frm_valid,
+    ethernet_rd_data     => ethernet_rd_data,
+    cmd_demowinln        => cmd_demowinln,
+    cmd_demowinstart     => cmd_demowinstart,
+    cmd_ADC_gain_adj     => cmd_ADC_gain_adj,
+    cmd_ADC_reconfig     => cmd_ADC_reconfig,
+    cmd_Pstprc_num       => cmd_Pstprc_num,
+    cmd_Pstprc_num_en    => cmd_Pstprc_num_en,
+    cmd_Pstprc_DPS       => cmd_Pstprc_DPS,
+    cmd_Estmr_num        => cmd_Estmr_num,
+    cmd_Estmr_num_en     => cmd_Estmr_num_en,
+    cmd_Estmr_A          => cmd_Estmr_A,
+    cmd_Estmr_B          => cmd_Estmr_B,
+    cmd_Estmr_C          => cmd_Estmr_C,
+    cmd_Estmr_sync_en    => cmd_Estmr_sync_en
+   -- cmd_Pstprc_DPS_en => cmd_Pstprc_DPS_en
+    );
+  -----------------------------------------------------------------------------
+  Inst_Channel_switch : Channel_switch port map(
+    rst_n                 => rst_n,
+    CLK                   => CLK_125M,
+    cmd_pstprc_IQ_sw      => cmd_pstprc_IQ_sw,
+    posedge_sample_trig   => posedge_sample_trig,
+    Ram_Q_last            => Ram_Q_last,
+    Ram_I_last            => Ram_I_last,
+    Ram_I_doutb           => Ram_I_doutb,
+    Ram_Q_doutb           => Ram_Q_doutb,
+    Ram_rden              => Ram_rden,
+    pstprc_fifo_data      => pstprc_fifo_dout,
+    Pstprc_fifo_pempty    => pstprc_fifo_pempty,
+    pstprc_finish         => pstprc_finish,
+    CM_Ram_Q_rden_o       => CM_Ram_Q_rden,
+    CM_Ram_I_rden_o       => CM_Ram_I_rden,
+    CW_Pstprc_fifo_rden_o => CW_Pstprc_fifo_rden,
+    sw_RAM_last           => sw_RAM_last,
+    CW_ether_trig         => CW_ether_trig,
+    CW_mult_frame_en_o    => CW_mult_frame_en,
+    CW_demo_smpl_trig_o   => CW_demo_smpl_trig,
+    CW_wave_smpl_trig_o   => CW_wave_smpl_trig,
+    FIFO_upload_data      => ethernet_FIFO_upload_data,
+    CW_CH_flag            => CW_CH_flag
+    );
+
 -- -------------------------------------------------------------------------------
 --   inst_SRAM : SRAM_interface
 --   generic map(
@@ -1458,479 +974,121 @@ begin
 --     );
 
   -----------------------------------------------------------------------------
-  	Inst_RAM_top: RAM_top PORT MAP(
-		ram_wren => ram_wren,
-		posedge_sample_trig => posedge_sample_trig,
-		rst_n => rst_n,
-		cmd_smpl_depth => cmd_smpl_depth ,
-		ram_Q_dina => ram_Q_dina,
-		ram_Q_clka => ram_Q_clka,
-		ram_Q_clkb => ram_Q_clkb,
-		ram_Q_rden => ram_Q_rden,
-		ram_Q_doutb => ram_Q_doutb,
-		ram_Q_last => ram_Q_last,
-		ram_Q_full => ram_Q_full,
-		ram_I_dina => ram_I_dina,
-		ram_I_clka => ram_I_clka,
-		ram_I_clkb => ram_I_clkb,
-		ram_I_rden => ram_I_rden,
-		ram_I_doutb => ram_I_doutb,
-		ram_I_last => ram_I_last,
-		ram_I_full => ram_I_full 
-	);
-  ram_Q_dina<=ADC_DOQB_2_d&ADC_DOQA_2_d&ADC_DOQB_1_d&ADC_DOQA_1_d;
-  ram_I_dina<=ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
-  ram_Q_clkb<=CLK_125M;
-  ram_I_clkb<=CLK_125M;
-  ram_Q_clka<=ADC_clkoq;
-  ram_I_clka<=ADC_clkoi;  
-  --   ram_data_inst : ram_data
-  -- PORT MAP (
-  --   clka =>ADC_clkoq,
-  --   ena => '1',
-  --   wea => ram_wea,
-  --   addra => ram_addra,
-  --   dina => ram_dina,
-  --   clkb => ram_clkb,
-  --   rstb => ram_rstb,
-  --   enb => '1',
-  --   addrb => ram_addrb,
-  --   doutb => ram_q_doutb
-  -- );
-  -- -- ram_dina<=ADC_DOQA_1_d&ADC_DOQB_1_d&ADC_DOQA_2_d&ADC_DOQB_2_d;
-  -- ram_dina_ps: process (ADC_clkoq, rst_n) is
-  -- begin  -- process ram_dina_ps
-  --   if ADC_clkoq'event and ADC_clkoq = '1' then  -- rising clock edge
-  --     ram_dina<=ADC_DOQB_2_d&ADC_DOQA_2_d&ADC_DOQB_1_d&ADC_DOQA_1_d;
-  --   end if;
-  -- end process ram_dina_ps;
-
-  -- ram_clka<=ADC_clkoq;
-  -- ram_CLKb<=CLK_125M;
-  -- ram_enb<=ram_Q_rden;
-  -- ram_ena<=ram_wren and (not ram_q_full);    
-  -- ram_wea(0)<=ram_wren and (not ram_q_full);
-  -- ram_rstb<=not rst_n;
-  -- clr_n_ram<=rst_n;
- 
-------------------------------------------------------------------------------
---      ram_data_inst2 : ram_data_i
---   PORT MAP (
---     clka =>ADC_clkoi,
---     ena => '1',
---     wea => ram_i_wea,
---     addra => ram_i_addra,
---     dina => ram_i_dina,
---     clkb => ram_i_clkb,
---     rstb => ram_i_rstb,
---     enb => '1',
---     addrb => ram_i_addrb,
---     doutb => ram_i_doutb
---   );
--- ram_i_dina_ps: process (ADC_clkoi, rst_n) is
--- begin  -- process ram_i_dina_ps
---    if ADC_clkoi'event and ADC_clkoi = '1' then  -- rising clock edge
---       ram_i_dina<=ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
---   end if;
--- end process ram_i_dina_ps;
-
---   ram_i_clkb<=CLK_125M;
---   ram_i_enb<=ram_I_rden;
---   ram_i_ena<=ram_wren and (not ram_i_full);
---   ram_i_wea(0)<=ram_wren and (not ram_i_full);
---   ram_i_rstb<=not rst_n;
-
- 
+  Inst_RAM_top : RAM_top port map(
+    clk_125m            => clk_125m,
+    -- ram_wren            => ram_wren,
+    posedge_sample_trig => CW_wave_smpl_trig,
+    rst_n               => rst_n,
+    cmd_smpl_depth      => cmd_smpl_depth,
+    ram_Q_dina          => ram_Q_dina,
+    ram_Q_clka          => ram_Q_clka,
+    ram_Q_clkb          => ram_Q_clkb,
+    ram_Q_rden          => CM_Ram_Q_rden,
+    ram_Q_doutb         => ram_Q_doutb,
+    ram_Q_last          => ram_Q_last,
+    ram_Q_full          => ram_Q_full,
+    ram_I_dina          => ram_I_dina,
+    ram_I_clka          => ram_I_clka,
+    ram_I_clkb          => ram_I_clkb,
+    ram_I_rden          => CM_Ram_I_rden,
+    ram_I_doutb         => ram_I_doutb,
+    ram_I_last          => ram_I_last,
+    ram_I_full          => ram_I_full
+    );
+  ram_Q_dina <= ADC_DOQB_2_d&ADC_DOQA_2_d&ADC_DOQB_1_d&ADC_DOQA_1_d;
+  ram_I_dina <= ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
+  ram_Q_clkb <= CLK_125M;
+  ram_I_clkb <= CLK_125M;
+  ram_Q_clka <= ADC_clkoq;
+  ram_I_clka <= ADC_clkoi;
 -----------------------------------------------------------------------------
+  Inst_Dmod_Seg : Dmod_Seg port map(
+    clk                 => CLK_125M,
+    clk_Estmr           => clk_EXT_250M_g,
+    clk_Oserdes         => CLK_EXT_500M,
+    -- pstprc_ram_wren     => pstprc_ram_wren,
+    posedge_sample_trig => CW_demo_smpl_trig,
+    rst_n               => rst_n,
+    cmd_smpl_depth      => cmd_smpl_depth,
+    Pstprc_RAMQ_dina    => Pstprc_RAMQ_dina,
+    Pstprc_RAMQ_clka    => Pstprc_RAMQ_clka,
+    Pstprc_RAMQ_clkb    => Pstprc_RAMQ_clkb,
+    Pstprc_RAMI_dina    => Pstprc_RAMI_dina,
+    Pstprc_RAMI_clka    => Pstprc_RAMI_clka,
+    Pstprc_RAMI_clkb    => Pstprc_RAMI_clkb,
+    demoWinln_twelve    => cmd_demoWinln,
+    demoWinstart_twelve => cmd_demoWinstart,
+    -- Pstprc_dps_en       => cmd_Pstprc_dps_en,
+    Pstprc_DPS_twelve   => cmd_Pstprc_DPS,
+    Pstprc_IQ_seq_o     => Pstprc_IQ_seq_o,
+    Pstprc_finish       => Pstprc_finish,
+    pstprc_fifo_wren    => pstprc_fifo_wren,
+    pstprc_num_en       => cmd_pstprc_num_en,
+    pstprc_num          => cmd_Pstprc_num,
+    Estmr_num_en        => cmd_Estmr_num_en,
+    Estmr_num           => cmd_Estmr_num,
+    Estmr_A_eight       => cmd_Estmr_A,
+    Estmr_B_eight       => cmd_Estmr_B,
+    Estmr_C_eight       => cmd_Estmr_C,
+    Estmr_sync_en       => cmd_Estmr_sync_en,
+    Estmr_OQ            => Estmr_OQ
+
+    );
+  Pstprc_RAMQ_clka <= ADC_clkoq;
+  Pstprc_RAMQ_clkb <= CLK_125M;
+  Pstprc_RAMI_clka <= ADC_clkoi;
+  Pstprc_RAMI_clkb <= CLK_125M;
+  Pstprc_RAMQ_dina <= ADC_DOQB_2_d&ADC_DOQA_2_d&ADC_DOQB_1_d&ADC_DOQA_1_d;
+  Pstprc_RAMI_dina <= ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
+  pstprc_ram_wren  <= ram_wren;
   -----------------------------------------------------------------------------
--- dcm1_locked_d_ps: process (CLK_125M) is
--- begin  -- process dcm1_locked_d_ps
---   if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
---     dcm1_locked_d<=dcm1_locked;
---     dcm1_locked_d2<=dcm1_locked_d;
---   end if;
--- end process dcm1_locked_d_ps;
+  Inst_Pstprc_fifo_top : Pstprc_fifo_top port map(
+    rst_n               => rst_n,
+    Pstprc_fifo_wr_clk  => clk_125M,    --same with the clk in dmog_seg
+    Pstprc_fifo_rd_clk  => clk_125M,    --same with the clk in pstprc
+    Pstprc_fifo_din     => Pstprc_IQ_seq_o,
+    Pstprc_fifo_wren    => Pstprc_fifo_wren,
+    Pstprc_fifo_rden    => CW_Pstprc_fifo_rden,
+    -- prog_empty_thresh   => "0000011",   --modify the repetitation byte 
+    Pstprc_fifo_dout    => Pstprc_fifo_dout,
+    Pstprc_fifo_valid   => Pstprc_fifo_valid,
+    Pstprc_fifo_pempty  => Pstprc_fifo_pempty,
+    pstprc_fifo_alempty => pstprc_fifo_alempty
+    );
+  ------------------------------------------------------------------------------
+  -- SRCC1_p         <= CLK_250M;     --j12
+  rst_n_a <= user_pushbutton_g and lck_rst_n;
+
+
+  BUFG_inst : BUFG
+    port map (
+      O => rst_n,                       -- 1-bit output: Clock buffer output
+      I => rst_n_a                      -- 1-bit input: Clock buffer input
+      );
+
+
+   --   OBUFDS_inst : OBUFDS
+   -- generic map (
+   --    IOSTANDARD => "DEFAULT")
+   -- port map (
+   --    O => Estmr_OQ_p,     -- Diff_p output (connect directly to top-level port)
+   --    OB => Estmr_OQ_n,   -- Diff_n output (connect directly to top-level port)
+   --    I => Estmr_OQ      -- Buffer input 
+   --    );
   
---   lck_rst_n_ps: process (CLK_125M, user_pushbutton_g) is
---   begin  -- process reset_n_ps
---     if user_pushbutton_g = '0' then       -- asynchronous reset (active low)
---       lck_rst_n<='1';
---     elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
---       if dcm1_locked_d='1' and dcm1_locked_d2='0' then
---         lck_rst_n<='0';
---       else
---         lck_rst_n<='1';
---       end if;
---     end if;
---   end process lck_rst_n_ps;
-  -----------------------------------------------------------------------------
-  -----------------------------------------------------------------------------
-  -- purpose: to combine all the conditions
-  -- type   : sequential
-  -- inputs : CLK_125M, rst_n
-  -- outputs: 
-  -- posedge_upload_trig_ps: process (CLK_125M, rst_n, ram_start_d, ram_start_d2, trigin_d2, trigin_d, SRCC1_n_upload_sma_trigin_d, SRCC1_n_upload_sma_trigin_d2, upload_trig_ethernet_d, upload_trig_ethernet_d2,sample_en) is
-  -- begin  -- process posedge_upload_trig_ps
-  --   if rst_n = '0' then                 -- asynchronous reset (active low)
-  --     posedge_upload_trig<='0';
-  --   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-  --     if (ram_start_d = '1' and ram_start_d2='0') or (trigin_d2 ='0' and trigin_d='1' and sample_en='1') or (SRCC1_n_upload_sma_trigin_d = '1' and SRCC1_n_upload_sma_trigin_d2 = '0') or (upload_trig_ethernet_d = '1' and upload_trig_ethernet_d2 = '0') then
-  --     posedge_upload_trig<='1';
-  --     else
-  --       posedge_upload_trig<='0';
-  --     end if;
-  --   end if;
-  -- end process posedge_upload_trig_ps;
-
-
-  --  posedge_sample_trig_ps: process (CLK_125M, rst_n, ram_start_d, ram_start_d2, trigin_d2, trigin_d,sample_en) is
-  -- begin  -- process posedge_upload_trig_ps
-  --   if rst_n = '0' then                 -- asynchronous reset (active low)
-  --    posedge_sample_trig<='0';
-  --   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-  --     if (ram_start_d = '1' and ram_start_d2='0') or (trigin_d2 ='0' and trigin_d='1' and sample_en='1')  then
-  --     posedge_sample_trig<='1';
-  --     else
-  --       posedge_sample_trig<='0';
-  --     end if;
-  --   end if;
-  -- end process posedge_sample_trig_ps; 
-
--------------------------------------------------------------------------------
---   sample_trig_cnt_ps: process (CLK_125M, rst_n) is
---   begin  -- process sample_trig_cnt_ps
---     if rst_n = '0' then                 -- asynchronous reset (active low)
---       sample_trig_cnt<=(others => '0');
---     elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
---       if sample_en ='1' then
---         if posedge_sample_trig='1' then  
---           sample_trig_cnt<=sample_trig_cnt+1;
---         end if;
---       elsif sample_en ='0' then
---         sample_trig_cnt<=(others => '0');
---       end if;
---     end if;
---   end process sample_trig_cnt_ps;
---   -- sample_en
-
---   cmd_smpl_en_d_ps: process (CLK_125M, rst_n) is
---   begin  -- process cmd_smpl_en_d_ps
---     if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
---       cmd_smpl_en_d<=cmd_smpl_en;
---       cmd_smpl_en_d2<=cmd_smpl_en_d;
---     end if;
---   end process cmd_smpl_en_d_ps;
+  ethernet_rd_clk <= CLK_125M;
   
---   sample_en_ps: process (CLK_125M, rst_n) is
---   begin  -- process sample_en_ps
---     if rst_n = '0' then                 -- asynchronous reset (active low)
---       sample_en<='0';
---     elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
---       if sample_trig_cnt >=x"7D0" then   --2000个posedge_sample_trig
---         sample_en<='0';
---       elsif cmd_smpl_en_d ='1' and cmd_smpl_en_d2='0' then
---         sample_en<='1';
---       end if;
---     end if;
---   end process sample_en_ps;
-
--------------------------------------------------------------------------------  
-    --ram_addr
--- ram_addra_ps: process (ADC_CLKOQ, clr_n_ram, posedge_sample_trig) is
--- begin  -- process addra_ps
---   if clr_n_ram = '0' then                   -- asynchronous reset (active low)
---     ram_addra<=(others => '0');
---     ram_q_full<='0';
---   elsif ADC_CLKOQ'event and ADC_CLKOQ = '1' then  -- rising clock edge
---     if posedge_sample_trig='1' then
---       ram_addra<=(others => '0');
---       ram_q_full<='0';
---     elsif ram_wren='1' then       
---       if ram_addra< cmd_smpl_depth(14 downto 2)then --cmd_smpl_depth/4
---         ram_addra<=ram_addra+1;
---         ram_q_full<='0';
---       elsif ram_addra>= cmd_smpl_depth(14 downto 2) then     
---         ram_q_full<='1';           
---       end if;
---     end if;
---   end if;
--- end process ram_addra_ps;
-
--- ram_addrb_ps: process (CLK_125M, clr_n_ram) is
--- begin  -- process addrb_ps
---   if clr_n_ram = '0'  then
---     ram_addrb<=(others => '0');
---     ram_q_last<='1';
---   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
---     if posedge_sample_trig='1' then    
---       ram_addrb<=(others => '0');         --edit at 8.25 for a bug
---       ram_q_last<='0';                    --edit at 11.9
---     elsif ram_Q_rden='1' then
---      -- if ram_addrb<x"9c37" then
---       if ram_addrb<cmd_smpl_depth(14 downto 0) then    --edit at 9.5
---         ram_addrb<=ram_addrb+1;   
---         ram_q_last<='0';
---       elsif ram_addrb>=cmd_smpl_depth(14 downto 0) then       
---         ram_q_last<='1';
---       end if;
---     end if;
---   end if;
--- end process ram_addrb_ps;
--------------------------------------------------------------------------------
--- ram_i_addra_ps: process (ADC_CLKOi, clr_n_ram, posedge_sample_trig) is
--- begin  -- process addra_ps
---   if clr_n_ram = '0' then                   -- asynchronous reset (active low)
---     ram_i_addra<=(others => '0');
---     ram_i_full<='0';
---   elsif ADC_CLKOi'event and ADC_CLKOi = '1' then  -- rising clock edge
---     if posedge_sample_trig ='1' then
---       ram_i_addra<=(others => '0');
---       ram_i_full<='0';
---     elsif ram_wren='1' then         
---       if ram_i_addra<=cmd_smpl_depth(14 downto 2) then        
---         ram_i_addra<=ram_i_addra+1;
---         ram_i_full<='0';
---       end if;
---     elsif ram_i_addra>=cmd_smpl_depth(14 downto 2) then       
---         ram_i_full<='1';                  
---     end if;
---   end if;
--- end process ram_i_addra_ps;
-
--- ram_i_addrb_ps: process (CLK_125M, clr_n_ram, posedge_upload_trig) is
--- begin  -- process addrb_ps
---   if clr_n_ram = '0'  then
---     ram_i_addrb<=(others => '0');
---     ram_i_last<='1';
---   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
---     if posedge_sample_trig ='1' then  
---       ram_i_addrb<=(others => '0');               --edit at 8.25
---       ram_i_last<='0';                    
---     elsif ram_I_rden='1' then
---       if ram_i_addrb<=cmd_smpl_depth(14 downto 0) then
---         ram_i_addrb<=ram_i_addrb+1; 
---         ram_i_last<='0';
---       elsif ram_i_addrb>=cmd_smpl_depth(14 downto 0) then        
---         ram_i_last<='1';
---       end if;
---     end if;
---   end if;
--- end process ram_i_addrb_ps;
-
--------------------------------------------------------------------------------
---ram sample trigger for sma and ethernet;delay
--- ram_start_d_ps: process (CLK_125M) is
---   begin  -- process ram_start_d_ps
---     if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
---       ram_start_d<=ram_start;
---     end if;
---   end process ram_start_d_ps;
--- ram_start_d2_ps: process (CLK_125M) is
---   begin  -- process ram_start_d_ps
---     if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
---       ram_start_d2<=ram_start_d;
---     end if;
---   end process ram_start_d2_ps;
-
---   SRCC1_p_trigin_d_ps: process (CLK_125M) is
---   begin  -- process SRCC1_p_trigin_d_ps
---     if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
---        trigin_d<=SRCC1_p_trigin;
---        trigin_d2<=trigin_d;
---     end if;
---   end process SRCC1_p_trigin_d_ps;
-  ----------------------------
-  --  upload_trig_ethernet_d_ps: process (CLK_125M, rst_n) is
-  -- begin  -- process trig_in_ps
-  --   if rst_n = '0' then                 -- asynchronous reset (active low)
-  --     upload_trig_ethernet_d<='0';
-  --     upload_trig_ethernet_d2<='0';
-  --   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-  --     upload_trig_ethernet_d<=upload_trig_ethernet;
-  --     upload_trig_ethernet_d2<=upload_trig_ethernet_d;
-  --   end if;
-  -- end process upload_trig_ethernet_d_ps;
-  
-  --   SRCC1_n_upload_sma_trigin_d_ps: process (CLK_125M, rst_n) is
-  -- begin  -- process trig_in_ps
-  --   if rst_n = '0' then                 -- asynchronous reset (active low)
-  --     SRCC1_n_upload_sma_trigin_d<='0';
-  --     SRCC1_n_upload_sma_trigin_d2<='0';
-  --   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-  --     SRCC1_n_upload_sma_trigin_d<=SRCC1_n_upload_sma_trigin;
-  --     SRCC1_n_upload_sma_trigin_d2<=SRCC1_n_upload_sma_trigin_d;
-  --   end if;
-  -- end process SRCC1_n_upload_sma_trigin_d_ps;
--------------------------------------------------------------------------------
---  frm_valid_d_ps: process (ethernet_Rd_clk, rst_n) is
---   begin  -- process frm_vali_dd
---     if ethernet_Rd_clk'event and ethernet_Rd_clk = '1' then  -- rising clock edge
---       frm_valid_d<= ethernet_frm_valid;
---     end if;
---   end process frm_valid_d_ps;
-  
---   Rd_en_ps: process (ethernet_Rd_clk,rst_n,ethernet_frm_valid,frm_valid_d) is
---   begin  -- process Rd_en_ps
---     if rst_n = '0' then                 -- asynchronous reset (active low)
---       ethernet_Rd_en<='0';
---     elsif ethernet_Rd_clk'event and ethernet_Rd_clk = '1' then
---     if frm_valid_d = '0' and ethernet_frm_valid = '1' then  -- rising clock edge
---       ethernet_Rd_en<='1';
---     elsif ethernet_Rd_Addr>=x"42" then
---     -- elsif ethernet_Rd_Addr>=x"16" then
---       ethernet_Rd_en<='0';
---     end if;
---   end if;
---   end process Rd_en_ps;
-
--- Rd_Addr_ps: process (ethernet_Rd_clk, rst_n) is
--- begin  -- process Rd_Addr_ps
---   if rst_n = '0' then                   -- asynchronous reset (active low)
---     ethernet_Rd_Addr<=(others => '0');
---   elsif ethernet_Rd_clk'event and ethernet_Rd_clk = '1' then  -- rising clock edge
---     if ethernet_Rd_Addr<=x"42" and ethernet_Rd_en = '1'then
---     ethernet_Rd_Addr<=ethernet_Rd_Addr + 1;
---     elsif ethernet_Rd_en = '0' or ethernet_Rd_Addr>x"41" then
---       ethernet_Rd_Addr<=(others => '0');
---   end if;
--- end if;
--- end process Rd_Addr_ps;
---     Rd_Addr_ps: process (ethernet_Rd_clk, rst_n) is
--- begin  -- process Rd_Addr_ps
---   if rst_n = '0' then                   -- asynchronous reset (active low)
---     ethernet_Rd_Addr<="00"&(x"011");
---   elsif ethernet_Rd_clk'event and ethernet_Rd_clk = '1' then  -- rising clock edge
---     if ethernet_Rd_Addr<=x"16" and ethernet_Rd_en = '1'then
---     ethernet_Rd_Addr<=ethernet_Rd_Addr + 1;
---     elsif ethernet_Rd_en = '0' or ethernet_Rd_Addr>x"16" then
---       ethernet_Rd_Addr<="00"&(x"011");
---   end if;
--- end if;
--- end process Rd_Addr_ps;
-  -----------------------------------------------------------------------------
--- purpose: set Gcnt
--- type   : sequential
--- inputs : CLK2
--- outputs: clk2_cnt
-    -- div_SCLK_cnt_ps : process (div_SCLK) is
-    -- begin  -- process set_Gcnt    
-    --   if div_SCLK'event and div_SCLK = '1' then
-    --     if div_SCLK_cnt <= x"11111111" then
-    --       div_SCLK_cnt <= div_SCLK_cnt+1;
-    --       else
-    --         div_SCLK_cnt<=div_SCLK_cnt;
-    --     end if;
-    --   end if;
-    -- end process div_SCLK_cnt_ps;
-
-    -- set_cdce62005_en : process (CLK_125M, cdce62005_en) is
-    -- begin  -- process cdce62005_en
-    --   if rst_n ='0' then
-    --     cdce62005_en<='0';
-    --   elsif CLK_125M'event and CLK_125M = '1' then
-    --   if div_SCLK_cnt >= x"00000000" and div_SCLK_cnt <= x"00000050" then
-    --     cdce62005_en <= '0';
-    --   else
-    --     cdce62005_en <= '1';
-    --   end if;
-    -- end if;
-    -- end process set_cdce62005_en;
-  
-  -- purpose: set global_rst
-  -- type   : sequential
-  -- inputs : CLK_125M
-  -- outputs: rst_gb
-  -- set_rst: process (CLK_125M) is
-  -- begin  process set_rst
-  --    if CLK_125M'event and CLK_125M = '1' then
-  --     if clk2_cnt >= x"00000001" and clk2_cnt <= x"0000002" then
-  --       rst_gb<='1';
-  --       else
-  --         rst_gb<='0';
-  --   end if;
-  -- end if;
-  -- end process set_rst;
-
-  -- purpose: make GHz_in reveal in the chipscope 
-  -- type   : sequential
-  -- inputs : GHz_in
-  -- outputs: 
-  -- set_GHz_in: process (GHz_in) is
-  -- begin  -- process set_GHz_in
-  --   if GHz_in'event and GHz_in = '1' then  -- rising clock edge
-  --     rst_gb_d<=rst_gb;
-  --   end if;
-  -- end process set_GHz_in;
-
-  -- set_OQcountera: process (ADC_CLKOQ) is
-  -- begin  -- process set_OQcounter
-  --   if ADC_CLKOQ'event and ADC_CLKOQ = '1' then  -- rising clock edge
-  --     OQcounter<=OQcounter+1;
-  --   end if;
-  -- end process set_OQcountera;
-  --  set_OIcounter: process (ADC_CLKOI) is
-  -- begin  -- process set_OQcounter
-  --   if ADC_CLKOI'event and ADC_CLKOI = '1' then  -- rising clock edge
-  --     OIcounter<=OIcounter+1;
-  --   end if;
-  -- end process set_OIcounter;
+    BUFG_inst2 : BUFG
+    port map (
+      O => clk_EXT_250M_g,                       -- 1-bit output: Clock buffer output
+      I => clk_EXT_250M                      -- 1-bit input: Clock buffer input
+      );
 -----------------------------------------------------------------------------
-  -- set_clk_div_cnt : process (CLK_125M, rst_n) is --usb data
-  -- begin  -- process set_clk_div_cnt
-  --   if rst_n = '0' then                 -- asynchronous reset (active
-  --     clk_div_cnt <= x"00";
-  --   elsif CLK_125M'event and CLK_125M = '1' then          -- rising clock edge
-  --     if clk_div_cnt <= Div_multi then
-  --       clk_div_cnt <= clk_div_cnt+1;
-  --     else
-  --       clk_div_cnt <= x"00";
-  --     end if;
-  --   end if;
-  -- end process set_clk_div_cnt;
+-- SRCC1_p <= clk_250M;
+-- SRCC1_n <= ram_Q_clka;
+-- MRCC1_p <=ram_I_clka;
+-- MRCC1_n <= ram_wren;
+end Behavioral;
 
-  -- set_div_sclk : process (CLK_125M, rst_n) is
-  -- begin  -- process set_ADC_sclk
-  --   if rst_n = '0' then                   -- asynchronous reset (active low)
-  --     div_SCLK <= '0';
-  --   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-  --     if clk_div_cnt <= Div_multi(3 downto 1) then
-  --       div_SCLK <= '0';
-  --     else
-  --       div_SCLK <= '1';
-  --     end if;
-  --   end if;
-  -- end process set_div_sclk;
-
-
-  -- data_in_usb_ps: process (usb_SCLK, rst_n) is
-  -- begin  -- process data_in_usb_ps
-  --   if rst_n = '0' then                 -- asynchronous reset (active low)
-  --     data_in_usb<=(others => '0');
-  --   elsif usb_SCLK'event and usb_SCLK = '1' then  -- rising clock edge
-  --     data_in_usb<=data_in_usb+1;
-  --   end if;
-  -- end process data_in_usb_ps;
-  -- data_in_ram_i_doutb_sim_ps: process (CLK_125M, rst_n) is
-  -- begin  -- process data_in_ram_i_doutb_sim_ps
-  --   if rst_n = '0' then                 -- asynchronous reset (active low)
-  --     ram_i_doutb_sim<=(others => '0');
-  --   elsif CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
-  --     ram_i_doutb_sim<=ram_i_doutb_sim+1;
-  --   end if;
-  -- end process data_in_ram_i_doutb_sim_ps;
-------------------------------------------------------------------------------
-
------------------------------------------------------------------------------
- -- SRCC1_n<=ADC_CLKOQ_n;
-  -- SRCC1_p<=USB_data(0); --j9
-  -- SRCC1_n<=data_in_usb(0);--j8
-   MRCC2_p<=data_test_pin;--j12
-  -- MRCC2_n<=ADC_sdata;
- rst_n<=user_pushbutton_g and lck_rst_n;
- ethernet_rd_clk<= CLK_125M;
- -- ethernet_fifo_upload_data<=ADC_DOQA_1_d;
-  -- usb_rst<= user_pushbutton;
-    end Behavioral;
-  
 
 
