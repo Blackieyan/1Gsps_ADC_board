@@ -34,10 +34,11 @@
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_CDCE62005_interface - CDCE62005_interface - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_Channel_switch - Channel_switch - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_DATAin_IOB - DATAin_IOB - Behavioral</ClosedNode>
-         <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_Dmod_Seg - Dmod_Seg - Behavioral</ClosedNode>
+         <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_Dmod_Seg - Dmod_Seg - Behavioral/Inst_Estimator - Estimator - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_Dmod_Seg - Dmod_Seg - Behavioral/Inst_Pstprc_fifo_tp - Pstprc_fifo_tp - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_Dmod_Seg - Dmod_Seg - Behavioral/Inst_Win_RAM_top - Win_RAM_top - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_Dmod_Seg - Dmod_Seg - Behavioral/Inst_Win_post_process - post_process - Behavioral</ClosedNode>
+         <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_Dmod_Seg - Dmod_Seg - Behavioral/Inst_Win_post_process - post_process - Behavioral/Inst_DDS - DDS_top - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_Dmod_Seg - Dmod_Seg - Behavioral/Inst_Win_post_process - post_process - Behavioral/Inst_multi_accum_top - multi_accum_top - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_G_ethernet_top - G_ethernet_top - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_G_ethernet_top - G_ethernet_top - Behavioral/Inst_G_ehernet_Rx_data - G_ehernet_Rx_data - Behavioral</ClosedNode>
@@ -45,7 +46,7 @@
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_G_ethernet_top - G_ethernet_top - Behavioral/Inst_G_ethernet_Tx_data - G_ethernet_Tx_data - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_G_ethernet_top - G_ethernet_top - Behavioral/Inst_G_ethernet_Tx_data - G_ethernet_Tx_data - Behavioral/Inst_Mac_TX - Mac_TX</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_Pstprc_fifo_top - Pstprc_fifo_top - Behavioral</ClosedNode>
-         <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_RAM_top - RAM_top - Behavioral</ClosedNode>
+         <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_RAM_top - RAM_top - Behavioral/Inst_RAM_I - RAM_I - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_RAM_top - RAM_top - Behavioral/Inst_RAM_Q - RAM_Q - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_cmd_ana_top - cmd_ana_top - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|ZJUprojects.vhd/Inst_crg_dcms - crg_dcms - Behavioral</ClosedNode>
@@ -73,14 +74,12 @@
          <ClosedNode>/post_process - Behavioral C:|Current_Key_Projects|1Gsps_ADC_board_V4 - algromth|src|post_process.vhd</ClosedNode>
          <ClosedNode>/usbdatacounter - SYN D:|ZJUprojects|ZJUproject|USB2.0_Interface_Logic_|usbdatacounter.vhd</ClosedNode>
       </ClosedNodes>
-      <SelectedItems>
-         <SelectedItem>ZJUprojects - Behavioral (C:/Current_Key_Projects/1Gsps_ADC_board_V4_algromth/src/ZJUprojects.vhd)</SelectedItem>
-      </SelectedItems>
+      <SelectedItems/>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
       <ViewHeaderState orientation="horizontal" >000000ff000000000000000100000001000000000000000000000000000000000202000000010000000100000064000003bc000000020000000000000000000000000200000064ffffffff000000810000000300000002000003bc0000000100000003000000000000000100000003</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >true</UserChangedColumnWidths>
-      <CurrentItem>ZJUprojects - Behavioral (C:/Current_Key_Projects/1Gsps_ADC_board_V4_algromth/src/ZJUprojects.vhd)</CurrentItem>
+      <CurrentItem>C:\Current_Key_Projects\1Gsps_ADC_board_V4_algromth\constrains\ZJUprojectsV3.ucf (C:/Current_Key_Projects/1Gsps_ADC_board_V4_algromth/constrains/ZJUprojectsV3.ucf)</CurrentItem>
    </ItemView>
    <ItemView engineview="SynthesisOnly" sourcetype="" guiview="Process" >
       <ClosedNodes>
@@ -91,7 +90,7 @@
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
-      <ViewHeaderState orientation="horizontal" >000000ff0000000000000001000000010000000000000000000000000000000000000000000000033f000000010000000100000000000000000000000064ffffffff0000008100000000000000010000033f0000000100000000</ViewHeaderState>
+      <ViewHeaderState orientation="horizontal" >000000ff00000000000000010000000100000000000000000000000000000000000000000000000277000000010000000100000000000000000000000064ffffffff000000810000000000000001000002770000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
       <CurrentItem></CurrentItem>
    </ItemView>
@@ -129,28 +128,28 @@
          <ClosedNode>Implement Design/Translate</ClosedNode>
       </ClosedNodes>
       <SelectedItems>
-         <SelectedItem>Synthesize - XST</SelectedItem>
+         <SelectedItem>Analyze Post-Place &amp; Route Static Timing</SelectedItem>
       </SelectedItems>
-      <ScrollbarPosition orientation="vertical" >1</ScrollbarPosition>
+      <ScrollbarPosition orientation="vertical" >22</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
-      <ViewHeaderState orientation="horizontal" >000000ff0000000000000001000000010000000000000000000000000000000000000000000000032e000000010000000100000000000000000000000064ffffffff0000008100000000000000010000032e0000000100000000</ViewHeaderState>
+      <ViewHeaderState orientation="horizontal" >000000ff00000000000000010000000100000000000000000000000000000000000000000000000266000000010000000100000000000000000000000064ffffffff000000810000000000000001000002660000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
-      <CurrentItem>Synthesize - XST</CurrentItem>
+      <CurrentItem>Analyze Post-Place &amp; Route Static Timing</CurrentItem>
    </ItemView>
-   <SourceProcessView>000000ff0000000000000002000001ca0000012701000000050100000002</SourceProcessView>
+   <SourceProcessView>000000ff00000000000000020000010f0000005b01000000050100000002</SourceProcessView>
    <CurrentView>Implementation</CurrentView>
    <ItemView engineview="SynthesisOnly" sourcetype="DESUT_XCO" guiview="Process" >
       <ClosedNodes>
          <ClosedNodesVersion>1</ClosedNodesVersion>
       </ClosedNodes>
       <SelectedItems>
-         <SelectedItem>View HDL Instantiation Template</SelectedItem>
+         <SelectedItem/>
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
-      <ViewHeaderState orientation="horizontal" >000000ff0000000000000001000000010000000000000000000000000000000000000000000000033f000000010000000100000000000000000000000064ffffffff0000008100000000000000010000033f0000000100000000</ViewHeaderState>
+      <ViewHeaderState orientation="horizontal" >000000ff0000000000000001000000010000000000000000000000000000000000000000000000015d000000010000000100000000000000000000000064ffffffff0000008100000000000000010000015d0000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
-      <CurrentItem>View HDL Instantiation Template</CurrentItem>
+      <CurrentItem/>
    </ItemView>
    <ItemView engineview="BehavioralSim" guiview="Source" compilemode="AutoCompile" >
       <ClosedNodes>
@@ -252,7 +251,7 @@
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
-      <ViewHeaderState orientation="horizontal" >000000ff0000000000000001000000010000000000000000000000000000000000000000000000034a000000010000000100000000000000000000000064ffffffff0000008100000000000000010000034a0000000100000000</ViewHeaderState>
+      <ViewHeaderState orientation="horizontal" >000000ff0000000000000001000000010000000000000000000000000000000000000000000000033f000000010000000100000000000000000000000064ffffffff0000008100000000000000010000033f0000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
       <CurrentItem/>
    </ItemView>
@@ -265,7 +264,7 @@
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
-      <ViewHeaderState orientation="horizontal" >000000ff0000000000000001000000010000000000000000000000000000000000000000000000033f000000010000000100000000000000000000000064ffffffff0000008100000000000000010000033f0000000100000000</ViewHeaderState>
+      <ViewHeaderState orientation="horizontal" >000000ff00000000000000010000000100000000000000000000000000000000000000000000000277000000010000000100000000000000000000000064ffffffff000000810000000000000001000002770000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
       <CurrentItem></CurrentItem>
    </ItemView>
@@ -291,7 +290,7 @@
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
-      <ViewHeaderState orientation="horizontal" >000000ff00000000000000010000000100000000000000000000000000000000000000000000000251000000010000000100000000000000000000000064ffffffff000000810000000000000001000002510000000100000000</ViewHeaderState>
+      <ViewHeaderState orientation="horizontal" >000000ff0000000000000001000000010000000000000000000000000000000000000000000000033f000000010000000100000000000000000000000064ffffffff0000008100000000000000010000033f0000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
       <CurrentItem/>
    </ItemView>

@@ -95,7 +95,8 @@ entity ZJUprojects is
     TX_src_MAC_addr : in  std_logic_vector(3 downto 0) := "0000";
     phy_rst_n_o     : out std_logic;
     clk_EXT_250M : in std_logic;
-    Estmr_OQ        : out std_logic
+    Estmr_OQ_p        : out std_logic;
+    Estmr_OQ_n        : out std_logic
 
 
    ---------------------------------------------------------------------------
@@ -347,7 +348,7 @@ architecture Behavioral of ZJUprojects is
   signal clk_EXT_250M_g : std_logic;
   signal clk_EXT_250M_R : std_logic;
   signal clk_EXT_500M_R : std_logic;
-  -- signal Estmr_OQ : std_logic;
+  signal Estmr_OQ : std_logic;
   -----------------------------------------------------------------------------
   component CDCE62005_interface
     port(
@@ -1069,14 +1070,14 @@ begin
       );
 
 
-   --   OBUFDS_inst : OBUFDS
-   -- generic map (
-   --    IOSTANDARD => "DEFAULT")
-   -- port map (
-   --    O => Estmr_OQ_p,     -- Diff_p output (connect directly to top-level port)
-   --    OB => Estmr_OQ_n,   -- Diff_n output (connect directly to top-level port)
-   --    I => Estmr_OQ      -- Buffer input 
-   --    );
+     OBUFDS_inst : OBUFDS
+   generic map (
+      IOSTANDARD => "DEFAULT")
+   port map (
+      O => Estmr_OQ_p,     -- Diff_p output (connect directly to top-level port)
+      OB => Estmr_OQ_n,   -- Diff_n output (connect directly to top-level port)
+      I => Estmr_OQ      -- Buffer input 
+      );
   
   ethernet_rd_clk <= CLK_125M;
   
@@ -1088,7 +1089,7 @@ begin
 
      BUFR_inst0 : BUFR
    generic map (
-      BUFR_DIVIDE => "2", -- Values: "BYPASS", "1", "2", "3", "4", "5", "6", "7", "8" 
+      BUFR_DIVIDE => "4", -- Values: "BYPASS", "1", "2", "3", "4", "5", "6", "7", "8" 
       SIM_DEVICE => "VIRTEX6"  -- Must be set to "VIRTEX6" 
    )
    port map (
@@ -1100,7 +1101,7 @@ begin
   
        BUFR_inst1 : BUFR
    generic map (
-      BUFR_DIVIDE => "1", -- Values: "BYPASS", "1", "2", "3", "4", "5", "6", "7", "8" 
+      BUFR_DIVIDE => "2", -- Values: "BYPASS", "1", "2", "3", "4", "5", "6", "7", "8" 
       SIM_DEVICE => "VIRTEX6"  -- Must be set to "VIRTEX6" 
    )
    port map (

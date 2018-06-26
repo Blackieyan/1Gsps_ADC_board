@@ -8,14 +8,12 @@ NET "Inst_crg_dcms/dcm_global/CLK_IN1_N" LOC = M22;
 TIMESPEC TS_OSC_in_p = PERIOD "OSC_in_p" 10 ns HIGH 50 %;
 NET "user_pushbutton" LOC = AD25;
 # CLOCK region
-
 NET "ADC_Mode" LOC = U33;
 NET "ADC_sclk_OUT" LOC = U32;
 NET "ADC_sdata[0]" LOC = U26;
 NET "ADC_sldn_OUT" LOC = U27;
 #TIMEGRP "ADC_sdata[0]" OFFSET = IN 50ns VALID 100ns BEFORE "ADC_sclk_out" RISING;
 #ADC_interfce
-
 NET "spi_clk" LOC = K31;
 NET "spi_miso" LOC = K32;
 NET "spi_mosi" LOC = M26;
@@ -166,7 +164,6 @@ NET "Inst_DATAin_IOB/Inst_IBUFD_8bit3/IB[7]" LOC = AP15;
 #TIMEGRP "ADC_DOQB" OFFSET = IN 1ns VALID 2ns BEFORE "ADC_CLKOQ_p" RISING;
 #TIMEGRP "ADC_DOIA" OFFSET = IN 1ns VALID 2ns BEFORE "ADC_CLKOI_p" RISING;
 #TIMEGRP "ADC_DOIB" OFFSET = IN 1ns VALID 2ns BEFORE "ADC_CLKOI_p" RISING;
-
 NET "DOIRI_p" LOC = AH17;
 NET "DOIRI_n" LOC = AG17;
 NET "DOIRQ_p" LOC = AJ10;
@@ -385,9 +382,11 @@ TIMESPEC TS_DFFQtoPSTPRCRAM = FROM "DFFQ" TO "PSTPRC_RAMQ" 4 ns;
 TIMESPEC TS_DFFItoPSTPRCRAM = FROM "DFFI" TO "PSTPRC_RAMI" 4 ns;
 #--------
 NET "PHY_GTXclk_quar" LOC = AL33;
+NET "PHY_GTXclk_quar" TNM_NET = "PHY_GTXclk_quar";
 TIMESPEC TS_PHY_GTXclk_quar = PERIOD "PHY_GTXclk_quar" 8 ns HIGH 50 %;
-TIMEGRP "TXD" OFFSET = IN 2 ns VALID 4 ns BEFORE "PHY_GTXclk_quar" RISING;
-TIMEGRP "TXD" OFFSET = IN 2 ns VALID 4 ns BEFORE "PHY_GTXclk_quar" FALLING;
+TIMEGRP "TXD_GRP" = TMN "TXD";
+TIMEGRP "TXD_GRP" OFFSET = OUT 2 ns VALID 4 ns BEFORE "PHY_GTXclk_quar" RISING;
+TIMEGRP "TXD_GRP" OFFSET = OUT 2 ns VALID 4 ns BEFORE "PHY_GTXclk_quar" FALLING;
 NET "PHy_txen_quar" LOC = AN33;
 NET "phy_txer_o" LOC = AN34;
 #--reset the chip
@@ -402,27 +401,32 @@ NET "PHY_TXD_o[3]" TNM = "TXD";
 NET "PHY_TXD_o[3]" LOC = AL34;
 
 NET "PHY_RXD[3]" LOC = AJ30;
+NET "PHY_RXD[3]" TNM = "RXD";
 NET "PHY_RXD[2]" LOC = AK33;
+NET "PHY_RXD[2]" TNM = "RXD";
 NET "PHY_RXD[1]" LOC = AK32;
+NET "PHY_RXD[1]" TNM = "RXD";
 NET "PHY_RXD[0]" LOC = AL31;
+NET "PHY_RXD[0]" TNM = "RXD";
 NET "Inst_crg_dcms/dcm_rxc_inst/CLK_IN1" LOC = B31;
 #NET "PHY_RXC" CLOCK_DEDICATED_ROUTE = FALSE;
+NET "PHY_RXC" TNM_NET = "PHY_RXC";
 TIMESPEC TS_PHY_RXC = PERIOD "PHY_RXC" 8 ns HIGH 50 %;
-TIMEGRP "RXD" OFFSET = IN 2 ns VALID 4 ns BEFORE "PHY_RXC" RISING;
-TIMEGRP "RXD" OFFSET = IN 2 ns VALID 4 ns BEFORE "PHY_RXC" FALLING;
+TIMEGRP "RXD_GRP" = TMN "RXD";
+TIMEGRP "RXD_GRP" OFFSET = IN 2 ns VALID 4 ns BEFORE "PHY_RXC" RISING;
+TIMEGRP "RXD_GRP" OFFSET = IN 2 ns VALID 4 ns BEFORE "PHY_RXC" FALLING;
 NET "PHY_RXDV" LOC = AK31;
 #---------------------------------------
 #j31
 NET "SRCC1_p_trigin" LOC = L20;
-#NET "Estmr_OQ_p" LOC = N32;#j9
-#NET "Estmr_OQ_n" LOC = P32;#j8
+NET "Estmr_OQ_p" LOC = N32;#j9
+NET "Estmr_OQ_n" LOC = P32;#j8
 #J32
-NET "Estmr_OQ" LOC = L21;
-
+#NET "Estmr_OQ" LOC = L21;
 NET "Inst_crg_dcms/dcm_ext_dac_inst/CLK_IN1" LOC = D11;
+
 # J33
 #-------
-
 #INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg3" LOC = RAMB36_X0Y14;
 #INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg2" LOC = RAMB36_X1Y13;
 #INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg4" LOC = RAMB36_X1Y14;
@@ -452,10 +456,7 @@ NET "Inst_crg_dcms/dcm_ext_dac_inst/CLK_IN1" LOC = D11;
 #INST "ram_data_inst2/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[8].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y8;
 #INST "ram_data_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[7].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y9;
 #edit at 9.6 change the ram 
-
 #INST "Inst_crg_dcms/dcm_global/mmcm_adv_inst" LOC = MMCM_ADV_X0Y7;
-
-
 #INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg3" LOC = RAMB36_X0Y13;
 #INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg2" LOC = RAMB36_X0Y14;
 #INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp2/Mram_RAM_reg4" LOC = RAMB36_X0Y15;
@@ -463,20 +464,14 @@ NET "Inst_crg_dcms/dcm_ext_dac_inst/CLK_IN1" LOC = D11;
 #INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg1" LOC = RAMB36_X1Y13;
 #INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg2" LOC = RAMB36_X1Y14;
 #INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/u_RX_buffer/RAM_dp1/Mram_RAM_reg4" LOC = RAMB36_X1Y15;
-
-
 #INST "Inst_crg_dcms/dcm3/mmcm_adv_inst" LOC = MMCM_ADV_X0Y5;
 #INST "Inst_crg_dcms/dcm2/mmcm_adv_inst" LOC = MMCM_ADV_X0Y4;
-
-
 #INST "Inst_RAM_top/Inst_RAM_I/ram_I_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[3].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X2Y5;
 #INST "Inst_RAM_top/Inst_RAM_I/ram_I_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[4].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X2Y6;
 #INST "Inst_RAM_top/Inst_RAM_I/ram_I_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[1].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y4;
 #INST "Inst_RAM_top/Inst_RAM_I/ram_I_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[0].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y5;
 #INST "Inst_RAM_top/Inst_RAM_I/ram_I_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[2].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y6;
 #adcoi -30 phase shift achieve
-
-
 #INST "Inst_RAM_top/Inst_RAM_Q/ram_Q_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[0].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y10;
 #INST "Inst_RAM_top/Inst_RAM_Q/ram_Q_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[3].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y11;
 #INST "Inst_RAM_top/Inst_RAM_Q/ram_Q_inst/U0/xst_blk_mem_generator/gnativebmg.native_blk_mem_gen/valid.cstr/ramloop[4].ram.r/v6_noinit.ram/SDP.SIMPLE_PRIM36.ram" LOC = RAMB36_X3Y12;
@@ -510,7 +505,7 @@ NET "user_pushbutton" CLOCK_DEDICATED_ROUTE = FALSE;
 NET "user_pushbutton" TIG;
 #set_false_path -to [get_nets ];
 NET "rst_n" TIG;
-#NET "inst_crg_dcms/lck_rst_n" TIG;
+NET "inst_crg_dcms/lck_rst_n" TIG;
 #----
 #NET "SRCC1_p" LOC =N32;#j9
 #NET "SRCC1_n" LOC = P32; #J8
@@ -522,16 +517,30 @@ NET "rst_n" TIG;
 #NET "MRCC1_n" TIG;
 #---- ports for test
 
- 
 
 
+NET "Estmr_OQ_p" SLEW = FAST;
+NET "Estmr_OQ_p" DRIVE = 24;
 
-NET "Estmr_OQ" SLEW = FAST;
-NET "Estmr_OQ" DRIVE = 16;
 
-
-NET "Estmr_OQ" IOSTANDARD = LVCMOS18;
+#NET "Estmr_OQ" IOSTANDARD = LVCMOS25;
 
 # PlanAhead Generated IO constraints 
-
 NET "SRCC1_p_trigin" IOSTANDARD = LVCMOS18;
+#Created by Constraints Editor (xc6vlx240t-ff1156-2) - 2018/05/17
+NET "clk_EXT_250M" TNM_NET = clk_EXT_250M;
+TIMESPEC TS_clk_EXT_250M = PERIOD "clk_EXT_250M" 4 ns HIGH 50%;
+#TIMESPEC TS_clk_EXT_250M_R = PERIOD "clk_EXT_250M_R" 8 ns HIGH 50%;
+TIMESPEC TS_CLK1toEXT250_TIG = FROM "Inst_crg_dcms_dcm_global_clkout1" TO "clk_EXT_250M_R" TIG;
+
+
+TIMESPEC TS_RXCtoCLK1_TIG = FROM "PHY_RXC" TO "Inst_crg_dcms_dcm_global_clkout1" TIG;
+TIMESPEC TS_RXCtoCLK2_TIG = FROM "PHY_RXC" TO "Inst_crg_dcms_dcm_global_clkout2" TIG;
+TIMESPEC TS_RXCtoCLK3_TIG = FROM "PHY_RXC" TO "Inst_crg_dcms_dcm_global_clkout3" TIG;
+
+TIMESPEC TS_ADCtoCLK1_TIG = FROM "ADC_CLKOI_p" TO "Inst_crg_dcms_dcm_global_clkout1" TIG;
+TIMESPEC TS_ADCtoCLK2_TIG = FROM "ADC_CLKOI_p" TO "Inst_crg_dcms_dcm_global_clkout2" TIG;
+TIMESPEC TS_ADCtoCLK3_TIG = FROM "ADC_CLKOI_p" TO "Inst_crg_dcms_dcm_global_clkout3" TIG;
+#Created by Constraints Editor (xc6vlx240t-ff1156-2) - 2018/06/25
+TIMESPEC TS_RXCtoEXT250_TIG = FROM "PHY_RXC" TO "clk_EXT_250M_R" TIG;
+

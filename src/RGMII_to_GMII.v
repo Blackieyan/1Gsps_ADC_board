@@ -32,9 +32,17 @@ module RGMII_to_GMII(
   input					reset,
   
   output			GMII_RX_CLK_o,		// the same copy of RXCLK_i
+
+  output [7:0]	GMII_RX_RXD_o,		// 8-bit RX data 
+  output			GMII_RX_DV_o,		// RX data valid
+  output			GMII_RX_ER_o		// error
+
+
+/* -----\/----- EXCLUDED -----\/-----
   output reg[7:0]	GMII_RX_RXD_o,		// 8-bit RX data 
   output	reg		GMII_RX_DV_o,		// RX data valid
   output	reg		GMII_RX_ER_o		// error
+ -----/\----- EXCLUDED -----/\----- */
 
 );
 
@@ -53,6 +61,8 @@ module RGMII_to_GMII(
 
 	assign GMII_RX_CLK_o = RXCLK_i;
 // on rising edge
+
+/* -----\/----- EXCLUDED -----\/-----
    always @(posedge RXCLK_i)
 	begin
 		if (reset)
@@ -89,7 +99,46 @@ module RGMII_to_GMII(
 			CTL_neg_reg <= RXCTL_i;
 		end
 	end		// end always	posedge RXCLK_i	
+ -----/\----- EXCLUDED -----/\----- */
 
+
+
+   genvar i;
+   generate
+      for (i=0; i < 4; i=i+1) 
+      begin: RXD_gen
+               IDDR #(
+	       .DDR_CLK_EDGE("SAME_EDGE_PIPELINED"), // "OPPOSITE_EDGE", "SAME_EDGE" 
+               //    or "SAME_EDGE_PIPELINED" 
+	       .INIT_Q1(1'b0), // Initial value of Q1: 1'b0 or 1'b1
+	       .INIT_Q2(1'b0), // Initial value of Q2: 1'b0 or 1'b1
+	       .SRTYPE("SYNC") // Set/Reset type: "SYNC" or "ASYNC" 
+	       ) IDDR_inst (
+			    .Q1(GMII_RX_RXD_o[i]), // 1-bit output for positive edge of clock 
+			    .Q2(GMII_RX_RXD_o[i+4]), // 1-bit output for negative edge of clock
+			    .C(RXCLK_i),   // 1-bit clock input
+			    .CE(1), // 1-bit clock enable input
+			    .D(RXDATA_i[i]),   // 1-bit DDR data input
+			    .R(reset),   // 1-bit reset
+			    .S(0)    // 1-bit set
+			    );
+      end
+   endgenerate
+               IDDR #(
+	       .DDR_CLK_EDGE("SAME_EDGE_PIPELINED"), // "OPPOSITE_EDGE", "SAME_EDGE" 
+               //    or "SAME_EDGE_PIPELINED" 
+	       .INIT_Q1(1'b0), // Initial value of Q1: 1'b0 or 1'b1
+	       .INIT_Q2(1'b0), // Initial value of Q2: 1'b0 or 1'b1
+	       .SRTYPE("SYNC") // Set/Reset type: "SYNC" or "ASYNC" 
+	       ) IDDR_inst (
+			    .Q1(GMII_RX_DV_o), // 1-bit output for positive edge of clock 
+			    .Q2(GMII_RX_ER_o), // 1-bit output for negative edge of clock
+			    .C(RXCLK_i),   // 1-bit clock input
+			    .CE(1), // 1-bit clock enable input
+			    .D(RXCTL_i),   // 1-bit DDR data input
+			    .R(reset),   // 1-bit reset
+			    .S(0)    // 1-bit set
+			    );
 
 
 endmodule
