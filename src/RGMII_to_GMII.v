@@ -62,7 +62,7 @@ module RGMII_to_GMII(
 	assign GMII_RX_CLK_o = RXCLK_i;
 // on rising edge
 
-/* -----\/----- EXCLUDED -----\/-----
+
    always @(posedge RXCLK_i)
 	begin
 		if (reset)
@@ -99,9 +99,10 @@ module RGMII_to_GMII(
 			CTL_neg_reg <= RXCTL_i;
 		end
 	end		// end always	posedge RXCLK_i	
- -----/\----- EXCLUDED -----/\----- */
 
 
+
+/* -----\/----- EXCLUDED -----\/-----
 
    genvar i;
    generate
@@ -139,6 +140,7 @@ module RGMII_to_GMII(
 			    .R(reset),   // 1-bit reset
 			    .S(0)    // 1-bit set
 			    );
+ -----/\----- EXCLUDED -----/\----- */
 
 
 endmodule
