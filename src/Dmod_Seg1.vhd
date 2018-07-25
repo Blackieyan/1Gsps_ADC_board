@@ -92,8 +92,8 @@ architecture Behavioral of Dmod_Seg is
   signal Pstprc_RAMq_rden_d      : std_logic;
   signal Pstprc_en               : std_logic;
   signal Pstprc_RAMq_rden_stp    : std_logic;
-  signal Pstprc_RAMq_rden_stp_d  : std_logic;
-  signal Pstprc_RAMq_rden_stp_d2 : std_logic;
+--  signal Pstprc_RAMq_rden_stp_d  : std_logic;
+--  signal Pstprc_RAMq_rden_stp_d2 : std_logic;
   signal adder_en                : std_logic;
   signal adder_en_d              : std_logic;
   signal adder_en_d2             : std_logic;
@@ -103,12 +103,12 @@ architecture Behavioral of Dmod_Seg is
   signal ini_pstprc_RAMx_addrb   : std_logic_vector(11 downto 0);
   signal Pstprc_RAMx_rden_ln     : std_logic_vector(11 downto 0);
 
-  signal Pstprc_fifo_din    : std_logic_vector(63 downto 0);
+--  signal Pstprc_fifo_din    : std_logic_vector(63 downto 0);
   signal Pstprc_finish_seq  : std_logic_vector(pstprc_ch_num-1 downto 0);
   signal Pstprc_add_stp_seq : std_logic_vector(pstprc_ch_num-1 downto 0);
-  signal pstprc_rs          : std_logic;
-  signal Pstprc_fifo_pempty : std_logic;
-  signal Pstprc_fifo_valid  : std_logic;
+--  signal pstprc_rs          : std_logic;
+--  signal Pstprc_fifo_pempty : std_logic;
+--  signal Pstprc_fifo_valid  : std_logic;
   type Pstprc_lnstart_array is array (pstprc_ch_num-1 downto 0) of std_logic_vector(14 downto 0);
   signal dds_data_len       : Pstprc_lnstart_array;
   signal dds_data_start     : Pstprc_lnstart_array;
@@ -132,6 +132,7 @@ architecture Behavioral of Dmod_Seg is
   signal state : Estmr_state;
   signal Estmr_FSM_dout : std_logic_vector(3 downto 0);
   signal Pstprc_add_stp_d : std_logic;
+  signal Pstprc_add_stp_sig : std_logic;
   
   component Win_RAM_top
     port(
@@ -284,7 +285,7 @@ begin
       end if;
     end process pstprc_num_select_ps;
 
-    pstprc_num_frs_ps : process (clk, rst_n) is  --Áî®Êù•trigËΩΩÂÖ•ddsÊï∞ÊçÆ
+    pstprc_num_frs_ps : process (clk, rst_n) is  --”√¿¥trig‘ÿ»Îdds ˝æ›
     begin  -- process pstprc_num_frs_ps
       if rst_n = '0' then                 -- asynchronous reset (active low)
         pstprc_num_frs(i) <= '0';
@@ -343,7 +344,7 @@ begin
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
   Estimator_gs : for i in 0 to 7 generate
-    -- purpose: Â∞Ü‰∏ä‰ΩçÊú∫‰∏ã‰º†ÁöÑ‰ø°Âè∑ËµãÂÄºÁªôÊåáÂÆöÈÄöÈÅì
+    -- purpose: Ω´…œŒªª˙œ¬¥´µƒ–≈∫≈∏≥÷µ∏¯÷∏∂®Õ®µ¿
     -- type   : sequential
     -- inputs : clk, rst_n
     -- outputs: 
@@ -365,7 +366,8 @@ begin
         end if;
       end if;
     end process Estmr_args_trans_ps;
-
+	 
+	 Pstprc_add_stp_sig <= Pstprc_add_stp or Pstprc_add_stp_d;
     Inst_Estimator : Estimator port map(
       clk            => clk_Estmr,        --250MHz clock
       rst_n          => rst_n,
@@ -375,7 +377,7 @@ begin
       en             => '0',
       I              => pstprc_Idata(i),
       Q              => pstprc_Qdata(i),
-      Pstprc_add_stp => Pstprc_add_stp or Pstprc_add_stp_d,
+      Pstprc_add_stp => Pstprc_add_stp_sig,
       state          => state(i),
       stat_rdy       => stat_rdy(i)
       );
@@ -385,7 +387,7 @@ begin
 	Inst_Sync_data_FSM: Sync_data_FSM PORT MAP(
 		clk => clk_Estmr,
 		rst_n => rst_n,
-		stat_rdy => stat_rdy(0),        --Ëá≥Â∞ëË¶Å‰ªéÁ¨¨0ÈÄöÈÅìÂºÄÂßã‰ΩøÁî®
+		stat_rdy => stat_rdy(0),        --÷¡…Ÿ“™¥”µ⁄0Õ®µ¿ø™ º π”√
 		sync_en => Estmr_sync_en,
                 state0 => state(0),
 		state1 => state(1),
@@ -405,7 +407,7 @@ begin
 		D1 => Estmr_FSM_dout(0),
 		D2 => Estmr_FSM_dout(1),
 		D3 => Estmr_FSM_dout(2),
-		D4 => Estmr_FSM_dout(3),                 --ËØ¶ÊÉÖËßÅËÆæËÆ°ÊñáÊ°£,‰∏∫‰∫ÜÈÖçÂêàÊûóÈáëÔºå‰øÆÊîπ‰∫ÜÈ°∫Â∫è„ÄÇ
+		D4 => Estmr_FSM_dout(3),                 --œÍ«Èº˚…Ëº∆Œƒµµ,Œ™¡À≈‰∫œ¡÷Ω£¨–ﬁ∏ƒ¡ÀÀ≥–Ú°£
 		OQ => Estmr_OQ
 	);
 -----------------------------------------------------------------------------

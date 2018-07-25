@@ -92,7 +92,7 @@ architecture Behavioral of Estimator is
   end component;
 -------------------------------------------------------------------------------
 begin
-  -- purpose: è·¨æ—¶é’ŸåŸŸæ‰“ä¸¤æ‹å¤„ç†
+  -- purpose: ¿çÊ±ÖÓÓò´òÁ½ÅÄ´¦Àí
   -- type   : sequential
   -- inputs : clk, rst_n
   -- outputs: 

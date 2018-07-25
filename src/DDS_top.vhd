@@ -58,7 +58,7 @@ end DDS_top;
 
 architecture Behavioral of DDS_top is
   
-  signal dds_reg_select     : std_logic;
+--  signal dds_reg_select     : std_logic;
   signal dds_ce             : std_logic;
   signal dds_rdy            : std_logic;
   signal dds_rfd            : std_logic;
@@ -70,11 +70,11 @@ architecture Behavioral of DDS_top is
   signal dds_ram_addra      : std_logic_vector(14 downto 0);
   signal dds_ram_addrb      : std_logic_vector(11 downto 0);
   signal dds_cos            : std_logic_vector(dds_output_width-1 downto 0);
-  signal dds_cos_d            : std_logic_vector(dds_output_width-1 downto 0);
+--  signal dds_cos_d            : std_logic_vector(dds_output_width-1 downto 0);
   signal dds_sin            : std_logic_vector(dds_output_width-1 downto 0);
   signal dds_ram_rden       : std_logic;
-  signal fifo_cos    : std_logic_vector(dds_output_width*8-1 downto 0);
-  signal fifo_sin    : std_logic_vector(dds_output_width*8-1 downto 0);
+--  signal fifo_cos    : std_logic_vector(dds_output_width*8-1 downto 0);
+--  signal fifo_sin    : std_logic_vector(dds_output_width*8-1 downto 0);
   signal finish_sclr : std_logic;
   signal wren_finish_d  : std_logic;
   signal wren_finish  : std_logic;
@@ -82,10 +82,10 @@ architecture Behavioral of DDS_top is
   signal ram_data_sw : std_logic;
   signal dds_sin_mux_out : std_logic_vector(dds_output_width-1 downto 0);
   signal dds_cos_mux_out : std_logic_vector(dds_output_width-1 downto 0);
-  signal pstprc_en_d : std_logic;
-  signal dds_rdy2            : std_logic;
-  signal dds_rfd2            : std_logic;
-  signal dds_phase_out2      : std_logic_vector(dds_phase_width-1 downto 0);
+--  signal pstprc_en_d : std_logic;
+--  signal dds_rdy2            : std_logic;
+--  signal dds_rfd2            : std_logic;
+--  signal dds_phase_out2      : std_logic_vector(dds_phase_width-1 downto 0);
   signal dds_cos_out: std_logic_vector(dds_output_width-1 downto 0);
   signal dds_sin_out : std_logic_vector(dds_output_width-1 downto 0);
   signal dds1_sclr : std_logic;

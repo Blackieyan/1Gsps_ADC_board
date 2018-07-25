@@ -7,7 +7,7 @@
    reg posedge_sample_trig;
    reg rst_n;
    reg [15:0] cmd_smpl_depth;
-   reg [31:0] Pstprc_RAM_dina；
+   reg [31:0] Pstprc_RAM_dina;
    reg Pstprc_RAMQ_clka;
    reg Pstprc_RAMQ_clkb;
    reg [14:0] demoWinln_twelve;
@@ -79,8 +79,7 @@
       pstprc_num_en =0;
       Pstprc_num = 4'h0;
       pstprc_fifo_wren = 0;
-      #1000
-        rst_n = '1';
+      #1000 rst_n = 1;
 
    end
 

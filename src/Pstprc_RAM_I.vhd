@@ -60,10 +60,10 @@ architecture Behavioral of Pstprc_RAM_I is
   
   signal Pstprc_RAMi_addra : std_logic_vector(12 downto 0);
   signal Pstprc_RAMi_addrb : std_logic_vector(11 downto 0);
-  signal Pstprc_RAMi_ena   : std_logic;
-  signal Pstprc_RAMi_enb   : std_logic;
+--  signal Pstprc_RAMi_ena   : std_logic;
+--  signal Pstprc_RAMi_enb   : std_logic;
   signal Pstprc_RAMi_wea   : std_logic_vector(0 downto 0);
-  signal Pstprc_RAMi_rstb  : std_logic;
+--  signal Pstprc_RAMi_rstb  : std_logic;
   signal clr_n_ram   : std_logic;
   signal Pstprc_RAMi_full : std_logic;
   signal Pstprc_RAMi_full_o : std_logic;
@@ -76,7 +76,7 @@ architecture Behavioral of Pstprc_RAM_I is
   signal pstprc_rami_rden_d : std_logic;
   -- signal ini_pstprc_ramx_addrb : std_logic_vector(11 downto 0);
   -- signal ini_pstprc_ramx_addra : std_logic_vector(12 downto 0);
-  signal Pstprc_RAMi_rden_ln : std_logic_vector(11 downto 0);
+--  signal Pstprc_RAMi_rden_ln : std_logic_vector(11 downto 0);
   signal Pstprc_RAMi_rden_stp : std_logic;
   
 COMPONENT Post_Process_RAM
