@@ -81,22 +81,22 @@ architecture Behavioral of post_process is
   signal base0_I_x_cos : array_base0_data_x_cos;
   signal base0_Q_x_sin : array_base0_data_x_cos;
   signal base0_I_x_sin : array_base0_data_x_cos;
-  type array_bs0_QxCOS_CO is array (3 downto 0) of std_logic;
-  signal bs0_QxCOS_CO  : array_bs0_QxCOS_CO;
-  signal bs0_IxCOS_CO  : array_bs0_QxCOS_CO;
-  signal bs0_QxSIN_CO  : array_bs0_QxCOS_CO;
-  signal bs0_IxSIN_CO  : array_bs0_QxCOS_CO;
+--  type array_bs0_QxCOS_CO is array (3 downto 0) of std_logic;
+--  signal bs0_QxCOS_CO  : array_bs0_QxCOS_CO;
+--  signal bs0_IxCOS_CO  : array_bs0_QxCOS_CO;
+--  signal bs0_QxSIN_CO  : array_bs0_QxCOS_CO;
+--  signal bs0_IxSIN_CO  : array_bs0_QxCOS_CO;
 
   type array_base1_data_x_cos is array (1 downto 0) of std_logic_vector(mult_accum_s_width-1 downto 0);
   signal base1_Q_x_cos : array_base1_data_x_cos;
   signal base1_I_x_cos : array_base1_data_x_cos;
   signal base1_Q_x_sin : array_base1_data_x_cos;
   signal base1_I_x_sin : array_base1_data_x_cos;
-  type array_bs1_QxCOS_CO is array (1 downto 0) of std_logic;
-  signal bs1_QxCOS_CO  : array_bs1_QxCOS_CO;
-  signal bs1_IxCOS_CO  : array_bs1_QxCOS_CO;
-  signal bs1_QxSIN_CO  : array_bs1_QxCOS_CO;
-  signal bs1_IxSIN_CO  : array_bs1_QxCOS_CO;
+--  type array_bs1_QxCOS_CO is array (1 downto 0) of std_logic;
+--  signal bs1_QxCOS_CO  : array_bs1_QxCOS_CO;
+--  signal bs1_IxCOS_CO  : array_bs1_QxCOS_CO;
+--  signal bs1_QxSIN_CO  : array_bs1_QxCOS_CO;
+--  signal bs1_IxSIN_CO  : array_bs1_QxCOS_CO;
   
   -- signal rs_Q_x_sin : std_logic_vector(23 downto 0);
   -- signal rs_Q_x_cos : std_logic_vector(23 downto 0);
@@ -119,21 +119,21 @@ architecture Behavioral of post_process is
   -- signal bs1_IxCOS_CI      : std_logic;
   -- signal bs1_IxSIN_CO      : std_logic;
   -- signal bs1_IxSIN_CI      : std_logic;
-  signal rs_QxCOS_CO : std_logic;
-  signal rs_QxCOS_CI : std_logic;
-  signal rs_IxCOS_CO : std_logic;
-  signal rs_IxCOS_CI : std_logic;
-  signal rs_QxSIN_CO : std_logic;
-  signal rs_QxSIN_CI : std_logic;
-  signal rs_IxSIN_CO : std_logic;
-  signal rs_IxSIN_CI : std_logic;
+--  signal rs_QxCOS_CO : std_logic;
+--  signal rs_QxCOS_CI : std_logic;
+--  signal rs_IxCOS_CO : std_logic;
+--  signal rs_IxCOS_CI : std_logic;
+--  signal rs_QxSIN_CO : std_logic;
+--  signal rs_QxSIN_CI : std_logic;
+--  signal rs_IxSIN_CO : std_logic;
+--  signal rs_IxSIN_CI : std_logic;
   signal rs_q_x_cos  : std_logic_vector(mult_accum_s_width-1 downto 0);
   signal rs_i_x_cos  : std_logic_vector(mult_accum_s_width-1 downto 0);
   signal rs_q_x_sin  : std_logic_vector(mult_accum_s_width-1 downto 0);
   signal rs_i_x_sin  : std_logic_vector(mult_accum_s_width-1 downto 0);
   signal add_rst     : std_logic;
-  signal idata_co    : std_logic;
-  signal qdata_co    : std_logic;
+--  signal idata_co    : std_logic;
+--  signal qdata_co    : std_logic;
 
   signal add_Idata : std_logic_vector(mult_accum_s_width-1 downto 0);
   signal add_Qdata : std_logic_vector(mult_accum_s_width-1 downto 0);
@@ -142,13 +142,13 @@ architecture Behavioral of post_process is
   type array_I_x_sin is array (7 downto 0) of std_logic_vector(17 downto 0);
   type array_Q_x_sin is array (7 downto 0) of std_logic_vector(17 downto 0);
 
-  signal IxCOS : std_logic_vector(19 downto 0);
-  signal IxSIN : std_logic_vector(19 downto 0);
-  signal QxCOS : std_logic_vector(19 downto 0);
-  signal QxSIN : std_logic_vector(19 downto 0);
+--  signal IxCOS : std_logic_vector(19 downto 0);
+--  signal IxSIN : std_logic_vector(19 downto 0);
+--  signal QxCOS : std_logic_vector(19 downto 0);
+--  signal QxSIN : std_logic_vector(19 downto 0);
   signal dds_en : std_logic;
   signal dds_sclr          : std_logic;
-  signal dds_fifo_rden     : std_logic;
+--  signal dds_fifo_rden     : std_logic;
   signal dds_cos           : std_logic_vector(95 downto 0);
   signal dds_sin           : std_logic_vector(95 downto 0);
   -- signal tc_dds_cos        : std_logic_vector(96 downto 0);
@@ -168,26 +168,26 @@ architecture Behavioral of post_process is
   signal adder_en_d        : std_logic;
   signal adder_en_d2       : std_logic;
   signal Adder_en_d3       : std_logic;
-  signal add_cnt_en        : std_logic;
+--  signal add_cnt_en        : std_logic;
   signal add_cnt           : std_logic_vector(7 downto 0);
 
   -- signal Pstprc_add_stp          : std_logic;
-  signal pstprc_ramx_rden_stp_d2 : std_logic;
-  signal pstprc_ramx_rden_stp_d  : std_logic;
-  signal pstprc_ramx_rden_stp_d3 : std_logic;
-  signal pstprc_ramx_rden_stp_d4 : std_logic;
+--  signal pstprc_ramx_rden_stp_d2 : std_logic;
+--  signal pstprc_ramx_rden_stp_d  : std_logic;
+--  signal pstprc_ramx_rden_stp_d3 : std_logic;
+--  signal pstprc_ramx_rden_stp_d4 : std_logic;
 
-  signal Q_rdy    : std_logic;
-  signal Q_rfd    : std_logic;
-  signal Q_nd     : std_logic;
-  signal I_rfd    : std_logic;
-  signal I_rdy    : std_logic;
-  signal I_nd     : std_logic;
+--  signal Q_rdy    : std_logic;
+--  signal Q_rfd    : std_logic;
+--  signal Q_nd     : std_logic;
+--  signal I_rfd    : std_logic;
+--  signal I_rdy    : std_logic;
+--  signal I_nd     : std_logic;
   signal div_clk  : std_logic;
   signal div_ce   : std_logic;
   signal div_sclr : std_logic;
-  signal q_quo    : std_logic_vector(31 downto 0);
-  signal I_quo    : std_logic_vector(31 downto 0);
+--  signal q_quo    : std_logic_vector(31 downto 0);
+--  signal I_quo    : std_logic_vector(31 downto 0);
 
   signal Q_data_d : std_logic_vector(63 downto 0);
   signal I_data_d : std_logic_vector(63 downto 0);
@@ -473,7 +473,7 @@ begin
     --     );
     ADDSUB_MACRO_QxSIN_inst : adder
   PORT MAP (
-    a => base0_Q_x_sin(j),
+    a => base0_Q_x_sin(2*j), ---fixed by linjin
     b => base0_Q_x_sin(2*j+1),
     clk => ADD_CLK,
     add => '1',
@@ -912,7 +912,7 @@ Q_data_d_ts: process (clk, rst_n) is
 -- ADD_CE <= Adder_en_d3;
 
   div_clk  <= clk;
-  div_ce   <= div_ce;
+--  div_ce   <= div_ce; 2018 0715 linjin
   div_sclr <= not rst_n;
 
 -- Pstprc_finish<=Q_rdy; -- use divide module
