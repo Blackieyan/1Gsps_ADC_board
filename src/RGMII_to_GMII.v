@@ -38,11 +38,11 @@ module RGMII_to_GMII(
   output			GMII_RX_ER_o		// error
 
 
-/* -----\/----- EXCLUDED -----\/-----
-  output reg[7:0]	GMII_RX_RXD_o,		// 8-bit RX data 
-  output	reg		GMII_RX_DV_o,		// RX data valid
-  output	reg		GMII_RX_ER_o		// error
- -----/\----- EXCLUDED -----/\----- */
+ //-----\/----- EXCLUDED -----\/-----
+//  output reg[7:0]	GMII_RX_RXD_o,		// 8-bit RX data 
+//  output	reg		GMII_RX_DV_o,		// RX data valid
+//  output	reg		GMII_RX_ER_o		// error
+ //-----/\----- EXCLUDED -----/\----- 
 
 );
 
@@ -54,6 +54,7 @@ module RGMII_to_GMII(
 	reg[7:0]		RXD_reg;
 	reg			DV_reg;
 	reg			ER_reg;
+	wire			RX_CTL;
 					
 //***************************************************************************
 // Code
@@ -100,6 +101,7 @@ module RGMII_to_GMII(
 		end
 	end		// end always	posedge RXCLK_i	
 
+//	assign GMII_RX_ER_o = RX_CTL ^ GMII_RX_DV_o;
 
 
 /* -----\/----- EXCLUDED -----\/-----
@@ -133,7 +135,7 @@ module RGMII_to_GMII(
 	       .SRTYPE("SYNC") // Set/Reset type: "SYNC" or "ASYNC" 
 	       ) IDDR_inst (
 			    .Q1(GMII_RX_DV_o), // 1-bit output for positive edge of clock 
-			    .Q2(GMII_RX_ER_o), // 1-bit output for negative edge of clock
+			    .Q2(RX_CTL), // 1-bit output for negative edge of clock
 			    .C(RXCLK_i),   // 1-bit clock input
 			    .CE(1), // 1-bit clock enable input
 			    .D(RXCTL_i),   // 1-bit DDR data input
@@ -141,6 +143,7 @@ module RGMII_to_GMII(
 			    .S(0)    // 1-bit set
 			    );
  -----/\----- EXCLUDED -----/\----- */
+
 
 
 endmodule
