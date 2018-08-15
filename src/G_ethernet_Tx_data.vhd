@@ -39,7 +39,7 @@ entity G_ethernet_Tx_data is
     PHY_GTXclk_quar : out std_logic;
     phy_txen_quar   : out std_logic;
     phy_txer_o      : out std_logic;
-    user_pushbutton : in  std_logic;
+    rst_n : in  std_logic;
     rst_n_o         : out std_logic; 
     fifo_upload_data : in std_logic_vector(7 downto 0);
     -- ram_wren : buffer std_logic;
@@ -78,7 +78,6 @@ architecture Behavioral of G_ethernet_Tx_data is
   signal last_byte           : std_logic;
   signal phy_txen_o          : std_logic;
 -------------------------------------------------------------------------------
-  signal rst_n               : std_logic;
   signal Gcnt                : std_logic_vector(11 downto 0) := x"000";
   signal clk_div_cnt         : std_logic_vector(7 downto 0):=x"00";
   signal GCLK                : std_logic;
@@ -205,7 +204,6 @@ begin
   data_in         <= wr_data;
   phy_txer_o      <= '0';
   rst_n_o         <= rst_n;
-  rst_n           <= user_pushbutton;
   phy_txen_quar   <= phy_txen_o;
 --  SRCC1_p <= PHY_TXD_o(0);
 --  SRCC1_n <= PHY_TXD_o(1);

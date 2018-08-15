@@ -34,7 +34,8 @@ use UNISIM.vcomponents.all;
 
 entity RAM_I is
   port (
-    rst_n               : in  std_logic;
+    rst_data_n          : in  std_logic;
+    rst_adc_n           : in  std_logic;
     ram_wren            : in  std_logic;
     posedge_sample_trig : in  std_logic;
     cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
@@ -93,13 +94,12 @@ begin
   ram_I_enb    <= ram_I_rden;
   ram_I_ena    <= ram_wren and (not ram_I_full);
   ram_I_wea(0) <= ram_wren and (not ram_I_full);
-  ram_I_rstb   <= not rst_n;
-  clr_n_ram    <= rst_n;
+  ram_I_rstb   <= not rst_data_n;
   ram_I_full_o <= ram_I_full;
 
-  ram_I_addra_ps : process (ram_I_clka, clr_n_ram, posedge_sample_trig) is
+  ram_I_addra_ps : process (ram_I_clka, rst_adc_n, posedge_sample_trig) is
   begin  -- process addra_ps
-    if clr_n_ram = '0' then             -- asynchronous reset (active low)
+    if rst_adc_n = '0' then             -- asynchronous reset (active low)
       ram_I_addra <= (others => '0');
     elsif ram_I_clka'event and ram_I_clka = '1' then      -- rising clock edge
       if posedge_sample_trig = '1' then
@@ -112,9 +112,9 @@ begin
     end if;
   end process ram_I_addra_ps;
 
-  ram_I_full_ps : process (ram_I_clka, clr_n_ram, posedge_sample_trig) is
+  ram_I_full_ps : process (ram_I_clka, rst_adc_n, posedge_sample_trig) is
   begin  -- process addra_ps
-    if clr_n_ram = '0' then             -- asynchronous reset (active low)
+    if rst_adc_n = '0' then             -- asynchronous reset (active low)
       ram_I_full <= '0';
     elsif ram_I_clka'event and ram_I_clka = '1' then      -- rising clock edge
       if posedge_sample_trig = '1' then
@@ -129,11 +129,11 @@ begin
     end if;
   end process ram_I_full_ps;
 
-  ram_I_addrb_ps : process (ram_I_clkb, clr_n_ram) is
+  ram_I_addrb_ps : process (rst_data_n, clr_n_ram) is
   begin  -- process addrb_ps
     if clr_n_ram = '0' then
       ram_I_addrb <= (others => '0');
-    elsif ram_I_clkb'event and ram_I_clkb = '1' then       -- rising clock edge
+    elsif rst_data_n'event and rst_data_n = '1' then       -- rising clock edge
       if posedge_sample_trig = '1' then
         ram_I_addrb <= (others => '0');  --edit at 8.25 for a bug
       elsif ram_I_rden = '1' then
@@ -145,11 +145,11 @@ begin
     end if;
   end process ram_I_addrb_ps;
 
-  ram_I_last_ps : process (ram_I_clkb, clr_n_ram) is
+  ram_I_last_ps : process (rst_data_n, clr_n_ram) is
   begin  -- process addrb_ps
     if clr_n_ram = '0' then
       ram_I_last <= '1';
-    elsif ram_I_clkb'event and ram_I_clkb = '1' then       -- rising clock edge
+    elsif rst_data_n'event and rst_data_n = '1' then       -- rising clock edge
       if posedge_sample_trig = '1' then
         ram_I_last <= '0';                                 --edit at 11.9
       elsif ram_I_rden = '1' then

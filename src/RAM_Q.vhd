@@ -36,7 +36,8 @@ entity RAM_Q is
   port(
     ram_wren            : in  std_logic;
     posedge_sample_trig : in  std_logic;
-    rst_n               : in  std_logic;
+    rst_data_n          : in  std_logic;
+    rst_adc_n           : in  std_logic;
     cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
     ---------------------------------------------------------------------------
     ram_Q_dina          : in  std_logic_vector(31 downto 0);
@@ -96,13 +97,12 @@ begin
   ram_Q_enb    <= ram_Q_rden;
   ram_Q_ena    <= ram_wren and (not ram_q_full);
   ram_Q_wea(0) <= ram_wren and (not ram_q_full);
-  ram_Q_rstb   <= not rst_n;
-  clr_n_ram    <= rst_n;
+  ram_Q_rstb   <= not rst_data_n;
   ram_Q_full_o <=ram_Q_full;
   
-  ram_Q_addra_ps : process (ram_Q_clka, clr_n_ram, posedge_sample_trig) is
+  ram_Q_addra_ps : process (ram_Q_clka, rst_adc_n, posedge_sample_trig) is
   begin  -- process addra_ps
-    if clr_n_ram = '0' then             -- asynchronous reset (active low)
+    if rst_adc_n = '0' then             -- asynchronous reset (active low)
       ram_Q_addra <= (others => '0');
     elsif ram_Q_clka'event and ram_Q_clka = '1' then      -- rising clock edge
       if posedge_sample_trig = '1' then
@@ -115,9 +115,9 @@ begin
     end if;
   end process ram_Q_addra_ps;
   
-  ram_Q_full_ps : process (ram_Q_clka, clr_n_ram, posedge_sample_trig) is
+  ram_Q_full_ps : process (ram_Q_clka, rst_adc_n, posedge_sample_trig) is
   begin  -- process addra_ps
-    if clr_n_ram = '0' then             -- asynchronous reset (active low)
+    if rst_adc_n = '0' then             -- asynchronous reset (active low)
       ram_Q_full  <= '0';
     elsif ram_Q_clka'event and ram_Q_clka = '1' then      -- rising clock edge
       if posedge_sample_trig = '1' then
@@ -132,9 +132,9 @@ begin
     end if;
   end process ram_Q_full_ps;
   
-  ram_Q_addrb_ps : process (ram_Q_clkb, clr_n_ram) is
+  ram_Q_addrb_ps : process (ram_Q_clkb, rst_data_n) is
   begin  -- process addrb_ps
-    if clr_n_ram = '0' then
+    if rst_data_n = '0' then
       ram_Q_addrb <= (others => '0');
     elsif ram_Q_clkb'event and ram_Q_clkb = '1' then           -- rising clock edge
       if posedge_sample_trig = '1' then
@@ -148,9 +148,9 @@ begin
     end if;
   end process ram_Q_addrb_ps;
 
-    ram_Q_last_ps : process (ram_Q_clkb, clr_n_ram) is
+    ram_Q_last_ps : process (ram_Q_clkb, rst_data_n) is
   begin  -- process addrb_ps
-    if clr_n_ram = '0' then
+    if rst_data_n = '0' then
       ram_Q_last  <= '1';
     elsif ram_Q_clkb'event and ram_Q_clkb = '1' then           -- rising clock edge
       if posedge_sample_trig = '1' then

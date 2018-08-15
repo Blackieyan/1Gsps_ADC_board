@@ -39,7 +39,8 @@ entity G_ethernet_top is
     PHY_GTXclk_quar           : out    std_logic; 
     phy_txen_quar             : out    std_logic; 
     phy_txer_o                : out    std_logic; 
-    user_pushbutton           : in     std_logic; 
+    rst_eth_r_n           : in     std_logic;
+    rst_eth_t_n           : in     std_logic; 
     rst_n_o                   : out    std_logic;  --for test,generate from Gcnt
     fifo_upload_data          : in     std_logic_vector(7 downto 0);  --测试时在中间层用叫做data的计数器代替了这个外部数据流
     ---------------------------------------------------------------------------
@@ -83,7 +84,7 @@ architecture Behavioral of G_ethernet_top is
   -----------------------------------------------------------------------------
   component G_ehernet_Rx_data
     port(
-      rst_n     : in  std_logic; 
+      rst_n : in  std_logic;
       Rd_clk    : in  std_logic; 
       Rd_en     : in  std_logic; 
       Rd_Addr   : in  std_logic_vector(13 downto 0); 
@@ -100,7 +101,7 @@ architecture Behavioral of G_ethernet_top is
     port(
       CLK_125M_quar             : in     std_logic; 
       CLK_125M                  : in     std_logic; 
-      user_pushbutton           : in     std_logic; 
+      rst_n           : in     std_logic; 
       fifo_upload_data          : in     std_logic_vector(7 downto 0); 
       PHY_TXD_o                 : out    std_logic_vector(3 downto 0); 
       PHY_GTXclk_quar           : out    std_logic; 
@@ -125,7 +126,7 @@ architecture Behavioral of G_ethernet_top is
 begin
  
 --  Rd_clk<=CLK_71M;
-  rst_n <= user_pushbutton; 
+  -- rst_n <= user_pushbutton; 
   -----------------------------------------------------------------------------
   -- dcm_ethernet : ethernet_dcm
   --   port map
@@ -139,7 +140,7 @@ begin
   --     CLK_OUT4 => CLK_71M);
   ---------------------------------------------------------------------------
   Inst_G_ehernet_Rx_data : G_ehernet_Rx_data port map(
-    rst_n     => rst_n,
+    rst_n => rst_eth_r_n,
     Rd_clk    => Rd_clk,
     Rd_en     => rd_en,
     Rd_Addr   => Rd_Addr,
@@ -160,7 +161,7 @@ begin
     PHY_GTXclk_quar           => PHY_GTXclk_quar, 
     phy_txen_quar             => phy_txen_quar, 
     phy_txer_o                => phy_txer_o, 
-    user_pushbutton           => user_pushbutton, 
+    rst_n           => rst_eth_t_n, 
     rst_n_o                   => rst_n_o,
     fifo_upload_data          => fifo_upload_data, 
     ram_rden                  => ram_rden, 

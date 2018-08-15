@@ -1,3 +1,6 @@
+
+
+
 ----------------------------------------------------------------------------------
 -- Company: 
 -- Engineer: 
@@ -44,7 +47,9 @@ entity Dmod_Seg is
   port(
     clk                 : in  std_logic;
     posedge_sample_trig : in  std_logic;
-    rst_n               : in  std_logic;
+    rst_adc_n           : in std_logic;
+    rst_data_proc_n     : in  std_logic;
+    rst_feedback_n      : in  std_logic;
     cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
     Pstprc_RAMQ_dina    : in  std_logic_vector(31 downto 0);
     Pstprc_RAMQ_clka    : in  std_logic;
@@ -137,7 +142,8 @@ architecture Behavioral of Dmod_Seg is
   component Win_RAM_top
     port(
       posedge_sample_trig   : in     std_logic;
-      rst_n                 : in     std_logic;
+      rst_data_proc_n            : in     std_logic;
+      rst_adc_n            : in     std_logic;
       cmd_smpl_depth        : in     std_logic_vector(15 downto 0);
       Pstprc_RAMq_dina      : in     std_logic_vector(31 downto 0);
       Pstprc_RAMq_clka      : in     std_logic;
@@ -239,7 +245,8 @@ begin
 
   Inst_Win_RAM_top : Win_RAM_top port map(
     posedge_sample_trig   => posedge_sample_trig,
-    rst_n                 => rst_n,
+    rst_data_proc_n            => rst_data_proc_n,
+    rst_adc_n            => rst_adc_n,
     cmd_smpl_depth        => cmd_smpl_depth,
     Pstprc_RAMQ_dina      => Pstprc_RAMQ_dina,
     Pstprc_RAMQ_clka      => Pstprc_RAMQ_clka,
@@ -263,13 +270,12 @@ begin
 -------------------------------------------------------------------------------
 -- purpose: to select the channel number and transfer the command when the signal pstprc_num_en comes
 -- type   : sequential
--- inputs : clk, rst_n
+-- inputs : clk, rst_data_proc_n
 -- outputs: 
-    pstprc_num_select_ps : process (clk, rst_n) is
+    pstprc_num_select_ps : process (clk, rst_data_proc_n) is
     begin  -- process pstprc_num_select_ps
-      if rst_n = '0' then                -- asynchronous reset (active low)
+      if rst_data_proc_n = '0' then                -- asynchronous reset (active low)
         Pstprc_dps(i) <= '0'&x"150000";  --default '0' reprensents positive
-
         dds_data_start(i) <= "000"&x"004";
         dds_data_len(i)   <= "000"&x"109";
       elsif clk'event and clk = '1' then  -- rising clock edge
@@ -285,9 +291,9 @@ begin
       end if;
     end process pstprc_num_select_ps;
 
-    pstprc_num_frs_ps : process (clk, rst_n) is  --用来trig载入dds数据
+    pstprc_num_frs_ps : process (clk, rst_data_proc_n) is  --用来trig载入dds数据
     begin  -- process pstprc_num_frs_ps
-      if rst_n = '0' then                 -- asynchronous reset (active low)
+      if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
         pstprc_num_frs(i) <= '0';
       elsif clk'event and clk = '1' then  -- rising clock edge
         if i = Pstprc_num and Pstprc_num_en = '1' then
@@ -298,9 +304,9 @@ begin
       end if;
     end process pstprc_num_frs_ps;
 
-    rs_combine_ps : process (clk, rst_n) is
+    rs_combine_ps : process (clk, rst_data_proc_n) is
     begin  -- process rs_combine_ps
-      if rst_n = '0' then               -- asynchronous reset (active low)
+      if rst_data_proc_n = '0' then               -- asynchronous reset (active low)
         Pstprc_IQ(i) <= (others => '0');
       elsif clk'event and clk = '1' then                  -- rising clock edge
         Pstprc_IQ(i) <= Pstprc_Idata(i)&Pstprc_Qdata(i);  --mark 1 delay
@@ -314,7 +320,7 @@ begin
       I_data               => I_data,
       DDS_phase_shift      => Pstprc_DPS(i),
       -- Pstprc_dps_en => Pstprc_dps_en,
-      rst_n                => rst_n,
+      rst_n                => rst_data_proc_n,
       Pstprc_en            => Pstprc_en,  --for debugging the timing error
       pstprc_num_frs       => pstprc_num_frs(i),
       Pstprc_RAMx_rden_stp => Pstprc_RAMq_rden_stp,
@@ -330,9 +336,9 @@ begin
     Pstprc_finish  <= Pstprc_finish_seq(0);  -- pstprc_finish_seq(pstprc_ch_num-1 downto 0) turn '1'                                        -- at the same time
     pstprc_add_stp <= Pstprc_add_stp_seq(0);
 
-    Pstprc_add_stp_d_ps: process (clk, rst_n) is
+    Pstprc_add_stp_d_ps: process (clk, rst_data_proc_n) is
     begin  -- process Pstprc_add_stp_d_ps
-      if rst_n = '0' then               -- asynchronous reset (active low)
+      if rst_data_proc_n = '0' then               -- asynchronous reset (active low)
         Pstprc_add_stp_d<='0';
       elsif clk'event and clk = '1' then  -- rising clock edge
         Pstprc_add_stp_d<=Pstprc_add_stp;
@@ -346,11 +352,11 @@ begin
   Estimator_gs : for i in 0 to 7 generate
     -- purpose: 将上位机下传的信号赋值给指定通道
     -- type   : sequential
-    -- inputs : clk, rst_n
+    -- inputs : clk, rst_data_proc_n
     -- outputs: 
-    Estmr_args_trans_ps : process (clk, rst_n) is
+    Estmr_args_trans_ps : process (clk, rst_data_proc_n) is
     begin  -- process Estmr_args_trans_ps
-      if rst_n = '0' then                 -- asynchronous reset (active low)
+      if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
         Estmr_A(i) <= (others => '0');
         Estmr_B(i) <= (others => '0');  --default 
         Estmr_C(i) <= (others => '0');
@@ -370,7 +376,7 @@ begin
 	 Pstprc_add_stp_sig <= Pstprc_add_stp or Pstprc_add_stp_d;
     Inst_Estimator : Estimator port map(
       clk            => clk_Estmr,        --250MHz clock
-      rst_n          => rst_n,
+      rst_n          => rst_feedback_n,
       A              => Estmr_A(i),
       B              => Estmr_B(i),
       C              => Estmr_C(i),
@@ -386,7 +392,7 @@ begin
 -----------------------------------------------------------------------------
 	Inst_Sync_data_FSM: Sync_data_FSM PORT MAP(
 		clk => clk_Estmr,
-		rst_n => rst_n,
+		rst_n => rst_feedback_n,
 		stat_rdy => stat_rdy(0),        --至少要从第0通道开始使用
 		sync_en => Estmr_sync_en,
                 state0 => state(0),
@@ -401,7 +407,7 @@ begin
         );
 -----------------------------------------------------------------------------
   	Inst_Oserdese: Oserdese PORT MAP(
-		rst_n => rst_n,
+		rst_n => rst_feedback_n,
 		clk => clk_Oserdes,     --500
 		clkdiv => clk_Estmr,    --250
 		D1 => Estmr_FSM_dout(0),
@@ -411,9 +417,9 @@ begin
 		OQ => Estmr_OQ
 	);
 -----------------------------------------------------------------------------
-  Pstprc_RAMx_rden_ln_ps : process (clk, rst_n) is
+  Pstprc_RAMx_rden_ln_ps : process (clk, rst_data_proc_n) is
   begin  -- process   Pstprc_RAMx_rden_ln_ps
-    if rst_n = '0' then                 -- asynchronous reset (active low)
+    if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
       Pstprc_RAMx_rden_ln <= (others => '0');
     elsif clk'event and clk = '1' then  -- rising clock edge
       Pstprc_RAMx_rden_ln <= cmd_smpl_depth(14 downto 3);
@@ -423,9 +429,9 @@ begin
 -----------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
-  IQ_sequence_ps : process (clk, rst_n) is
+  IQ_sequence_ps : process (clk, rst_data_proc_n) is
   begin  -- process IQ_sequence_ps
-    if rst_n = '0' then                 -- asynchronous reset (active low)
+    if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
       pstprc_IQ_seq_o <= (others => '0');
     elsif clk'event and clk = '1' then  -- rising clock edge
       case IQ_seq_cnt is
@@ -458,9 +464,9 @@ begin
     end if;
   end process IQ_sequence_ps;
 
-  IQ_seq_cnt_ps : process (clk, rst_n) is
+  IQ_seq_cnt_ps : process (clk, rst_data_proc_n) is
   begin  -- process IQ_seq_cnt_ps
-    if rst_n = '0' then                 -- asynchronous reset (active low)
+    if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
       IQ_seq_cnt <= x"c";
     elsif clk'event and clk = '1' then  -- rising clock edge
       if Pstprc_add_stp = '1' then
@@ -473,9 +479,9 @@ begin
     end if;
   end process IQ_seq_cnt_ps;
 
-  fifo_wren_ps : process (clk, rst_n) is
+  fifo_wren_ps : process (clk, rst_data_proc_n) is
   begin  -- process fifo_wren_ps
-    if rst_n = '0' then                 -- asynchronous reset (active low)
+    if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
       pstprc_fifo_wren <= '0';
     elsif clk'event and clk = '1' then  -- rising clock edge
       if IQ_seq_cnt = x"c" then
@@ -487,18 +493,18 @@ begin
   end process fifo_wren_ps;
 -----------------------------------------------------------------------------
 
-  Pstprc_RAMx_rden_d_ps : process (clk, rst_n) is
+  Pstprc_RAMx_rden_d_ps : process (clk, rst_data_proc_n) is
   begin  -- process Pstprc_RAMx_rden_d_ps
-    if rst_n = '0' then                 -- asynchronous reset (active low)
+    if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
       Pstprc_RAMq_rden_d <= '0';
     elsif clk'event and clk = '1' then  -- rising clock edge
       Pstprc_RAMq_rden_d <= Pstprc_RAMq_rden;
     end if;
   end process Pstprc_RAMx_rden_d_ps;
 
-  Adder_en_d_ps : process (clk, rst_n) is
+  Adder_en_d_ps : process (clk, rst_data_proc_n) is
   begin  -- process Pstprc_en_d_ps
-    if rst_n = '0' then                 -- asynchronous reset (active low)
+    if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
       Adder_en_d  <= '0';
       Adder_en_d2 <= '0';
     elsif clk'event and clk = '1' then  -- rising clock edge
@@ -507,7 +513,7 @@ begin
     end if;
   end process Adder_en_d_ps;
 
--- Pstprc_RAMq_rden_stp_d_ps : process (clk, rst_n) is
+-- Pstprc_RAMq_rden_stp_d_ps : process (clk, rst_data_proc_n) is
 -- begin  -- process Pstprc_RAMq_rden_stp_d    
 --   if clk'event and clk = '1' then     -- rising clock edge
 --     Pstprc_RAMq_rden_stp_d  <= Pstprc_RAMq_rden_stp;
@@ -515,27 +521,27 @@ begin
 --   end if;
 -- end process Pstprc_RAMq_rden_stp_d_ps;
 
--- Pstprc_add_stp_ps : process (clk, rst_n) is
+-- Pstprc_add_stp_ps : process (clk, rst_data_proc_n) is
 -- begin  -- process Pstprc_add_stp_ps
---   if rst_n = '0' then                 -- asynchronous reset (active low)
+--   if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
 --     Pstprc_add_stp <= '0';
 --   elsif clk'event and clk = '1' then  -- rising clock edge
 --     Pstprc_add_stp <= Pstprc_RAMq_rden_stp_d2;
 --   end if;
 -- end process Pstprc_add_stp_ps;
 
-  Adder_en_ps : process (clk, rst_n) is
+  Adder_en_ps : process (clk, rst_data_proc_n) is
   begin  -- process Adder_en_ps
-    if rst_n = '0' then                 -- asynchronous reset (active low)
+    if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
       Adder_en <= '0';
     elsif clk'event and clk = '1' then  -- rising clock edge
       Adder_en <= Pstprc_en;
     end if;
   end process Adder_en_ps;
 
-  Pstprc_en_d_ps : process (clk, rst_n) is
+  Pstprc_en_d_ps : process (clk, rst_data_proc_n) is
   begin  -- process Pstprc_en_d_ps
-    if rst_n = '0' then                 -- asynchronous reset (active low)
+    if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
       Pstprc_en_d <= '0';
     elsif clk'event and clk = '1' then  -- rising clock edge
       Pstprc_en_d <= Pstprc_en;

@@ -504,8 +504,15 @@ NET "TX_src_MAC_addr[3]" PULLUP;
 NET "user_pushbutton" CLOCK_DEDICATED_ROUTE = FALSE;
 NET "user_pushbutton" TIG;
 #set_false_path -to [get_nets ];
-NET "rst_n" TIG;
-NET "inst_crg_dcms/lck_rst_n" TIG;
+
+NET "Inst_sys_reset_proc/rst_data_n" TIG;
+NET "Inst_sys_reset_proc/rst_adc_n" TIG;
+NET "Inst_sys_reset_proc/rst_data_proc_n" TIG;
+NET "Inst_sys_reset_proc/rst_eth_r_n" TIG;
+NET "Inst_sys_reset_proc/rst_eth_t_n" TIG;
+NET "Inst_sys_reset_proc/rst_feedback_n" TIG;
+NET "Inst_sys_reset_proc/rst_config_n" TIG;
+
 #----
 #NET "SRCC1_p" LOC =N32;#j9
 #NET "SRCC1_n" LOC = P32; #J8

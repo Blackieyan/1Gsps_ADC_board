@@ -33,16 +33,16 @@ module RGMII_to_GMII(
   
   output			GMII_RX_CLK_o,		// the same copy of RXCLK_i
 
-  output [7:0]	GMII_RX_RXD_o,		// 8-bit RX data 
-  output			GMII_RX_DV_o,		// RX data valid
-  output			GMII_RX_ER_o		// error
+  //output [7:0]	GMII_RX_RXD_o,		// 8-bit RX data 
+  //output			GMII_RX_DV_o,		// RX data valid
+  //output			GMII_RX_ER_o		// error
 
 
- //-----\/----- EXCLUDED -----\/-----
-//  output reg[7:0]	GMII_RX_RXD_o,		// 8-bit RX data 
-//  output	reg		GMII_RX_DV_o,		// RX data valid
-//  output	reg		GMII_RX_ER_o		// error
- //-----/\----- EXCLUDED -----/\----- 
+
+ output reg[7:0]	GMII_RX_RXD_o,		// 8-bit RX data 
+ output	reg		GMII_RX_DV_o,		// RX data valid
+ output	reg		GMII_RX_ER_o		// error
+
 
 );
 

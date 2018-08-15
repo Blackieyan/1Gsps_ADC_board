@@ -47,7 +47,7 @@ end G_ehernet_Rx_data;
 
 architecture Behavioral of G_ehernet_Rx_data is
 -- constant MAC_addr : std_logic_vector(47 downto 0):=x"ffffffffffff";--
-   signal MAC_addr : std_logic_vector(47 downto 0):=x"000000000000";--板子的mac地址,配合上位机可以更改                                             
+   signal MAC_addr : std_logic_vector(47 downto 0):=x"000000000000";--板子的mac地址,配合上位机可以更改                                             
 -- signal PHY_RXC_g : std_logic;
 ---- signal Frm_valid : std_logic;
 -- signal frm_valid_d : std_logic;
@@ -55,24 +55,24 @@ architecture Behavioral of G_ehernet_Rx_data is
  
 	COMPONENT Mac_RX2
 	PORT(
-		reset : IN std_logic;
-		MAC_addr : IN std_logic_vector(47 downto 0);
-		Rd_Clk : IN std_logic;
-		Rd_en : IN std_logic;
-		Rd_Addr : IN std_logic_vector(13 downto 0);
-		PHY_RXD : IN std_logic_vector(3 downto 0);
-		PHY_RXC : IN std_logic;
-		PHY_RXDV : IN std_logic;          
-		Rd_data : OUT std_logic_vector(7 downto 0);
-		Frm_valid : OUT std_logic
-                -- buf_wr_en : out std_logic
+          reset : in std_logic;
+          MAC_addr : IN std_logic_vector(47 downto 0);
+          Rd_Clk : IN std_logic;
+          Rd_en : IN std_logic;
+          Rd_Addr : IN std_logic_vector(13 downto 0);
+          PHY_RXD : IN std_logic_vector(3 downto 0);
+          PHY_RXC : IN std_logic;
+          PHY_RXDV : IN std_logic;          
+          Rd_data : OUT std_logic_vector(7 downto 0);
+          Frm_valid : OUT std_logic
+         -- buf_wr_en : out std_logic
 		);
 	END COMPONENT;
 	
 begin
 
 Inst_Mac_RX2: Mac_RX2 PORT MAP(
-		reset => not rst_n,
+  reset => not rst_n,
 		MAC_addr => MAC_addr,
 		Rd_Clk => Rd_Clk,
 		Rd_en => Rd_en,
