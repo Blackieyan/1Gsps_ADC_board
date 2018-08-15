@@ -41,16 +41,12 @@ entity crg_dcms is
     ADC_CLKOI_p : in std_logic;
     ADC_CLKOI_n : in std_logic;
     CLK_EXT_250M : in std_logic;
-    -- ADC_CLKOQ_p : in std_logic;
-    -- ADC_CLKOQ_n : in std_logic;
     PHY_RXC : in std_logic;
     ADC_CLKOI : buffer std_logic;
     ADC_CLKOQ : out std_logic;
     PHY_RXC_g : out std_logic;
     ADC_clkoi_inv : out std_logic;
     ADC_clkoq_inv : out std_logic;
-    lck_rst_n : buffer std_logic;
-    user_pushbutton_g : in std_logic;
     CLK_125M : out std_logic;
     CLK_200M : out std_logic;
     CLK_250M : out std_logic;
@@ -69,7 +65,6 @@ architecture Behavioral of crg_dcms is
   signal clk3 : std_logic;
   signal clk4 : std_logic;
   signal clk5 : std_logic;
-  signal lck_rst_cnt : std_logic_vector(7 downto 0);
   component dcm_adc_clkoi
     port
       (                                 -- Clock in ports
@@ -194,31 +189,6 @@ begin
     end if;
   end process dcm1_locked_d_ps;
 
-  lck_rst_n_ps : process (CLK1, user_pushbutton_g) is
-  begin  -- process reset_n_ps
-    if user_pushbutton_g = '0' then     -- asynchronous reset (active low)
-      lck_rst_n <= '1';
-    elsif CLK1'event and CLK1 = '1' then  -- rising clock edge
-        if dcm1_locked_d = '1' and dcm1_locked_d2 = '0' then
-          lck_rst_n <= '0';
-        else
-          lck_rst_n <= '1';
-        end if;
-      end if;
-  end process lck_rst_n_ps;
-
-  -- lck_rst_cnt_ps: process (clk1, user_pushbutton_g) is
-  -- begin  -- process lck_rst_cnt_ps
-  --   if user_pushbutton_g = '0' then     -- asynchronous reset (active low)
-  --     lck_rst_cnt<=(others => '0');
-  --   elsif clk1'event and clk1 = '1' then  -- rising clock edge
-  --     if lck_rst_n<='0' then
-  --       lck_rst_cnt<=lck_rst_cnt+1;
-  --     elsif lck_rst_n<='1' then
-  --       lck_rst_cnt<=(others => '0');
-  --     end if;
-  --   end if;
-  -- end process lck_rst_cnt_ps;
 
 end Behavioral;
 

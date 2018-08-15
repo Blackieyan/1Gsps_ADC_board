@@ -36,9 +36,9 @@ use UNISIM.vcomponents.all;
 entity Pstprc_RAM_I is
   port(
     Pstprc_ram_wren     : in  std_logic;
-    
     posedge_sample_trig : in  std_logic;
-    rst_n               : in  std_logic;
+    rst_data_proc_n            : in     std_logic;
+    rst_adc_n             : in     std_logic;
     cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
     ---------------------------------------------------------------------------
     Pstprc_RAMi_clka    : in  std_logic;
@@ -112,14 +112,13 @@ begin
   -- ram_I_ena    <= Pstprc_ram_wren and (not Pstprc_RAMi_full);
   Pstprc_RAMi_wea(0) <= Pstprc_ram_wren and (not Pstprc_RAMi_full);
   -- ram_I_rstb         <= not rst_n;
-  clr_n_ram          <= rst_n;
   Pstprc_RAMi_full_o <= Pstprc_RAMi_full;
 -------------------------------------------------------------------------------
 
   -----------------------------------------------------------------------------
-  Pstprc_RAMi_addra_ps : process (Pstprc_RAMi_clka, clr_n_ram, posedge_sample_trig) is
+  Pstprc_RAMi_addra_ps : process (Pstprc_RAMi_clka, rst_adc_n, posedge_sample_trig) is
   begin  -- process addra_ps
-    if clr_n_ram = '0' then             -- asynchronous reset (active low)
+    if rst_adc_n = '0' then             -- asynchronous reset (active low)
       Pstprc_RAMi_addra <= (others => '0');
     elsif Pstprc_RAMi_clka'event and Pstprc_RAMi_clka = '1' then  -- rising clock edge
       if posedge_sample_trig = '1' then
@@ -132,9 +131,9 @@ begin
     end if;
   end process Pstprc_RAMi_addra_ps;
 
-  Pstprc_RAMi_full_ps : process (Pstprc_RAMi_clka, clr_n_ram, posedge_sample_trig) is
+  Pstprc_RAMi_full_ps : process (Pstprc_RAMi_clka, rst_adc_n, posedge_sample_trig) is
   begin  -- process addra_ps
-    if clr_n_ram = '0' then             -- asynchronous reset (active low)
+    if rst_adc_n = '0' then             -- asynchronous reset (active low)
       Pstprc_RAMi_full <= '0';
     elsif Pstprc_RAMi_clka'event and Pstprc_RAMi_clka = '1' then  -- rising clock edge
       if posedge_sample_trig = '1' then
@@ -151,11 +150,11 @@ begin
 
   -- purpose:  to generate addra ready flag
   -- type   : sequential
-  -- inputs : Pstprc_RAMi_clka, clr_n_ram
+  -- inputs : Pstprc_RAMi_clka, rst_adc_n
   -- outputs: 
-  Pstprc_addra_rdy_ps : process (Pstprc_RAMi_clka, clr_n_ram) is
+  Pstprc_addra_rdy_ps : process (Pstprc_RAMi_clka, rst_adc_n) is
   begin  -- process Pstprc_Addra_rdy_ps
-    if clr_n_ram = '0' then             -- asynchronous reset (active low)
+    if rst_adc_n = '0' then             -- asynchronous reset (active low)
       Pstprc_addra_rdy <= '0';
     elsif Pstprc_RAMi_clka'event and Pstprc_RAMi_clka = '1' then  -- the front side of the
                                         -- ram ,dont cross the
@@ -173,11 +172,11 @@ begin
 
   -- purpose:  to generate RAMi_rden
   -- type   : sequential
-  -- inputs : Pstprc_RAMi_clkb, clr_n_ram
+  -- inputs : Pstprc_RAMi_clkb, rst_data_proc_n
   -- outputs: 
-  Pstprc_RAMi_rden_ps : process (Pstprc_RAMi_clkb, clr_n_ram) is
+  Pstprc_RAMi_rden_ps : process (Pstprc_RAMi_clkb, rst_data_proc_n) is
   begin  -- process Pstprc_RAMi_rden_ps
-    if clr_n_ram = '0' then             -- asynchronous reset (active low)
+    if rst_data_proc_n = '0' then             -- asynchronous reset (active low)
       Pstprc_RAMi_rden <= '0';
     elsif Pstprc_RAMi_clkb'event and Pstprc_RAMi_clkb = '1' then  -- rising clock edge
       if Pstprc_RAMi_rden_cnt = Pstprc_RAMx_rden_ln then  --width of the
@@ -189,9 +188,9 @@ begin
     end if;
   end process Pstprc_RAMi_rden_ps;
 
-  Pstprc_RAMi_rden_cnt_ps : process (Pstprc_RAMi_clkb, clr_n_ram) is
+  Pstprc_RAMi_rden_cnt_ps : process (Pstprc_RAMi_clkb, rst_data_proc_n) is
   begin  -- process Pstprc_RAMi_rden_cnt_ps
-    if clr_n_ram = '0' then             -- asynchronous reset (active low)
+    if rst_data_proc_n = '0' then             -- asynchronous reset (active low)
       Pstprc_RAMi_rden_cnt <= (others => '0');
     elsif Pstprc_RAMi_clkb'event and Pstprc_RAMi_clkb = '1' then  -- rising clock edge
       if Pstprc_RAMi_rden = '0' then
@@ -202,9 +201,9 @@ begin
     end if;
   end process Pstprc_RAMi_rden_cnt_ps;
 
-  Pstprc_RAMi_rden_stp_ps : process (Pstprc_RAMi_clkb, clr_n_ram) is
+  Pstprc_RAMi_rden_stp_ps : process (Pstprc_RAMi_clkb, rst_data_proc_n) is
   begin  -- process Pstprc_RAMi_rden_stp_ps
-    if clr_n_ram = '0' then             -- asynchronous reset (active low)
+    if rst_data_proc_n = '0' then             -- asynchronous reset (active low)
       Pstprc_RAMi_rden_stp <= '0';
     elsif Pstprc_RAMi_clkb'event and Pstprc_RAMi_clkb = '1' then  -- rising clock edge
 --             if Pstprc_RAMi_rden = '0' and Pstprc_RAMi_rden_d = '1' then
@@ -217,9 +216,9 @@ begin
     end if;
   end process Pstprc_RAMi_rden_stp_ps;
 
-  Pstprc_RAMi_addrb_ps : process (Pstprc_RAMi_clkb, clr_n_ram) is
+  Pstprc_RAMi_addrb_ps : process (Pstprc_RAMi_clkb, rst_data_proc_n) is
   begin  -- process Pstprc_RAMi_addrb_ps
-    if clr_n_ram = '0' then             -- asynchronous reset (active low)
+    if rst_data_proc_n = '0' then             -- asynchronous reset (active low)
       Pstprc_RAMi_addrb <= ini_pstprc_RAMx_addrb;
     elsif Pstprc_RAMi_clkb'event and Pstprc_RAMi_clkb = '1' then  -- rising clock edge
       if Pstprc_RAMi_rden = '1' then
@@ -230,7 +229,7 @@ begin
     end if;
   end process Pstprc_RAMi_addrb_ps;
   -----------------------------------------------------------------------------
-  Pstprc_Addra_rdy_d_ps : process (Pstprc_RAMi_clka, clr_n_ram) is
+  Pstprc_Addra_rdy_d_ps : process (Pstprc_RAMi_clka, rst_adc_n) is
   begin  -- process Pstprc_Addra_rdy_d
     if Pstprc_RAMi_clka'event and Pstprc_RAMi_clka = '1' then  -- rising clock edge
       Pstprc_addra_rdy_d  <= Pstprc_addra_rdy;
@@ -240,7 +239,7 @@ begin
 
 
 
-  pstprc_RAMi_rden_d_ps : process (Pstprc_RAMi_clkb, clr_n_ram) is
+  pstprc_RAMi_rden_d_ps : process (Pstprc_RAMi_clkb, rst_data_proc_n) is
   begin  -- process pstprc_addr_rden_d_ps
     if Pstprc_RAMi_clkb'event and Pstprc_RAMi_clkb = '1' then  -- rising clock edge
       Pstprc_RAMi_rden_d <= Pstprc_RAMi_rden;

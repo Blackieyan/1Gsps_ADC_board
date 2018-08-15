@@ -35,27 +35,27 @@ use UNISIM.vcomponents.all;
 
 entity Win_RAM_top is
   port(
-    posedge_sample_trig : in  std_logic;
-    rst_n               : in  std_logic;
-    cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
+    posedge_sample_trig   : in     std_logic;
+    rst_adc_n             : in     std_logic;
+    rst_data_proc_n       : in     std_logic;
+    cmd_smpl_depth        : in     std_logic_vector(15 downto 0);
     ---------------------------------------------------------------------------
-    Pstprc_RAMq_dina    : in  std_logic_vector(31 downto 0);
-    Pstprc_RAMq_clka    : in  std_logic;
-    Pstprc_RAMq_clkb    : in  std_logic;
-    Pstprc_RAMq_doutb   : out std_logic_vector(63 downto 0);
-    Pstprc_RAMq_rden : buffer std_logic;
-    Pstprc_RAMq_rden_stp : out std_logic;
+    Pstprc_RAMq_dina      : in     std_logic_vector(31 downto 0);
+    Pstprc_RAMq_clka      : in     std_logic;
+    Pstprc_RAMq_clkb      : in     std_logic;
+    Pstprc_RAMq_doutb     : out    std_logic_vector(63 downto 0);
+    Pstprc_RAMq_rden      : buffer std_logic;
+    Pstprc_RAMq_rden_stp  : out    std_logic;
     ---------------------------------------------------------------------------
-    Pstprc_RAMI_dina    : in  std_logic_vector(31 downto 0);
-    Pstprc_RAMi_clka    : in  std_logic;
-    Pstprc_RAMi_clkb    : in  std_logic;
-    Pstprc_RAMI_doutb   : out std_logic_vector(63 downto 0);
+    Pstprc_RAMI_dina      : in     std_logic_vector(31 downto 0);
+    Pstprc_RAMi_clka      : in     std_logic;
+    Pstprc_RAMi_clkb      : in     std_logic;
+    Pstprc_RAMI_doutb     : out    std_logic_vector(63 downto 0);
     ---------------------------------------------------------------------------
     ---------------------------------------------------------------------------
-    -- DDS_phase_shift     : in  std_logic_vector(15 downto 0);
-    ini_pstprc_RAMx_addra : in  std_logic_vector(12 downto 0);
-    ini_pstprc_RAMx_addrb : in  std_logic_vector(11 downto 0);
-    Pstprc_RAMx_rden_ln   : in  std_logic_vector(11 downto 0)
+    ini_pstprc_RAMx_addra : in     std_logic_vector(12 downto 0);
+    ini_pstprc_RAMx_addrb : in     std_logic_vector(11 downto 0);
+    Pstprc_RAMx_rden_ln   : in     std_logic_vector(11 downto 0)
     );
 end Win_RAM_top;
 
@@ -63,54 +63,50 @@ architecture Behavioral of Win_RAM_top is
 
   -----------------------------------------------------------------------------
 
-  signal Pstprc_RAMx_addra     : std_logic_vector(12 downto 0);
-  signal Pstprc_RAMx_addrb     : std_logic_vector(11 downto 0);
-  signal Pstprc_RAMx_ena       : std_logic;
-  signal Pstprc_RAMx_enb       : std_logic;
-  signal Pstprc_RAMx_wea       : std_logic_vector(0 downto 0);
-  signal Pstprc_RAMx_rstb      : std_logic;
-  signal clr_n_ram             : std_logic;
-  signal Pstprc_RAMx_full      : std_logic;
-  signal Pstprc_addra_rdy      : std_logic;
-  signal Pstprc_addra_rdy_d    : std_logic;
-  signal Pstprc_addra_rdy_d2   : std_logic;
-  signal Pstprc_addra_ok       : std_logic;
-  signal Pstprc_RAMx_rden_cnt  : std_logic_vector(11 downto 0);
-  -- signal Pstprc_RAMx_rden      : std_logic;
-  signal pstprc_rami_rden_d    : std_logic;
-  -- signal ini_pstprc_ramx_addrb : std_logic_vector(11 downto 0);
-  -- signal ini_pstprc_ramx_addra : std_logic_vector(12 downto 0);
-  -- signal Pstprc_RAMx_rden_ln   : std_logic_vector(11 downto 0);
-  -- signal Pstprc_RAMx_rden_stp  : std_logic;
-  signal Pstprc_RAMq_rden_d    : std_logic;
-  signal pstprc_ram_wren : std_logic;
-  signal pstprc_ram_wren_cnt : std_logic_vector(11 downto 0);
-  signal Pstprc_RAMq_dina_d :std_logic_vector(31 downto 0);
-  signal Pstprc_RAMi_dina_d :std_logic_vector(31 downto 0);
+  signal Pstprc_RAMx_addra    : std_logic_vector(12 downto 0);
+  signal Pstprc_RAMx_addrb    : std_logic_vector(11 downto 0);
+  signal Pstprc_RAMx_ena      : std_logic;
+  signal Pstprc_RAMx_enb      : std_logic;
+  signal Pstprc_RAMx_wea      : std_logic_vector(0 downto 0);
+  signal Pstprc_RAMx_rstb     : std_logic;
+  signal clr_n_ram            : std_logic;
+  signal Pstprc_RAMx_full     : std_logic;
+  signal Pstprc_addra_rdy     : std_logic;
+  signal Pstprc_addra_rdy_d   : std_logic;
+  signal Pstprc_addra_rdy_d2  : std_logic;
+  signal Pstprc_addra_ok      : std_logic;
+  signal Pstprc_RAMx_rden_cnt : std_logic_vector(11 downto 0);
+  signal pstprc_rami_rden_d   : std_logic;
+  signal Pstprc_RAMq_rden_d   : std_logic;
+  signal pstprc_ram_wren      : std_logic;
+  signal pstprc_ram_wren_cnt  : std_logic_vector(11 downto 0);
+  signal Pstprc_RAMq_dina_d   : std_logic_vector(31 downto 0);
+  signal Pstprc_RAMi_dina_d   : std_logic_vector(31 downto 0);
   -----------------------------------------------------------------------------
-  signal Gcnt                : std_logic_vector(11 downto 0) := x"000";
-  signal clk_div_cnt         : std_logic_vector(7 downto 0):=x"00";
-  signal GCLK                : std_logic;
-  signal Gclk_d              : std_logic;
-  signal Gclk_d2             : std_logic;
-  signal O_Gcnt              : std_logic_vector(7 downto 0):=x"00";
-  constant Div_multi         : std_logic_vector(3 downto 0)  := "1010";
+  signal Gcnt                 : std_logic_vector(11 downto 0) := x"000";
+  signal clk_div_cnt          : std_logic_vector(7 downto 0)  := x"00";
+  signal GCLK                 : std_logic;
+  signal Gclk_d               : std_logic;
+  signal Gclk_d2              : std_logic;
+  signal O_Gcnt               : std_logic_vector(7 downto 0)  := x"00";
+  constant Div_multi          : std_logic_vector(3 downto 0)  := "1010";
   -----------------------------------------------------------------------------
   component Pstprc_RAM_Q
     port(
-      Pstprc_ram_wren     : in  std_logic;
-      posedge_sample_trig : in  std_logic;
-      rst_n               : in  std_logic;
-      cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
-      Pstprc_RAMq_clka    : in  std_logic;
-      Pstprc_RAMq_clkb    : in  std_logic;
-      Pstprc_RAMq_dina    : in  std_logic_vector(31 downto 0);
-      ini_pstprc_RAMx_addra : in  std_logic_vector(12 downto 0);
-      ini_pstprc_RAMx_addrb : in  std_logic_vector(11 downto 0);
-      Pstprc_RAMx_rden_ln   : in  std_logic_vector(11 downto 0);
-      Pstprc_RAMq_doutb   : out std_logic_vector(63 downto 0);
-      Pstprc_RAMq_rden : buffer std_logic;
-      Pstprc_RAMq_rden_stp : out std_logic
+      Pstprc_ram_wren       : in     std_logic;
+      posedge_sample_trig   : in     std_logic;
+      rst_data_proc_n            : in     std_logic;
+      rst_adc_n             : in     std_logic;
+      cmd_smpl_depth        : in     std_logic_vector(15 downto 0);
+      Pstprc_RAMq_clka      : in     std_logic;
+      Pstprc_RAMq_clkb      : in     std_logic;
+      Pstprc_RAMq_dina      : in     std_logic_vector(31 downto 0);
+      ini_pstprc_RAMx_addra : in     std_logic_vector(12 downto 0);
+      ini_pstprc_RAMx_addrb : in     std_logic_vector(11 downto 0);
+      Pstprc_RAMx_rden_ln   : in     std_logic_vector(11 downto 0);
+      Pstprc_RAMq_doutb     : out    std_logic_vector(63 downto 0);
+      Pstprc_RAMq_rden      : buffer std_logic;
+      Pstprc_RAMq_rden_stp  : out    std_logic
       );
   end component;
 
@@ -118,7 +114,8 @@ architecture Behavioral of Win_RAM_top is
     port(
       Pstprc_ram_wren       : in  std_logic;
       posedge_sample_trig   : in  std_logic;
-      rst_n                 : in  std_logic;
+      rst_data_proc_n            : in  std_logic;
+      rst_adc_n             : in  std_logic;
       cmd_smpl_depth        : in  std_logic_vector(15 downto 0);
       Pstprc_RAMi_clka      : in  std_logic;
       Pstprc_RAMi_clkb      : in  std_logic;
@@ -134,26 +131,28 @@ begin
 
 
   Inst_Pstprc_RAM_Q : Pstprc_RAM_Q port map(
-    Pstprc_ram_wren     => Pstprc_ram_wren,
-    posedge_sample_trig => posedge_sample_trig,
-    rst_n               => rst_n,
-    cmd_smpl_depth      => cmd_smpl_depth,
-    Pstprc_RAMq_clka    => Pstprc_RAMq_clka,
-    Pstprc_RAMq_clkb    => Pstprc_RAMq_clkb,
-    Pstprc_RAMq_dina    => Pstprc_RAMq_dina_d,
-    Pstprc_RAMq_doutb   => Pstprc_RAMq_doutb,
+    Pstprc_ram_wren       => Pstprc_ram_wren,
+    posedge_sample_trig   => posedge_sample_trig,
+    rst_adc_n             => rst_adc_n,
+    rst_data_proc_n       => rst_data_proc_n,
+    cmd_smpl_depth        => cmd_smpl_depth,
+    Pstprc_RAMq_clka      => Pstprc_RAMq_clka,
+    Pstprc_RAMq_clkb      => Pstprc_RAMq_clkb,
+    Pstprc_RAMq_dina      => Pstprc_RAMq_dina_d,
+    Pstprc_RAMq_doutb     => Pstprc_RAMq_doutb,
     ini_pstprc_RAMx_addra => ini_pstprc_RAMx_addra,
     ini_pstprc_RAMx_addrb => ini_pstprc_RAMx_addrb,
     Pstprc_RAMx_rden_ln   => Pstprc_RAMx_rden_ln,
-    Pstprc_RAMq_rden => Pstprc_RAMq_rden,
-    Pstprc_RAMq_rden_stp => Pstprc_RAMq_rden_stp
+    Pstprc_RAMq_rden      => Pstprc_RAMq_rden,
+    Pstprc_RAMq_rden_stp  => Pstprc_RAMq_rden_stp
     );
 
 
   Inst_Pstprc_RAM_I : Pstprc_RAM_I port map(
     Pstprc_ram_wren       => Pstprc_ram_wren,
     posedge_sample_trig   => posedge_sample_trig,
-    rst_n                 => rst_n,
+    rst_adc_n             => rst_adc_n,
+    rst_data_proc_n       => rst_data_proc_n,
     cmd_smpl_depth        => cmd_smpl_depth,
     Pstprc_RAMi_clka      => Pstprc_RAMi_clka,
     Pstprc_RAMi_clkb      => Pstprc_RAMi_clkb,
@@ -164,21 +163,21 @@ begin
     Pstprc_RAMx_rden_ln   => Pstprc_RAMx_rden_ln
     );
 
-  pstprc_RAMi_dina_ts: process (Pstprc_RAMq_clka, rst_n) is
+  pstprc_RAMi_dina_ts : process (Pstprc_RAMq_clka, rst_adc_n) is
   begin  -- process pstprc_RAMi_dina
-    if rst_n = '0' then                 -- asynchronous reset (active low)
-      pstprc_RAMi_dina_d<=(others => '0');
+    if rst_adc_n = '0' then             -- asynchronous reset (active low)
+      pstprc_RAMi_dina_d <= (others => '0');
     elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
-      pstprc_RAMi_dina_d<=pstprc_RAMi_dina;
+      pstprc_RAMi_dina_d <= pstprc_RAMi_dina;
     end if;
   end process pstprc_RAMi_dina_ts;
 
-    pstprc_RAMq_dina_ts: process (Pstprc_RAMq_clka, rst_n) is
+  pstprc_RAMq_dina_ts : process (Pstprc_RAMq_clka, rst_adc_n) is
   begin  -- process pstprc_Ramq_dina
-    if rst_n = '0' then                 -- asynchronous reset (active low)
-      pstprc_Ramq_dina_d<=(others => '0');
+    if rst_adc_n = '0' then             -- asynchronous reset (active low)
+      pstprc_Ramq_dina_d <= (others => '0');
     elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
-      pstprc_Ramq_dina_d<=pstprc_Ramq_dina;
+      pstprc_Ramq_dina_d <= pstprc_Ramq_dina;
     end if;
   end process pstprc_Ramq_dina_ts;
 -------------------------------------------------------------------------------  
@@ -206,84 +205,84 @@ begin
     end if;
   end process set_ADC_sclk;
 
-  Gclk_d_ps : process (Pstprc_RAMq_clka, rst_n) is
+  Gclk_d_ps : process (Pstprc_RAMq_clka, rst_adc_n) is
   begin  -- process Gclk_ps
-    if rst_n ='0' then
-      gclk_d<='0';
-   elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
+    if rst_adc_n = '0' then
+      gclk_d <= '0';
+  elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
       GCLK_d <= GCLK;
     end if;
   end process Gclk_d_ps;
 
-  Gclk_d2_ps : process (Pstprc_RAMq_clka, rst_n) is
+  Gclk_d2_ps : process (Pstprc_RAMq_clka, rst_adc_n) is
   begin  -- process Gclk_d2_ps
-    if rst_n ='0' then
-      gclk_d2<='0';
-    elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
+    if rst_adc_n = '0' then
+      gclk_d2 <= '0';
+  elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
       Gclk_d2 <= GCLK_d;
     end if;
-  end process Gclk_d2_ps;
+end process Gclk_d2_ps;
 
-  Gcnt_ps : process (Pstprc_RAMq_clka, GCLK_d, GCLK_d2, rst_n) is
-  begin
-    if rst_n = '0' then
-      gcnt <= (others => '0');
-    elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
-      if Gclk_d2 = '0' and Gclk_d = '1' then
-        -- elsif GCLK'event and GCLK = '1' then
+Gcnt_ps : process (Pstprc_RAMq_clka, GCLK_d, GCLK_d2, rst_adc_n) is
+begin
+  if rst_adc_n = '0' then
+    gcnt <= (others => '0');
+  elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
+    if Gclk_d2 = '0' and Gclk_d = '1' then
+      -- elsif GCLK'event and GCLK = '1' then
 -- if Gcnt <= x"ffffffff" then
-        Gcnt <= Gcnt+1;
-      end if;
+      Gcnt <= Gcnt+1;
     end if;
+  end if;
 -- end if; 
-  end process Gcnt_ps;
+end process Gcnt_ps;
 
 
 
-  O_Gcnt_ps : process (Pstprc_RAMq_clka, rst_n, GCLK_d, GCLK_d2) is
-  begin  -- process O_Gcnt_ps
-    if rst_n = '0' then
-      O_Gcnt <= (others => '0');
-    elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
+O_Gcnt_ps : process (Pstprc_RAMq_clka, rst_adc_n, GCLK_d, GCLK_d2) is
+begin  -- process O_Gcnt_ps
+  if rst_adc_n = '0' then
+    O_Gcnt <= (others => '0');
+  elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
+    if Gclk_d2 = '0' and Gclk_d = '1' then
+      -- elsif GCLK'event and GCLK = '1' then
+      if Gcnt = x"ffff" and O_Gcnt <= x"F5" then
+        O_Gcnt <= O_Gcnt+1;
+      else
+        O_Gcnt <= (others => '0');
+      end if;
+    end if;
+  end if;
+end process O_Gcnt_ps;
+
+
+pstprc_ram_wren_ps : process (Pstprc_RAMq_clka, rst_adc_n) is
+begin  -- process pstprc_ram_wren_ps
+  if rst_adc_n = '0' then               -- asynchronous reset (active low)
+    pstprc_ram_wren <= '0';
+  elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
+    if pstprc_ram_wren_cnt = x"3e1" then
+      pstprc_ram_wren <= '0';
+    elsif posedge_sample_trig = '1' then
+      pstprc_ram_wren <= '1';
+    end if;
+  end if;
+end process pstprc_ram_wren_ps;
+
+pstprc_ram_wren_cnt_ps : process (Pstprc_RAMq_clka, rst_adc_n) is
+begin  -- process pstprc_ram_wren_cnt_ps
+  if rst_adc_n = '0' then               -- asynchronous reset (active low)
+    pstprc_ram_wren_cnt <= (others => '0');
+  elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
+    if pstprc_ram_wren = '0' then
+      pstprc_ram_wren_cnt <= (others => '0');
+    elsif pstprc_ram_wren = '1' then
       if Gclk_d2 = '0' and Gclk_d = '1' then
-        -- elsif GCLK'event and GCLK = '1' then
-        if Gcnt = x"ffff" and O_Gcnt <= x"F5" then
-          O_Gcnt <= O_Gcnt+1;
-        else
-          O_Gcnt <= (others => '0');
-        end if;
+        pstprc_ram_wren_cnt <= pstprc_ram_wren_cnt+1;
       end if;
     end if;
-  end process O_Gcnt_ps;
+  end if;
+end process pstprc_ram_wren_cnt_ps;
 
-  
-  pstprc_ram_wren_ps: process (Pstprc_RAMq_clka, rst_n) is
-  begin  -- process pstprc_ram_wren_ps
-    if rst_n = '0' then                 -- asynchronous reset (active low)
-      pstprc_ram_wren<='0';
-    elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
-      if pstprc_ram_wren_cnt =x"3e1" then
-        pstprc_ram_wren<='0';
-      elsif posedge_sample_trig='1' then
-        pstprc_ram_wren<='1';
-      end if;
-    end if;
-  end process pstprc_ram_wren_ps;
-
-  pstprc_ram_wren_cnt_ps: process (Pstprc_RAMq_clka, rst_n) is
-  begin  -- process pstprc_ram_wren_cnt_ps
-    if rst_n = '0' then                 -- asynchronous reset (active low)
-      pstprc_ram_wren_cnt<=(others => '0');
-    elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
-      if pstprc_ram_wren ='0' then
-        pstprc_ram_wren_cnt<=(others => '0');
-      elsif pstprc_ram_wren='1' then
-        if Gclk_d2 = '0' and Gclk_d = '1'  then
-          pstprc_ram_wren_cnt<=pstprc_ram_wren_cnt+1;
-        end if;
-      end if;
-    end if;
-  end process pstprc_ram_wren_cnt_ps;
-  
 end Behavioral;
 

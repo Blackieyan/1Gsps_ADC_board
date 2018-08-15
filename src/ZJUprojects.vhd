@@ -350,6 +350,43 @@ architecture Behavioral of ZJUprojects is
   signal clk_EXT_500M_R : std_logic;
   signal Estmr_OQ : std_logic;
   -----------------------------------------------------------------------------
+  signal sys_rst_n_in    : std_logic;
+  signal sys_clk         : std_logic;
+  signal clk_adc         : std_logic;
+  signal clk_eth_r       : std_logic;
+  signal clk_eth_t       : std_logic;
+  signal clk_data_proc   : std_logic;
+  signal clk_data   : std_logic;
+  signal clk_feedback    : std_logic;
+  signal rst_data_n : std_logic;
+  signal rst_adc_n       : std_logic;
+  signal rst_eth_r_n     : std_logic;
+  signal rst_eth_t_n     : std_logic;
+  signal rst_data_proc_n : std_logic;
+  signal rst_feedback_n  : std_logic;
+  signal rst_config_n : std_logic;
+  -----------------------------------------------------------------------------
+  	COMPONENT sys_reset_proc
+	PORT(
+		sys_rst_n_in : IN std_logic;
+		sys_clk : IN std_logic;
+                clk_config : in std_logic;
+		clk_adc : IN std_logic;
+		clk_eth_r : IN std_logic;
+		clk_eth_t : IN std_logic;
+                clk_data : in std_logic;
+		clk_data_proc : IN std_logic;
+		clk_feedback : IN std_logic;
+                rst_data_n : out std_logic;
+                rst_config_n : out std_logic;
+		rst_adc_n : OUT std_logic;
+		rst_eth_r_n : OUT std_logic;
+                rst_eth_t_n : OUT std_logic;
+		rst_data_proc_n : OUT std_logic;
+		rst_feedback_n : OUT std_logic
+		);
+	END COMPONENT;
+  -----------------------------------------------------------------------------
   component CDCE62005_interface
     port(
       clk         : in  std_logic;
@@ -406,7 +443,8 @@ architecture Behavioral of ZJUprojects is
   component G_ethernet_top
     port(
       -- rst_n_gb_i                : in     std_logic;
-      user_pushbutton     : in  std_logic;
+      rst_eth_r_n         : in  std_logic;
+      rst_eth_t_n         : in  std_logic;
       fifo_upload_data    : in  std_logic_vector(7 downto 0);
       Rd_clk              : in  std_logic;
       Rd_en               : in  std_logic;
@@ -484,17 +522,13 @@ architecture Behavioral of ZJUprojects is
       OSC_in_n          : in     std_logic;
       ADC_CLKOI_p       : in     std_logic;
       ADC_CLKOI_n       : in     std_logic;
-      -- ADC_CLKOQ_p       : in  std_logic;
-      -- ADC_CLKOQ_n       : in  std_logic;
       CLK_EXT_250M : in std_logic;
       PHY_RXC           : in     std_logic;
-      user_pushbutton_g : in     std_logic;
       ADC_CLKOI         : buffer std_logic;
       ADC_CLKOQ         : out    std_logic;
       PHY_RXC_g         : out    std_logic;
       ADC_clkoi_inv     : out    std_logic;
       ADC_clkoq_inv     : out    std_logic;
-      lck_rst_n         : buffer std_logic;
       CLK_125M          : out    std_logic;
       CLK_200M          : out    std_logic;
       CLK_250M          : out    std_logic;
@@ -573,7 +607,8 @@ architecture Behavioral of ZJUprojects is
       clk_125M            : in  std_logic;
       -- ram_wren            : in  std_logic;
       posedge_sample_trig : in  std_logic;
-      rst_n               : in  std_logic;
+      rst_adc_n              : in  std_logic;
+      rst_data_n             : in  std_logic;
       cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
       ram_Q_dina          : in  std_logic_vector(31 downto 0);
       ram_Q_clka          : in  std_logic;
@@ -598,7 +633,9 @@ architecture Behavioral of ZJUprojects is
       clk                 : in  std_logic;
       -- pstprc_ram_wren : IN std_logic;
       posedge_sample_trig : in  std_logic;
-      rst_n               : in  std_logic;
+      rst_data_proc_n     : in  std_logic;
+      rst_adc_n           : in std_logic;
+      rst_feedback_n      : in  std_logic;
       cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
       Pstprc_RAMQ_dina    : in  std_logic_vector(31 downto 0);
       Pstprc_RAMQ_clka    : in  std_logic;
@@ -705,13 +742,30 @@ architecture Behavioral of ZJUprojects is
 ---------------------------------------------------------------------------------primitive instantiation       
 begin
 
+  Inst_sys_reset_proc: sys_reset_proc PORT MAP(
+    sys_rst_n_in => user_pushbutton ,
+    sys_clk => CLK_125M,
+    clk_adc => ADC_CLKOI,
+    clk_eth_r => PHY_RXC_g,
+    clk_eth_t => CLK_125M,
+    clk_data_proc => CLK_125M,
+    clk_feedback => CLK_EXT_250M_R,
+    clk_config=>clk_125M,
+    clk_data => clk_125M,
+    rst_data_n=>rst_data_n,
+    rst_config_n=>rst_config_n,
+    rst_adc_n => rst_adc_n,
+    rst_eth_r_n => rst_eth_r_n,
+    rst_eth_t_n => rst_eth_t_n,
+    rst_data_proc_n =>rst_data_proc_n, 
+    rst_feedback_n => rst_feedback_n
+    );
+
   Inst_crg_dcms : crg_dcms port map(
     OSC_in_p          => OSC_in_p,
     OSC_in_n          => OSC_in_n,
     ADC_CLKOI_p       => ADC_CLKOI_p,
     ADC_CLKOI_n       => ADC_CLKOI_n,
-    -- ADC_CLKOQ_p       => ADC_CLKOQ_p,
-    -- ADC_CLKOQ_n       => ADC_CLKOQ_n,
     CLK_EXT_250M =>CLK_EXT_250M,
     PHY_RXC           => PHY_RXC,
     ADC_CLKOI         => ADC_CLKOI,
@@ -719,8 +773,6 @@ begin
     PHY_RXC_g         => PHY_RXC_g,
     ADC_clkoi_inv     => ADC_clkoi_inv,
     ADC_clkoq_inv     => ADC_clkoq_inv,
-    lck_rst_n         => lck_rst_n,
-    user_pushbutton_g => user_pushbutton_g,
     CLK_125M          => CLK_125M,
     CLK_200M          => CLK_200M,
     CLK_250M          => CLK_250M,
@@ -729,14 +781,14 @@ begin
     CLK_125M_quar     => CLK_125M_quar
     );
 
-  IBUFG_inst : IBUFG
-    generic map (
-      IBUF_LOW_PWR => false,  -- Low power (TRUE) vs. performance (FALSE) setting for refernced I/O standards
-      IOSTANDARD   => "DEFAULT")
-    port map (
-      O => user_pushbutton_g,           -- Clock buffer output
-      I => user_pushbutton  -- Clock buffer input (connect directly to top-level port)
-      );
+  -- IBUFG_inst : IBUFG
+  --   generic map (
+  --     IBUF_LOW_PWR => false,  -- Low power (TRUE) vs. performance (FALSE) setting for refernced I/O standards
+  --     IOSTANDARD   => "DEFAULT")
+  --   port map (
+  --     O => user_pushbutton_g,           -- Clock buffer output
+  --     I => user_pushbutton  -- Clock buffer input (connect directly to top-level port)
+  --     );
 
   Inst_DATAin_IOB : DATAin_IOB port map(
     CLK_200M     => CLK_200M,
@@ -764,7 +816,7 @@ begin
 -------------------------------------------------------------------------------
   Inst_ADC_interface : ADC_interface port map(
     ADC_Mode        => ADC_Mode,
-    user_pushbutton => rst_n,
+    user_pushbutton => rst_config_n,
     ADC_sclk_OUT    => ADC_sclk_OUT,
     ADC_sldn_OUT    => ADC_sldn_OUT,
     ADC_sdata       => ADC_sdata,
@@ -776,7 +828,7 @@ begin
 
   Inst_CDCE62005_interface : CDCE62005_interface port map(
     clk         => CLK_125M,
-    rst_n       => rst_n,
+    rst_n       => rst_config_n,
     spi_clk     => spi_clk,
     spi_mosi    => spi_mosi,
     spi_miso    => spi_miso,
@@ -819,7 +871,7 @@ begin
   ------------------------------------------------------------------------------ 
   Inst_TRIG_ctrl : TRIG_ctrl port map(
     clk                   => ADC_CLKOI,
-    rst_n                 => rst_n,
+    rst_n                 => rst_adc_n,
     cmd_smpl_en           => cmd_smpl_en,
     cmd_smpl_trig_cnt     => cmd_smpl_trig_cnt,
     ram_start             => ram_start,
@@ -834,7 +886,8 @@ begin
     PHY_GTXclk_quar     => PHY_GTXclk_quar,
     phy_txen_quar       => phy_txen_quar,
     phy_txer_o          => phy_txer_o,
-    user_pushbutton     => rst_n,
+    rst_eth_r_n     => rst_eth_r_n,
+    rst_eth_t_n     => rst_eth_t_n,
     rst_n_o             => phy_rst_n_o,
     fifo_upload_data    => ethernet_fifo_upload_data,
     Rd_clk              => ethernet_Rd_clk,
@@ -867,7 +920,7 @@ begin
     frm_type             => cmd_frm_type,
     ram_start            => ram_start,
     upload_trig_ethernet => upload_trig_ethernet,
-    rst_n                => rst_n,
+    rst_n                => rst_data_n,
     TX_dst_MAC_addr      => TX_dst_MAC_addr,
     cmd_smpl_en          => cmd_smpl_en,
     cmd_smpl_depth       => cmd_smpl_depth,
@@ -894,7 +947,7 @@ begin
     );
   -----------------------------------------------------------------------------
   Inst_Channel_switch : Channel_switch port map(
-    rst_n                 => rst_n,
+    rst_n                 => rst_data_n,
     CLK                   => CLK_125M,
     cmd_pstprc_IQ_sw      => cmd_pstprc_IQ_sw,
     posedge_sample_trig   => posedge_sample_trig,
@@ -981,7 +1034,8 @@ begin
     clk_125m            => clk_125m,
     -- ram_wren            => ram_wren,
     posedge_sample_trig => CW_wave_smpl_trig,
-    rst_n               => rst_n,
+    rst_adc_n           => rst_adc_n,
+    rst_data_n          => rst_data_n,
     cmd_smpl_depth      => cmd_smpl_depth,
     ram_Q_dina          => ram_Q_dina,
     ram_Q_clka          => ram_Q_clka,
@@ -1011,7 +1065,9 @@ begin
     clk_Oserdes         => CLK_EXT_500M_R,
     -- pstprc_ram_wren     => pstprc_ram_wren,
     posedge_sample_trig => CW_demo_smpl_trig,
-    rst_n               => rst_n,
+    rst_data_proc_n     => rst_data_proc_n,
+    rst_adc_n           => rst_adc_n,
+    rst_feedback_n      => rst_feedback_n,
     cmd_smpl_depth      => cmd_smpl_depth,
     Pstprc_RAMQ_dina    => Pstprc_RAMQ_dina,
     Pstprc_RAMQ_clka    => Pstprc_RAMQ_clka,
@@ -1046,7 +1102,7 @@ begin
   pstprc_ram_wren  <= ram_wren;
   -----------------------------------------------------------------------------
   Inst_Pstprc_fifo_top : Pstprc_fifo_top port map(
-    rst_n               => rst_n,
+    rst_n               => rst_data_proc_n,
     Pstprc_fifo_wr_clk  => clk_125M,    --same with the clk in dmog_seg
     Pstprc_fifo_rd_clk  => clk_125M,    --same with the clk in pstprc
     Pstprc_fifo_din     => Pstprc_IQ_seq_o,
@@ -1060,16 +1116,16 @@ begin
     );
   ------------------------------------------------------------------------------
   -- SRCC1_p         <= CLK_250M;     --j12
-  rst_n_a <= user_pushbutton_g and lck_rst_n;
 
 
-  BUFG_inst : BUFG
-    port map (
-      O => rst_n,                       -- 1-bit output: Clock buffer output
-      I => rst_n_a                      -- 1-bit input: Clock buffer input
-      );
 
+  -- BUFG_inst : BUFG
+  --   port map (
+  --     O => rst_n,                       -- 1-bit output: Clock buffer output
+  --     I => rst_n_a                      -- 1-bit input: Clock buffer input
+  --     );
 
+-------------------------------------------------------------------------------
      OBUFDS_inst : OBUFDS
    generic map (
       IOSTANDARD => "DEFAULT")
