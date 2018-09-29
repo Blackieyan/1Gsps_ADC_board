@@ -129,11 +129,11 @@ begin
     end if;
   end process ram_I_full_ps;
 
-  ram_I_addrb_ps : process (rst_data_n, clr_n_ram) is
+  ram_I_addrb_ps : process (ram_I_clkb, rst_data_n) is
   begin  -- process addrb_ps
-    if clr_n_ram = '0' then
+    if rst_data_n = '0' then
       ram_I_addrb <= (others => '0');
-    elsif rst_data_n'event and rst_data_n = '1' then       -- rising clock edge
+    elsif ram_I_clkb'event and ram_I_clkb = '1' then       -- rising clock edge
       if posedge_sample_trig = '1' then
         ram_I_addrb <= (others => '0');  --edit at 8.25 for a bug
       elsif ram_I_rden = '1' then
@@ -145,11 +145,11 @@ begin
     end if;
   end process ram_I_addrb_ps;
 
-  ram_I_last_ps : process (rst_data_n, clr_n_ram) is
+  ram_I_last_ps : process (ram_I_clkb, rst_data_n) is
   begin  -- process addrb_ps
-    if clr_n_ram = '0' then
+    if rst_data_n = '0' then
       ram_I_last <= '1';
-    elsif rst_data_n'event and rst_data_n = '1' then       -- rising clock edge
+    elsif ram_I_clkb'event and ram_I_clkb = '1' then       -- rising clock edge
       if posedge_sample_trig = '1' then
         ram_I_last <= '0';                                 --edit at 11.9
       elsif ram_I_rden = '1' then

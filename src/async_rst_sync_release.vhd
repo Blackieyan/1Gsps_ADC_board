@@ -48,10 +48,10 @@ begin
 process (clk, async_rst_n_in) is
 begin  -- process
   if async_rst_n_in = '0' then          -- asynchronous reset (active
-    sync_rst_n_out<='1';
-    rst_n_buffer<='1';
+    sync_rst_n_out<='0';
+    rst_n_buffer<='0';
   elsif clk'event and clk = '1' then    -- rising clock edge
-    rst_n_buffer <= '0';
+    rst_n_buffer <= '1';
     sync_rst_n_out<=rst_n_buffer;
   end if;
 end process;

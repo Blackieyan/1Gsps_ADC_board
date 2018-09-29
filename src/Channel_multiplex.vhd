@@ -175,7 +175,7 @@ begin
   
 
 
-CM_ram_rden_ps: process (clk, rst_n, ram_rden, CH_stat_d4) is
+CM_ram_rden_ps: process (rst_n, ram_rden, CH_stat_d5) is
 begin  -- process CM_ram_rden_ps
   if rst_n = '0' then                   -- asynchronous reset (active low)
     CM_Ram_I_rden_o<=ram_rden;
@@ -222,7 +222,7 @@ end process CH_flag_ps;
 -- type   : sequential
 -- inputs : clk, rst_n
 -- outputs: 
-CM_RAM_QI_data_o_ps: process (clk, rst_n, CH_stat_d4, Ram_Q_doutb, Ram_I_doutb) is
+CM_RAM_QI_data_o_ps: process (rst_n, CH_stat_d4, Ram_Q_doutb, Ram_I_doutb) is
 begin  -- process SM_RAM_QI_data_o_ps
   -- if clk'event and clk = '1' then  -- rising clock edge
     -- if data_strobe ='0' then

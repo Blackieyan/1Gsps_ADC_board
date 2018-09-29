@@ -33,9 +33,13 @@ module RGMII_to_GMII(
   
   output			GMII_RX_CLK_o,		// the same copy of RXCLK_i
 
-  //output [7:0]	GMII_RX_RXD_o,		// 8-bit RX data 
-  //output			GMII_RX_DV_o,		// RX data valid
-  //output			GMII_RX_ER_o		// error
+
+/* -----\/----- EXCLUDED -----\/-----
+  output [7:0]	GMII_RX_RXD_o,		// 8-bit RX data 
+  output			GMII_RX_DV_o,		// RX data valid
+  output			GMII_RX_ER_o		// error
+ -----/\----- EXCLUDED -----/\----- */
+
 
 
 
@@ -62,6 +66,7 @@ module RGMII_to_GMII(
 
 	assign GMII_RX_CLK_o = RXCLK_i;
 // on rising edge
+
 
 
    always @(posedge RXCLK_i)
@@ -101,10 +106,11 @@ module RGMII_to_GMII(
 		end
 	end		// end always	posedge RXCLK_i	
 
-//	assign GMII_RX_ER_o = RX_CTL ^ GMII_RX_DV_o;
-
 
 /* -----\/----- EXCLUDED -----\/-----
+	assign GMII_RX_ER_o = RX_CTL ^ GMII_RX_DV_o;
+
+
 
    genvar i;
    generate
@@ -142,6 +148,7 @@ module RGMII_to_GMII(
 			    .R(reset),   // 1-bit reset
 			    .S(0)    // 1-bit set
 			    );
+
  -----/\----- EXCLUDED -----/\----- */
 
 
