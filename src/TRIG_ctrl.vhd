@@ -41,6 +41,7 @@ entity TRIG_ctrl is
     cmd_smpl_trig_cnt : in std_logic_vector(15 downto 0);
     ram_start : in std_logic;           --force trig from ethernet
     SRCC1_p_trigin : in std_logic;
+    SRCC1_p_trigout : out std_logic;
     posedge_sample_trig_o : out std_logic
     );
 end TRIG_ctrl;
@@ -132,6 +133,8 @@ begin
        trigin_d2<=trigin_d;
     end if;
   end process SRCC1_p_trigin_d_ps;
+  
+  SRCC1_p_trigout<=trigin_d2;
 
  posedge_sample_trig_ps: process (CLK) is
   begin  -- process SRCC1_p_trigin_d_ps
@@ -141,7 +144,7 @@ begin
   end process  posedge_sample_trig_ps;
 
   posedge_sample_trig <= posedge_sample_trig_s or posedge_sample_trig_f;
-  --    upload_trig_ethernet_d_ps: process (CLK, rst_n) is
+  --    upload_trig_ethernet_d_ps: process (CLK, rst_n) isA
   -- begin  -- process trig_in_ps
   --   if rst_n = '0' then                 -- asynchronous reset (active low)
   --     upload_trig_ethernet_d<='0';

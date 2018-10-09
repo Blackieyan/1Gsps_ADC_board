@@ -84,6 +84,14 @@ entity ZJUprojects is
     -- MRCC1_p                   : out std_logic;  --J10
     -- MRCC2_n                   : out   std_logic_vector(0 downto 0); -- pinsfor test
     ---------------------------------------------------------------------------
+	 
+	 
+	 -----------------------------SelfAdpt----------------------------------------------
+	 cmd_adpt_n		  : in	 std_logic;--enable SelfAdpt
+	 adpt_led		  : out	 std_logic;
+	 trig_monitor	  : out	 std_logic;
+	 -----------------------------SelfAdpt----------------------------------------------
+	 
     PHY_RXD         : in    std_logic_vector(3 downto 0);
     PHY_RXC         : in    std_logic;
     PHY_RXDV        : in    std_logic;
@@ -366,6 +374,11 @@ architecture Behavioral of ZJUprojects is
   signal rst_feedback_n  : std_logic;
   signal rst_config_n : std_logic;
   -----------------------------------------------------------------------------
+  signal SRCC1_p_trigout : std_logic;
+  signal cmd_adpt 		 : std_logic;
+  signal SelfAdpt_trig 	 : std_logic;
+  -----------------------------------------------------------------------------
+  
   	COMPONENT sys_reset_proc
 	PORT(
 		sys_rst_n_in : IN std_logic;
@@ -570,6 +583,7 @@ architecture Behavioral of ZJUprojects is
       cmd_smpl_trig_cnt     : in  std_logic_vector(15 downto 0);
       ram_start             : in  std_logic;
       SRCC1_p_trigin        : in  std_logic;
+      SRCC1_p_trigout 		 : out std_logic;
       posedge_sample_trig_o : out std_logic
       );
   end component;
@@ -677,6 +691,19 @@ architecture Behavioral of ZJUprojects is
       Pstprc_fifo_valid   : out std_logic;
       Pstprc_fifo_pempty  : out std_logic;
       pstprc_fifo_alempty : out std_logic
+      );
+  end component;
+  -----------------------------------------------------------------------------
+  component SelfAdpt
+    port(
+      clk250              : in  std_logic;
+      clk200  				  : in  std_logic;
+      rst_n  				  : in  std_logic;
+      cmd_adpt     		  : in  std_logic;
+      trig_input    		  : in  std_logic;--trig signal from DA board
+		trig_from_trig_ctrl : in  std_logic;
+      trig_output    	  : out std_logic;--trig signgal after IODELAY
+      adpt_led    		  : out std_logic--the Self-adaption completion mark
       );
   end component;
 -------------------------------------------------------------------------------
@@ -875,7 +902,8 @@ begin
     cmd_smpl_en           => cmd_smpl_en,
     cmd_smpl_trig_cnt     => cmd_smpl_trig_cnt,
     ram_start             => ram_start,
-    SRCC1_p_trigin        => SRCC1_p_trigin,
+    SRCC1_p_trigin        => SelfAdpt_trig,--trig from IODELAYE1
+    SRCC1_p_trigout       => SRCC1_p_trigout,--trig from IODELAYE1
     posedge_sample_trig_o => posedge_sample_trig
     );
 
@@ -1115,6 +1143,19 @@ begin
     pstprc_fifo_alempty => pstprc_fifo_alempty
     );
   ------------------------------------------------------------------------------
+  Inst_SelfAdpt : SelfAdpt port map(
+	 clk250					=>ADC_CLKOI,
+	 clk200					=>CLK_200M,
+	 rst_n					=>rst_adc_n,
+	 cmd_adpt				=>cmd_adpt,
+	 trig_input				=>SRCC1_p_trigin,--trig from DA board
+	 trig_from_trig_ctrl	=>SRCC1_p_trigout,--trig from Trig_ctrl
+	 trig_output			=>SelfAdpt_trig,--trig from IODELAYE1
+	 adpt_led				=>adpt_led
+	 );
+	 
+	 cmd_adpt <= NOT cmd_adpt_n;
+  ------------------------------------------------------------------------------
   -- SRCC1_p         <= CLK_250M;     --j12
 
 
@@ -1136,6 +1177,7 @@ begin
       );
   
   ethernet_rd_clk <= CLK_125M;
+  trig_monitor    <= SRCC1_p_trigout;
   
     -- BUFG_inst2 : BUFG
     -- port map (

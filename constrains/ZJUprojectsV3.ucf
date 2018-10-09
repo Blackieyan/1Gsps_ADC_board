@@ -384,7 +384,7 @@ TIMESPEC TS_DFFItoPSTPRCRAM = FROM "DFFI" TO "PSTPRC_RAMI" 4 ns;
 NET "PHY_GTXclk_quar" LOC = AL33;
 NET "PHY_GTXclk_quar" TNM_NET = "PHY_GTXclk_quar";
 TIMESPEC TS_PHY_GTXclk_quar = PERIOD "PHY_GTXclk_quar" 8 ns HIGH 50 %;
-TIMEGRP "TXD_GRP" = TMN "TXD";
+TIMEGRP TXD_GRP =  "TMN" "TXD";
 TIMEGRP "TXD_GRP" OFFSET = OUT 2 ns VALID 4 ns BEFORE "PHY_GTXclk_quar" RISING;
 TIMEGRP "TXD_GRP" OFFSET = OUT 2 ns VALID 4 ns BEFORE "PHY_GTXclk_quar" FALLING;
 NET "PHy_txen_quar" LOC = AN33;
@@ -412,15 +412,17 @@ NET "Inst_crg_dcms/dcm_rxc_inst/CLK_IN1" LOC = B31;
 #NET "PHY_RXC" CLOCK_DEDICATED_ROUTE = FALSE;
 NET "PHY_RXC" TNM_NET = "PHY_RXC";
 TIMESPEC TS_PHY_RXC = PERIOD "PHY_RXC" 8 ns HIGH 50 %;
-TIMEGRP "RXD_GRP" = TMN "RXD";
+TIMEGRP RXD_GRP =  "TMN" "RXD";
 TIMEGRP "RXD_GRP" OFFSET = IN 2 ns VALID 4 ns BEFORE "PHY_RXC" RISING;
 TIMEGRP "RXD_GRP" OFFSET = IN 2 ns VALID 4 ns BEFORE "PHY_RXC" FALLING;
 NET "PHY_RXDV" LOC = AK31;
 #---------------------------------------
 #j31
 NET "SRCC1_p_trigin" LOC = L20;
-NET "Estmr_OQ_p" LOC = N32;#j9
-NET "Estmr_OQ_n" LOC = P32;#j8
+#j9
+NET "Estmr_OQ_p" LOC = N32;
+#j8
+NET "Estmr_OQ_n" LOC = P32;
 #J32
 #NET "Estmr_OQ" LOC = L21;
 NET "Inst_crg_dcms/dcm_ext_dac_inst/CLK_IN1" LOC = D11;
@@ -527,27 +529,36 @@ NET "Inst_sys_reset_proc/rst_config_n" TIG;
 
 
 NET "Estmr_OQ_p" SLEW = FAST;
+NET "Estmr_OQ_n" SLEW = FAST;
 NET "Estmr_OQ_p" DRIVE = 24;
 
 
 #NET "Estmr_OQ" IOSTANDARD = LVCMOS25;
 
-# PlanAhead Generated IO constraints 
-NET "SRCC1_p_trigin" IOSTANDARD = LVCMOS18;
+NET "SRCC1_p_trigin" IOSTANDARD = LVCMOS25;
 #Created by Constraints Editor (xc6vlx240t-ff1156-2) - 2018/05/17
-NET "clk_EXT_250M" TNM_NET = clk_EXT_250M;
-TIMESPEC TS_clk_EXT_250M = PERIOD "clk_EXT_250M" 4 ns HIGH 50%;
+NET "clk_EXT_250M" TNM_NET = "clk_EXT_250M";
+TIMESPEC TS_clk_EXT_250M = PERIOD "clk_EXT_250M" 4 ns HIGH 50 %;
 #TIMESPEC TS_clk_EXT_250M_R = PERIOD "clk_EXT_250M_R" 8 ns HIGH 50%;
-TIMESPEC TS_CLK1toEXT250_TIG = FROM "Inst_crg_dcms_dcm_global_clkout1" TO "clk_EXT_250M_R" TIG;
+TIMESPEC TS_CLK1toEXT250_TIG = FROM "Inst_crg_dcms_dcm_global_clkout1" TO "clk_EXT_250M_R" TIG ;
 
 
-TIMESPEC TS_RXCtoCLK1_TIG = FROM "PHY_RXC" TO "Inst_crg_dcms_dcm_global_clkout1" TIG;
-TIMESPEC TS_RXCtoCLK2_TIG = FROM "PHY_RXC" TO "Inst_crg_dcms_dcm_global_clkout2" TIG;
-TIMESPEC TS_RXCtoCLK3_TIG = FROM "PHY_RXC" TO "Inst_crg_dcms_dcm_global_clkout3" TIG;
+TIMESPEC TS_RXCtoCLK1_TIG = FROM "PHY_RXC" TO "Inst_crg_dcms_dcm_global_clkout1" TIG ;
+TIMESPEC TS_RXCtoCLK2_TIG = FROM "PHY_RXC" TO "Inst_crg_dcms_dcm_global_clkout2" TIG ;
+TIMESPEC TS_RXCtoCLK3_TIG = FROM "PHY_RXC" TO "Inst_crg_dcms_dcm_global_clkout3" TIG ;
 
-TIMESPEC TS_ADCtoCLK1_TIG = FROM "ADC_CLKOI_p" TO "Inst_crg_dcms_dcm_global_clkout1" TIG;
-TIMESPEC TS_ADCtoCLK2_TIG = FROM "ADC_CLKOI_p" TO "Inst_crg_dcms_dcm_global_clkout2" TIG;
-TIMESPEC TS_ADCtoCLK3_TIG = FROM "ADC_CLKOI_p" TO "Inst_crg_dcms_dcm_global_clkout3" TIG;
+TIMESPEC TS_ADCtoCLK1_TIG = FROM "ADC_CLKOI_p" TO "Inst_crg_dcms_dcm_global_clkout1" TIG ;
+TIMESPEC TS_ADCtoCLK2_TIG = FROM "ADC_CLKOI_p" TO "Inst_crg_dcms_dcm_global_clkout2" TIG ;
+TIMESPEC TS_ADCtoCLK3_TIG = FROM "ADC_CLKOI_p" TO "Inst_crg_dcms_dcm_global_clkout3" TIG ;
 #Created by Constraints Editor (xc6vlx240t-ff1156-2) - 2018/06/25
-TIMESPEC TS_RXCtoEXT250_TIG = FROM "PHY_RXC" TO "clk_EXT_250M_R" TIG;
+TIMESPEC TS_RXCtoEXT250_TIG = FROM "PHY_RXC" TO "clk_EXT_250M_R" TIG ;
+
+##########################SelfAdpt############################################
+NET "cmd_adpt_n" LOC = H28;
+NET "adpt_led" LOC = T30;
+NET "trig_monitor" LOC = C22;
+INST "Inst_SelfAdpt/IDELAYCTRL_inst" LOC = IDELAYCTRL_X1Y4;
+INST "Inst_SelfAdpt/IODELAYE1_inst2" LOC = IODELAY_X1Y162;
+##########################SelfAdpt############################################
+
 
