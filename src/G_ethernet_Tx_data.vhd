@@ -58,6 +58,7 @@ entity G_ethernet_Tx_data is
     mult_frame_en : in std_logic;
     sw_ram_last : in std_logic;
     data_strobe : out std_logic;
+    tx_rdy : out std_logic;
     ether_trig : in std_logic
     );
 end G_ethernet_Tx_data;
@@ -315,10 +316,14 @@ begin
         end if;
       elsif mult_frame_en_d2='0' and frame_gap='0' and busy ='0' then  --保证了死时间。以防下次外部触发太快。
       
-      -- trig_i<=upload_sma_trigin or upload_ethernet_trigin or upload_wren_trigin;
+--       trig_i<=upload_sma_trigin or upload_ethernet_trigin or upload_wren_trigin;
         
 --可以通过sma trig读ram，上位机读ram，写ram(上位机，sma)这三个统计来控制trig_i
         trig_i<=ether_trig;
+		else
+			if Trig_i_cnt = x"A" then
+          trig_i <= '0';
+        end if;
       end if;
     end if;
   end process trig_i_ps;
@@ -481,7 +486,19 @@ begin
         next_state<=ini_state;
     end case;
   end process CHANGE_STATE_ps;
-
+  
+  tx_rdy_ps: process (clk_125m, rst_n) is
+  begin  -- process FSM_output
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+      tx_rdy<='0';
+    elsif clk_125m'event and clk_125m = '1' then  -- rising clock edge
+        case current_state is
+			  when ini_state => 	tx_rdy<='1';
+			  when others => 		tx_rdy<='0';
+		  end case;
+	 end if;
+  end process tx_rdy_ps;
+  
   FSM_output: process (clk_125m, rst_n) is
   begin  -- process FSM_output
     if rst_n = '0' then                 -- asynchronous reset (active low)

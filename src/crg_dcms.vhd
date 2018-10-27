@@ -47,10 +47,12 @@ entity crg_dcms is
     PHY_RXC_g : out std_logic;
     ADC_clkoi_inv : out std_logic;
     ADC_clkoq_inv : out std_logic;
+    REF_SRAM : out std_logic;
+    CLK_SRAM : out std_logic;
     CLK_125M : out std_logic;
     CLK_200M : out std_logic;
-    CLK_250M : out std_logic;
-    CLK_500M : out std_logic;
+--    CLK_250M : out std_logic;
+--    CLK_500M : out std_logic;
     CLK_EXT_500M : out std_logic;
     CLK_125M_quar : out std_logic
     );
@@ -65,6 +67,8 @@ architecture Behavioral of crg_dcms is
   signal clk3 : std_logic;
   signal clk4 : std_logic;
   signal clk5 : std_logic;
+  signal clk6 : std_logic;
+  signal clk7 : std_logic;
   component dcm_adc_clkoi
     port
       (                                 -- Clock in ports
@@ -105,7 +109,9 @@ architecture Behavioral of crg_dcms is
         CLK_OUT2  : out std_logic;
         clk_out3  : out std_logic;
         CLK_OUT4          : out    std_logic;
-        CLK_OUT5 : out std_logic;
+--        CLK_OUT5 : out std_logic;
+--        CLK_OUT6 : out std_logic;
+--        CLK_OUT7 : out std_logic;
         locked    : out std_logic
         );
   end component;
@@ -116,7 +122,9 @@ port
   CLK_IN1           : in     std_logic;
   -- CLKFB_IN          : in     std_logic;
   -- Clock out ports
-  CLK_OUT1          : out    std_logic
+  CLK_OUT1          : out    std_logic;
+  CLK_OUT2          : out    std_logic;
+  CLK_OUT3          : out    std_logic
   -- CLKFB_OUT         : out    std_logic
  );
 end component;
@@ -125,9 +133,10 @@ begin
   CLK_125M<=CLK1;
   CLK_125M_quar<=CLK2;
   CLK_200M<=CLK3;
-  CLK_250M<=CLK4;
-  CLK_500M<=CLK5;
-  
+--  CLK_250M<=CLK4;
+--  CLK_500M<=CLK5;
+  CLK_SRAM <= CLK4;
+  REF_SRAM <= CLK3;
   dcm2 : dcm_adc_clkoi
     port map
     (                                   -- Clock in ports
@@ -160,7 +169,9 @@ begin
       CLK_OUT2  => CLK2,
       CLK_OUT3  => CLK3,
       CLK_OUT4  => CLK4,
-      CLK_OUT5 => CLK5,                 --500MHz for Oserdes in Estmr module 
+--      CLK_OUT5 => CLK5,                 --500MHz for Oserdes in Estmr module 
+--      CLK_OUT6 => CLK6,                 --500MHz for Oserdes in Estmr module 
+--      CLK_OUT7 => CLK7,                 --500MHz for Oserdes in Estmr module 
       locked    => dcm1_locked
       );
 
@@ -169,7 +180,8 @@ begin
     (                                   -- Clock in ports
       CLK_IN1  => PHY_RXC,
       -- Clock out ports
-      CLK_OUT1 => PHY_RXC_g);
+      CLK_OUT1 => PHY_RXC_g
+		);
 
   dcm_ext_dac_inst : dcm_ext_dac
   port map
@@ -177,7 +189,9 @@ begin
      -- CLKFB_IN1 => CLKFB_IN,
     CLK_IN1 => CLK_EXT_250M,
     -- Clock out ports
-    CLK_OUT1 => CLK_EXT_500M
+    CLK_OUT1 => CLK_EXT_500M,
+    CLK_OUT2 => open,
+    CLK_OUT3 => open 
     -- CLKFB_OUT => CLKFB_OUT
     );
 -------------------------------------------------------------------------------

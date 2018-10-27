@@ -73,6 +73,7 @@ entity G_ethernet_top is
     mult_frame_en               : in     std_logic;
     sw_ram_last : in std_logic;
     data_strobe : out std_logic;
+    tx_rdy : out std_logic; --只用于解模模式数据传输
     ether_trig : in std_logic
     );
 end G_ethernet_top; 
@@ -119,6 +120,7 @@ architecture Behavioral of G_ethernet_top is
       mult_frame_en               : in     std_logic;
       sw_ram_last : in std_logic;
       data_strobe :out std_logic;
+      tx_rdy :out std_logic;
       ether_trig : in std_logic
       );
   end component;
@@ -180,6 +182,7 @@ begin
     mult_frame_en              => mult_frame_en,
     sw_ram_last =>sw_ram_last,                                                    
     data_strobe =>data_strobe,
+    tx_rdy =>tx_rdy,
     ether_trig =>ether_trig                                                    
     );
 

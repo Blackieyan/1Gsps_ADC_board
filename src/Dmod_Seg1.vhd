@@ -136,6 +136,7 @@ architecture Behavioral of Dmod_Seg is
   signal Estmr_C : Estmr_CC;
   signal state : Estmr_state;
   signal Estmr_FSM_dout : std_logic_vector(3 downto 0);
+  signal pstprc_IQ_seq_o_int : std_logic_vector(63 downto 0);
   signal Pstprc_add_stp_d : std_logic;
   signal Pstprc_add_stp_sig : std_logic;
   
@@ -428,11 +429,25 @@ begin
 
 -----------------------------------------------------------------------------
 -------------------------------------------------------------------------------
-
+--process (clk, rst_data_proc_n) is
+--  begin  -- process fifo_wren_ps
+--    if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
+--      pstprc_IQ_seq_o_int <= (others => '0');
+--    elsif clk'event and clk = '1' then  -- rising clock edge
+--      if IQ_seq_cnt = x"c" then
+--        pstprc_IQ_seq_o_int <= pstprc_IQ_seq_o_int;
+--      else
+--        pstprc_IQ_seq_o_int(63 downto 32) <= pstprc_IQ_seq_o_int(63 downto 32) + '1';
+--        pstprc_IQ_seq_o_int(31 downto 0) <= pstprc_IQ_seq_o_int(31 downto 0) + '1';
+--      end if;
+--    end if;
+--  end process;
+------------------------------
+--pstprc_IQ_seq_o <= pstprc_IQ_seq_o_int;
   IQ_sequence_ps : process (clk, rst_data_proc_n) is
   begin  -- process IQ_sequence_ps
     if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
-      pstprc_IQ_seq_o <= (others => '0');
+      pstprc_IQ_seq_o <= (others => '1');
     elsif clk'event and clk = '1' then  -- rising clock edge
       case IQ_seq_cnt is
         when x"0" =>

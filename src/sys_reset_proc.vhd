@@ -35,6 +35,7 @@ entity sys_reset_proc is
   port(
     sys_rst_n_in : in std_logic;
     sys_clk : in std_logic;
+    sram_cal_done : in std_logic;
     clk_config : in std_logic;
     clk_adc : in std_logic;
     clk_eth_r : in std_logic;
@@ -54,6 +55,7 @@ end sys_reset_proc;
 
 architecture Behavioral of sys_reset_proc is
   
+  signal rst_active_cnt : std_logic_vector(3 downto 0);
   signal rst_cnt : std_logic_vector(19 downto 0);
   signal rst_active : std_logic;
   signal sys_rst_data_n : std_logic;
@@ -109,13 +111,24 @@ begin
 		sync_rst_n_out => rst_feedback_n
 	);
 
+
+
   sys_rst_n_in_ps : process (sys_clk, sys_rst_n_in) is
   begin  -- process sys_rst_n_in_ps
     if sys_rst_n_in = '0' then  -- asynchronous reset (active low)
       rst_cnt <= (others => '0');
+		rst_active_cnt <= (others => '0');
     elsif sys_clk'event and sys_clk = '1' then  -- rising clock edge
       if rst_cnt(19)= '0' then
         rst_cnt <= rst_cnt+1;
+		else
+			if(rst_active_cnt < x"3") then
+				rst_active_cnt <= rst_active_cnt + '1';
+				rst_cnt <= (others => '0');
+			elsif(sram_cal_done = '0') then
+				rst_cnt <= (others => '0');
+				rst_active_cnt <= (others => '0');
+			end if;
       end if;
     end if;
 end process sys_rst_n_in_ps;

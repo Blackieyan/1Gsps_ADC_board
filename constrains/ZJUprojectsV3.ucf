@@ -423,7 +423,12 @@ NET "Estmr_OQ_p" LOC = N32;#j9
 NET "Estmr_OQ_n" LOC = P32;#j8
 #J32
 #NET "Estmr_OQ" LOC = L21;
-NET "Inst_crg_dcms/dcm_ext_dac_inst/CLK_IN1" LOC = D11;
+#NET "Inst_crg_dcms/dcm_ext_dac_inst/CLK_IN1" LOC = D11;
+NET "OSC_in_p" TNM_NET = "OSC_in_grp"; 
+NET "clk_EXT_250M" TNM_NET = "clk_EXT_250M_grp"; 
+NET "clk_EXT_250M" LOC = D11;
+
+TIMESPEC "TS_tig" = FROM "OSC_in_grp" TO "clk_EXT_250M_grp" TIG;
 
 # J33
 #-------
@@ -550,4 +555,116 @@ TIMESPEC TS_ADCtoCLK2_TIG = FROM "ADC_CLKOI_p" TO "Inst_crg_dcms_dcm_global_clko
 TIMESPEC TS_ADCtoCLK3_TIG = FROM "ADC_CLKOI_p" TO "Inst_crg_dcms_dcm_global_clkout3" TIG;
 #Created by Constraints Editor (xc6vlx240t-ff1156-2) - 2018/06/25
 TIMESPEC TS_RXCtoEXT250_TIG = FROM "PHY_RXC" TO "clk_EXT_250M_R" TIG;
+
+
+####################################SRAM constraint
+############################################################################
+# Current User selected PinOut                                             #
+############################################################################
+NET  "cal_done"		 LOC = "U25" ;
+NET  "qdriip_bw_n[0]"		 LOC = "AL20" ;
+NET  "qdriip_bw_n[1]"		 LOC = "AH20" ;
+NET  "qdriip_bw_n[2]"		 LOC = "AH22" ;
+NET  "qdriip_bw_n[3]"		 LOC = "AN22" ;
+NET  "qdriip_cq_n[0]"		 LOC = "AE33" ;
+NET  "qdriip_cq_p[0]"		 LOC = "AD30" ;
+NET  "qdriip_d[0]"		 LOC = "AP19" ;
+NET  "qdriip_d[10]"		 LOC = "AP20" ;
+NET  "qdriip_d[11]"		 LOC = "AM18" ;
+NET  "qdriip_d[12]"		 LOC = "AL19" ;
+NET  "qdriip_d[13]"		 LOC = "AG20" ;
+NET  "qdriip_d[14]"		 LOC = "AF20" ;
+NET  "qdriip_d[15]"		 LOC = "AD19" ;
+NET  "qdriip_d[16]"		 LOC = "AC19" ;
+NET  "qdriip_d[17]"		 LOC = "AN20" ;
+NET  "qdriip_d[18]"		 LOC = "AP21" ;
+NET  "qdriip_d[19]"		 LOC = "AC20" ;
+NET  "qdriip_d[1]"		 LOC = "AN18" ;
+NET  "qdriip_d[20]"		 LOC = "AF21" ;
+NET  "qdriip_d[21]"		 LOC = "AG22" ;
+NET  "qdriip_d[22]"		 LOC = "AJ22" ;
+NET  "qdriip_d[23]"		 LOC = "AK22" ;
+NET  "qdriip_d[24]"		 LOC = "AL23" ;
+NET  "qdriip_d[25]"		 LOC = "AM21" ;
+NET  "qdriip_d[26]"		 LOC = "AP22" ;
+NET  "qdriip_d[27]"		 LOC = "AD21" ;
+NET  "qdriip_d[28]"		 LOC = "AE21" ;
+NET  "qdriip_d[29]"		 LOC = "AG21" ;
+NET  "qdriip_d[2]"		 LOC = "AN19" ;
+NET  "qdriip_d[30]"		 LOC = "AJ21" ;
+NET  "qdriip_d[31]"		 LOC = "AK21" ;
+NET  "qdriip_d[32]"		 LOC = "AL21" ;
+NET  "qdriip_d[33]"		 LOC = "AM23" ;
+NET  "qdriip_d[34]"		 LOC = "AN23" ;
+NET  "qdriip_d[35]"		 LOC = "AM22" ;
+NET  "qdriip_d[3]"		 LOC = "AL18" ;
+NET  "qdriip_d[4]"		 LOC = "AK19" ;
+NET  "qdriip_d[5]"		 LOC = "AJ20" ;
+NET  "qdriip_d[6]"		 LOC = "AF19" ;
+NET  "qdriip_d[7]"		 LOC = "AE19" ;
+NET  "qdriip_d[8]"		 LOC = "AD20" ;
+NET  "qdriip_d[9]"		 LOC = "AM20" ;
+NET  "qdriip_dll_off_n"		 LOC = "AJ27" ;
+NET  "qdriip_k_n[0]"		 LOC = "AH24" ;
+NET  "qdriip_k_p[0]"		 LOC = "AH23" ;
+NET  "qdriip_q[0]"		 LOC = "AB30" ;
+NET  "qdriip_q[10]"		 LOC = "AC28" ;
+NET  "qdriip_q[11]"		 LOC = "AA33" ;
+NET  "qdriip_q[12]"		 LOC = "AC25" ;
+NET  "qdriip_q[13]"		 LOC = "AA30" ;
+NET  "qdriip_q[14]"		 LOC = "AD29" ;
+NET  "qdriip_q[15]"		 LOC = "AB28" ;
+NET  "qdriip_q[16]"		 LOC = "AB26" ;
+NET  "qdriip_q[17]"		 LOC = "AB25" ;
+NET  "qdriip_q[18]"		 LOC = "AF31" ;
+NET  "qdriip_q[19]"		 LOC = "AG32" ;
+NET  "qdriip_q[1]"		 LOC = "AA28" ;
+NET  "qdriip_q[20]"		 LOC = "AC32" ;
+NET  "qdriip_q[21]"		 LOC = "AC34" ;
+NET  "qdriip_q[22]"		 LOC = "AF33" ;
+NET  "qdriip_q[23]"		 LOC = "AE34" ;
+NET  "qdriip_q[24]"		 LOC = "AD32" ;
+NET  "qdriip_q[25]"		 LOC = "AC30" ;
+NET  "qdriip_q[26]"		 LOC = "AG31" ;
+NET  "qdriip_q[27]"		 LOC = "AA31" ;
+NET  "qdriip_q[28]"		 LOC = "AD31" ;
+NET  "qdriip_q[29]"		 LOC = "AC33" ;
+NET  "qdriip_q[2]"		 LOC = "AB27" ;
+NET  "qdriip_q[30]"		 LOC = "AD34" ;
+NET  "qdriip_q[31]"		 LOC = "AB32" ;
+NET  "qdriip_q[32]"		 LOC = "AB31" ;
+NET  "qdriip_q[33]"		 LOC = "AF34" ;
+NET  "qdriip_q[34]"		 LOC = "AE31" ;
+NET  "qdriip_q[35]"		 LOC = "AG33" ;
+NET  "qdriip_q[3]"		 LOC = "AA26" ;
+NET  "qdriip_q[4]"		 LOC = "AA25" ;
+NET  "qdriip_q[5]"		 LOC = "AA29" ;
+NET  "qdriip_q[6]"		 LOC = "AC27" ;
+NET  "qdriip_q[7]"		 LOC = "AA34" ;
+NET  "qdriip_q[8]"		 LOC = "Y26" ;
+NET  "qdriip_q[9]"		 LOC = "AC29" ;
+#NET  "qdriip_qvld[0]"		 LOC = "AB33" ;
+NET  "qdriip_r_n"		 LOC = "AK27" ;
+NET  "qdriip_sa[0]"		 LOC = "AK28" ;
+NET  "qdriip_sa[10]"		 LOC = "AP30" ;
+NET  "qdriip_sa[11]"		 LOC = "AH28" ;
+NET  "qdriip_sa[12]"		 LOC = "AJ25" ;
+NET  "qdriip_sa[13]"		 LOC = "AM30" ;
+NET  "qdriip_sa[14]"		 LOC = "AN30" ;
+NET  "qdriip_sa[15]"		 LOC = "AN29" ;
+NET  "qdriip_sa[16]"		 LOC = "AL28" ;
+NET  "qdriip_sa[17]"		 LOC = "AH27" ;
+NET  "qdriip_sa[18]"		 LOC = "AH25" ;
+NET  "qdriip_sa[1]"		 LOC = "AG25" ;
+NET  "qdriip_sa[2]"		 LOC = "AK29" ;
+NET  "qdriip_sa[3]"		 LOC = "AG26" ;
+NET  "qdriip_sa[4]"		 LOC = "AN28" ;
+NET  "qdriip_sa[5]"		 LOC = "AM28" ;
+NET  "qdriip_sa[6]"		 LOC = "AP29" ;
+NET  "qdriip_sa[7]"		 LOC = "AL29" ;
+NET  "qdriip_sa[8]"		 LOC = "AN27" ;
+NET  "qdriip_sa[9]"		 LOC = "AP31" ;
+NET  "qdriip_w_n"		 LOC = "AM27" ;
+#INST "*/inst_SRAM/u_infrastructure/u_bufg_clk0"  LOC="BUFGCTRL_X0Y31";
+#INST "*/inst_SRAM/u_infrastructure/u_mmcm_gen"      LOC = "MMCM_ADV_"; #Banks 
 

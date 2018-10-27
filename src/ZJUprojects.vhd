@@ -96,33 +96,22 @@ entity ZJUprojects is
     phy_rst_n_o     : out std_logic;
     clk_EXT_250M : in std_logic;
     Estmr_OQ_p        : out std_logic;
-    Estmr_OQ_n        : out std_logic
+    Estmr_OQ_n        : out std_logic;
 
 
    ---------------------------------------------------------------------------
-   -- qdriip_cq_p                : in std_logic_vector(NUM_DEVICES-1 downto 0); --Memory Interface
-   -- qdriip_cq_n                : in std_logic_vector(NUM_DEVICES-1 downto 0);
-   -- qdriip_q                   : in std_logic_vector(DATA_WIDTH-1 downto 0);
-   -- qdriip_k_p                 : out std_logic_vector(NUM_DEVICES-1 downto 0);
-   -- qdriip_k_n                 : out std_logic_vector(NUM_DEVICES-1 downto 0);
-   -- qdriip_d                   : out std_logic_vector(DATA_WIDTH-1 downto 0);
-   -- qdriip_sa                  : out std_logic_vector(ADDR_WIDTH-1 downto 0);
-   -- qdriip_w_n                 : out std_logic;
-   -- qdriip_r_n                 : out std_logic;
-   -- qdriip_bw_n                : out std_logic_vector(BW_WIDTH-1 downto 0);
-   -- qdriip_dll_off_n           : out std_logic;
-   -- cal_done                   : out std_logic;
-   -- user_wr_cmd0               : in std_logic;      --User interface
-   -- user_wr_addr0              : in std_logic_vector(ADDR_WIDTH-1 downto 0);
-   -- user_rd_cmd0               : in std_logic;
-   -- user_rd_addr0              : in std_logic_vector(ADDR_WIDTH-1 downto 0);
-   -- user_wr_data0              : in std_logic_vector(DATA_WIDTH*BURST_LEN-1 downto 0);
-   -- user_wr_bw_n0              : in std_logic_vector(BW_WIDTH*BURST_LEN-1 downto 0);
-   -- ui_clk                     : out std_logic;
-   -- ui_clk_sync_rst            : out std_logic;
-   -- user_rd_valid0             : out std_logic;
-   -- user_rd_data0              : out std_logic_vector(DATA_WIDTH*BURST_LEN-1 downto 0);
-   -- sys_rst          : in std_logic
+   qdriip_cq_p : IN std_logic_vector(0 to 0);
+	qdriip_cq_n : IN std_logic_vector(0 to 0);
+	qdriip_q : IN std_logic_vector(35 downto 0);         
+	qdriip_k_p : OUT std_logic_vector(0 to 0);
+	qdriip_k_n : OUT std_logic_vector(0 to 0);
+	qdriip_d : OUT std_logic_vector(35 downto 0);
+	qdriip_sa : OUT std_logic_vector(18 downto 0);
+	qdriip_w_n : OUT std_logic;
+	qdriip_r_n : OUT std_logic;
+	qdriip_bw_n : OUT std_logic_vector(3 downto 0);
+	qdriip_dll_off_n : OUT std_logic;
+	cal_done : OUT std_logic
    ---------------------------------------------------------------------------              
     );
 end ZJUprojects;
@@ -274,6 +263,8 @@ architecture Behavioral of ZJUprojects is
   signal cmd_pstprc_num_en            : std_logic;
   signal cmd_Pstprc_num               : std_logic_vector(3 downto 0);
   -----------------------------------------------------------------------------
+  
+  signal sram_cal_done                : std_logic;
   signal dcm1_locked                  : std_logic;
   signal dcm1_locked_d                : std_logic;
   signal dcm1_locked_d2               : std_logic;
@@ -298,6 +289,7 @@ architecture Behavioral of ZJUprojects is
   -- signal fft_xk_im_I : std_logic_vector(7 downto 0);
   -- signal fft_ovflo_I : std_logic;
   -----------------------------------------------------------------------------
+  signal tx_rdy : std_logic;
   signal upld_finish                  : std_logic;
   signal CW_CH_flag                   : std_logic_vector(7 downto 0);
   signal ch_stat                      : std_logic_vector(1 downto 0);
@@ -328,6 +320,7 @@ architecture Behavioral of ZJUprojects is
   signal Pstprc_fifo_din     : std_logic_vector(63 downto 0);
   signal Pstprc_DPS_en       : std_logic;
   signal Pstprc_finish       : std_logic;
+  signal Pstprc_finish_out   : std_logic;
   signal Pstprc_fifo_wren    : std_logic;
   -- signal pstprc_rs : std_logic;
   signal pstprc_fifo_dout    : std_logic_vector(7 downto 0);
@@ -343,6 +336,8 @@ architecture Behavioral of ZJUprojects is
   signal cmd_Estmr_B             : std_logic_vector(31 downto 0);
   signal cmd_Estmr_C             : std_logic_vector(63 downto 0);
   signal cmd_Estmr_sync_en       : std_logic;
+  signal REF_SRAM            : std_logic;
+  signal CLK_SRAM            : std_logic;
   signal clk_500M            : std_logic;
   signal clk_ext_500m : std_logic;
   signal clk_EXT_250M_g : std_logic;
@@ -365,10 +360,12 @@ architecture Behavioral of ZJUprojects is
   signal rst_data_proc_n : std_logic;
   signal rst_feedback_n  : std_logic;
   signal rst_config_n : std_logic;
+  
   -----------------------------------------------------------------------------
   	COMPONENT sys_reset_proc
 	PORT(
 		sys_rst_n_in : IN std_logic;
+		sram_cal_done : IN std_logic;
 		sys_clk : IN std_logic;
                 clk_config : in std_logic;
 		clk_adc : IN std_logic;
@@ -477,6 +474,7 @@ architecture Behavioral of ZJUprojects is
       mult_frame_en       : in  std_logic;
       sw_ram_last         : in  std_logic;
       data_strobe         : out std_logic;
+      tx_rdy         : out std_logic;
       ether_trig          : in  std_logic
       );
   end component;
@@ -529,10 +527,12 @@ architecture Behavioral of ZJUprojects is
       PHY_RXC_g         : out    std_logic;
       ADC_clkoi_inv     : out    std_logic;
       ADC_clkoq_inv     : out    std_logic;
+      REF_SRAM          : out    std_logic;
+      CLK_SRAM          : out    std_logic;
       CLK_125M          : out    std_logic;
       CLK_200M          : out    std_logic;
-      CLK_250M          : out    std_logic;
-      CLK_500M : out std_logic;
+--      CLK_250M          : out    std_logic;
+--      CLK_500M : out std_logic;
       CLK_EXT_500M :out std_logic;
       CLK_125M_quar     : out    std_logic
       );
@@ -666,12 +666,30 @@ architecture Behavioral of ZJUprojects is
   -----------------------------------------------------------------------------
   component Pstprc_fifo_top
     port(
+	   ui_clk_in : IN std_logic;
+	   clk_200M : IN std_logic;
+		clk_125M : IN std_logic;
+		qdriip_cq_p : IN std_logic_vector(0 to 0);
+		qdriip_cq_n : IN std_logic_vector(0 to 0);
+		qdriip_q : IN std_logic_vector(35 downto 0);         
+		qdriip_k_p : OUT std_logic_vector(0 to 0);
+		qdriip_k_n : OUT std_logic_vector(0 to 0);
+		qdriip_d : OUT std_logic_vector(35 downto 0);
+		qdriip_sa : OUT std_logic_vector(18 downto 0);
+		qdriip_w_n : OUT std_logic;
+		qdriip_r_n : OUT std_logic;
+		qdriip_bw_n : OUT std_logic_vector(3 downto 0);
+		qdriip_dll_off_n : OUT std_logic;
+		cal_done : OUT std_logic;
       rst_n               : in  std_logic;
       Pstprc_fifo_wr_clk  : in  std_logic;
       Pstprc_fifo_rd_clk  : in  std_logic;
       Pstprc_fifo_din     : in  std_logic_vector(63 downto 0);
       Pstprc_fifo_wren    : in  std_logic;
       Pstprc_fifo_rden    : in  std_logic;
+      tx_rdy    : in  std_logic;
+      Pstprc_finish_in     : in  std_logic;
+      Pstprc_finish_out    : out  std_logic;
       -- prog_empty_thresh   : in  std_logic_vector(6 downto 0);
       Pstprc_fifo_dout    : out std_logic_vector(7 downto 0);
       Pstprc_fifo_valid   : out std_logic;
@@ -744,6 +762,7 @@ begin
 
   Inst_sys_reset_proc: sys_reset_proc PORT MAP(
     sys_rst_n_in => user_pushbutton ,
+    sram_cal_done => sram_cal_done ,
     sys_clk => CLK_125M,
     clk_adc => ADC_CLKOI,
     clk_eth_r => PHY_RXC_g,
@@ -773,10 +792,12 @@ begin
     PHY_RXC_g         => PHY_RXC_g,
     ADC_clkoi_inv     => ADC_clkoi_inv,
     ADC_clkoq_inv     => ADC_clkoq_inv,
+    REF_SRAM          => REF_SRAM,
+    CLK_SRAM          => CLK_SRAM,
     CLK_125M          => CLK_125M,
     CLK_200M          => CLK_200M,
-    CLK_250M          => CLK_250M,
-    CLK_500M          => CLK_500M,
+--    CLK_250M          => CLK_250M,
+--    CLK_500M          => CLK_500M,
     CLK_EXT_500M => CLK_EXT_500M,
     CLK_125M_quar     => CLK_125M_quar
     );
@@ -911,6 +932,7 @@ begin
     mult_frame_en       => CW_mult_frame_en,
     sw_ram_last         => sw_ram_last,
     Data_strobe         => data_strobe,
+    tx_rdy         => tx_rdy,
     ether_trig          => CW_ether_trig
     );
 -------------------------------------------------------------------------------
@@ -958,7 +980,7 @@ begin
     Ram_rden              => Ram_rden,
     pstprc_fifo_data      => pstprc_fifo_dout,
     Pstprc_fifo_pempty    => pstprc_fifo_pempty,
-    pstprc_finish         => pstprc_finish,
+    pstprc_finish         => Pstprc_finish_out,
     CM_Ram_Q_rden_o       => CM_Ram_Q_rden,
     CM_Ram_I_rden_o       => CM_Ram_I_rden,
     CW_Pstprc_fifo_rden_o => CW_Pstprc_fifo_rden,
@@ -1100,9 +1122,31 @@ begin
   Pstprc_RAMQ_dina <= ADC_DOQB_2_d&ADC_DOQA_2_d&ADC_DOQB_1_d&ADC_DOQA_1_d;
   Pstprc_RAMI_dina <= ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
   pstprc_ram_wren  <= ram_wren;
+  cal_done  <= sram_cal_done;
+  
   -----------------------------------------------------------------------------
   Inst_Pstprc_fifo_top : Pstprc_fifo_top port map(
     rst_n               => rst_data_proc_n,
+	 ---------------------------------------------------
+	 ui_clk_in                   => CLK_SRAM,
+	 CLK_125M                   => clk_125M,
+    CLK_200M                   => REF_SRAM,
+    qdriip_cq_p                => qdriip_cq_p,
+    qdriip_cq_n                => qdriip_cq_n,
+    qdriip_q                   => qdriip_q,
+    qdriip_k_p                 => qdriip_k_p,
+    qdriip_k_n                 => qdriip_k_n,
+    qdriip_d                   => qdriip_d,
+    qdriip_sa                  => qdriip_sa,
+    qdriip_w_n                 => qdriip_w_n,
+    qdriip_r_n                 => qdriip_r_n,
+    qdriip_bw_n                => qdriip_bw_n,
+    qdriip_dll_off_n           => qdriip_dll_off_n,
+    cal_done                   => sram_cal_done,
+	 ---------------------------------------------------
+    tx_rdy  => tx_rdy,    --same with the clk in dmog_seg
+    Pstprc_finish_in  => Pstprc_finish,    --same with the clk in dmog_seg
+    Pstprc_finish_out  => Pstprc_finish_out,    --same with the clk in dmog_seg
     Pstprc_fifo_wr_clk  => clk_125M,    --same with the clk in dmog_seg
     Pstprc_fifo_rd_clk  => clk_125M,    --same with the clk in pstprc
     Pstprc_fifo_din     => Pstprc_IQ_seq_o,

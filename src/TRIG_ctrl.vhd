@@ -58,6 +58,7 @@ architecture Behavioral of TRIG_ctrl is
   signal posedge_sample_trig : std_logic;
   signal posedge_sample_trig_f : std_logic;
   signal posedge_sample_trig_s : std_logic;
+  signal posedge_sample_trig_s1 : std_logic;
   
 begin
   posedge_sample_trig_o<=posedge_sample_trig;
@@ -137,10 +138,11 @@ begin
   begin  -- process SRCC1_p_trigin_d_ps
     if CLK'event and CLK = '1' then  -- rising clock edge
        posedge_sample_trig_s<=posedge_sample_trig_f;
+       posedge_sample_trig_s1<=posedge_sample_trig_s;
     end if;
   end process  posedge_sample_trig_ps;
 
-  posedge_sample_trig <= posedge_sample_trig_s or posedge_sample_trig_f;
+  posedge_sample_trig <= posedge_sample_trig_s or posedge_sample_trig_f or posedge_sample_trig_s1;
   --    upload_trig_ethernet_d_ps: process (CLK, rst_n) is
   -- begin  -- process trig_in_ps
   --   if rst_n = '0' then                 -- asynchronous reset (active low)

@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 13.3
-# Date: Wed Apr 25 09:18:42 2018
+# Date: Thu Oct 25 09:24:03 2018
 #
 ##############################################################
 #
@@ -84,22 +84,22 @@ CSET clkout3_requested_phase=0.000
 CSET clkout3_used=true
 CSET clkout4_drives=BUFG
 CSET clkout4_requested_duty_cycle=50.000
-CSET clkout4_requested_out_freq=250.000
+CSET clkout4_requested_out_freq=62.500
 CSET clkout4_requested_phase=0.000
 CSET clkout4_used=true
 CSET clkout5_drives=BUFG
 CSET clkout5_requested_duty_cycle=50.000
 CSET clkout5_requested_out_freq=500.000
 CSET clkout5_requested_phase=0.000
-CSET clkout5_used=true
+CSET clkout5_used=false
 CSET clkout6_drives=BUFG
 CSET clkout6_requested_duty_cycle=50.000
-CSET clkout6_requested_out_freq=100.000
+CSET clkout6_requested_out_freq=125.000
 CSET clkout6_requested_phase=0.000
 CSET clkout6_used=false
 CSET clkout7_drives=BUFG
 CSET clkout7_requested_duty_cycle=50.000
-CSET clkout7_requested_out_freq=100.000
+CSET clkout7_requested_out_freq=200.000
 CSET clkout7_requested_phase=0.000
 CSET clkout7_used=false
 CSET clock_mgr_type=MANUAL
@@ -165,7 +165,7 @@ CSET mmcm_clkout2_divide=5
 CSET mmcm_clkout2_duty_cycle=0.500
 CSET mmcm_clkout2_phase=0.000
 CSET mmcm_clkout2_use_fine_ps=false
-CSET mmcm_clkout3_divide=4
+CSET mmcm_clkout3_divide=16
 CSET mmcm_clkout3_duty_cycle=0.500
 CSET mmcm_clkout3_phase=0.000
 CSET mmcm_clkout3_use_fine_ps=false
@@ -174,11 +174,11 @@ CSET mmcm_clkout4_divide=2
 CSET mmcm_clkout4_duty_cycle=0.500
 CSET mmcm_clkout4_phase=0.000
 CSET mmcm_clkout4_use_fine_ps=false
-CSET mmcm_clkout5_divide=1
+CSET mmcm_clkout5_divide=8
 CSET mmcm_clkout5_duty_cycle=0.500
 CSET mmcm_clkout5_phase=0.000
 CSET mmcm_clkout5_use_fine_ps=false
-CSET mmcm_clkout6_divide=1
+CSET mmcm_clkout6_divide=5
 CSET mmcm_clkout6_duty_cycle=0.500
 CSET mmcm_clkout6_phase=0.000
 CSET mmcm_clkout6_use_fine_ps=false
@@ -189,7 +189,7 @@ CSET mmcm_notes=None
 CSET mmcm_ref_jitter1=0.010
 CSET mmcm_ref_jitter2=0.010
 CSET mmcm_startup_wait=false
-CSET num_out_clks=5
+CSET num_out_clks=4
 CSET override_dcm=false
 CSET override_dcm_clkgen=false
 CSET override_mmcm=false
@@ -263,4 +263,4 @@ CSET use_status=false
 MISC pkg_timestamp=2011-03-09T16:42:33.000Z
 # END Extra information
 GENERATE
-# CRC: f654990f
+# CRC: 21bd42ee

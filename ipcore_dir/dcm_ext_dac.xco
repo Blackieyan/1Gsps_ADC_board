@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 13.3
-# Date: Sun May 13 08:50:14 2018
+# Date: Thu Oct 25 07:17:44 2018
 #
 ##############################################################
 #
@@ -74,14 +74,14 @@ CSET clkout1_requested_out_freq=500.000
 CSET clkout1_requested_phase=0.000
 CSET clkout2_drives=BUFG
 CSET clkout2_requested_duty_cycle=50.000
-CSET clkout2_requested_out_freq=250.000
+CSET clkout2_requested_out_freq=125.000
 CSET clkout2_requested_phase=0.000
-CSET clkout2_used=false
+CSET clkout2_used=true
 CSET clkout3_drives=BUFG
 CSET clkout3_requested_duty_cycle=50.000
-CSET clkout3_requested_out_freq=100.000
+CSET clkout3_requested_out_freq=200.000
 CSET clkout3_requested_phase=0.000
-CSET clkout3_used=false
+CSET clkout3_used=true
 CSET clkout4_drives=BUFG
 CSET clkout4_requested_duty_cycle=50.000
 CSET clkout4_requested_out_freq=100.000
@@ -148,20 +148,20 @@ CSET jitter_options=UI
 CSET jitter_sel=Min_O_Jitter
 CSET locked_port=LOCKED
 CSET mmcm_bandwidth=OPTIMIZED
-CSET mmcm_clkfbout_mult_f=23.000
+CSET mmcm_clkfbout_mult_f=8.000
 CSET mmcm_clkfbout_phase=0.000
 CSET mmcm_clkfbout_use_fine_ps=false
 CSET mmcm_clkin1_period=4.000
 CSET mmcm_clkin2_period=10.0
-CSET mmcm_clkout0_divide_f=2.875
+CSET mmcm_clkout0_divide_f=2.000
 CSET mmcm_clkout0_duty_cycle=0.500
 CSET mmcm_clkout0_phase=0.000
 CSET mmcm_clkout0_use_fine_ps=false
-CSET mmcm_clkout1_divide=5
+CSET mmcm_clkout1_divide=8
 CSET mmcm_clkout1_duty_cycle=0.500
 CSET mmcm_clkout1_phase=0.000
 CSET mmcm_clkout1_use_fine_ps=false
-CSET mmcm_clkout2_divide=1
+CSET mmcm_clkout2_divide=5
 CSET mmcm_clkout2_duty_cycle=0.500
 CSET mmcm_clkout2_phase=0.000
 CSET mmcm_clkout2_use_fine_ps=false
@@ -184,12 +184,12 @@ CSET mmcm_clkout6_phase=0.000
 CSET mmcm_clkout6_use_fine_ps=false
 CSET mmcm_clock_hold=false
 CSET mmcm_compensation=ZHOLD
-CSET mmcm_divclk_divide=4
+CSET mmcm_divclk_divide=2
 CSET mmcm_notes=None
 CSET mmcm_ref_jitter1=0.010
 CSET mmcm_ref_jitter2=0.010
 CSET mmcm_startup_wait=false
-CSET num_out_clks=1
+CSET num_out_clks=3
 CSET override_dcm=false
 CSET override_dcm_clkgen=false
 CSET override_mmcm=false
@@ -263,4 +263,4 @@ CSET use_status=false
 MISC pkg_timestamp=2011-03-09T16:42:33.000Z
 # END Extra information
 GENERATE
-# CRC: 3aec6ecf
+# CRC: d7b37188
