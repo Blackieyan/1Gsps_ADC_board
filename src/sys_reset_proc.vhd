@@ -125,9 +125,9 @@ begin
 			if(rst_active_cnt < x"3") then
 				rst_active_cnt <= rst_active_cnt + '1';
 				rst_cnt <= (others => '0');
-			elsif(sram_cal_done = '0') then
-				rst_cnt <= (others => '0');
-				rst_active_cnt <= (others => '0');
+--			elsif(sram_cal_done = '0') then
+--				rst_cnt <= (others => '0');
+--				rst_active_cnt <= (others => '0');
 			end if;
       end if;
     end if;

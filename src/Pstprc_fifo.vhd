@@ -113,6 +113,9 @@ architecture Behavioral of Pstprc_fifo_top is
 --  attribute KEEP : string;
 --attribute KEEP of data_pre: signal is "TRUE";
 --attribute KEEP of delta: signal is "TRUE";
+  signal sram_init : std_logic;
+  signal sram_init_d1 : std_logic;
+  signal sram_init_r : std_logic;
   signal empty_rst : std_logic;
   signal ui_clk : std_logic;
   signal ui_clk_sync_rst : std_logic;
@@ -226,6 +229,16 @@ begin
   rst <= (not rst_n) or ui_clk_sync_rst;
   fifo1_in <= Pstprc_fifo_wren & Pstprc_finish_int & Pstprc_fifo_din;
   fifo1_wr_en <= Pstprc_fifo_wren or Pstprc_finish_int;
+    
+  ---sram init done 在fifo写时 如果不成功，则sram 复位
+  process (Pstprc_fifo_wr_clk) is
+  begin  -- process Pstprc_fifo_dout_ps
+    if Pstprc_fifo_wr_clk'event and Pstprc_fifo_wr_clk = '1' then  -- rising clock edge
+      sram_init <= not cal_done_i and Pstprc_fifo_wren;
+      sram_init_d1 <= sram_init;
+      sram_init_r <= not(sram_init and not sram_init_d1) and rst_n ;
+    end if;
+  end process;
   
   process (Pstprc_fifo_wr_clk) is
   begin  -- process Pstprc_fifo_dout_ps
@@ -247,7 +260,7 @@ begin
     empty => fifo1_empty,
     valid => fifo1_rd_vld
   );
-  
+
   -- read fifo1 while fifo is not empty
   -- this is for synchronization two clock
   process (ui_clk, ui_clk_sync_rst) is
