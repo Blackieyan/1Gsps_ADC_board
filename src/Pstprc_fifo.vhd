@@ -79,7 +79,7 @@ architecture Behavioral of Pstprc_fifo_top is
   signal fifo1_wr_en : std_logic;
   signal fifo1_rd_en : std_logic;
   signal fifo1_rd_vld : std_logic;
-  signal fifo1_dout : std_logic_vector(65 downto 0);
+  signal fifo1_dout : std_logic_vector(131 downto 0);
   signal fifo1_in : std_logic_vector(65 downto 0);
   
   signal Pstprc_fifo_wren_pre : std_logic;
@@ -94,6 +94,7 @@ architecture Behavioral of Pstprc_fifo_top is
   signal buf_fifo_empty : std_logic;
   signal buf_fifo_full : std_logic;
   signal buf_fifo_dout : std_logic_vector(65 downto 0);
+  signal buf_fifo_din : std_logic_vector(131 downto 0);
   
   signal wr_cnt : std_logic_vector(18 downto 0);
   signal rd_cnt : std_logic_vector(18 downto 0);
@@ -152,7 +153,7 @@ COMPONENT post_pro_wr_fifo
     din : IN STD_LOGIC_VECTOR(65 DOWNTO 0);
     wr_en : IN STD_LOGIC;
     rd_en : IN STD_LOGIC;
-    dout : OUT STD_LOGIC_VECTOR(65 DOWNTO 0);
+    dout : OUT STD_LOGIC_VECTOR(131 DOWNTO 0);
     full : OUT STD_LOGIC;
     empty : OUT STD_LOGIC;
     valid : OUT STD_LOGIC
@@ -194,7 +195,7 @@ COMPONENT post_pro_buf_fifo
     rst : IN STD_LOGIC;
     wr_clk : IN STD_LOGIC;
     rd_clk : IN STD_LOGIC;
-    din : IN STD_LOGIC_VECTOR(65 DOWNTO 0);
+    din : IN STD_LOGIC_VECTOR(131 DOWNTO 0);
     wr_en : IN STD_LOGIC;
     rd_en : IN STD_LOGIC;
     dout : OUT STD_LOGIC_VECTOR(65 DOWNTO 0);
@@ -268,7 +269,7 @@ begin
     if ui_clk_sync_rst = '1' then                 -- asynchronous reset (active low)
       fifo1_rd_en <= '0';
     elsif ui_clk'event and ui_clk = '1' then  -- rising clock edge
-      fifo1_rd_en <= not fifo1_empty and cal_done_i and not fifo1_rd_en;
+      fifo1_rd_en <= not fifo1_empty and cal_done_i;
     end if;
   end process;
   
@@ -294,7 +295,8 @@ begin
       user_wr_addr0 <= (others => '0');
     elsif ui_clk'event and ui_clk = '1' then  -- rising clock edge
       user_wr_cmd0 <= fifo1_rd_vld;
-		user_wr_data0(65 downto 0) <= fifo1_dout;
+		user_wr_data0(65 downto 0) <= fifo1_dout(65 downto 0);
+		user_wr_data0(137 downto 72) <= fifo1_dout(131 downto 66);
 		if user_wr_cmd0 = '1' then
 			user_wr_addr0 <= user_wr_addr0 + 4;
 		end if;
@@ -334,7 +336,7 @@ begin
     ui_clk_sync_rst            => ui_clk_sync_rst,
     user_rd_valid0             => user_rd_valid0_reg,
     user_rd_data0              => user_rd_data0_reg,
-    sys_rst                => rst_n
+    sys_rst                => sram_init_r
     );
   
   user_wr_bw_n0	<= (others => '0');
@@ -385,13 +387,13 @@ begin
 		end if;
     end if;
   end process;
-  
+  buf_fifo_din <= user_rd_data0(137 downto 72) & user_rd_data0(65 downto 0);
   Pstprc_buf_Fifo_inst : post_pro_buf_fifo
   PORT MAP (
     rst => rst,
     wr_clk => ui_clk,
     rd_clk => Pstprc_fifo_rd_clk,
-    din => user_rd_data0(65 downto 0),
+    din => buf_fifo_din,
     wr_en =>user_rd_valid0,
     rd_en =>buf_fifo_rden,
     dout => buf_fifo_dout,
