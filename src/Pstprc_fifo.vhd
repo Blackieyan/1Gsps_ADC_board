@@ -111,6 +111,11 @@ architecture Behavioral of Pstprc_fifo_top is
   signal delta : std_logic_vector(31 downto 0);
   signal timeout_rst_cnt : std_logic_vector(19 downto 0);
   signal timeout_rst : std_logic;
+  
+ 	signal 	tx_rdy_d1  : std_logic;
+ 	signal 	tx_rdy_d2  : std_logic;
+ 	signal 	can_read_new_result  : std_logic;
+	signal 	wait_cnt : std_logic_vector(7 downto 0);
 --  attribute KEEP : string;
 --attribute KEEP of data_pre: signal is "TRUE";
 --attribute KEEP of delta: signal is "TRUE";
@@ -432,6 +437,32 @@ begin
   
   Pstprc_finish_temp <= buf_fifo_dout(64) and buf_fifo_rd_vld;
   
+  --避免触发间隔小的时候网络帧间隔过小，强制等待上一帧数据发完后1us后才发送下一帧数据
+  process (Pstprc_fifo_rd_clk) is
+  begin  -- process Pstprc_fifo_dout_ps
+	 if Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
+      tx_rdy_d1 <= tx_rdy;
+      tx_rdy_d2 <= tx_rdy_d1;
+		
+		if tx_rdy_d1 = '1' and tx_rdy_d2 = '0' then --上一帧数据发完后启动计数
+			wait_cnt <= x"80";
+		elsif wait_cnt /= 0 then
+			wait_cnt <= wait_cnt - 1;
+		end if;
+    end if;
+  end process; 
+  
+  process (Pstprc_fifo_rd_clk) is
+  begin  -- process Pstprc_fifo_dout_ps
+    if Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
+      if wait_cnt = 0 then
+			can_read_new_result <= '1';
+		else
+			can_read_new_result <= '0';
+		end if;
+    end if;
+  end process;
+  
   process (Pstprc_fifo_rd_clk, rst) is
   begin  -- process Pstprc_fifo_dout_ps
     if rst = '1' then                 -- asynchronous reset (active low)
@@ -439,7 +470,7 @@ begin
     elsif Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
       if rd_buf_fifo = '1' then
 --			buf_fifo_rden <= (not buf_fifo_rden) and (not Pstprc_finish_temp) and (not full);
-			buf_fifo_rden <= not(buf_fifo_rden or Pstprc_finish_temp or full or buf_fifo_empty) ;
+			buf_fifo_rden <= not(buf_fifo_rden or Pstprc_finish_temp or full or buf_fifo_empty) and  can_read_new_result;
 		else
 			buf_fifo_rden	<= '0';
 		end if;
