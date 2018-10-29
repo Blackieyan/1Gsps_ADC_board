@@ -116,9 +116,9 @@ architecture Behavioral of Pstprc_fifo_top is
  	signal 	tx_rdy_d2  : std_logic;
  	signal 	can_read_new_result  : std_logic;
 	signal 	wait_cnt : std_logic_vector(7 downto 0);
---  attribute KEEP : string;
---attribute KEEP of data_pre: signal is "TRUE";
---attribute KEEP of delta: signal is "TRUE";
+  attribute KEEP : string;
+attribute KEEP of data_pre: signal is "TRUE";
+attribute KEEP of delta: signal is "TRUE";
   signal sram_init : std_logic;
   signal sram_init_d1 : std_logic;
   signal sram_init_r : std_logic;
@@ -414,9 +414,10 @@ begin
   process (Pstprc_fifo_rd_clk) is
   begin  -- process Pstprc_fifo_dout_ps
     if Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
-      if buf_fifo_rd_vld = '1' and buf_fifo_dout(65) = '1' then
-		data_pre <= buf_fifo_dout(31 downto 0);
-		delta <= buf_fifo_dout(31 downto 0) - data_pre;		
+      if buf_fifo_rd_vld = '1' and buf_fifo_dout(64) = '1' then
+		data_pre <= data_pre+'1';
+--		data_pre <= buf_fifo_dout(31 downto 0);
+--		delta <= buf_fifo_dout(31 downto 0) - data_pre;		
 		end if;
     end if;
   end process; 

@@ -107,7 +107,9 @@ architecture Behavioral of Dmod_Seg is
   signal ini_pstprc_RAMx_addra   : std_logic_vector(12 downto 0);
   signal ini_pstprc_RAMx_addrb   : std_logic_vector(11 downto 0);
   signal Pstprc_RAMx_rden_ln     : std_logic_vector(11 downto 0);
-
+  signal RECV_CNT     : std_logic_vector(31 downto 0);
+  attribute KEEP : string;
+attribute KEEP of RECV_CNT: signal is "TRUE";
 --  signal Pstprc_fifo_din    : std_logic_vector(63 downto 0);
   signal Pstprc_finish_seq  : std_logic_vector(pstprc_ch_num-1 downto 0);
   signal Pstprc_add_stp_seq : std_logic_vector(pstprc_ch_num-1 downto 0);
@@ -139,6 +141,7 @@ architecture Behavioral of Dmod_Seg is
   signal pstprc_IQ_seq_o_int : std_logic_vector(63 downto 0);
   signal Pstprc_add_stp_d : std_logic;
   signal Pstprc_add_stp_sig : std_logic;
+  signal is_counter : std_logic;
   
   component Win_RAM_top
     port(
@@ -265,7 +268,23 @@ begin
     ini_pstprc_RAMx_addrb => ini_pstprc_RAMx_addrb,
     Pstprc_RAMx_rden_ln   => Pstprc_RAMx_rden_ln
     );
+	 
+	 process (clk, rst_data_proc_n) is
+    begin  -- process pstprc_num_select_ps
+      if rst_data_proc_n = '0' then                -- asynchronous reset (active low)
+        is_counter   <= '0';
+      elsif clk'event and clk = '1' then  -- rising clock edge
+        if 11 = pstprc_num and pstprc_num_en = '1' then
+          is_counter   <= '1';
+        elsif 10 = pstprc_num and pstprc_num_en = '1' then
+          is_counter   <= '0';
+        end if;
+      end if;
+    end process;
 -------------------------------------------------------------------------------
+ Pstprc_finish  <= Pstprc_finish_seq(0);  -- pstprc_finish_seq(pstprc_ch_num-1 downto 0) turn '1'                                        -- at the same time
+ pstprc_add_stp <= Pstprc_add_stp_seq(0);
+
 -------------------------------------------------------------------------------
   Post_process_insts : for i in 0 to pstprc_ch_num-1 generate
 -------------------------------------------------------------------------------
@@ -333,9 +352,6 @@ begin
       dds_data_len         => dds_data_len(i),
       cmd_smpl_depth       => cmd_smpl_depth
       );
-
-    Pstprc_finish  <= Pstprc_finish_seq(0);  -- pstprc_finish_seq(pstprc_ch_num-1 downto 0) turn '1'                                        -- at the same time
-    pstprc_add_stp <= Pstprc_add_stp_seq(0);
 
     Pstprc_add_stp_d_ps: process (clk, rst_data_proc_n) is
     begin  -- process Pstprc_add_stp_d_ps
@@ -428,6 +444,16 @@ begin
   end process Pstprc_RAMx_rden_ln_ps;
 
 -----------------------------------------------------------------------------
+process (clk, rst_data_proc_n) is
+  begin  -- process fifo_wren_ps
+    if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
+      RECV_CNT <= (others => '0');
+    elsif clk'event and clk = '1' then  -- rising clock edge
+      if Pstprc_add_stp_d = '1' then
+        RECV_CNT <= RECV_CNT + '1';
+      end if;
+    end if;
+  end process;
 -------------------------------------------------------------------------------
 process (clk, rst_data_proc_n) is
   begin  -- process fifo_wren_ps
@@ -443,41 +469,45 @@ process (clk, rst_data_proc_n) is
     end if;
   end process;
 ----------------------------
-pstprc_IQ_seq_o <= pstprc_IQ_seq_o_int;
---  IQ_sequence_ps : process (clk, rst_data_proc_n) is
---  begin  -- process IQ_sequence_ps
---    if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
---      pstprc_IQ_seq_o <= (others => '1');
---    elsif clk'event and clk = '1' then  -- rising clock edge
---      case IQ_seq_cnt is
---        when x"0" =>
---          pstprc_IQ_seq_o <= pstprc_IQ(0);
---        when x"1" =>
---          pstprc_IQ_seq_o <= pstprc_IQ(1);
---        when x"2" =>
---          pstprc_IQ_seq_o <= pstprc_IQ(2);
---        when x"3"=>
---          pstprc_IQ_seq_o <= pstprc_IQ(3);
---        when x"4" =>
---          pstprc_IQ_seq_o <= pstprc_IQ(4);
---        when x"5" =>
---          pstprc_IQ_seq_o <= pstprc_IQ(5);
---        when x"6" =>
---          pstprc_IQ_seq_o <= pstprc_IQ(6);
---        when x"7"=>
---          pstprc_IQ_seq_o <= pstprc_IQ(7);
---        when x"8" =>
---          pstprc_IQ_seq_o <= pstprc_IQ(8);
---        when x"9" =>
---          pstprc_IQ_seq_o <= pstprc_IQ(9);
---        when x"a" =>
---          pstprc_IQ_seq_o <= pstprc_IQ(10);
---        when x"b"=>
---          pstprc_IQ_seq_o <= pstprc_IQ(11);
---        when others => pstprc_IQ_seq_o <= (others => '0');
---      end case;
---    end if;
---  end process IQ_sequence_ps;
+
+  IQ_sequence_ps : process (clk, rst_data_proc_n) is
+  begin  -- process IQ_sequence_ps
+    if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
+      pstprc_IQ_seq_o <= (others => '1');
+    elsif clk'event and clk = '1' then  -- rising clock edge
+		if is_counter = '1' then
+			pstprc_IQ_seq_o <= pstprc_IQ_seq_o_int;
+		else
+			case IQ_seq_cnt is
+			  when x"0" =>
+				 pstprc_IQ_seq_o <= pstprc_IQ(0);
+			  when x"1" =>
+				 pstprc_IQ_seq_o <= pstprc_IQ(1);
+			  when x"2" =>
+				 pstprc_IQ_seq_o <= pstprc_IQ(2);
+			  when x"3"=>
+				 pstprc_IQ_seq_o <= pstprc_IQ(3);
+			  when x"4" =>
+				 pstprc_IQ_seq_o <= pstprc_IQ(4);
+			  when x"5" =>
+				 pstprc_IQ_seq_o <= pstprc_IQ(5);
+			  when x"6" =>
+				 pstprc_IQ_seq_o <= pstprc_IQ(6);
+			  when x"7"=>
+				 pstprc_IQ_seq_o <= pstprc_IQ(7);
+			  when x"8" =>
+				 pstprc_IQ_seq_o <= pstprc_IQ(8);
+			  when x"9" =>
+				 pstprc_IQ_seq_o <= pstprc_IQ(9);
+			  when x"a" =>
+				 pstprc_IQ_seq_o <= pstprc_IQ(10);
+			  when x"b"=>
+				 pstprc_IQ_seq_o <= pstprc_IQ(11);
+			  when others => pstprc_IQ_seq_o <= (others => '0');
+			end case;
+		end if;
+    end if;
+  end process IQ_sequence_ps;
 
   IQ_seq_cnt_ps : process (clk, rst_data_proc_n) is
   begin  -- process IQ_seq_cnt_ps
