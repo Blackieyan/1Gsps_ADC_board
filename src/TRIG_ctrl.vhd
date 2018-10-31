@@ -41,6 +41,7 @@ entity TRIG_ctrl is
     cmd_smpl_trig_cnt : in std_logic_vector(15 downto 0);
     ram_start : in std_logic;           --force trig from ethernet
     SRCC1_p_trigin : in std_logic;
+    SRCC1_p_trigout : out std_logic;
     posedge_sample_trig_o : out std_logic
     );
 end TRIG_ctrl;
@@ -58,7 +59,6 @@ architecture Behavioral of TRIG_ctrl is
   signal posedge_sample_trig : std_logic;
   signal posedge_sample_trig_f : std_logic;
   signal posedge_sample_trig_s : std_logic;
-  signal posedge_sample_trig_s1 : std_logic;
   
 begin
   posedge_sample_trig_o<=posedge_sample_trig;
@@ -133,17 +133,18 @@ begin
        trigin_d2<=trigin_d;
     end if;
   end process SRCC1_p_trigin_d_ps;
+  
+  SRCC1_p_trigout<=trigin_d2;
 
  posedge_sample_trig_ps: process (CLK) is
   begin  -- process SRCC1_p_trigin_d_ps
     if CLK'event and CLK = '1' then  -- rising clock edge
        posedge_sample_trig_s<=posedge_sample_trig_f;
-       posedge_sample_trig_s1<=posedge_sample_trig_s;
     end if;
   end process  posedge_sample_trig_ps;
 
-  posedge_sample_trig <= posedge_sample_trig_s or posedge_sample_trig_f or posedge_sample_trig_s1;
-  --    upload_trig_ethernet_d_ps: process (CLK, rst_n) is
+  posedge_sample_trig <= posedge_sample_trig_s or posedge_sample_trig_f;
+  --    upload_trig_ethernet_d_ps: process (CLK, rst_n) isA
   -- begin  -- process trig_in_ps
   --   if rst_n = '0' then                 -- asynchronous reset (active low)
   --     upload_trig_ethernet_d<='0';

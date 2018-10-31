@@ -48,6 +48,9 @@ entity command_analysis is
     -- mac_src    : out std_logic_vector(47 downto 0);
     -- reg_addr   : out std_logic_vector(15 downto 0);
     -- reg_data   : out std_logic_vector(31 downto 0);
+	 is_counter			    : out    std_logic;
+	 wait_cnt_set         : out    std_logic_vector(23 downto 0);
+    self_adpt_en   : out std_logic;
     ram_start_o   : out std_logic;
      upload_trig_ethernet_o : out std_logic;
     rst_n : in  std_logic;
@@ -472,6 +475,49 @@ begin  -- process pstprc_num_ps
       end if;
   end if;
 end process Estmr_num_ps;
+
+self_adpt_ps: process (rd_clk, rst_n) is
+begin  -- process pstprc_num_ps
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    self_adpt_en <='0';
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+      if reg_addr =x"001E" then
+        if rd_addr=x"19" then
+          self_adpt_en<='1';
+        else
+          self_adpt_en<='0';
+        end if;
+		else
+			self_adpt_en<='0';
+      end if;
+  end if;
+end process self_adpt_ps;
+
+wait_cnt_ps: process (rd_clk, rst_n) is
+begin  -- process pstprc_num_ps
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+	 wait_cnt_set <= x"0186A0"; --100000 8ms
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+      if reg_addr =x"001F" then
+        if rd_addr=x"19" then
+          wait_cnt_set<= reg_data(47 downto 24);
+        end if;
+      end if;
+  end if;
+end process wait_cnt_ps;
+
+demode_test_ps: process (rd_clk, rst_n) is
+begin  -- process pstprc_num_ps
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    is_counter <='0';
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+      if reg_addr =x"0020" then
+        if rd_addr=x"19" then
+          is_counter<= reg_data(24);
+        end if;
+      end if;
+  end if;
+end process demode_test_ps;
 -- ADC_gain_adj_ps: process (rd_clk, rst_n) is
 -- begin  -- process ADC_gain_adj_ps
 --   if rst_n = '0' then                   -- asynchronous reset (active low)

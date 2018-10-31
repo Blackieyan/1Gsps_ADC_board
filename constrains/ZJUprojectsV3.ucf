@@ -419,8 +419,10 @@ NET "PHY_RXDV" LOC = AK31;
 #---------------------------------------
 #j31
 NET "SRCC1_p_trigin" LOC = L20;
-NET "Estmr_OQ_p" LOC = N32;#j9
-NET "Estmr_OQ_n" LOC = P32;#j8
+#j9
+NET "Estmr_OQ_p" LOC = N32;
+#j8
+NET "Estmr_OQ_n" LOC = P32;
 #J32
 #NET "Estmr_OQ" LOC = L21;
 #NET "Inst_crg_dcms/dcm_ext_dac_inst/CLK_IN1" LOC = D11;
@@ -532,16 +534,16 @@ NET "Inst_sys_reset_proc/rst_config_n" TIG;
 
 
 NET "Estmr_OQ_p" SLEW = FAST;
+NET "Estmr_OQ_n" SLEW = FAST;
 NET "Estmr_OQ_p" DRIVE = 24;
 
 
 #NET "Estmr_OQ" IOSTANDARD = LVCMOS25;
 
-# PlanAhead Generated IO constraints 
-NET "SRCC1_p_trigin" IOSTANDARD = LVCMOS18;
+NET "SRCC1_p_trigin" IOSTANDARD = LVCMOS25;
 #Created by Constraints Editor (xc6vlx240t-ff1156-2) - 2018/05/17
-NET "clk_EXT_250M" TNM_NET = clk_EXT_250M;
-TIMESPEC TS_clk_EXT_250M = PERIOD "clk_EXT_250M" 4 ns HIGH 50%;
+NET "clk_EXT_250M" TNM_NET = "clk_EXT_250M";
+TIMESPEC TS_clk_EXT_250M = PERIOD "clk_EXT_250M" 4 ns HIGH 50 %;
 #TIMESPEC TS_clk_EXT_250M_R = PERIOD "clk_EXT_250M_R" 8 ns HIGH 50%;
 TIMESPEC TS_CLK1toEXT250_TIG = FROM "Inst_crg_dcms_dcm_global_clkout1" TO "clk_EXT_250M_R" TIG;
 
@@ -668,3 +670,10 @@ NET  "qdriip_w_n"		 LOC = "AM27" ;
 #INST "*/inst_SRAM/u_infrastructure/u_bufg_clk0"  LOC="BUFGCTRL_X0Y31";
 #INST "*/inst_SRAM/u_infrastructure/u_mmcm_gen"      LOC = "MMCM_ADV_"; #Banks 
 
+##########################SelfAdpt############################################
+#NET "cmd_adpt_n" LOC = H28;
+NET "adpt_led" LOC = T30;
+NET "trig_monitor" LOC = C22;
+#INST "Inst_SelfAdpt/IDELAYCTRL_inst" LOC = IDELAYCTRL_X1Y4;
+INST "Inst_SelfAdpt/IODELAYE1_inst2" LOC = IODELAY_X1Y162;
+##########################SelfAdpt############################################

@@ -57,6 +57,7 @@ entity Pstprc_fifo_top is
     ----sram interface------
   
     rst_n : IN STD_LOGIC;
+    wait_cnt_set : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
     Pstprc_fifo_wr_clk : IN STD_LOGIC;
     Pstprc_fifo_rd_clk : IN STD_LOGIC;
     Pstprc_fifo_din : IN STD_LOGIC_VECTOR(63 DOWNTO 0);
@@ -82,7 +83,10 @@ architecture Behavioral of Pstprc_fifo_top is
   signal fifo1_dout : std_logic_vector(131 downto 0);
   signal fifo1_in : std_logic_vector(65 downto 0);
   
-  signal Pstprc_fifo_wren_pre : std_logic;
+  signal Pstprc_fifo_wren_d1 : std_logic;
+  signal Pstprc_fifo_wren_d2 : std_logic;
+  signal Pstprc_fifo_wren_d3 : std_logic;
+  signal Pstprc_fifo_wren_d4 : std_logic;
   signal Pstprc_finish_int : std_logic;
   signal Pstprc_finish_temp : std_logic;
   
@@ -109,13 +113,13 @@ architecture Behavioral of Pstprc_fifo_top is
   signal dout : std_logic_vector(7 downto 0);
   signal data_pre : std_logic_vector(31 downto 0);
   signal delta : std_logic_vector(31 downto 0);
-  signal timeout_rst_cnt : std_logic_vector(19 downto 0);
+  signal timeout_rst_cnt : std_logic_vector(23 downto 0);
   signal timeout_rst : std_logic;
   
  	signal 	tx_rdy_d1  : std_logic;
  	signal 	tx_rdy_d2  : std_logic;
  	signal 	can_read_new_result  : std_logic;
-	signal 	wait_cnt : std_logic_vector(7 downto 0);
+	signal 	wait_cnt : std_logic_vector(23 downto 0);
   attribute KEEP : string;
 attribute KEEP of data_pre: signal is "TRUE";
 attribute KEEP of delta: signal is "TRUE";
@@ -233,8 +237,8 @@ END COMPONENT;
 begin
   cal_done <= cal_done_i;
   rst <= (not rst_n) or ui_clk_sync_rst;
-  fifo1_in <= Pstprc_fifo_wren & Pstprc_finish_int & Pstprc_fifo_din;
-  fifo1_wr_en <= Pstprc_fifo_wren or Pstprc_finish_int;
+--  fifo1_in <= Pstprc_fifo_wren & Pstprc_finish_int & Pstprc_fifo_din;
+--  fifo1_wr_en <= Pstprc_fifo_wren or Pstprc_finish_int;
     
   ---sram init done 在fifo写时 如果不成功，则sram 复位
   process (Pstprc_fifo_wr_clk) is
@@ -246,11 +250,17 @@ begin
     end if;
   end process;
   
+  --数据写入要保持4的整数倍
   process (Pstprc_fifo_wr_clk) is
   begin  -- process Pstprc_fifo_dout_ps
     if Pstprc_fifo_wr_clk'event and Pstprc_fifo_wr_clk = '1' then  -- rising clock edge
-      Pstprc_fifo_wren_pre <= Pstprc_fifo_wren;
-      Pstprc_finish_int <= not Pstprc_fifo_wren and Pstprc_fifo_wren_pre;
+      Pstprc_fifo_wren_d1 <= Pstprc_fifo_wren;
+      Pstprc_fifo_wren_d2 <= Pstprc_fifo_wren_d1;
+      Pstprc_fifo_wren_d3 <= Pstprc_fifo_wren_d2;
+      Pstprc_fifo_wren_d4 <= Pstprc_fifo_wren_d3;
+      Pstprc_finish_int <= not Pstprc_fifo_wren_d2 and Pstprc_fifo_wren_d3;
+		fifo1_in <= Pstprc_fifo_wren & Pstprc_finish_int & Pstprc_fifo_din;
+		fifo1_wr_en <= Pstprc_fifo_wren or Pstprc_fifo_wren_d1 or Pstprc_fifo_wren_d2 or Pstprc_fifo_wren_d3 or Pstprc_fifo_wren_d4;
     end if;
   end process;
   inst_post_pro_wr_fifo : post_pro_wr_fifo
@@ -444,9 +454,8 @@ begin
 	 if Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
       tx_rdy_d1 <= tx_rdy;
       tx_rdy_d2 <= tx_rdy_d1;
-		
-		if tx_rdy_d1 = '1' and tx_rdy_d2 = '0' then --上一帧数据发完后启动计数
-			wait_cnt <= x"80";
+		if tx_rdy_d1 = '1' and tx_rdy_d2 = '0' and data_pre(9 downto 0) = "1111111111" then --每传1024帧结果，等待wait cnt
+			wait_cnt <= wait_cnt_set;
 		elsif wait_cnt /= 0 then
 			wait_cnt <= wait_cnt - 1;
 		end if;
@@ -534,7 +543,7 @@ begin
         timeout_rst_cnt	<= (others => '0');
       end if;
 		
-		if timeout_rst_cnt > 10000 then
+		if timeout_rst_cnt(23) = '1' then
 			timeout_rst <= '1';
 		else
 			timeout_rst <= '0';

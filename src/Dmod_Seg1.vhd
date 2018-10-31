@@ -50,6 +50,7 @@ entity Dmod_Seg is
     rst_adc_n           : in std_logic;
     rst_data_proc_n     : in  std_logic;
     rst_feedback_n      : in  std_logic;
+    is_counter          : in  std_logic;
     cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
     Pstprc_RAMQ_dina    : in  std_logic_vector(31 downto 0);
     Pstprc_RAMQ_clka    : in  std_logic;
@@ -141,7 +142,6 @@ attribute KEEP of RECV_CNT: signal is "TRUE";
   signal pstprc_IQ_seq_o_int : std_logic_vector(63 downto 0);
   signal Pstprc_add_stp_d : std_logic;
   signal Pstprc_add_stp_sig : std_logic;
-  signal is_counter : std_logic;
   
   component Win_RAM_top
     port(
@@ -269,18 +269,7 @@ begin
     Pstprc_RAMx_rden_ln   => Pstprc_RAMx_rden_ln
     );
 	 
-	 process (clk, rst_data_proc_n) is
-    begin  -- process pstprc_num_select_ps
-      if rst_data_proc_n = '0' then                -- asynchronous reset (active low)
-        is_counter   <= '0';
-      elsif clk'event and clk = '1' then  -- rising clock edge
-        if 11 = pstprc_num and pstprc_num_en = '1' then
-          is_counter   <= '1';
-        elsif 10 = pstprc_num and pstprc_num_en = '1' then
-          is_counter   <= '0';
-        end if;
-      end if;
-    end process;
+
 -------------------------------------------------------------------------------
  Pstprc_finish  <= Pstprc_finish_seq(0);  -- pstprc_finish_seq(pstprc_ch_num-1 downto 0) turn '1'                                        -- at the same time
  pstprc_add_stp <= Pstprc_add_stp_seq(0);

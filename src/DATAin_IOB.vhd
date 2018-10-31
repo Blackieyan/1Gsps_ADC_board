@@ -379,12 +379,12 @@ begin
     end generate universal;
   end generate;
 
-  IDELAYCTRL_inst : IDELAYCTRL
-    port map (
-      RDY    => open,  -- 1-bit output indicates validity of the REFCLK
-      REFCLK => CLK_200M,               -- 1-bit reference clock input
-      RST    => '0'                     -- 1-bit reset input
-      );
+--  IDELAYCTRL_inst : IDELAYCTRL
+--    port map (
+--      RDY    => open,  -- 1-bit output indicates validity of the REFCLK
+--      REFCLK => CLK_200M,               -- 1-bit reference clock input
+--      RST    => '0'                     -- 1-bit reset input
+--      );
 -------------------------------------------------------------------------------
   Inst_IDDR_inst1 : IDDR_inst port map(
     CLK => ADC_CLKOI,
