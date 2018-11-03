@@ -483,7 +483,7 @@ begin  -- process pstprc_num_ps
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
       if reg_addr =x"001E" then
         if rd_addr=x"19" then
-          self_adpt_en<='1';
+          self_adpt_en<= reg_data(24);
         else
           self_adpt_en<='0';
         end if;

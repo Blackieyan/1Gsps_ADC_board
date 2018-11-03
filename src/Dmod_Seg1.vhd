@@ -41,7 +41,8 @@ entity Dmod_Seg is
   generic (
     mult_accum_s_width : integer := 32;
     dds_phase_width    : integer := 24;
-    pstprc_ch_num      : integer := 12
+    pstprc_ch_num      : integer := 8;
+    upload_freq_cnt    : std_logic_vector(3 downto 0) := x"8"
 
     );
   port(
@@ -449,7 +450,7 @@ process (clk, rst_data_proc_n) is
     if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
       pstprc_IQ_seq_o_int <= (others => '0');
     elsif clk'event and clk = '1' then  -- rising clock edge
-      if IQ_seq_cnt = x"c" then
+      if IQ_seq_cnt = upload_freq_cnt then
         pstprc_IQ_seq_o_int <= pstprc_IQ_seq_o_int;
       else
         pstprc_IQ_seq_o_int(63 downto 32) <= pstprc_IQ_seq_o_int(63 downto 32) + '1';
@@ -484,14 +485,14 @@ process (clk, rst_data_proc_n) is
 				 pstprc_IQ_seq_o <= pstprc_IQ(6);
 			  when x"7"=>
 				 pstprc_IQ_seq_o <= pstprc_IQ(7);
-			  when x"8" =>
-				 pstprc_IQ_seq_o <= pstprc_IQ(8);
-			  when x"9" =>
-				 pstprc_IQ_seq_o <= pstprc_IQ(9);
-			  when x"a" =>
-				 pstprc_IQ_seq_o <= pstprc_IQ(10);
-			  when x"b"=>
-				 pstprc_IQ_seq_o <= pstprc_IQ(11);
+--			  when x"8" =>
+--				 pstprc_IQ_seq_o <= (others => '0');--pstprc_IQ(8);
+--			  when x"9" =>
+--				 pstprc_IQ_seq_o <= (others => '0');--pstprc_IQ(9);
+--			  when x"a" =>
+--				 pstprc_IQ_seq_o <= (others => '0');--pstprc_IQ(10);
+--			  when x"b"=>
+--				 pstprc_IQ_seq_o <= (others => '0');--pstprc_IQ(11);
 			  when others => pstprc_IQ_seq_o <= (others => '0');
 			end case;
 		end if;
@@ -501,14 +502,14 @@ process (clk, rst_data_proc_n) is
   IQ_seq_cnt_ps : process (clk, rst_data_proc_n) is
   begin  -- process IQ_seq_cnt_ps
     if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
-      IQ_seq_cnt <= x"c";
+      IQ_seq_cnt <= upload_freq_cnt;
     elsif clk'event and clk = '1' then  -- rising clock edge
       if Pstprc_add_stp = '1' then
         IQ_seq_cnt <= (others => '0');
-      elsif IQ_seq_cnt < x"c" then
+      elsif IQ_seq_cnt < upload_freq_cnt then
         IQ_seq_cnt <= IQ_seq_cnt+1;
       else
-        IQ_seq_cnt <= x"c";
+        IQ_seq_cnt <= upload_freq_cnt;
       end if;
     end if;
   end process IQ_seq_cnt_ps;
@@ -518,7 +519,7 @@ process (clk, rst_data_proc_n) is
     if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
       pstprc_fifo_wren <= '0';
     elsif clk'event and clk = '1' then  -- rising clock edge
-      if IQ_seq_cnt = x"c" then
+      if IQ_seq_cnt = upload_freq_cnt then
         pstprc_fifo_wren <= '0';
       else
         pstprc_fifo_wren <= '1';

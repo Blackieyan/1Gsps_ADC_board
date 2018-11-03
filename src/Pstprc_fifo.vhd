@@ -313,7 +313,7 @@ begin
 		user_wr_data0(65 downto 0) <= fifo1_dout(65 downto 0);
 		user_wr_data0(137 downto 72) <= fifo1_dout(131 downto 66);
 		if user_wr_cmd0 = '1' then
-			user_wr_addr0 <= user_wr_addr0 + 4;
+			user_wr_addr0 <= user_wr_addr0 + 1;
 		end if;
     end if;
   end process;
@@ -398,7 +398,7 @@ begin
 			user_rd_cmd0 <= '0';
 		end if;
 		if user_rd_cmd0 = '1' then
-			user_rd_addr0 <= user_rd_addr0+4;
+			user_rd_addr0 <= user_rd_addr0+1;
 		end if;
     end if;
   end process;
@@ -510,7 +510,7 @@ begin
   empty_rst <= rst or timeout_rst;
   Pstprc_Fifo_inst : Pstprc_Fifo
   PORT MAP (
-    rst => empty_rst,
+    rst => rst,
     wr_clk => Pstprc_fifo_rd_clk,
     rd_clk => Pstprc_fifo_rd_clk,
     din => fifo2_din,
