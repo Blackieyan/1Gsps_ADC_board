@@ -56,9 +56,10 @@ entity command_analysis is
     rst_n : in  std_logic;
     cmd_pstprc_IQ_sw : out std_logic_vector(1 downto 0);
     TX_dst_MAC_addr : out std_logic_vector(47 downto 0);
+    clear_frame_cnt : out std_logic;
     cmd_smpl_en_o : out std_logic;
     cmd_smpl_depth : out std_logic_vector(15 downto 0);
-    cmd_smpl_trig_cnt : out std_logic_vector(15 downto 0);
+    cmd_smpl_trig_cnt : out std_logic_vector(23 downto 0);
     Cmd_demowinln : out std_logic_vector(14 downto 0);
     Cmd_demowinstart : out std_logic_vector(14 downto 0);
     cmd_ADC_gain_adj : out std_logic_vector(18 downto 0);
@@ -322,11 +323,11 @@ end process cmd_smpl_depth_ps;
 cmd_trig_cnt_ps: process (rd_clk, rst_n) is
 begin  -- process ram_smpl_depth_ps
   if rst_n = '0' then                   -- asynchronous reset (active low)
-    cmd_smpl_trig_cnt<=x"07D0";         -- reponse to trig 2000 times default 
+    cmd_smpl_trig_cnt<=x"0007D0";         -- reponse to trig 2000 times default 
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
     if reg_addr =x"0013" then
       if rd_addr=x"19" then
-        cmd_smpl_trig_cnt<=reg_data(47 downto 32);
+        cmd_smpl_trig_cnt<=reg_data(47 downto 24);
       end if;
     end if;
   end if;
@@ -518,6 +519,24 @@ begin  -- process pstprc_num_ps
       end if;
   end if;
 end process demode_test_ps;
+
+clear_frame_cnt_ps: process (rd_clk, rst_n) is
+begin  -- µØÖ·33 Çå³ýÖ¡±àºÅ
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    clear_frame_cnt <='0';
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+      if reg_addr =x"0021" then
+        if rd_addr=x"19" then
+          clear_frame_cnt<= '1';
+		  else
+		     clear_frame_cnt<= '0';
+        end if;
+		else
+			clear_frame_cnt<= '0';
+      end if;
+  end if;
+end process clear_frame_cnt_ps;
+
 -- ADC_gain_adj_ps: process (rd_clk, rst_n) is
 -- begin  -- process ADC_gain_adj_ps
 --   if rst_n = '0' then                   -- asynchronous reset (active low)

@@ -485,14 +485,14 @@ process (clk, rst_data_proc_n) is
 				 pstprc_IQ_seq_o <= pstprc_IQ(6);
 			  when x"7"=>
 				 pstprc_IQ_seq_o <= pstprc_IQ(7);
---			  when x"8" =>
---				 pstprc_IQ_seq_o <= (others => '0');--pstprc_IQ(8);
---			  when x"9" =>
---				 pstprc_IQ_seq_o <= (others => '0');--pstprc_IQ(9);
---			  when x"a" =>
---				 pstprc_IQ_seq_o <= (others => '0');--pstprc_IQ(10);
---			  when x"b"=>
---				 pstprc_IQ_seq_o <= (others => '0');--pstprc_IQ(11);
+			  when x"8" =>
+				 pstprc_IQ_seq_o <= (others => '0');--pstprc_IQ(8);
+			  when x"9" =>
+				 pstprc_IQ_seq_o <= (others => '0');--pstprc_IQ(9);
+			  when x"a" =>
+				 pstprc_IQ_seq_o <= (others => '0');--pstprc_IQ(10);
+			  when x"b"=>
+				 pstprc_IQ_seq_o <= (others => '0');--pstprc_IQ(11);
 			  when others => pstprc_IQ_seq_o <= (others => '0');
 			end case;
 		end if;

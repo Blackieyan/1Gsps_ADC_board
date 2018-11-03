@@ -38,8 +38,11 @@ entity TRIG_ctrl is
     -- clk_adc : in std_logic;
     rst_n : in std_logic;
     cmd_smpl_en : in std_logic;
-    cmd_smpl_trig_cnt : in std_logic_vector(15 downto 0);
+    cmd_smpl_trig_cnt : in std_logic_vector(23 downto 0);
     ram_start : in std_logic;           --force trig from ethernet
+	 
+	 trig_recv_cnt : out std_logic_vector(23 downto 0);
+	 
     SRCC1_p_trigin : in std_logic;
     SRCC1_p_trigout : out std_logic;
     posedge_sample_trig_o : out std_logic
@@ -52,7 +55,7 @@ architecture Behavioral of TRIG_ctrl is
   signal ram_start_d2 : std_logic;
   signal trigin_d2 : std_logic;
   signal trigin_d : std_logic;
-  signal sample_trig_cnt : std_logic_vector(15 downto 0);
+  signal sample_trig_cnt : std_logic_vector(23 downto 0);
   signal cmd_smpl_en_d : std_logic;
   signal cmd_smpl_en_d2 : std_logic;
   signal sample_en : std_logic;
@@ -62,7 +65,6 @@ architecture Behavioral of TRIG_ctrl is
   
 begin
   posedge_sample_trig_o<=posedge_sample_trig;
-  
    posedge_sample_trig_f_ps: process (CLK, rst_n, ram_start_d, ram_start_d2, trigin_d2, trigin_d,sample_en) is
   begin  -- process posedge_upload_trig_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
@@ -80,15 +82,17 @@ begin
   -- 1.来自上位机的采数指令ram_start
   -- 2.来自外部触发的采数触发trigin
 
-    sample_trig_cnt_ps: process (CLK, rst_n) is
+  sample_trig_cnt_ps: process (CLK, rst_n) is
   begin  -- process sample_trig_cnt_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-      sample_trig_cnt<=x"07d0";
+      sample_trig_cnt<=x"0007d0";
+		trig_recv_cnt  <= (others => '0');
     elsif CLK'event and CLK = '1' then  -- rising clock edge
       if sample_en ='1' then
         if posedge_sample_trig_f='1' then  --为了缩短逻辑响应时间，就不用上升沿判断了。这里的trig一定要只有一个周期长度才行。所以上位机的命令触发也会被算入其中。
           sample_trig_cnt<=sample_trig_cnt+1;
         end if;
+		  trig_recv_cnt <= sample_trig_cnt;
       elsif sample_en ='0' then
         sample_trig_cnt<=(others => '0');
       end if;

@@ -82,6 +82,7 @@ architecture Behavioral of Pstprc_fifo_top is
   signal fifo1_rd_vld : std_logic;
   signal fifo1_dout : std_logic_vector(131 downto 0);
   signal fifo1_in : std_logic_vector(65 downto 0);
+  signal Pstprc_fifo_din_d1 : std_logic_vector(63 downto 0);
   
   signal Pstprc_fifo_wren_d1 : std_logic;
   signal Pstprc_fifo_wren_d2 : std_logic;
@@ -250,17 +251,14 @@ begin
     end if;
   end process;
   
-  --数据写入要保持4的整数倍
+  --数据写入要保持4的整数倍,最后一个数加入last标志
+  Pstprc_finish_int <= fifo1_wr_en and not Pstprc_fifo_wren; --falling edge
+  fifo1_in <= fifo1_wr_en & Pstprc_finish_int & Pstprc_fifo_din_d1;
   process (Pstprc_fifo_wr_clk) is
   begin  -- process Pstprc_fifo_dout_ps
     if Pstprc_fifo_wr_clk'event and Pstprc_fifo_wr_clk = '1' then  -- rising clock edge
-      Pstprc_fifo_wren_d1 <= Pstprc_fifo_wren;
-      Pstprc_fifo_wren_d2 <= Pstprc_fifo_wren_d1;
-      Pstprc_fifo_wren_d3 <= Pstprc_fifo_wren_d2;
-      Pstprc_fifo_wren_d4 <= Pstprc_fifo_wren_d3;
-      Pstprc_finish_int <= not Pstprc_fifo_wren_d2 and Pstprc_fifo_wren_d3;
-		fifo1_in <= Pstprc_fifo_wren & Pstprc_finish_int & Pstprc_fifo_din;
-		fifo1_wr_en <= Pstprc_fifo_wren or Pstprc_fifo_wren_d1 or Pstprc_fifo_wren_d2 or Pstprc_fifo_wren_d3 or Pstprc_fifo_wren_d4;
+      fifo1_wr_en         <= Pstprc_fifo_wren;
+      Pstprc_fifo_din_d1  <= Pstprc_fifo_din;
     end if;
   end process;
   inst_post_pro_wr_fifo : post_pro_wr_fifo

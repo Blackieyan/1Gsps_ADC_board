@@ -174,7 +174,7 @@ architecture Behavioral of ZJUprojects is
   signal ADC_CLKOQ                   : std_logic;
   signal rst_n                       : std_logic;
   signal rst_n_a                     : std_logic;
-  signal posedge_upload_trig         : std_logic;
+  signal clear_frame_cnt             : std_logic;
   signal ram_i_doutb_sim             : std_logic_vector(7 downto 0);
   attribute IODELAY_GROUP            : string;
   signal cmd_ADC_gain_adj            : std_logic_vector(18 downto 0);
@@ -259,7 +259,7 @@ architecture Behavioral of ZJUprojects is
   signal cmd_smpl_en_d                : std_logic;
   signal cmd_smpl_en_d2               : std_logic;
   signal cmd_smpl_depth               : std_logic_vector(15 downto 0);
-  signal cmd_smpl_trig_cnt            : std_logic_vector(15 downto 0);
+  signal cmd_smpl_trig_cnt            : std_logic_vector(23 downto 0);
   signal cmd_pstprc_IQ_sw             : std_logic_vector(1 downto 0)  := "10";
   signal cmd_demowinln                : std_logic_vector(14 downto 0) := "000"&x"096";
   signal cmd_demowinstart             : std_logic_vector(14 downto 0) := "000"&x"096";
@@ -478,7 +478,7 @@ architecture Behavioral of ZJUprojects is
       -- ram_last                  : in     std_logic;
       -- SRCC1_n_upload_sma_trigin : in     std_logic;
       -- upload_trig_ethernet      : in     std_logic;
-      posedge_upload_trig : in  std_logic;
+      clear_frame_cnt     : in  std_logic;
       TX_dst_MAC_addr     : in  std_logic_vector(47 downto 0);
       sample_en           : in  std_logic;
       TX_src_MAC_addr     : in  std_logic_vector(3 downto 0);
@@ -509,8 +509,9 @@ architecture Behavioral of ZJUprojects is
       wait_cnt_set         : out    std_logic_vector(23 downto 0);
       cmd_smpl_en          : out    std_logic;
       cmd_smpl_depth       : out    std_logic_vector(15 downto 0);
-      cmd_smpl_trig_cnt    : out    std_logic_vector(15 downto 0);
+      cmd_smpl_trig_cnt    : out    std_logic_vector(23 downto 0);
       cmd_pstprc_IQ_sw     : out    std_logic_vector(1 downto 0);
+      clear_frame_cnt      : out    std_logic;
       ethernet_Rd_en       : out    std_logic;
       ethernet_Rd_Addr     : out    std_logic_vector(13 downto 0);
       Cmd_demowinln        : out    std_logic_vector(14 downto 0);
@@ -583,7 +584,8 @@ architecture Behavioral of ZJUprojects is
       clk                   : in  std_logic;
       rst_n                 : in  std_logic;
       cmd_smpl_en           : in  std_logic;
-      cmd_smpl_trig_cnt     : in  std_logic_vector(15 downto 0);
+      cmd_smpl_trig_cnt     : in  std_logic_vector(23 downto 0);
+      trig_recv_cnt         : out  std_logic_vector(23 downto 0);
       ram_start             : in  std_logic;
       SRCC1_p_trigin        : in  std_logic;
       SRCC1_p_trigout 		 : out std_logic;
@@ -928,6 +930,7 @@ begin
     rst_n                 => rst_adc_n,
     cmd_smpl_en           => cmd_smpl_en,
     cmd_smpl_trig_cnt     => cmd_smpl_trig_cnt,
+    trig_recv_cnt         => open,
     ram_start             => ram_start,
     SRCC1_p_trigin        => SelfAdpt_trig,--trig from IODELAYE1
     SRCC1_p_trigout       => SRCC1_p_trigout,--trig from IODELAYE1
@@ -957,7 +960,7 @@ begin
     CLK_125M_quar       => CLK_125M_quar,
     -- ram_wren            => ram_wren,
     ram_rden            => ram_rden,
-    posedge_upload_trig => posedge_upload_trig,
+    clear_frame_cnt     => clear_frame_cnt,
     TX_dst_MAC_addr     => TX_dst_MAC_addr,
     TX_src_MAC_addr     => TX_src_MAC_addr,
     sample_en           => sample_en,
@@ -976,6 +979,7 @@ begin
     frm_type             => cmd_frm_type,
     ram_start            => ram_start,
     upload_trig_ethernet => upload_trig_ethernet,
+    clear_frame_cnt      => clear_frame_cnt,
     rst_n                => rst_data_n,
     TX_dst_MAC_addr      => TX_dst_MAC_addr,
     cmd_smpl_en          => cmd_smpl_en,

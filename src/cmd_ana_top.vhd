@@ -44,6 +44,7 @@ entity cmd_ana_top is
     ram_start            : out    std_logic;
     upload_trig_ethernet : out    std_logic;
     rst_n                : in     std_logic;
+	 clear_frame_cnt      : out    std_logic;
 	 is_counter			    : out    std_logic;
 	 wait_cnt_set         : out    std_logic_vector(23 downto 0);
     ram_switch           : out    std_logic_vector(2 downto 0);
@@ -51,7 +52,7 @@ entity cmd_ana_top is
     self_adpt_en          : out    std_logic;
     cmd_smpl_en          : out    std_logic;
     cmd_smpl_depth       : out    std_logic_vector(15 downto 0);
-    cmd_smpl_trig_cnt    : out    std_logic_vector(15 downto 0);
+    cmd_smpl_trig_cnt    : out    std_logic_vector(23 downto 0);
     cmd_pstprc_IQ_sw     : out    std_logic_vector(1 downto 0);
     ethernet_Rd_en       : out    std_logic;
     ethernet_Rd_Addr     : out    std_logic_vector(13 downto 0);
@@ -99,10 +100,11 @@ architecture Behavioral of cmd_ana_top is
 	   wait_cnt_set         : out    std_logic_vector(23 downto 0);
       cmd_pstprc_IQ_sw       : out    std_logic_vector(1 downto 0);
       TX_dst_MAC_addr        : out    std_logic_vector(47 downto 0);
+      clear_frame_cnt        : out    std_logic;
       self_adpt_en          : out    std_logic;
       cmd_smpl_en_o          : out    std_logic;
       cmd_smpl_depth         : out    std_logic_vector(15 downto 0);
-      cmd_smpl_trig_cnt      : out    std_logic_vector(15 downto 0);
+      cmd_smpl_trig_cnt      : out    std_logic_vector(23 downto 0);
       Cmd_demowinln          : out    std_logic_vector(14 downto 0);
       Cmd_demowinstart       : out    std_logic_vector(14 downto 0);
       cmd_ADC_gain_adj       : out    std_logic_vector(18 downto 0);
@@ -139,6 +141,7 @@ begin
       rst_n                  => rst_n,
       wait_cnt_set           => wait_cnt_set,
       is_counter             => is_counter,
+      clear_frame_cnt             => clear_frame_cnt,
       cmd_pstprc_IQ_sw       => cmd_pstprc_IQ_sw,
       TX_dst_MAC_addr        => TX_dst_MAC_addr,
       self_adpt_en          => self_adpt_en,

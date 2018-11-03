@@ -49,7 +49,8 @@ entity G_ethernet_Tx_data is
     -- SRCC1_n_upload_sma_trigin : in std_logic;
     -- upload_trig_ethernet : in std_logic;
     -- ram_last : in std_logic;
-    posedge_upload_trig : in std_logic;
+--    posedge_upload_trig : in std_logic;
+    clear_frame_cnt : in std_logic;
     TX_dst_MAC_addr : in std_logic_vector(47 downto 0);
     TX_src_MAC_addr : in std_logic_vector(3 downto 0);
     sample_en : in std_logic;
@@ -517,6 +518,9 @@ begin
             addr_en<='0';
             frame_num_en<='0';
             ram_rden<='0';
+				if clear_frame_cnt = '1' then
+					frame_cnt<=(others => '0');
+				end if;
           when header_state =>
             wr_data<=header(header_cnt);
              fifo_upload_wren<='1';
