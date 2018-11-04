@@ -188,6 +188,7 @@ architecture Behavioral of ZJUprojects is
   signal ethernet_Rd_addr            : std_logic_vector(13 downto 0);
   signal ethernet_frm_valid          : std_logic;
   signal frm_valid_d                 : std_logic;
+  signal trig_recv_done                 : std_logic;
   signal ethernet_rd_data            : std_logic_vector(7 downto 0);
   attribute keep of ethernet_Rd_data : signal is true;
   signal ethernet_fifo_upload_data   : std_logic_vector(7 downto 0);
@@ -341,6 +342,7 @@ architecture Behavioral of ZJUprojects is
   -----------------------------------------------------------------------------
   signal cmd_Estmr_num_en    : std_logic;
   signal is_counter    : std_logic;
+  signal trig_recv_cnt       : std_logic_vector(23 downto 0);
   signal wait_cnt_set       : std_logic_vector(23 downto 0);
   signal cmd_Estmr_num       : std_logic_vector(3 downto 0);
   signal cmd_Estmr_A             : std_logic_vector(31 downto 0);
@@ -619,6 +621,7 @@ signal 	 cmd_1_data    : STD_LOGIC_VECTOR(127 DOWNTO 0);
       trig_recv_cnt         : out  std_logic_vector(23 downto 0);
       ram_start             : in  std_logic;
       SRCC1_p_trigin        : in  std_logic;
+      trig_recv_done 		 : out std_logic;
       SRCC1_p_trigout 		 : out std_logic;
       posedge_sample_trig_o : out std_logic;
       posedge_sample_trig_o_125M : out std_logic
@@ -745,6 +748,7 @@ signal 	 cmd_1_data    : STD_LOGIC_VECTOR(127 DOWNTO 0);
 		status_ram_data_vld : IN std_logic;
       rst_n               : in  std_logic;
       cmd_smpl_en           : in  std_logic;
+      trig_recv_done           : in  std_logic;
       Pstprc_fifo_wr_clk  : in  std_logic;
       Pstprc_fifo_rd_clk  : in  std_logic;
       wait_cnt_set     : in  std_logic_vector(23 downto 0);
@@ -996,7 +1000,8 @@ begin
     rst_n                 => rst_adc_n,
     cmd_smpl_en           => cmd_smpl_en,
     cmd_smpl_trig_cnt     => cmd_smpl_trig_cnt,
-    trig_recv_cnt         => open,
+    trig_recv_cnt         => trig_recv_cnt,
+    trig_recv_done             => trig_recv_done,
     ram_start             => ram_start,
     SRCC1_p_trigin        => SelfAdpt_trig,--trig from IODELAYE1
     SRCC1_p_trigout       => SRCC1_p_trigout,--trig from IODELAYE1
@@ -1240,7 +1245,8 @@ begin
   cal_done  <= sram_cal_done;
 	cmd_0_data <= cmd_Pstprc_DPS & cmd_demoWinstart(7 downto 0) & cmd_demoWinln & cmd_smpl_depth;--25,8,15,16
 	cmd_1_data <= cmd_Estmr_C & cmd_Estmr_B & cmd_Estmr_A;--64,32,32
-	status_1 <= x"00" & trig_recv_cnt & x"00" & recved_frame_cnt;
+	status_1 <= x"00" & trig_recv_cnt;
+	status_2 <= x"00" & recved_frame_cnt;
   Inst_board_status_collect: board_status_collect PORT MAP(
 		sys_clk => clk_125M,
 		rst_n => rst_data_proc_n,
@@ -1293,6 +1299,7 @@ begin
 		status_ram_rd_en => status_ram_rd_en,
 		recved_frame_cnt => recved_frame_cnt,
 	 ---------------------------------------------------
+    trig_recv_done  => trig_recv_done,    --same with the clk in dmog_seg
     cmd_smpl_en  => cmd_smpl_en,    --same with the clk in dmog_seg
     tx_rdy  => tx_rdy,    --same with the clk in dmog_seg
     wait_cnt_set  => wait_cnt_set,    --same with the clk in dmog_seg

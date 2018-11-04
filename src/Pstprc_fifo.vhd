@@ -77,6 +77,7 @@ entity Pstprc_fifo_top is
     Pstprc_finish_in : IN STD_LOGIC;
     tx_rdy : IN STD_LOGIC;
     cmd_smpl_en : IN STD_LOGIC;
+    trig_recv_done : IN STD_LOGIC;
     -- prog_empty_thresh : IN STD_LOGIC_VECTOR(6 DOWNTO 0);
     Pstprc_fifo_dout : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
     Pstprc_fifo_valid : OUT STD_LOGIC;
@@ -297,7 +298,7 @@ begin
     if Pstprc_fifo_wr_clk'event and Pstprc_fifo_wr_clk = '1' then  -- rising clock edge
 		cmd_smpl_en_d <= cmd_smpl_en;
       if Pstprc_finish_int = '1' then
-			recved_frame_cnt_int <= recved_frame_cnt + '1';
+			recved_frame_cnt_int <= recved_frame_cnt_int + '1';
 		elsif cmd_smpl_en_d = '0' and cmd_smpl_en = '1' then --新采样任务的上升沿
 			recved_frame_cnt_int <= (others => '0');
 		end if;
@@ -645,12 +646,13 @@ begin
     end if;
   end process;
   
+  --上位机主动发读状态命令或上位机读模式下逻辑接收到设定的触发个数，我们就启动一次读状态，将1024字节的状态数据从RAM读出
   status_ram_addr	<= status_ram_rd_addr_sig(6 downto 0);
   process (Pstprc_fifo_rd_clk) is
   begin  -- process Pstprc_fifo_dout_ps
     if Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
 		host_rd_status_d1 <= host_rd_status;
-		if host_rd_status_d1 = '0' and host_rd_status = '1' then
+		if (host_rd_status_d1 = '0' and host_rd_status = '1') or (trig_recv_done = '1' and host_rd_mode = '1') then
 			status_ram_rd_addr_sig <= (others => '0');
 			status_ram_rd_en   <= '1';
 		elsif status_ram_rd_addr_sig < x"80" then

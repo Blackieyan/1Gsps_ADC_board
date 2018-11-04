@@ -45,6 +45,7 @@ entity TRIG_ctrl is
 	 trig_recv_cnt : out std_logic_vector(23 downto 0);
 	 
     SRCC1_p_trigin : in std_logic;
+    trig_recv_done : out std_logic;
     SRCC1_p_trigout : out std_logic;
     posedge_sample_trig_o : out std_logic;
     posedge_sample_trig_o_125M : out std_logic
@@ -64,6 +65,9 @@ architecture Behavioral of TRIG_ctrl is
   signal cmd_smpl_en_d : std_logic;
   signal cmd_smpl_en_d2 : std_logic;
   signal sample_en : std_logic;
+  signal sample_en_d3 : std_logic;
+  signal sample_en_d2 : std_logic;
+  signal sample_en_d1 : std_logic;
   signal posedge_sample_trig : std_logic;
   signal posedge_sample_trig_f : std_logic;
   signal posedge_sample_trig_s : std_logic;
@@ -168,6 +172,16 @@ begin
   posedge_sample_trig_o_125M	<= posedge_sample_trig_s or posedge_sample_trig_f;
 --  posedge_sample_trig_o_125M	<= trig_125M_trig;
 --  SRCC1_p_trigout	<= trig_125M_trig;
+  process (CLK_125M) is
+  begin  -- process SRCC1_p_trigin_d_ps
+    if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+       sample_en_d1	<= sample_en;
+       sample_en_d2	<= sample_en_d1;
+       sample_en_d3	<= sample_en_d2;
+       trig_recv_done	<= sample_en_d3 and not sample_en_d2;
+    end if;
+  end process;
+
   process (CLK_125M) is
   begin  -- process SRCC1_p_trigin_d_ps
     if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
