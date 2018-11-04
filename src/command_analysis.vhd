@@ -48,6 +48,12 @@ entity command_analysis is
     -- mac_src    : out std_logic_vector(47 downto 0);
     -- reg_addr   : out std_logic_vector(15 downto 0);
     -- reg_data   : out std_logic_vector(31 downto 0);
+	 	 	 host_rd_mode : out STD_LOGIC;
+	 host_rd_status : out STD_LOGIC;
+	 host_rd_enable : out STD_LOGIC;
+	 host_rd_start_addr : out STD_LOGIC_VECTOR(18 DOWNTO 0);
+	 host_rd_seg_cnt : out STD_LOGIC_VECTOR(15 DOWNTO 0);
+	 host_rd_seg_len : out STD_LOGIC_VECTOR(15 DOWNTO 0);
 	 is_counter			    : out    std_logic;
 	 wait_cnt_set         : out    std_logic_vector(23 downto 0);
     self_adpt_en   : out std_logic;
@@ -537,6 +543,54 @@ begin  -- 地址33 清除帧编号
   end if;
 end process clear_frame_cnt_ps;
 
+host_rd_ps: process (rd_clk, rst_n) is
+begin  -- 地址34 上位机读模式
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    host_rd_mode <='0';
+    host_rd_status <='0';
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+      if reg_addr =x"0022" then
+        if rd_addr=x"19" then
+          host_rd_mode<= reg_data(24);
+          host_rd_status<= reg_data(16);
+        end if;
+      end if;
+  end if;
+end process host_rd_ps;
+
+host_rd_data_ps: process (rd_clk, rst_n) is
+begin  -- 地址35 上位机读数据参数设置
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    host_rd_seg_cnt <= (others =>'0');
+    host_rd_seg_len <= (others =>'0');
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+      if reg_addr =x"0023" then
+        if rd_addr=x"19" then
+          host_rd_seg_cnt<= reg_data(47 downto 32);
+          host_rd_seg_len<= reg_data(31 downto 16);
+        end if;
+      end if;
+  end if;
+end process host_rd_data_ps;
+
+host_rd_start_ps: process (rd_clk, rst_n) is
+begin  -- 地址36 上位机读数据启动一次
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    host_rd_enable 		<= '0';
+	 host_rd_start_addr  <= (others =>'0');
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+      if reg_addr =x"0024" then
+        if rd_addr=x"19" then
+          host_rd_start_addr <= reg_data(34 downto 16);
+		    host_rd_enable	  <= '1';
+		  else
+		     host_rd_enable<= '0';
+        end if;
+		else
+			host_rd_enable<= '0';
+      end if;
+  end if;
+end process host_rd_start_ps;
 -- ADC_gain_adj_ps: process (rd_clk, rst_n) is
 -- begin  -- process ADC_gain_adj_ps
 --   if rst_n = '0' then                   -- asynchronous reset (active low)

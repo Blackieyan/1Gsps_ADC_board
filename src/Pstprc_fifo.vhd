@@ -55,9 +55,19 @@ entity Pstprc_fifo_top is
 	qdriip_dll_off_n : OUT std_logic;
 	cal_done : OUT std_logic;
     ----sram interface------
-  
-    rst_n : IN STD_LOGIC;
+    ----configinterface------
     wait_cnt_set : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
+	 host_rd_mode : IN STD_LOGIC;
+	 host_rd_status : IN STD_LOGIC;
+	 host_rd_enable : IN STD_LOGIC;
+	 host_rd_start_addr : IN STD_LOGIC_VECTOR(18 DOWNTO 0);
+	 host_rd_seg_cnt : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+	 host_rd_seg_len : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+  status_ram_addr : OUT std_logic_vector(6 downto 0);
+		status_ram_rd_en : OUT std_logic;          
+		status_ram_data : IN std_logic_vector(63 downto 0);
+		status_ram_data_vld : IN std_logic;
+    rst_n : IN STD_LOGIC;
     Pstprc_fifo_wr_clk : IN STD_LOGIC;
     Pstprc_fifo_rd_clk : IN STD_LOGIC;
     Pstprc_fifo_din : IN STD_LOGIC_VECTOR(63 DOWNTO 0);
@@ -108,14 +118,15 @@ architecture Behavioral of Pstprc_fifo_top is
   signal rst : std_logic;
   signal prog_full : std_logic;
   signal fifo2_wr_en : std_logic;
-  signal full : std_logic;
   signal empty : std_logic;
+  signal status_ram_rd_addr_sig : std_logic_vector(7 downto 0);
   signal fifo2_din : std_logic_vector(63 downto 0);
   signal dout : std_logic_vector(7 downto 0);
   signal data_pre : std_logic_vector(31 downto 0);
   signal delta : std_logic_vector(31 downto 0);
   signal timeout_rst_cnt : std_logic_vector(23 downto 0);
   signal timeout_rst : std_logic;
+  signal host_rd_status_d1 : std_logic;
   
  	signal 	tx_rdy_d1  : std_logic;
  	signal 	tx_rdy_d2  : std_logic;
@@ -226,6 +237,7 @@ COMPONENT Pstprc_Fifo
     rd_en : IN STD_LOGIC;
     -- prog_empty_thresh : IN STD_LOGIC_VECTOR(6 DOWNTO 0);
     dout : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+    prog_full : OUT STD_LOGIC;
     full : OUT STD_LOGIC;
     empty : OUT STD_LOGIC;
     valid : OUT STD_LOGIC;
@@ -464,7 +476,7 @@ begin
   begin  -- process Pstprc_fifo_dout_ps
     if Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
       if wait_cnt = 0 then
-			can_read_new_result <= '1';
+		can_read_new_result <= not host_rd_status; --上位机不在读状态
 		else
 			can_read_new_result <= '0';
 		end if;
@@ -478,7 +490,7 @@ begin
     elsif Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
       if rd_buf_fifo = '1' then
 --			buf_fifo_rden <= (not buf_fifo_rden) and (not Pstprc_finish_temp) and (not full);
-			buf_fifo_rden <= not(buf_fifo_rden or Pstprc_finish_temp or full or buf_fifo_empty) and  can_read_new_result;
+			buf_fifo_rden <= not(buf_fifo_rden or Pstprc_finish_temp or prog_full or buf_fifo_empty) and  can_read_new_result;
 		else
 			buf_fifo_rden	<= '0';
 		end if;
@@ -490,7 +502,8 @@ begin
     if rst = '1' then  
 		Pstprc_finish_out <= '0';
 	 elsif Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
-		if Pstprc_finish_temp = '1' then
+	 --都状态数据时，在最后一个地址发出数据包有效信号
+		if Pstprc_finish_temp = '1' or status_ram_rd_addr_sig = x"7F" then
 			Pstprc_finish_out <= '1';
 		elsif tx_rdy = '0' then
 			Pstprc_finish_out <= '0';
@@ -501,10 +514,34 @@ begin
   process (Pstprc_fifo_rd_clk) is
   begin  -- process Pstprc_fifo_dout_ps
     if Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
-      fifo2_wr_en <= buf_fifo_dout(65) and buf_fifo_rd_vld;
-		fifo2_din   <= buf_fifo_dout(63 downto 0);
+		if host_rd_status = '1' then
+			fifo2_wr_en <= status_ram_data_vld;
+			fifo2_din   <= status_ram_data(63 downto 0);
+		else
+			fifo2_wr_en <= buf_fifo_dout(65) and buf_fifo_rd_vld;
+			fifo2_din   <= buf_fifo_dout(63 downto 0);
+		end if;
     end if;
   end process;
+  
+  status_ram_addr	<= status_ram_rd_addr_sig(6 downto 0);
+  process (Pstprc_fifo_rd_clk) is
+  begin  -- process Pstprc_fifo_dout_ps
+    if Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
+		host_rd_status_d1 <= host_rd_status;
+		if host_rd_status_d1 = '0' and host_rd_status = '1' then
+			status_ram_rd_addr_sig <= (others => '0');
+			status_ram_rd_en   <= '1';
+		elsif status_ram_rd_addr_sig < x"80" then
+			status_ram_rd_addr_sig <= status_ram_rd_addr_sig+1;
+			status_ram_rd_en   <= '1';
+		else
+			status_ram_rd_en   <= '0';
+		end if;
+		
+    end if;
+  end process;
+  
   empty_rst <= rst or timeout_rst;
   Pstprc_Fifo_inst : Pstprc_Fifo
   PORT MAP (
@@ -516,7 +553,8 @@ begin
     rd_en =>Pstprc_fifo_rden,
     -- prog_empty_thresh => prog_empty_thresh,
     dout => dout,
-    full => full,
+    full => open,
+    prog_full => prog_full,
     empty => empty,
     valid => Pstprc_fifo_valid,
     prog_empty => pstprc_fifo_pempty,

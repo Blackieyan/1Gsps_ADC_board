@@ -370,10 +370,22 @@ architecture Behavioral of ZJUprojects is
   signal rst_data_proc_n : std_logic;
   signal rst_feedback_n  : std_logic;
   signal rst_config_n : std_logic;
+  -----------------------------------------------------------------
+  signal	 	status_ram_addr : std_logic_vector(6 downto 0);
+	signal	status_ram_rd_en : std_logic;          
+	signal	status_ram_data : std_logic_vector(63 downto 0);
+	signal	status_ram_data_vld : std_logic;
   -----------------------------------------------------------------------------
   signal SRCC1_p_trigout : std_logic;
   signal cmd_adpt 		 : std_logic;
   signal SelfAdpt_trig 	 : std_logic;
+  -----------------------------------------------------------------------------
+signal  	 host_rd_mode       : STD_LOGIC;
+signal 	 host_rd_status     : STD_LOGIC;
+signal 	 host_rd_enable     : STD_LOGIC;
+signal 	 host_rd_start_addr : STD_LOGIC_VECTOR(18 DOWNTO 0);
+signal 	 host_rd_seg_cnt   : STD_LOGIC_VECTOR(15 DOWNTO 0);
+signal 	 host_rd_seg_len    : STD_LOGIC_VECTOR(15 DOWNTO 0);
   -----------------------------------------------------------------------------
   	COMPONENT sys_reset_proc
 	PORT(
@@ -506,6 +518,12 @@ architecture Behavioral of ZJUprojects is
       ram_switch           : out    std_logic_vector(2 downto 0);
       TX_dst_MAC_addr      : out    std_logic_vector(47 downto 0);
       is_counter				: out    std_logic;
+	 host_rd_mode : out STD_LOGIC;
+	 host_rd_status : out STD_LOGIC;
+	 host_rd_enable : out STD_LOGIC;
+	 host_rd_start_addr : out STD_LOGIC_VECTOR(18 DOWNTO 0);
+	 host_rd_seg_cnt : out STD_LOGIC_VECTOR(15 DOWNTO 0);
+	 host_rd_seg_len : out STD_LOGIC_VECTOR(15 DOWNTO 0);
       wait_cnt_set         : out    std_logic_vector(23 downto 0);
       cmd_smpl_en          : out    std_logic;
       cmd_smpl_depth       : out    std_logic_vector(15 downto 0);
@@ -701,6 +719,16 @@ architecture Behavioral of ZJUprojects is
 		qdriip_bw_n : OUT std_logic_vector(3 downto 0);
 		qdriip_dll_off_n : OUT std_logic;
 		cal_done : OUT std_logic;
+			 host_rd_mode : IN STD_LOGIC;
+	 host_rd_status : IN STD_LOGIC;
+	 host_rd_enable : IN STD_LOGIC;
+	 host_rd_start_addr : IN STD_LOGIC_VECTOR(18 DOWNTO 0);
+	 host_rd_seg_cnt : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+	 host_rd_seg_len : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+	 	status_ram_addr : OUT std_logic_vector(6 downto 0);
+		status_ram_rd_en : OUT std_logic;          
+		status_ram_data : IN std_logic_vector(63 downto 0);
+		status_ram_data_vld : IN std_logic;
       rst_n               : in  std_logic;
       Pstprc_fifo_wr_clk  : in  std_logic;
       Pstprc_fifo_rd_clk  : in  std_logic;
@@ -718,6 +746,24 @@ architecture Behavioral of ZJUprojects is
       pstprc_fifo_alempty : out std_logic
       );
   end component;
+  ----------------------------------------------------------------------
+  	COMPONENT board_status_collect
+	PORT(
+		sys_clk : IN std_logic;
+		rst_n : IN std_logic;
+		cmd_0_data : IN std_logic_vector(31 downto 0);
+		cmd_0_addr : IN std_logic_vector(6 downto 0);
+		cmd_0_en : IN std_logic;
+		status_1 : IN std_logic_vector(31 downto 0);
+		status_2 : IN std_logic_vector(31 downto 0);
+		status_3 : IN std_logic_vector(31 downto 0);
+		status_4 : IN std_logic_vector(31 downto 0);
+		status_ram_addr : IN std_logic_vector(6 downto 0);
+		status_ram_rd_en : IN std_logic;          
+		status_ram_data : OUT std_logic_vector(63 downto 0);
+		status_ram_data_vld : OUT std_logic
+		);
+	END COMPONENT;
   -----------------------------------------------------------------------------
   component SelfAdpt
     port(
@@ -986,7 +1032,12 @@ begin
     cmd_smpl_depth       => cmd_smpl_depth,
     cmd_smpl_trig_cnt    => cmd_smpl_trig_cnt,
     cmd_pstprc_IQ_sw     => cmd_pstprc_IQ_sw,
-	 
+	 host_rd_mode      => host_rd_mode,
+	 host_rd_status    => host_rd_status,
+	 host_rd_enable    => host_rd_enable,
+	 host_rd_start_addr=> host_rd_start_addr,
+	 host_rd_seg_cnt   => host_rd_seg_cnt,
+	 host_rd_seg_len   => host_rd_seg_len,
     is_counter  => is_counter,    
     wait_cnt_set  => wait_cnt_set,    
     self_adpt_en       	 => self_adpt_en,
@@ -1166,7 +1217,22 @@ begin
   Pstprc_RAMI_dina <= ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
   pstprc_ram_wren  <= ram_wren;
   cal_done  <= sram_cal_done;
-  
+
+  Inst_board_status_collect: board_status_collect PORT MAP(
+		sys_clk => clk_125M,
+		rst_n => rst_data_proc_n,
+		cmd_0_data => (others => '0'),
+		cmd_0_addr => (others => '0'),
+		cmd_0_en => '0',
+		status_1 => x"12345678",
+		status_2 => x"AAAAAAAA",
+		status_3 => x"DDDDDDDD",
+		status_4 => x"5a5a5a5a",
+		status_ram_data => status_ram_data,
+		status_ram_data_vld => status_ram_data_vld,
+		status_ram_addr => status_ram_addr,
+		status_ram_rd_en => status_ram_rd_en
+	);
   -----------------------------------------------------------------------------
   Inst_Pstprc_fifo_top : Pstprc_fifo_top port map(
     rst_n               => rst_data_proc_n,
@@ -1186,6 +1252,19 @@ begin
     qdriip_bw_n                => qdriip_bw_n,
     qdriip_dll_off_n           => qdriip_dll_off_n,
     cal_done                   => sram_cal_done,
+	 --------------------------------------------------
+	 host_rd_mode      => host_rd_mode,
+	 host_rd_status    => host_rd_status,
+	 host_rd_enable    => host_rd_enable,
+	 host_rd_start_addr=> host_rd_start_addr,
+	 host_rd_seg_cnt   => host_rd_seg_cnt,
+	 host_rd_seg_len   => host_rd_seg_len,
+	 
+	 
+		status_ram_data => status_ram_data,
+		status_ram_data_vld => status_ram_data_vld,
+		status_ram_addr => status_ram_addr,
+		status_ram_rd_en => status_ram_rd_en,
 	 ---------------------------------------------------
     tx_rdy  => tx_rdy,    --same with the clk in dmog_seg
     wait_cnt_set  => wait_cnt_set,    --same with the clk in dmog_seg

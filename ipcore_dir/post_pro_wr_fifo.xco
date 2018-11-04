@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 13.3
-# Date: Sat Nov 03 17:28:29 2018
+# Date: Mon Oct 29 08:56:08 2018
 #
 ##############################################################
 #
@@ -21,7 +21,7 @@ SET addpads = false
 SET asysymbol = true
 SET busformat = BusFormatAngleBracketNotRipped
 SET createndf = false
-SET designentry = VHDL
+SET designentry = Verilog
 SET device = xc6vlx240t
 SET devicefamily = virtex6
 SET flowvendor = Other
@@ -32,15 +32,15 @@ SET package = ff1156
 SET removerpms = false
 SET simulationfiles = Behavioral
 SET speedgrade = -2
-SET verilogsim = false
-SET vhdlsim = true
+SET verilogsim = true
+SET vhdlsim = false
 # END Project Options
 # BEGIN Select
 SELECT Fifo_Generator xilinx.com:ip:fifo_generator:8.3
 # END Select
 # BEGIN Parameters
 CSET add_ngc_constraint_axi=false
-CSET almost_empty_flag=true
+CSET almost_empty_flag=false
 CSET almost_full_flag=false
 CSET aruser_width=1
 CSET awuser_width=1
@@ -51,9 +51,9 @@ CSET axis_type=FIFO
 CSET buser_width=1
 CSET clock_enable_type=Slave_Interface_Clock_Enable
 CSET clock_type_axi=Common_Clock
-CSET component_name=Pstprc_Fifo
+CSET component_name=post_pro_wr_fifo
 CSET data_count=false
-CSET data_count_width=9
+CSET data_count_width=11
 CSET disable_timing_violations=false
 CSET disable_timing_violations_axi=false
 CSET dout_reset_value=0
@@ -116,15 +116,15 @@ CSET fifo_implementation_rdch=Common_Clock_Block_RAM
 CSET fifo_implementation_wach=Common_Clock_Block_RAM
 CSET fifo_implementation_wdch=Common_Clock_Block_RAM
 CSET fifo_implementation_wrch=Common_Clock_Block_RAM
-CSET full_flags_reset_value=0
-CSET full_threshold_assert_value=500
+CSET full_flags_reset_value=1
+CSET full_threshold_assert_value=2045
 CSET full_threshold_assert_value_axis=1023
 CSET full_threshold_assert_value_rach=1023
 CSET full_threshold_assert_value_rdch=1023
 CSET full_threshold_assert_value_wach=1023
 CSET full_threshold_assert_value_wdch=1023
 CSET full_threshold_assert_value_wrch=1023
-CSET full_threshold_negate_value=499
+CSET full_threshold_negate_value=2044
 CSET id_width=4
 CSET inject_dbit_error=false
 CSET inject_dbit_error_axis=false
@@ -140,8 +140,8 @@ CSET inject_sbit_error_rdch=false
 CSET inject_sbit_error_wach=false
 CSET inject_sbit_error_wdch=false
 CSET inject_sbit_error_wrch=false
-CSET input_data_width=64
-CSET input_depth=512
+CSET input_data_width=66
+CSET input_depth=2048
 CSET input_depth_axis=1024
 CSET input_depth_rach=16
 CSET input_depth_rdch=1024
@@ -149,21 +149,21 @@ CSET input_depth_wach=16
 CSET input_depth_wdch=1024
 CSET input_depth_wrch=16
 CSET interface_type=Native
-CSET output_data_width=8
-CSET output_depth=4096
+CSET output_data_width=132
+CSET output_depth=1024
 CSET overflow_flag=false
 CSET overflow_flag_axi=false
 CSET overflow_sense=Active_High
 CSET overflow_sense_axi=Active_High
 CSET performance_options=Standard_FIFO
-CSET programmable_empty_type=Single_Programmable_Empty_Threshold_Constant
+CSET programmable_empty_type=No_Programmable_Empty_Threshold
 CSET programmable_empty_type_axis=Empty
 CSET programmable_empty_type_rach=Empty
 CSET programmable_empty_type_rdch=Empty
 CSET programmable_empty_type_wach=Empty
 CSET programmable_empty_type_wdch=Empty
 CSET programmable_empty_type_wrch=Empty
-CSET programmable_full_type=Single_Programmable_Full_Threshold_Constant
+CSET programmable_full_type=No_Programmable_Full_Threshold
 CSET programmable_full_type_axis=Full
 CSET programmable_full_type_rach=Full
 CSET programmable_full_type_rdch=Full
@@ -174,7 +174,7 @@ CSET rach_type=FIFO
 CSET rdch_type=FIFO
 CSET read_clock_frequency=1
 CSET read_data_count=false
-CSET read_data_count_width=12
+CSET read_data_count_width=10
 CSET register_slice_mode_axis=Fully_Registered
 CSET register_slice_mode_rach=Fully_Registered
 CSET register_slice_mode_rdch=Fully_Registered
@@ -207,11 +207,11 @@ CSET write_acknowledge_flag=false
 CSET write_acknowledge_sense=Active_High
 CSET write_clock_frequency=1
 CSET write_data_count=false
-CSET write_data_count_width=9
+CSET write_data_count_width=11
 CSET wuser_width=1
 # END Parameters
 # BEGIN Extra information
 MISC pkg_timestamp=2011-03-14T07:12:32.000Z
 # END Extra information
 GENERATE
-# CRC: 9c8f79e1
+# CRC: 9c50171f
