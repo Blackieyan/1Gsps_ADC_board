@@ -250,6 +250,7 @@ architecture Behavioral of ZJUprojects is
   signal upload_trig_ethernet_d2      : std_logic;
   signal ram_i_doutb_d                : std_logic_vector(7 downto 0);
   signal posedge_sample_trig          : std_logic;
+  signal posedge_sample_trig_125M     : std_logic;
   signal user_pushbutton_g            : std_logic;
   signal data_test_pin                : std_logic;
   signal TX_dst_MAC_addr              : std_logic_vector(47 downto 0);
@@ -386,6 +387,15 @@ signal 	 host_rd_enable     : STD_LOGIC;
 signal 	 host_rd_start_addr : STD_LOGIC_VECTOR(18 DOWNTO 0);
 signal 	 host_rd_seg_cnt   : STD_LOGIC_VECTOR(15 DOWNTO 0);
 signal 	 host_rd_seg_len    : STD_LOGIC_VECTOR(15 DOWNTO 0);
+signal 	 status_0    : STD_LOGIC_VECTOR(31 DOWNTO 0);
+signal 	 status_1    : STD_LOGIC_VECTOR(31 DOWNTO 0);
+signal 	 status_2    : STD_LOGIC_VECTOR(31 DOWNTO 0);
+signal 	 status_3    : STD_LOGIC_VECTOR(31 DOWNTO 0);
+signal 	 status_4    : STD_LOGIC_VECTOR(31 DOWNTO 0);
+signal 	 status_5    : STD_LOGIC_VECTOR(31 DOWNTO 0);
+signal 	 status_6    : STD_LOGIC_VECTOR(31 DOWNTO 0);
+signal 	 cmd_0_data    : STD_LOGIC_VECTOR(63 DOWNTO 0);
+signal 	 cmd_1_data    : STD_LOGIC_VECTOR(127 DOWNTO 0);
   -----------------------------------------------------------------------------
   	COMPONENT sys_reset_proc
 	PORT(
@@ -545,6 +555,7 @@ signal 	 host_rd_seg_len    : STD_LOGIC_VECTOR(15 DOWNTO 0);
       cmd_Estmr_sync_en    : out    std_logic;
       cmd_Estmr_num        : out    std_logic_vector(3 downto 0);
       cmd_Estmr_num_en     : out    std_logic
+      
      -- cmd_Pstprc_dps_en : out std_logic
       );
   end component;
@@ -600,6 +611,7 @@ signal 	 host_rd_seg_len    : STD_LOGIC_VECTOR(15 DOWNTO 0);
   component TRIG_ctrl
     port(
       clk                   : in  std_logic;
+      clk_125M              : in  std_logic;
       rst_n                 : in  std_logic;
       cmd_smpl_en           : in  std_logic;
       cmd_smpl_trig_cnt     : in  std_logic_vector(23 downto 0);
@@ -607,7 +619,8 @@ signal 	 host_rd_seg_len    : STD_LOGIC_VECTOR(15 DOWNTO 0);
       ram_start             : in  std_logic;
       SRCC1_p_trigin        : in  std_logic;
       SRCC1_p_trigout 		 : out std_logic;
-      posedge_sample_trig_o : out std_logic
+      posedge_sample_trig_o : out std_logic;
+      posedge_sample_trig_o_125M : out std_logic
       );
   end component;
 
@@ -751,9 +764,12 @@ signal 	 host_rd_seg_len    : STD_LOGIC_VECTOR(15 DOWNTO 0);
 	PORT(
 		sys_clk : IN std_logic;
 		rst_n : IN std_logic;
-		cmd_0_data : IN std_logic_vector(31 downto 0);
-		cmd_0_addr : IN std_logic_vector(6 downto 0);
+		cmd_0_data : IN std_logic_vector(63 downto 0);
+		cmd_0_addr : IN std_logic_vector(3 downto 0);
 		cmd_0_en : IN std_logic;
+		cmd_1_data : IN std_logic_vector(127 downto 0);
+		cmd_1_addr : IN std_logic_vector(2 downto 0);
+		cmd_1_en : IN std_logic;
 		status_1 : IN std_logic_vector(31 downto 0);
 		status_2 : IN std_logic_vector(31 downto 0);
 		status_3 : IN std_logic_vector(31 downto 0);
@@ -973,6 +989,7 @@ begin
   ------------------------------------------------------------------------------ 
   Inst_TRIG_ctrl : TRIG_ctrl port map(
     clk                   => ADC_CLKOI,
+    clk_125M              => CLK_125M,
     rst_n                 => rst_adc_n,
     cmd_smpl_en           => cmd_smpl_en,
     cmd_smpl_trig_cnt     => cmd_smpl_trig_cnt,
@@ -980,7 +997,8 @@ begin
     ram_start             => ram_start,
     SRCC1_p_trigin        => SelfAdpt_trig,--trig from IODELAYE1
     SRCC1_p_trigout       => SRCC1_p_trigout,--trig from IODELAYE1
-    posedge_sample_trig_o => posedge_sample_trig
+    posedge_sample_trig_o => posedge_sample_trig,
+    posedge_sample_trig_o_125M => posedge_sample_trig_125M
     );
 
 -------------------------------------------------------------------------------
@@ -1065,7 +1083,7 @@ begin
     rst_n                 => rst_data_n,
     CLK                   => CLK_125M,
     cmd_pstprc_IQ_sw      => cmd_pstprc_IQ_sw,
-    posedge_sample_trig   => posedge_sample_trig,
+    posedge_sample_trig   => posedge_sample_trig_125M,
     Ram_Q_last            => Ram_Q_last,
     Ram_I_last            => Ram_I_last,
     Ram_I_doutb           => Ram_I_doutb,
@@ -1217,17 +1235,22 @@ begin
   Pstprc_RAMI_dina <= ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
   pstprc_ram_wren  <= ram_wren;
   cal_done  <= sram_cal_done;
-
+	cmd_0_data <= cmd_Pstprc_DPS & cmd_demoWinstart(7 downto 0) & cmd_demoWinln & cmd_smpl_depth;--25,8,15,16
+	cmd_1_data <= cmd_Estmr_C & cmd_Estmr_B & cmd_Estmr_A;--64,32,32
+	
   Inst_board_status_collect: board_status_collect PORT MAP(
 		sys_clk => clk_125M,
 		rst_n => rst_data_proc_n,
-		cmd_0_data => (others => '0'),
-		cmd_0_addr => (others => '0'),
-		cmd_0_en => '0',
-		status_1 => x"12345678",
-		status_2 => x"AAAAAAAA",
-		status_3 => x"DDDDDDDD",
-		status_4 => x"5a5a5a5a",
+		cmd_0_data => cmd_0_data,
+		cmd_0_addr => cmd_Pstprc_num(3 downto 0),
+		cmd_0_en => cmd_pstprc_num_en,
+		cmd_1_data => cmd_1_data,
+		cmd_1_addr => cmd_Estmr_num(2 downto 0),
+		cmd_1_en => cmd_Estmr_num_en,		
+		status_1 => status_1,
+		status_2 => status_2,
+		status_3 => status_3,
+		status_4 => status_4,
 		status_ram_data => status_ram_data,
 		status_ram_data_vld => status_ram_data_vld,
 		status_ram_addr => status_ram_addr,

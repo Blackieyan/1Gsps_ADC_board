@@ -35,6 +35,7 @@ use UNISIM.vcomponents.all;
 entity TRIG_ctrl is
   port (
     clk :in std_logic;
+    CLK_125M :in std_logic;
     -- clk_adc : in std_logic;
     rst_n : in std_logic;
     cmd_smpl_en : in std_logic;
@@ -45,11 +46,15 @@ entity TRIG_ctrl is
 	 
     SRCC1_p_trigin : in std_logic;
     SRCC1_p_trigout : out std_logic;
-    posedge_sample_trig_o : out std_logic
+    posedge_sample_trig_o : out std_logic;
+    posedge_sample_trig_o_125M : out std_logic
     );
 end TRIG_ctrl;
 
 architecture Behavioral of TRIG_ctrl is
+  
+  signal trig_250M_lch : std_logic;
+  signal trig_125M_trig : std_logic;
   
   signal ram_start_d : std_logic;
   signal ram_start_d2 : std_logic;
@@ -138,7 +143,7 @@ begin
     end if;
   end process SRCC1_p_trigin_d_ps;
   
-  SRCC1_p_trigout<=trigin_d2;
+--  SRCC1_p_trigout<=trigin_d2;
 
  posedge_sample_trig_ps: process (CLK) is
   begin  -- process SRCC1_p_trigin_d_ps
@@ -148,6 +153,26 @@ begin
   end process  posedge_sample_trig_ps;
 
   posedge_sample_trig <= posedge_sample_trig_s or posedge_sample_trig_f;
+  
+  process (CLK) is
+  begin  -- process SRCC1_p_trigin_d_ps
+    if CLK'event and CLK = '1' then  -- rising clock edge
+       if(posedge_sample_trig_f = '1') then
+			trig_250M_lch	<= '1';
+		 elsif trig_125M_trig = '1' then
+		   trig_250M_lch	<= '0';
+		 end if;
+    end if;
+  end process;
+  
+  posedge_sample_trig_o_125M	<= trig_125M_trig;
+  SRCC1_p_trigout	<= trig_125M_trig;
+  process (CLK_125M) is
+  begin  -- process SRCC1_p_trigin_d_ps
+    if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+       trig_125M_trig	<= trig_250M_lch;
+    end if;
+  end process;
   --    upload_trig_ethernet_d_ps: process (CLK, rst_n) isA
   -- begin  -- process trig_in_ps
   --   if rst_n = '0' then                 -- asynchronous reset (active low)

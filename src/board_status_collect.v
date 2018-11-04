@@ -21,10 +21,14 @@
 module board_status_collect(
     input sys_clk,
     input rst_n,
-	 //来自于命令解析模块
-    input [31:0]  cmd_0_data,
-    input [6:0]	cmd_0_addr,
+	 //来自于命令解析模块1
+    input [63:0]  cmd_0_data,
+    input [3:0]	cmd_0_addr,
     input 			cmd_0_en,
+	 //来自于命令解析模块2
+    input [127:0]  cmd_1_data,
+    input [2:0]	 cmd_1_addr,
+    input 			 cmd_1_en,
 	 //来自于内部逻辑，根据需要增加
     input [31:0] 	status_1,
     input [31:0] 	status_2,
@@ -80,12 +84,53 @@ always @(posedge sys_clk) begin
 	if(time_cnt == 0)			heart_beat  <= heart_beat + 1;
 end
 
+reg cmd_0_en_d1;
+reg cmd_0_wr1;
+reg cmd_0_wr2;
 
+reg cmd_1_en_d1;
+reg cmd_1_wr1;
+reg cmd_1_wr2;
+reg cmd_1_wr3;
+reg cmd_1_wr4;
 always @(posedge sys_clk) begin
-	if(cmd_0_en == 1)	begin //命令写入在高128个地址
+	cmd_0_en_d1 <= cmd_0_en;
+	cmd_0_wr1   <= !cmd_0_en_d1 & cmd_0_en;
+	cmd_0_wr2   <= cmd_0_wr1;
+	cmd_1_en_d1 <= cmd_0_en;
+	cmd_1_wr1   <= !cmd_1_en_d1 & cmd_1_en;
+	cmd_1_wr2   <= cmd_1_wr1;
+	cmd_1_wr3   <= cmd_1_wr2;
+	cmd_1_wr4   <= cmd_1_wr3;
+	if(cmd_0_wr1 == 1)	begin //命令写入在高128个地址开始 32个32位 最多16组参数
 		ram_wr_en	<= 1;
-		ram_wr_data <= cmd_0_data;
-		ram_wr_addr <= {1'b1,cmd_0_addr};
+		ram_wr_data <= cmd_0_data[31:0];
+		ram_wr_addr <= {3'b100,cmd_0_addr[3:0],1'b0};
+	end
+	else 	if(cmd_0_wr2 == 1)	begin 
+		ram_wr_en	<= 1;
+		ram_wr_data <= cmd_0_data[63:32];
+		ram_wr_addr <= {3'b100,cmd_0_addr[3:0],1'b1};
+	end
+	else 	if(cmd_1_wr1 == 1)	begin //命令写入在高160个地址开始 32个32位 最多8组参数
+		ram_wr_en	<= 1;
+		ram_wr_data <= cmd_1_data[31:0];
+		ram_wr_addr <= {3'b101,cmd_1_addr[2:0],2'b00};
+	end
+	else 	if(cmd_1_wr2 == 1)	begin 
+		ram_wr_en	<= 1;
+		ram_wr_data <= cmd_1_data[63:32];
+		ram_wr_addr <= {3'b101,cmd_1_addr[2:0],2'b01};
+	end
+	else 	if(cmd_1_wr3 == 1)	begin 
+		ram_wr_en	<= 1;
+		ram_wr_data <= cmd_1_data[95:64];
+		ram_wr_addr <= {3'b101,cmd_1_addr[2:0],2'b10};
+	end
+	else 	if(cmd_1_wr4 == 1)	begin 
+		ram_wr_en	<= 1;
+		ram_wr_data <= cmd_1_data[127:96];
+		ram_wr_addr <= {3'b101,cmd_1_addr[2:0],2'b11};
 	end
 	else if(time_wr == 1 ) begin //寄存器在低128个地址
 		ram_wr_addr <= {1'b0,time_cnt[6:0]};
