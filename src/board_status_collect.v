@@ -105,35 +105,35 @@ always @(posedge sys_clk) begin
 	if(cmd_0_wr1 == 1)	begin //命令写入在高128个地址开始 32个32位 最多16组参数
 		ram_wr_en	<= 1;
 		ram_wr_data <= cmd_0_data[31:0];
-		ram_wr_addr <= {3'b100,cmd_0_addr[3:0],1'b0};
+		ram_wr_addr <= {3'b000,cmd_0_addr[3:0],1'b0};
 	end
 	else 	if(cmd_0_wr2 == 1)	begin 
 		ram_wr_en	<= 1;
 		ram_wr_data <= cmd_0_data[63:32];
-		ram_wr_addr <= {3'b100,cmd_0_addr[3:0],1'b1};
+		ram_wr_addr <= {3'b000,cmd_0_addr[3:0],1'b1};
 	end
 	else 	if(cmd_1_wr1 == 1)	begin //命令写入在高160个地址开始 32个32位 最多8组参数
 		ram_wr_en	<= 1;
 		ram_wr_data <= cmd_1_data[31:0];
-		ram_wr_addr <= {3'b101,cmd_1_addr[2:0],2'b00};
+		ram_wr_addr <= {3'b001,cmd_1_addr[2:0],2'b00};
 	end
 	else 	if(cmd_1_wr2 == 1)	begin 
 		ram_wr_en	<= 1;
 		ram_wr_data <= cmd_1_data[63:32];
-		ram_wr_addr <= {3'b101,cmd_1_addr[2:0],2'b01};
+		ram_wr_addr <= {3'b001,cmd_1_addr[2:0],2'b01};
 	end
 	else 	if(cmd_1_wr3 == 1)	begin 
 		ram_wr_en	<= 1;
 		ram_wr_data <= cmd_1_data[95:64];
-		ram_wr_addr <= {3'b101,cmd_1_addr[2:0],2'b10};
+		ram_wr_addr <= {3'b001,cmd_1_addr[2:0],2'b10};
 	end
 	else 	if(cmd_1_wr4 == 1)	begin 
 		ram_wr_en	<= 1;
 		ram_wr_data <= cmd_1_data[127:96];
-		ram_wr_addr <= {3'b101,cmd_1_addr[2:0],2'b11};
+		ram_wr_addr <= {3'b001,cmd_1_addr[2:0],2'b11};
 	end
 	else if(time_wr == 1 ) begin //寄存器在低128个地址
-		ram_wr_addr <= {1'b0,time_cnt[6:0]};
+		ram_wr_addr <= {1'b1,time_cnt[6:0]};
 		case(time_cnt[6:0])
 			0:	begin ram_wr_data <= heart_beat; ram_wr_en	<= 1; end
 			1:	begin ram_wr_data <= status_1;   ram_wr_en	<= 1; end

@@ -385,8 +385,9 @@ signal  	 host_rd_mode       : STD_LOGIC;
 signal 	 host_rd_status     : STD_LOGIC;
 signal 	 host_rd_enable     : STD_LOGIC;
 signal 	 host_rd_start_addr : STD_LOGIC_VECTOR(18 DOWNTO 0);
-signal 	 host_rd_seg_cnt   : STD_LOGIC_VECTOR(15 DOWNTO 0);
+signal 	 host_rd_end_addr   : STD_LOGIC_VECTOR(18 DOWNTO 0);
 signal 	 host_rd_seg_len    : STD_LOGIC_VECTOR(15 DOWNTO 0);
+signal 	  recved_frame_cnt   : STD_LOGIC_VECTOR(23 DOWNTO 0);
 signal 	 status_0    : STD_LOGIC_VECTOR(31 DOWNTO 0);
 signal 	 status_1    : STD_LOGIC_VECTOR(31 DOWNTO 0);
 signal 	 status_2    : STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -532,7 +533,7 @@ signal 	 cmd_1_data    : STD_LOGIC_VECTOR(127 DOWNTO 0);
 	 host_rd_status : out STD_LOGIC;
 	 host_rd_enable : out STD_LOGIC;
 	 host_rd_start_addr : out STD_LOGIC_VECTOR(18 DOWNTO 0);
-	 host_rd_seg_cnt : out STD_LOGIC_VECTOR(15 DOWNTO 0);
+	 host_rd_end_addr : out STD_LOGIC_VECTOR(18 DOWNTO 0);
 	 host_rd_seg_len : out STD_LOGIC_VECTOR(15 DOWNTO 0);
       wait_cnt_set         : out    std_logic_vector(23 downto 0);
       cmd_smpl_en          : out    std_logic;
@@ -736,13 +737,14 @@ signal 	 cmd_1_data    : STD_LOGIC_VECTOR(127 DOWNTO 0);
 	 host_rd_status : IN STD_LOGIC;
 	 host_rd_enable : IN STD_LOGIC;
 	 host_rd_start_addr : IN STD_LOGIC_VECTOR(18 DOWNTO 0);
-	 host_rd_seg_cnt : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+	 host_rd_end_addr : IN STD_LOGIC_VECTOR(18 DOWNTO 0);
 	 host_rd_seg_len : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
 	 	status_ram_addr : OUT std_logic_vector(6 downto 0);
 		status_ram_rd_en : OUT std_logic;          
 		status_ram_data : IN std_logic_vector(63 downto 0);
 		status_ram_data_vld : IN std_logic;
       rst_n               : in  std_logic;
+      cmd_smpl_en           : in  std_logic;
       Pstprc_fifo_wr_clk  : in  std_logic;
       Pstprc_fifo_rd_clk  : in  std_logic;
       wait_cnt_set     : in  std_logic_vector(23 downto 0);
@@ -753,6 +755,7 @@ signal 	 cmd_1_data    : STD_LOGIC_VECTOR(127 DOWNTO 0);
       Pstprc_finish_in     : in  std_logic;
       Pstprc_finish_out    : out  std_logic;
       -- prog_empty_thresh   : in  std_logic_vector(6 downto 0);
+      recved_frame_cnt    : out std_logic_vector(23 downto 0);
       Pstprc_fifo_dout    : out std_logic_vector(7 downto 0);
       Pstprc_fifo_valid   : out std_logic;
       Pstprc_fifo_pempty  : out std_logic;
@@ -1054,7 +1057,7 @@ begin
 	 host_rd_status    => host_rd_status,
 	 host_rd_enable    => host_rd_enable,
 	 host_rd_start_addr=> host_rd_start_addr,
-	 host_rd_seg_cnt   => host_rd_seg_cnt,
+	 host_rd_end_addr   => host_rd_end_addr,
 	 host_rd_seg_len   => host_rd_seg_len,
     is_counter  => is_counter,    
     wait_cnt_set  => wait_cnt_set,    
@@ -1237,7 +1240,7 @@ begin
   cal_done  <= sram_cal_done;
 	cmd_0_data <= cmd_Pstprc_DPS & cmd_demoWinstart(7 downto 0) & cmd_demoWinln & cmd_smpl_depth;--25,8,15,16
 	cmd_1_data <= cmd_Estmr_C & cmd_Estmr_B & cmd_Estmr_A;--64,32,32
-	
+	status_1 <= x"00" & trig_recv_cnt & x"00" & recved_frame_cnt;
   Inst_board_status_collect: board_status_collect PORT MAP(
 		sys_clk => clk_125M,
 		rst_n => rst_data_proc_n,
@@ -1280,7 +1283,7 @@ begin
 	 host_rd_status    => host_rd_status,
 	 host_rd_enable    => host_rd_enable,
 	 host_rd_start_addr=> host_rd_start_addr,
-	 host_rd_seg_cnt   => host_rd_seg_cnt,
+	 host_rd_end_addr   => host_rd_end_addr,
 	 host_rd_seg_len   => host_rd_seg_len,
 	 
 	 
@@ -1288,7 +1291,9 @@ begin
 		status_ram_data_vld => status_ram_data_vld,
 		status_ram_addr => status_ram_addr,
 		status_ram_rd_en => status_ram_rd_en,
+		recved_frame_cnt => recved_frame_cnt,
 	 ---------------------------------------------------
+    cmd_smpl_en  => cmd_smpl_en,    --same with the clk in dmog_seg
     tx_rdy  => tx_rdy,    --same with the clk in dmog_seg
     wait_cnt_set  => wait_cnt_set,    --same with the clk in dmog_seg
     Pstprc_finish_in  => Pstprc_finish,    --same with the clk in dmog_seg

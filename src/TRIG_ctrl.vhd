@@ -143,7 +143,7 @@ begin
     end if;
   end process SRCC1_p_trigin_d_ps;
   
---  SRCC1_p_trigout<=trigin_d2;
+  
 
  posedge_sample_trig_ps: process (CLK) is
   begin  -- process SRCC1_p_trigin_d_ps
@@ -164,9 +164,10 @@ begin
 		 end if;
     end if;
   end process;
-  
-  posedge_sample_trig_o_125M	<= trig_125M_trig;
-  SRCC1_p_trigout	<= trig_125M_trig;
+  SRCC1_p_trigout<=trigin_d2;
+  posedge_sample_trig_o_125M	<= posedge_sample_trig_s or posedge_sample_trig_f;
+--  posedge_sample_trig_o_125M	<= trig_125M_trig;
+--  SRCC1_p_trigout	<= trig_125M_trig;
   process (CLK_125M) is
   begin  -- process SRCC1_p_trigin_d_ps
     if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge

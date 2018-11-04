@@ -52,7 +52,7 @@ entity command_analysis is
 	 host_rd_status : out STD_LOGIC;
 	 host_rd_enable : out STD_LOGIC;
 	 host_rd_start_addr : out STD_LOGIC_VECTOR(18 DOWNTO 0);
-	 host_rd_seg_cnt : out STD_LOGIC_VECTOR(15 DOWNTO 0);
+	 host_rd_end_addr : out STD_LOGIC_VECTOR(18 DOWNTO 0);
 	 host_rd_seg_len : out STD_LOGIC_VECTOR(15 DOWNTO 0);
 	 is_counter			    : out    std_logic;
 	 wait_cnt_set         : out    std_logic_vector(23 downto 0);
@@ -561,13 +561,13 @@ end process host_rd_ps;
 host_rd_data_ps: process (rd_clk, rst_n) is
 begin  -- 地址35 上位机读数据参数设置
   if rst_n = '0' then                   -- asynchronous reset (active low)
-    host_rd_seg_cnt <= (others =>'0');
     host_rd_seg_len <= (others =>'0');
+    host_rd_end_addr <= (others =>'0');
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
       if reg_addr =x"0023" then
         if rd_addr=x"19" then
-          host_rd_seg_cnt<= reg_data(47 downto 32);
-          host_rd_seg_len<= reg_data(31 downto 16);
+          host_rd_seg_len<= reg_data(15 downto 0);
+          host_rd_end_addr<= reg_data(34 downto 16);
         end if;
       end if;
   end if;

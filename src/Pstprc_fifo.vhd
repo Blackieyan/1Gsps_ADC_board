@@ -56,14 +56,15 @@ entity Pstprc_fifo_top is
 	cal_done : OUT std_logic;
     ----sram interface------
     ----configinterface------
+    recved_frame_cnt : OUT STD_LOGIC_VECTOR(23 DOWNTO 0);
     wait_cnt_set : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
 	 host_rd_mode : IN STD_LOGIC;
 	 host_rd_status : IN STD_LOGIC;
 	 host_rd_enable : IN STD_LOGIC;
 	 host_rd_start_addr : IN STD_LOGIC_VECTOR(18 DOWNTO 0);
-	 host_rd_seg_cnt : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+	 host_rd_end_addr : IN STD_LOGIC_VECTOR(18 DOWNTO 0);
 	 host_rd_seg_len : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-  status_ram_addr : OUT std_logic_vector(6 downto 0);
+    status_ram_addr : OUT std_logic_vector(6 downto 0);
 		status_ram_rd_en : OUT std_logic;          
 		status_ram_data : IN std_logic_vector(63 downto 0);
 		status_ram_data_vld : IN std_logic;
@@ -75,6 +76,7 @@ entity Pstprc_fifo_top is
     Pstprc_fifo_rden : IN STD_LOGIC;
     Pstprc_finish_in : IN STD_LOGIC;
     tx_rdy : IN STD_LOGIC;
+    cmd_smpl_en : IN STD_LOGIC;
     -- prog_empty_thresh : IN STD_LOGIC_VECTOR(6 DOWNTO 0);
     Pstprc_fifo_dout : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
     Pstprc_fifo_valid : OUT STD_LOGIC;
@@ -164,6 +166,20 @@ attribute KEEP of delta: signal is "TRUE";
 	signal 	user_wr_data0_reg1 : std_logic_vector(DATA_WIDTH*BURST_LEN-1 downto 0);
 	signal 	user_wr_data0 : std_logic_vector(DATA_WIDTH*BURST_LEN-1 downto 0);
 	signal 	user_wr_bw_n0 : std_logic_vector(BURST_LEN*4-1 downto 0);
+	
+	---------------------------------------------------------------
+	---host read
+	signal 	cmd_smpl_en_d : std_logic;
+	signal 	host_rd_enable_r : std_logic;
+	signal 	frame_end : std_logic;
+	signal 	frame_cnt : std_logic_vector(15 downto 0);
+	signal 	recved_frame_cnt_int : std_logic_vector(23 downto 0);
+	signal 	host_rd_enable_d1 : std_logic;
+	signal 	host_rd_enable_lch : std_logic;
+	signal 	host_rd_end : std_logic;
+	
+	-------------------------------------------------------------------
+	
 --attribute KEEP of user_rd_addr0: signal is "TRUE";
 --attribute KEEP of user_wr_addr0: signal is "TRUE";	
 COMPONENT post_pro_wr_fifo
@@ -273,6 +289,20 @@ begin
       Pstprc_fifo_din_d1  <= Pstprc_fifo_din;
     end if;
   end process;
+  
+  ---接收到的帧计数
+  recved_frame_cnt <= recved_frame_cnt_int;
+  process (Pstprc_fifo_wr_clk) is
+  begin  -- process Pstprc_fifo_dout_ps
+    if Pstprc_fifo_wr_clk'event and Pstprc_fifo_wr_clk = '1' then  -- rising clock edge
+		cmd_smpl_en_d <= cmd_smpl_en;
+      if Pstprc_finish_int = '1' then
+			recved_frame_cnt_int <= recved_frame_cnt + '1';
+		elsif cmd_smpl_en_d = '0' and cmd_smpl_en = '1' then --新采样任务的上升沿
+			recved_frame_cnt_int <= (others => '0');
+		end if;
+    end if;
+  end process;
   inst_post_pro_wr_fifo : post_pro_wr_fifo
   PORT MAP (
     rst => rst,
@@ -312,6 +342,9 @@ begin
     end if;
   end process;
   
+  ---fifo中有数就读出并写入SRAM，每写一次SRAM地址加1
+  ---上位机读模式下，在读使能达到时，该地址清零，防止切换模式时读写SRAM地址不一致导致逻辑认为SRAM有数而向外主动发数
+  ---
   process (ui_clk, rst) is
   begin  -- process Pstprc_fifo_dout_ps
     if rst = '1' then                 -- asynchronous reset (active low)
@@ -324,6 +357,8 @@ begin
 		user_wr_data0(137 downto 72) <= fifo1_dout(131 downto 66);
 		if user_wr_cmd0 = '1' then
 			user_wr_addr0 <= user_wr_addr0 + 1;
+		elsif(host_rd_enable_r = '1') then
+			user_wr_addr0 <= (others => '0');
 		end if;
     end if;
   end process;
@@ -387,28 +422,114 @@ begin
 			user_rd_valid0_reg1 <= user_rd_valid0_reg;
 			user_rd_cmd0_reg <= user_rd_cmd0_reg1;
 			user_rd_addr0_reg <= user_rd_addr0_reg1;
-			user_rd_data0 <= user_rd_data0_reg1;
+			if host_rd_mode = '1' then
+				user_rd_data0(63 downto 0) <= user_rd_data0_reg1(63 downto 0);
+				user_rd_data0(129 downto 66) <= user_rd_data0_reg1(129 downto 66);
+				user_rd_data0(65) <= user_rd_data0_reg1(65);
+				user_rd_data0(131) <= user_rd_data0_reg1(131);
+				user_rd_data0(64) <= '0';
+				user_rd_data0(130) <= frame_end;
+			else
+				user_rd_data0 <= user_rd_data0_reg1;
+			end if;
 			user_rd_valid0 <= user_rd_valid0_reg1;
     end if;
   end process;
   
+  ---上位机读模式下，根据命令中的分段长度产生分段结束信号
+  process (ui_clk) is
+  begin  -- process Pstprc_fifo_dout_ps
+    if ui_clk'event and ui_clk = '1' then  -- rising clock edge
+			if host_rd_mode = '0' then
+				frame_cnt <= (others => '0');
+				frame_end <= '0';
+			elsif user_rd_valid0_reg = '1' then
+				if frame_cnt < host_rd_seg_len then
+					frame_cnt <= frame_cnt + '1';
+					frame_end <= '0';
+				else
+					frame_cnt <= (others => '0');
+					frame_end <= '1';
+				end if;
+			else
+				frame_end <= '0';
+			end if;
+    end if;
+  end process;
+  
+  --上位机读模式下，读使能信号到来时锁存使能信号，直到当前次数据读完,同时要产生上升沿脉冲，用于读SRAM地址初始化
+  process (ui_clk) is
+  begin  -- process Pstprc_fifo_dout_ps
+    if ui_clk'event and ui_clk = '1' then  -- rising clock edge
+		host_rd_enable_d1 <= host_rd_enable;
+		if(host_rd_enable_d1 = '0' and host_rd_enable = '1') then
+			host_rd_enable_r <= '1';
+			host_rd_enable_lch <= '1';
+		elsif(host_rd_end = '1' ) then
+			host_rd_enable_r <= '0';
+			host_rd_enable_lch <= '0';	
+		else
+			host_rd_enable_r <= '0';
+		end if;
+			
+    end if;
+  end process;
+  
+    --上位机读模式下，产生读结束信号
+  process (ui_clk) is
+  begin  -- process Pstprc_fifo_dout_ps
+    if ui_clk'event and ui_clk = '1' then  -- rising clock edge
+			if(user_rd_addr0 = host_rd_end_addr) then
+				host_rd_end <= '1';
+			else
+				host_rd_end <= '0';
+			end if;
+    end if;
+  end process;
+  
+  --非上位机读模式，当buf fifo不满，且SRAM数据未读完时，发出读信号，为了方便判断，读信号不是连续发出的，而是间隔发出的
+  --sram_fifo_empty 的判断是希望SRAM中有足够的数据时才启动读，上位机读模式不需要这个判断
+  --上位机读模式，在读使能上升沿设置起始地址，然后按照非上位机读模式读取数据，直到目标地址到达
+  --上位机读模式下，帧结束标志不是由写入SRAM的数据决定的，而是由上位机读命令指令的长度（以SRAM地址为计数单位）
   process (ui_clk, rst) is
   begin  -- process Pstprc_fifo_dout_ps
     if rst = '1' then                 -- asynchronous reset (active low)
       user_rd_cmd0 <= '0';
       user_rd_addr0 <= (others => '0');
     elsif ui_clk'event and ui_clk = '1' then  -- rising clock edge
-	   if user_rd_cmd0 = '0' then
-			if((user_wr_addr0 /= user_rd_addr0) and (buf_fifo_prog_full = '0') and (sram_fifo_empty = '0'))then
-				user_rd_cmd0 <= '1';
+		if(host_rd_mode = '0') then
+			if user_rd_cmd0 = '0' then
+				if((user_wr_addr0 /= user_rd_addr0) and (buf_fifo_prog_full = '0') and (sram_fifo_empty = '0'))then
+					user_rd_cmd0 <= '1';
+				else
+					user_rd_cmd0 <= '0';
+				end if;
+			else
+				user_rd_cmd0 <= '0';
+			end if;
+			
+			if user_rd_cmd0 = '1' then
+				user_rd_addr0 <= user_rd_addr0+1;
+			end if;
+			
+		elsif(host_rd_enable_lch = '1') then
+			if(host_rd_enable_r = '1') then
+				user_rd_addr0	<= host_rd_start_addr;
+			elsif user_rd_cmd0 = '1' then
+				user_rd_addr0 <= user_rd_addr0+1;
+			end if;
+			
+			if user_rd_cmd0 = '0' then
+				if((user_rd_addr0 /= host_rd_end_addr) and (buf_fifo_prog_full = '0'))then
+					user_rd_cmd0 <= '1';
+				else
+					user_rd_cmd0 <= '0';
+				end if;
 			else
 				user_rd_cmd0 <= '0';
 			end if;
 		else
 			user_rd_cmd0 <= '0';
-		end if;
-		if user_rd_cmd0 = '1' then
-			user_rd_addr0 <= user_rd_addr0+1;
 		end if;
     end if;
   end process;
