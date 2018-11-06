@@ -39,7 +39,9 @@ entity Pstprc_RAM_Q is
     posedge_sample_trig   : in     std_logic;
     rst_data_proc_n            : in     std_logic;
     rst_adc_n             : in     std_logic;
-    cmd_smpl_depth        : in     std_logic_vector(15 downto 0);
+    Pstprc_addra_ok             : in     std_logic;
+    Pstprc_addra_rdy             : out     std_logic;
+    cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
     ---------------------------------------------------------------------------
     Pstprc_RAMq_clka      : in     std_logic;
     Pstprc_RAMq_clkb      : in     std_logic;
@@ -69,10 +71,10 @@ architecture Behavioral of Pstprc_RAM_Q is
   signal clr_n_ram            : std_logic;
   signal Pstprc_RAMq_full     : std_logic;
   signal Pstprc_RAMq_full_o   : std_logic;
-  signal Pstprc_addra_rdy     : std_logic;
-  signal Pstprc_addra_rdy_d   : std_logic;
-  signal Pstprc_addra_rdy_d2  : std_logic;
-  signal Pstprc_addra_ok      : std_logic;
+--  signal Pstprc_addra_rdy     : std_logic;
+--  signal Pstprc_addra_rdy_d   : std_logic;
+--  signal Pstprc_addra_rdy_d2  : std_logic;
+--  signal Pstprc_addra_ok      : std_logic;
   signal Pstprc_RAMq_rden_cnt : std_logic_vector(11 downto 0);
   -- signal Pstprc_RAMq_rden : std_logic;
   signal pstprc_RAMq_rden_d   : std_logic;
@@ -165,11 +167,9 @@ begin
       end if;
     end if;
   end process Pstprc_addra_rdy_ps;
-
-  Pstprc_addra_ok <= Pstprc_addra_rdy_d or Pstprc_addra_rdy_d2;  --extend one clk
-                                        --period for 125MHz
-
-  -- purpose:  to generate RAMq_rden
+  
+ 
+  -- purpose:  to generate RAMi_rden
   -- type   : sequential
   -- inputs : Pstprc_RAMq_clkb, rst_data_proc_n
   -- outputs: 
@@ -229,13 +229,13 @@ begin
     end if;
   end process Pstprc_RAMq_addrb_ps;
   -----------------------------------------------------------------------------
-  Pstprc_Addra_rdy_d_ps : process (Pstprc_RAMq_clka, rst_adc_n) is
-  begin  -- process Pstprc_Addra_rdy_d
-    if Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
-      Pstprc_addra_rdy_d  <= Pstprc_addra_rdy;
-      Pstprc_addra_rdy_d2 <= Pstprc_addra_rdy_d;
-    end if;
-  end process Pstprc_Addra_rdy_d_ps;
+--  Pstprc_Addra_rdy_d_ps : process (Pstprc_RAMq_clka, rst_adc_n) is
+--  begin  -- process Pstprc_Addra_rdy_d
+--    if Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
+--      Pstprc_addra_rdy_d  <= Pstprc_addra_rdy;
+--      Pstprc_addra_rdy_d2 <= Pstprc_addra_rdy_d;
+--    end if;
+--  end process Pstprc_Addra_rdy_d_ps;
 
 
 

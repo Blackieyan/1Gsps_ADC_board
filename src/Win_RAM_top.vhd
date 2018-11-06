@@ -71,9 +71,9 @@ architecture Behavioral of Win_RAM_top is
   signal Pstprc_RAMx_rstb     : std_logic;
   signal clr_n_ram            : std_logic;
   signal Pstprc_RAMx_full     : std_logic;
-  signal Pstprc_addra_rdy     : std_logic;
-  signal Pstprc_addra_rdy_d   : std_logic;
-  signal Pstprc_addra_rdy_d2  : std_logic;
+  signal Pstprc_addra_rdy_i   : std_logic;
+  signal Pstprc_addra_rdy_q   : std_logic;
+  signal Pstprc_addra_rdy_lch   : std_logic;
   signal Pstprc_addra_ok      : std_logic;
   signal Pstprc_RAMx_rden_cnt : std_logic_vector(11 downto 0);
   signal pstprc_rami_rden_d   : std_logic;
@@ -97,6 +97,8 @@ architecture Behavioral of Win_RAM_top is
       posedge_sample_trig   : in     std_logic;
       rst_data_proc_n            : in     std_logic;
       rst_adc_n             : in     std_logic;
+		Pstprc_addra_ok             : in     std_logic;
+		Pstprc_addra_rdy             : out     std_logic;
       cmd_smpl_depth        : in     std_logic_vector(15 downto 0);
       Pstprc_RAMq_clka      : in     std_logic;
       Pstprc_RAMq_clkb      : in     std_logic;
@@ -110,22 +112,22 @@ architecture Behavioral of Win_RAM_top is
       );
   end component;
 
-  component Pstprc_RAM_I
-    port(
-      Pstprc_ram_wren       : in  std_logic;
-      posedge_sample_trig   : in  std_logic;
-      rst_data_proc_n            : in  std_logic;
-      rst_adc_n             : in  std_logic;
-      cmd_smpl_depth        : in  std_logic_vector(15 downto 0);
-      Pstprc_RAMi_clka      : in  std_logic;
-      Pstprc_RAMi_clkb      : in  std_logic;
-      Pstprc_RAMi_dina      : in  std_logic_vector(31 downto 0);
-      ini_pstprc_RAMx_addra : in  std_logic_vector(12 downto 0);
-      ini_pstprc_RAMx_addrb : in  std_logic_vector(11 downto 0);
-      Pstprc_RAMx_rden_ln   : in  std_logic_vector(11 downto 0);
-      Pstprc_RAMi_doutb     : out std_logic_vector(63 downto 0)
-      );
-  end component;
+--  component Pstprc_RAM_I
+--    port(
+--      Pstprc_ram_wren       : in  std_logic;
+--      posedge_sample_trig   : in  std_logic;
+--      rst_data_proc_n            : in  std_logic;
+--      rst_adc_n             : in  std_logic;
+--      cmd_smpl_depth        : in  std_logic_vector(15 downto 0);
+--      Pstprc_RAMi_clka      : in  std_logic;
+--      Pstprc_RAMi_clkb      : in  std_logic;
+--      Pstprc_RAMi_dina      : in  std_logic_vector(31 downto 0);
+--      ini_pstprc_RAMx_addra : in  std_logic_vector(12 downto 0);
+--      ini_pstprc_RAMx_addrb : in  std_logic_vector(11 downto 0);
+--      Pstprc_RAMx_rden_ln   : in  std_logic_vector(11 downto 0);
+--      Pstprc_RAMi_doutb     : out std_logic_vector(63 downto 0)
+--      );
+--  end component;
 -----------------------------------------------------------------------------
 begin
 
@@ -135,6 +137,8 @@ begin
     posedge_sample_trig   => posedge_sample_trig,
     rst_adc_n             => rst_adc_n,
     rst_data_proc_n       => rst_data_proc_n,
+    Pstprc_addra_ok       => Pstprc_addra_ok,
+    Pstprc_addra_rdy       => Pstprc_addra_rdy_q,
     cmd_smpl_depth        => cmd_smpl_depth,
     Pstprc_RAMq_clka      => Pstprc_RAMq_clka,
     Pstprc_RAMq_clkb      => Pstprc_RAMq_clkb,
@@ -148,19 +152,23 @@ begin
     );
 
 
-  Inst_Pstprc_RAM_I : Pstprc_RAM_I port map(
+  Inst_Pstprc_RAM_I : Pstprc_RAM_Q port map(
     Pstprc_ram_wren       => Pstprc_ram_wren,
     posedge_sample_trig   => posedge_sample_trig,
     rst_adc_n             => rst_adc_n,
+    Pstprc_addra_ok       => Pstprc_addra_ok,
+    Pstprc_addra_rdy       => Pstprc_addra_rdy_i,
     rst_data_proc_n       => rst_data_proc_n,
     cmd_smpl_depth        => cmd_smpl_depth,
-    Pstprc_RAMi_clka      => Pstprc_RAMi_clka,
-    Pstprc_RAMi_clkb      => Pstprc_RAMi_clkb,
-    Pstprc_RAMi_dina      => Pstprc_RAMi_dina_d,
-    Pstprc_RAMi_doutb     => Pstprc_RAMi_doutb,
+    Pstprc_RAMq_clka      => Pstprc_RAMi_clka,
+    Pstprc_RAMq_clkb      => Pstprc_RAMi_clkb,
+    Pstprc_RAMq_dina      => Pstprc_RAMi_dina_d,
+    Pstprc_RAMq_doutb     => Pstprc_RAMi_doutb,
     ini_pstprc_RAMx_addra => ini_pstprc_RAMx_addra,
     ini_pstprc_RAMx_addrb => ini_pstprc_RAMx_addrb,
-    Pstprc_RAMx_rden_ln   => Pstprc_RAMx_rden_ln
+    Pstprc_RAMx_rden_ln   => Pstprc_RAMx_rden_ln,
+    Pstprc_RAMq_rden_stp  => open,
+    Pstprc_RAMq_rden  => open
     );
 
   pstprc_RAMi_dina_ts : process (Pstprc_RAMq_clka, rst_adc_n) is
@@ -283,6 +291,25 @@ begin  -- process pstprc_ram_wren_cnt_ps
     end if;
   end if;
 end process pstprc_ram_wren_cnt_ps;
+
+----ram 读取控制，由于原有逻辑是通过判断250MHz时钟域的数据ready信号，有可能造成跨时钟域的处理不一致，为了保持一致，只处理其中一路信号，处理后的信号再送回两个模块做读取判断，这样能保持一致
+--注意 此处有跨时钟域处理
+  process (Pstprc_RAMi_clka) is
+  begin  -- process SRCC1_p_trigin_d_ps
+    if Pstprc_RAMi_clka'event and Pstprc_RAMi_clka = '1' then  -- rising clock edge
+       if(Pstprc_addra_rdy_q = '1' and Pstprc_addra_rdy_i = '1') then
+			Pstprc_addra_rdy_lch	<= '1';
+		 elsif Pstprc_addra_ok = '1' then
+		   Pstprc_addra_rdy_lch	<= '0';
+		 end if;
+    end if;
+  end process;  --period for 125MHz
+ process (Pstprc_RAMi_clkb) is
+  begin  -- process SRCC1_p_trigin_d_ps
+    if Pstprc_RAMi_clkb'event and Pstprc_RAMi_clkb = '1' then  -- rising clock edge
+       Pstprc_addra_ok	<= Pstprc_addra_rdy_lch;
+    end if;
+  end process;
 
 end Behavioral;
 
