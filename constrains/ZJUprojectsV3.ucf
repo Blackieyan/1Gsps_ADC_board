@@ -376,10 +376,10 @@ INST "inst_ram_top/inst_ram_I/ram_I_inst" TNM = "RAMI";
 TIMESPEC TS_DFFQtoRAM = FROM "DFFQ" TO "RAMQ" 4 ns;
 TIMESPEC TS_DFFItoRAM = FROM "DFFI" TO "RAMI" 4 ns;
 
-INST "inst_Dmod_Seg/inst_Win_RAM_top/inst_Pstprc_ram_Q/inst_Post_Process_ramQ" TNM = "PSTPRC_RAMQ";
-INST "inst_Dmod_Seg/inst_Win_RAM_top/inst_Pstprc_ram_I/inst_Post_Process_ramI" TNM = "PSTPRC_RAMI";
-TIMESPEC TS_DFFQtoPSTPRCRAM = FROM "DFFQ" TO "PSTPRC_RAMQ" 4 ns;
-TIMESPEC TS_DFFItoPSTPRCRAM = FROM "DFFI" TO "PSTPRC_RAMI" 4 ns;
+#INST "inst_Dmod_Seg/inst_Win_RAM_top/inst_Pstprc_ram_Q/inst_Post_Process_ramQ" TNM = "PSTPRC_RAMQ";
+#INST "inst_Dmod_Seg/inst_Win_RAM_top/inst_Pstprc_ram_I/inst_Post_Process_ramQ" TNM = "PSTPRC_RAMI";
+#TIMESPEC TS_DFFQtoPSTPRCRAM = FROM "DFFQ" TO "PSTPRC_RAMQ" 4 ns;
+#TIMESPEC TS_DFFItoPSTPRCRAM = FROM "DFFI" TO "PSTPRC_RAMI" 4 ns;
 #--------
 NET "PHY_GTXclk_quar" LOC = AL33;
 NET "PHY_GTXclk_quar" TNM_NET = "PHY_GTXclk_quar";

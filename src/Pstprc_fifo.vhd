@@ -130,6 +130,8 @@ architecture Behavioral of Pstprc_fifo_top is
   signal timeout_rst_cnt : std_logic_vector(23 downto 0);
   signal timeout_rst : std_logic;
   signal host_rd_status_d1 : std_logic;
+  signal active_send_status : std_logic;
+  signal status_ram_rd_en_sig : std_logic;
   
  	signal 	tx_rdy_d1  : std_logic;
  	signal 	tx_rdy_d2  : std_logic;
@@ -171,6 +173,7 @@ attribute KEEP of delta: signal is "TRUE";
 	---------------------------------------------------------------
 	---host read
 	signal 	cmd_smpl_en_d : std_logic;
+	signal 	cmd_smpl_en_r : std_logic;
 	signal 	host_rd_enable_r : std_logic;
 	signal 	frame_end : std_logic;
 	signal 	frame_cnt : std_logic_vector(15 downto 0);
@@ -298,9 +301,10 @@ begin
   begin  -- process Pstprc_fifo_dout_ps
     if Pstprc_fifo_wr_clk'event and Pstprc_fifo_wr_clk = '1' then  -- rising clock edge
 		cmd_smpl_en_d <= cmd_smpl_en;
+		cmd_smpl_en_r <= not cmd_smpl_en_d and cmd_smpl_en;
       if Pstprc_finish_int = '1' then
 			recved_frame_cnt_int <= recved_frame_cnt_int + '1';
-		elsif cmd_smpl_en_d = '0' and cmd_smpl_en = '1' then --新采样任务的上升沿
+		elsif cmd_smpl_en_r = '1' then --新采样任务的上升沿
 			recved_frame_cnt_int <= (others => '0');
 		end if;
     end if;
@@ -359,7 +363,7 @@ begin
 		user_wr_data0(137 downto 72) <= fifo1_dout(131 downto 66);
 		if user_wr_cmd0 = '1' then
 			user_wr_addr0 <= user_wr_addr0 + 1;
-		elsif(host_rd_enable_r = '1') then
+		elsif(host_rd_enable_r = '1' or cmd_smpl_en_r = '1') then
 			user_wr_addr0 <= (others => '0');
 		end if;
     end if;
@@ -640,7 +644,7 @@ begin
   process (Pstprc_fifo_rd_clk) is
   begin  -- process Pstprc_fifo_dout_ps
     if Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
-		if host_rd_status = '1' then
+		if active_send_status = '1' then
 			fifo2_wr_en <= status_ram_data_vld;
 			fifo2_din   <= status_ram_data(63 downto 0);
 		else
@@ -650,20 +654,28 @@ begin
     end if;
   end process;
   
+  --在发送状态数据包期间要生成状态数据包写入fifo的选通信号
+  process (Pstprc_fifo_rd_clk) is
+  begin  -- process Pstprc_fifo_dout_ps
+    if Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
+		active_send_status <= status_ram_rd_en_sig or status_ram_data_vld;
+    end if;
+  end process;  
   --上位机主动发读状态命令或上位机读模式下逻辑接收到设定的触发个数，我们就启动一次读状态，将1024字节的状态数据从RAM读出
   status_ram_addr	<= status_ram_rd_addr_sig(6 downto 0);
+  status_ram_rd_en <= status_ram_rd_en_sig;
   process (Pstprc_fifo_rd_clk) is
   begin  -- process Pstprc_fifo_dout_ps
     if Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
 		host_rd_status_d1 <= host_rd_status;
 		if (host_rd_status_d1 = '0' and host_rd_status = '1') or (trig_recv_done = '1' and host_rd_mode = '1') then
 			status_ram_rd_addr_sig <= (others => '0');
-			status_ram_rd_en   <= '1';
+			status_ram_rd_en_sig   <= '1';
 		elsif status_ram_rd_addr_sig < x"80" then
 			status_ram_rd_addr_sig <= status_ram_rd_addr_sig+1;
-			status_ram_rd_en   <= '1';
+			status_ram_rd_en_sig   <= '1';
 		else
-			status_ram_rd_en   <= '0';
+			status_ram_rd_en_sig   <= '0';
 		end if;
 		
     end if;

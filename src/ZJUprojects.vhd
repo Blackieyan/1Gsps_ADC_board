@@ -689,6 +689,7 @@ signal 	 cmd_1_data    : STD_LOGIC_VECTOR(127 DOWNTO 0);
       posedge_sample_trig : in  std_logic;
       rst_data_proc_n     : in  std_logic;
       rst_adc_n           : in std_logic;
+      cmd_smpl_en           : in std_logic;
       rst_feedback_n      : in  std_logic;
       cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
       Pstprc_RAMQ_dina    : in  std_logic_vector(31 downto 0);
@@ -1208,6 +1209,7 @@ begin
     posedge_sample_trig => CW_demo_smpl_trig,
     rst_data_proc_n     => rst_data_proc_n,
     rst_adc_n           => rst_adc_n,
+    cmd_smpl_en           => cmd_smpl_en,
     rst_feedback_n      => rst_feedback_n,
     cmd_smpl_depth      => cmd_smpl_depth,
     Pstprc_RAMQ_dina    => Pstprc_RAMQ_dina,

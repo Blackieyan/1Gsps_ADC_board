@@ -52,6 +52,7 @@ entity Dmod_Seg is
     rst_data_proc_n     : in  std_logic;
     rst_feedback_n      : in  std_logic;
     is_counter          : in  std_logic;
+    cmd_smpl_en          : in  std_logic;
     cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
     Pstprc_RAMQ_dina    : in  std_logic_vector(31 downto 0);
     Pstprc_RAMQ_clka    : in  std_logic;
@@ -450,7 +451,9 @@ process (clk, rst_data_proc_n) is
     if rst_data_proc_n = '0' then                 -- asynchronous reset (active low)
       pstprc_IQ_seq_o_int <= (others => '0');
     elsif clk'event and clk = '1' then  -- rising clock edge
-      if IQ_seq_cnt = upload_freq_cnt then
+      if(cmd_smpl_en = '1') then
+			pstprc_IQ_seq_o_int <= (others => '0');
+		elsif IQ_seq_cnt = upload_freq_cnt then
         pstprc_IQ_seq_o_int <= pstprc_IQ_seq_o_int;
       else
         pstprc_IQ_seq_o_int(63 downto 32) <= pstprc_IQ_seq_o_int(63 downto 32) + '1';
