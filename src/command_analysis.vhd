@@ -583,8 +583,6 @@ begin  -- 地址36 上位机读数据启动一次
         if rd_addr=x"19" then
           host_rd_start_addr <= reg_data(34 downto 16);
 		    host_rd_enable	  <= '1';
-		  else
-		     host_rd_enable<= '0';
         end if;
 		else
 			host_rd_enable<= '0';

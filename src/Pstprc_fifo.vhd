@@ -176,6 +176,7 @@ attribute KEEP of delta: signal is "TRUE";
 	signal 	frame_cnt : std_logic_vector(15 downto 0);
 	signal 	recved_frame_cnt_int : std_logic_vector(23 downto 0);
 	signal 	host_rd_enable_d1 : std_logic;
+	signal 	host_rd_enable_d2 : std_logic;
 	signal 	host_rd_enable_lch : std_logic;
 	signal 	host_rd_end : std_logic;
 	
@@ -425,11 +426,12 @@ begin
 			user_rd_addr0_reg <= user_rd_addr0_reg1;
 			if host_rd_mode = '1' then
 				user_rd_data0(63 downto 0) <= user_rd_data0_reg1(63 downto 0);
-				user_rd_data0(129 downto 66) <= user_rd_data0_reg1(129 downto 66);
+				user_rd_data0(135 downto 66) <= user_rd_data0_reg1(135 downto 66);
+				user_rd_data0(143 downto 138) <= user_rd_data0_reg1(143 downto 138);
 				user_rd_data0(65) <= user_rd_data0_reg1(65);
-				user_rd_data0(131) <= user_rd_data0_reg1(131);
-				user_rd_data0(64) <= '0';
-				user_rd_data0(130) <= frame_end;
+				user_rd_data0(137) <= user_rd_data0_reg1(137);
+				user_rd_data0(64) <= frame_end;
+				user_rd_data0(136) <= '0';
 			else
 				user_rd_data0 <= user_rd_data0_reg1;
 			end if;
@@ -463,7 +465,8 @@ begin
   begin  -- process Pstprc_fifo_dout_ps
     if ui_clk'event and ui_clk = '1' then  -- rising clock edge
 		host_rd_enable_d1 <= host_rd_enable;
-		if(host_rd_enable_d1 = '0' and host_rd_enable = '1') then
+		host_rd_enable_d2 <= host_rd_enable_d1;
+		if(host_rd_enable_d2 = '0' and host_rd_enable_d1 = '1') then
 			host_rd_enable_r <= '1';
 			host_rd_enable_lch <= '1';
 		elsif(host_rd_end = '1' ) then
@@ -530,6 +533,7 @@ begin
 				user_rd_cmd0 <= '0';
 			end if;
 		else
+			user_rd_addr0	<= (others => '0');
 			user_rd_cmd0 <= '0';
 		end if;
     end if;
@@ -693,10 +697,11 @@ begin
     end if;
   end process Pstprc_fifo_dout_ps;
   
+  --发送fifo有数据，而网络长时间没有响应时，清空这个fifo，否则可能出现死锁
   timeout_ps: process (Pstprc_fifo_rd_clk) is
   begin  -- process empty_rst_ps
     if Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
-      if empty='1' and buf_fifo_empty ='0' then
+      if empty='0' and tx_rdy ='1' then
         timeout_rst_cnt <= timeout_rst_cnt + '1';
       else
         timeout_rst_cnt	<= (others => '0');
