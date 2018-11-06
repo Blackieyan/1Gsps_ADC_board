@@ -408,13 +408,14 @@ NET "PHY_RXD[1]" LOC = AK32;
 NET "PHY_RXD[1]" TNM = "RXD";
 NET "PHY_RXD[0]" LOC = AL31;
 NET "PHY_RXD[0]" TNM = "RXD";
-NET "Inst_crg_dcms/dcm_rxc_inst/CLK_IN1" LOC = B31;
+#NET "Inst_crg_dcms/dcm_rxc_inst/CLK_IN1" LOC = B31;
+NET "PHY_RXC" LOC = B31;
 #NET "PHY_RXC" CLOCK_DEDICATED_ROUTE = FALSE;
 NET "PHY_RXC" TNM_NET = "PHY_RXC";
 TIMESPEC TS_PHY_RXC = PERIOD "PHY_RXC" 8 ns HIGH 50 %;
-TIMEGRP "RXD_GRP" = TMN "RXD";
-TIMEGRP "RXD_GRP" OFFSET = IN 2 ns VALID 4 ns BEFORE "PHY_RXC" RISING;
-TIMEGRP "RXD_GRP" OFFSET = IN 2 ns VALID 4 ns BEFORE "PHY_RXC" FALLING;
+#TIMEGRP "RXD_GRP" = TMN "RXD";
+#TIMEGRP "RXD_GRP" OFFSET = IN 2 ns VALID 4 ns BEFORE "PHY_RXC" RISING;
+#TIMEGRP "RXD_GRP" OFFSET = IN 2 ns VALID 4 ns BEFORE "PHY_RXC" FALLING;
 NET "PHY_RXDV" LOC = AK31;
 #---------------------------------------
 #j31
@@ -492,7 +493,7 @@ TIMESPEC "TS_tig" = FROM "OSC_in_grp" TO "clk_EXT_250M_grp" TIG;
 #INST "Inst_crg_dcms/dcm_global/mmcm_adv_inst" LOC = MMCM_ADV_X0Y4;
 #INST "Inst_crg_dcms/dcm3/mmcm_adv_inst" LOC = MMCM_ADV_X0Y4;
 INST "Inst_crg_dcms/dcm2/mmcm_adv_inst" LOC = MMCM_ADV_X0Y6;
-INST "Inst_crg_dcms/dcm_rxc_inst/mmcm_adv_inst" LOC = MMCM_ADV_X0Y7;
+#INST "Inst_crg_dcms/dcm_rxc_inst/mmcm_adv_inst" LOC = MMCM_ADV_X0Y7;
 
 
 INST "Inst_crg_dcms/dcm_global/mmcm_adv_inst" LOC = MMCM_ADV_X0Y5;
