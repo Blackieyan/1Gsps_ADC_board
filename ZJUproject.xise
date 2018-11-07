@@ -418,6 +418,13 @@
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="278"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
+    <file xil_pn:name="ipcore_dir/gmii_sync_fifo.xco" xil_pn:type="FILE_COREGEN">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="283"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+    </file>
+    <file xil_pn:name="host_rd_debug.cdc" xil_pn:type="FILE_CDC">
+      <association xil_pn:name="Implementation" xil_pn:seqID="290"/>
+    </file>
     <file xil_pn:name="ipcore_dir/dcm_adc_clkoi.xise" xil_pn:type="FILE_COREGENISE">
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
@@ -467,6 +474,9 @@
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
     <file xil_pn:name="ipcore_dir/status_ram.xise" xil_pn:type="FILE_COREGENISE">
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+    </file>
+    <file xil_pn:name="ipcore_dir/gmii_sync_fifo.xise" xil_pn:type="FILE_COREGENISE">
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
   </files>
@@ -839,6 +849,7 @@
 
   <bindings>
     <binding xil_pn:location="/ZJUprojects" xil_pn:name="constrains/ZJUprojectsV3.ucf"/>
+    <binding xil_pn:location="/ZJUprojects" xil_pn:name="host_rd_debug.cdc"/>
   </bindings>
 
   <libraries/>

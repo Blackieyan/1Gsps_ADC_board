@@ -52,12 +52,13 @@ module Mac_RX2 #(
 	
 	//signals for RGMII_to_GMII module
 	wire			GMII_RX_CLK;
-	wire	[7:0]	GMII_RX_RXD;
-	wire			GMII_RX_DV;
-   reg			GMII_RX_DV1;
-   reg		GMII_RX_DV2;
+
+   (* KEEP="TRUE" *)	wire	[7:0]	GMII_RX_RXD;
+	(* KEEP="TRUE" *)	wire			GMII_RX_DV;
+   (* KEEP="TRUE" *)	reg			GMII_RX_DV1;
+   (* KEEP="TRUE" *)	reg		GMII_RX_DV2;
    
-	wire			GMII_RX_ER;
+	(* KEEP="TRUE" *)	wire			GMII_RX_ER;
 
 
 	
@@ -113,6 +114,26 @@ RGMII_to_GMII u_RGMII_to_GMII1 (
     .GMII_RX_DV_o(GMII_RX_DV), 
     .GMII_RX_ER_o(GMII_RX_ER)
     );
+//wire rgmii_rx_ctl_1;
+//wire rgmii_rx_ctl_2;
+//
+//ssio_ddr_in #
+//(
+//    .TARGET("XILINX"),
+//    .CLOCK_INPUT_STYLE("BUFG"),
+//    .IODDR_STYLE("IODDR"),
+//    .WIDTH(5)
+//)
+//rx_ssio_ddr_inst (
+//    .input_clk(PHY_RXC),
+//    .input_d({PHY_RXD, PHY_RXDV}),
+//    .output_clk(GMII_RX_CLK),
+//    .output_q1({GMII_RX_RXD[3:0], rgmii_rx_ctl_1}),
+//    .output_q2({GMII_RX_RXD[7:4], rgmii_rx_ctl_2})
+//);
+//
+//assign GMII_RX_DV = rgmii_rx_ctl_1;
+//assign GMII_RX_ER = rgmii_rx_ctl_1 ^ rgmii_rx_ctl_2;
 
 	// detect start and end
    	always @ (posedge GMII_RX_CLK)

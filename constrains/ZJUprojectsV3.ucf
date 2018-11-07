@@ -376,10 +376,10 @@ INST "inst_ram_top/inst_ram_I/ram_I_inst" TNM = "RAMI";
 TIMESPEC TS_DFFQtoRAM = FROM "DFFQ" TO "RAMQ" 4 ns;
 TIMESPEC TS_DFFItoRAM = FROM "DFFI" TO "RAMI" 4 ns;
 
-#INST "inst_Dmod_Seg/inst_Win_RAM_top/inst_Pstprc_ram_Q/inst_Post_Process_ramQ" TNM = "PSTPRC_RAMQ";
-#INST "inst_Dmod_Seg/inst_Win_RAM_top/inst_Pstprc_ram_I/inst_Post_Process_ramQ" TNM = "PSTPRC_RAMI";
-#TIMESPEC TS_DFFQtoPSTPRCRAM = FROM "DFFQ" TO "PSTPRC_RAMQ" 4 ns;
-#TIMESPEC TS_DFFItoPSTPRCRAM = FROM "DFFI" TO "PSTPRC_RAMI" 4 ns;
+INST "inst_Dmod_Seg/inst_Win_RAM_top/inst_Pstprc_ram_Q/inst_Post_Process_ramQ" TNM = "PSTPRC_RAMQ";
+INST "inst_Dmod_Seg/inst_Win_RAM_top/inst_Pstprc_ram_I/inst_Post_Process_ramQ" TNM = "PSTPRC_RAMI";
+TIMESPEC TS_DFFQtoPSTPRCRAM = FROM "DFFQ" TO "PSTPRC_RAMQ" 4 ns;
+TIMESPEC TS_DFFItoPSTPRCRAM = FROM "DFFI" TO "PSTPRC_RAMI" 4 ns;
 #--------
 NET "PHY_GTXclk_quar" LOC = AL33;
 NET "PHY_GTXclk_quar" TNM_NET = "PHY_GTXclk_quar";
@@ -413,9 +413,9 @@ NET "PHY_RXC" LOC = B31;
 #NET "PHY_RXC" CLOCK_DEDICATED_ROUTE = FALSE;
 NET "PHY_RXC" TNM_NET = "PHY_RXC";
 TIMESPEC TS_PHY_RXC = PERIOD "PHY_RXC" 8 ns HIGH 50 %;
-#TIMEGRP "RXD_GRP" = TMN "RXD";
-#TIMEGRP "RXD_GRP" OFFSET = IN 2 ns VALID 4 ns BEFORE "PHY_RXC" RISING;
-#TIMEGRP "RXD_GRP" OFFSET = IN 2 ns VALID 4 ns BEFORE "PHY_RXC" FALLING;
+TIMEGRP "RXD_GRP" = TMN "RXD";
+TIMEGRP "RXD_GRP" OFFSET = IN 2 ns VALID 4 ns BEFORE "PHY_RXC" RISING;
+TIMEGRP "RXD_GRP" OFFSET = IN 2 ns VALID 4 ns BEFORE "PHY_RXC" FALLING;
 NET "PHY_RXDV" LOC = AK31;
 #---------------------------------------
 #j31
@@ -493,7 +493,8 @@ TIMESPEC "TS_tig" = FROM "OSC_in_grp" TO "clk_EXT_250M_grp" TIG;
 #INST "Inst_crg_dcms/dcm_global/mmcm_adv_inst" LOC = MMCM_ADV_X0Y4;
 #INST "Inst_crg_dcms/dcm3/mmcm_adv_inst" LOC = MMCM_ADV_X0Y4;
 INST "Inst_crg_dcms/dcm2/mmcm_adv_inst" LOC = MMCM_ADV_X0Y6;
-#INST "Inst_crg_dcms/dcm_rxc_inst/mmcm_adv_inst" LOC = MMCM_ADV_X0Y7;
+INST "Inst_crg_dcms/dcm_rxc_inst/mmcm_adv_inst" LOC = MMCM_ADV_X0Y0;
+#INST "Inst_G_ethernet_top/Inst_G_ehernet_Rx_data/Inst_Mac_RX2/rx_ssio_ddr_inst/clk_bufg" LOC = BUFGCTRL_X0Y15;
 
 
 INST "Inst_crg_dcms/dcm_global/mmcm_adv_inst" LOC = MMCM_ADV_X0Y5;
