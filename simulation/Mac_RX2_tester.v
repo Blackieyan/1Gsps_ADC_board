@@ -56,7 +56,7 @@ module Mac_RX2_tester;
 		Rd_Clk = 0;
 		Rd_en = 0;
 		Rd_Addr = 0;
-		PHY_RXD = 0;
+		PHY_RXD = 4'hd;
 		PHY_RXC = 0;
 		PHY_RXDV = 0;
 
@@ -69,12 +69,13 @@ module Mac_RX2_tester;
 		#100;
 		@(negedge PHY_RXC)
 		#2;
-		PHY_RXDV = 1;
+		PHY_RXDV = 0;
   	    repeat (4) begin
 			PHY_RXD = 4'hf;
      #4;
      end
 		repeat (15) begin
+		PHY_RXDV = 1;
 			PHY_RXD = 4'h5;
 			#4;
 		end

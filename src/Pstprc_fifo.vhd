@@ -478,6 +478,9 @@ begin
 			host_rd_enable_lch <= '0';	
 		else
 			host_rd_enable_r <= '0';
+			if host_rd_mode = '0' then
+				host_rd_enable_lch <= '0';	
+			end if;
 		end if;
 			
     end if;
@@ -496,6 +499,7 @@ begin
   end process;
   
   --非上位机读模式，当buf fifo不满，且SRAM数据未读完时，发出读信号，为了方便判断，读信号不是连续发出的，而是间隔发出的
+  --非上位机读模式，上位机每启动一次任务，将读地址和写地址清零，实现每次任务从0地址开始存储
   --sram_fifo_empty 的判断是希望SRAM中有足够的数据时才启动读，上位机读模式不需要这个判断
   --上位机读模式，在读使能上升沿设置起始地址，然后按照非上位机读模式读取数据，直到目标地址到达
   --上位机读模式下，帧结束标志不是由写入SRAM的数据决定的，而是由上位机读命令指令的长度（以SRAM地址为计数单位）
@@ -507,7 +511,7 @@ begin
     elsif ui_clk'event and ui_clk = '1' then  -- rising clock edge
 		if(host_rd_mode = '0') then
 			if user_rd_cmd0 = '0' then
-				if((user_wr_addr0 /= user_rd_addr0) and (buf_fifo_prog_full = '0') and (sram_fifo_empty = '0'))then
+				if((user_wr_addr0 > user_rd_addr0) and (buf_fifo_prog_full = '0') and (sram_fifo_empty = '0'))then
 					user_rd_cmd0 <= '1';
 				else
 					user_rd_cmd0 <= '0';
@@ -518,6 +522,8 @@ begin
 			
 			if user_rd_cmd0 = '1' then
 				user_rd_addr0 <= user_rd_addr0+1;
+			elsif cmd_smpl_en_r = '1' then
+				user_rd_addr0 <= (others => '0');
 			end if;
 			
 		elsif(host_rd_enable_lch = '1') then
@@ -557,9 +563,6 @@ begin
     valid => buf_fifo_rd_vld,
     prog_full => buf_fifo_prog_full
   );
-  ------- buf fifo read ---------
-  -- 输出FIFO为空，buf_fifo不空，且tx_RDY有效时才能启动读buf fifo
-  -- 直到读出 Pstprc_finish 信号，停止当前读出，否则， 读buf fifo
   
   process (Pstprc_fifo_rd_clk) is
   begin  -- process Pstprc_fifo_dout_ps
@@ -571,7 +574,9 @@ begin
 		end if;
     end if;
   end process; 
-  
+  ------- buf fifo read ---------
+  -- 输出FIFO为空，buf_fifo不空，且tx_RDY有效时才能启动读buf fifo
+  -- 直到读出 Pstprc_finish 信号，停止当前读出，否则， 读buf fifo  
   set_rd_buf_fifo <= tx_rdy and (not rd_buf_fifo) and empty and (not buf_fifo_empty);
   process (Pstprc_fifo_rd_clk, rst) is
   begin  -- process Pstprc_fifo_dout_ps
@@ -601,7 +606,7 @@ begin
 		end if;
     end if;
   end process; 
-  
+  --什么时候可以读呢？其中一个条件是逻辑向网络传输1024帧数据后，需要等一个计数器值减到0，该值可通过上位机设置
   process (Pstprc_fifo_rd_clk) is
   begin  -- process Pstprc_fifo_dout_ps
     if Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
@@ -613,6 +618,13 @@ begin
     end if;
   end process;
   
+  --buf fifo的读取条件：
+  -- 当前网络没有数据在发送
+  -- 不连续读两次数据
+  -- 当前帧数据没有读到最后一个
+  -- 前端FIFO有空间
+  -- buf fifo 有数据
+  -- 等待计数器表示不在计数
   process (Pstprc_fifo_rd_clk, rst) is
   begin  -- process Pstprc_fifo_dout_ps
     if rst = '1' then                 -- asynchronous reset (active low)
@@ -632,7 +644,7 @@ begin
     if rst = '1' then  
 		Pstprc_finish_out <= '0';
 	 elsif Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
-	 --都状态数据时，在最后一个地址发出数据包有效信号
+	 --都状态数据时，在最后一个地址发出数据包有效信号，持续到网络发送模块响应为止
 		if Pstprc_finish_temp = '1' or status_ram_rd_addr_sig = x"7F" then
 			Pstprc_finish_out <= '1';
 		elsif tx_rdy = '0' then
@@ -641,6 +653,7 @@ begin
 	end if;
   end process;
   
+  --写入前端fifo的数据的使能信号是封装在数据位的高位的
   process (Pstprc_fifo_rd_clk) is
   begin  -- process Pstprc_fifo_dout_ps
     if Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge

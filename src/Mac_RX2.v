@@ -67,7 +67,7 @@ module Mac_RX2 #(
 //
 	reg	DV_last;
 	// receive phase flags:
-	reg	rev_StartPulse;	// start pulse at the start of frame 
+	reg	rev_StartPulse=0;	// start pulse at the start of frame 
 	reg	rev_EndPulse;		// end pulse at the end of frame indicate by falling edge of GMII_RX_DV
 	reg	rev_EndPulse2;		// end pulse delay one clock
 	reg	rev_EndPulse3;		// end pulse delay two clock
@@ -101,39 +101,123 @@ module Mac_RX2 #(
 	reg buf_wr_frm_ok;
    reg 	    buf_wr_frm_ok_last;
 	reg[RAM_ADDR_BITS-1:0] frm_length;
+	
+//	always @(posedge clk) begin
+//		if(data_pre = 8'hdd & data_cur != dd & data_vld_pre = '0') begin
+//			judge_cnt <= judge_cnt + 1;
+//		else if (judge_cnt > 100) begin
+//			judge_cnt <= 0;
+//		end
+//	end
+//	
+//	always @(posedge clk) begin
+//		if(data_pre = 8'hdd & data_cur != dd & data_vld_pre = '0') begin
+//			if(data_cur != 8'ff)
+//			judge_cnt <= judge_cnt + 1;
+//		else if (judge_cnt > 100) begin
+//			judge_cnt <= 0;
+//		end
+//	end
 
 // convert 4-bit RGMII receive interface to 8bit GMII interface
-RGMII_to_GMII u_RGMII_to_GMII1 (
-    .RXCLK_i(PHY_RXC), 
-    .RXDATA_i(PHY_RXD), 
-    .RXCTL_i(PHY_RXDV), 
-	 .reset(reset),
-	 
-    .GMII_RX_CLK_o(GMII_RX_CLK), 
-    .GMII_RX_RXD_o(GMII_RX_RXD), 
-    .GMII_RX_DV_o(GMII_RX_DV), 
-    .GMII_RX_ER_o(GMII_RX_ER)
-    );
-//wire rgmii_rx_ctl_1;
-//wire rgmii_rx_ctl_2;
-//
-//ssio_ddr_in #
-//(
-//    .TARGET("XILINX"),
-//    .CLOCK_INPUT_STYLE("BUFG"),
-//    .IODDR_STYLE("IODDR"),
-//    .WIDTH(5)
-//)
-//rx_ssio_ddr_inst (
-//    .input_clk(PHY_RXC),
-//    .input_d({PHY_RXD, PHY_RXDV}),
-//    .output_clk(GMII_RX_CLK),
-//    .output_q1({GMII_RX_RXD[3:0], rgmii_rx_ctl_1}),
-//    .output_q2({GMII_RX_RXD[7:4], rgmii_rx_ctl_2})
-//);
-//
-//assign GMII_RX_DV = rgmii_rx_ctl_1;
-//assign GMII_RX_ER = rgmii_rx_ctl_1 ^ rgmii_rx_ctl_2;
+  wire	[7:0]	GMII_RX_RXD_int;
+	wire			GMII_RX_DV_int;
+	wire			GMII_RX_ER_int;
+	wire			GMII_RX_CLK_int;
+
+//RGMII_to_GMII u_RGMII_to_GMII1 (
+//    .RXCLK_i(PHY_RXC), 
+//    .RXDATA_i(PHY_RXD), 
+//    .RXCTL_i(PHY_RXDV), 
+//	 .reset(reset),
+//	 
+//    .GMII_RX_CLK_o(GMII_RX_CLK_int), 
+//    .GMII_RX_RXD_o(GMII_RX_RXD_int), 
+//    .GMII_RX_DV_o(GMII_RX_DV_int), 
+//    .GMII_RX_ER_o(GMII_RX_ER_int)
+//    );
+wire rgmii_rx_ctl_1;
+wire rgmii_rx_ctl_2;
+
+ssio_ddr_in #
+(
+    .TARGET("XILINX"),
+    .CLOCK_INPUT_STYLE("BUFG"),
+    .IODDR_STYLE("IODDR"),
+    .WIDTH(5)
+)
+rx_ssio_ddr_inst (
+    .input_clk(PHY_RXC),
+    .input_d({PHY_RXD, PHY_RXDV}),
+    .output_clk(GMII_RX_CLK_int),
+    .output_q1({GMII_RX_RXD_int[3:0], rgmii_rx_ctl_1}),
+    .output_q2({GMII_RX_RXD_int[7:4], rgmii_rx_ctl_2})
+);
+
+assign GMII_RX_DV_int = rgmii_rx_ctl_1;
+assign GMII_RX_ER_int = rgmii_rx_ctl_1 ^ rgmii_rx_ctl_2;
+
+reg fifo_rd_en;
+wire fifo_valid;
+wire fifo_empty;
+wire fifo_wr_en;
+wire [9:0]fifo_din;
+
+  wire	[7:0]	GMII_RX_RXD_int_o;
+	wire			GMII_RX_DV_int_o;
+	wire			GMII_RX_ER_int_o;
+
+reg [7:0] data_pre;	
+reg en_pre;	
+reg er_pre;	
+always @(posedge 	GMII_RX_CLK_int) begin
+	data_pre <= GMII_RX_RXD_int;
+	en_pre   <= GMII_RX_DV_int;
+	er_pre   <= GMII_RX_ER_int;
+end
+
+reg GMII_RX_DV_int_temp;
+reg first_err;
+always @(posedge GMII_RX_CLK_int) begin
+	if(en_pre == 0 & GMII_RX_DV_int == 1 & data_pre == 8'hdd & GMII_RX_RXD_int == 8'hFF) begin
+		GMII_RX_DV_int_temp <= 0;
+		first_err  <= 1;
+	end
+	else if(first_err == 1 & GMII_RX_RXD_int == 8'hFF) begin
+		first_err <= 0;
+		GMII_RX_DV_int_temp <= 0;
+	end
+	else begin
+		first_err <= 0;
+		GMII_RX_DV_int_temp <= GMII_RX_DV_int;
+	end
+end
+
+assign 	 fifo_wr_en = en_pre | er_pre;
+assign  	 fifo_din = {en_pre, er_pre, data_pre};
+
+gmii_sync_fifo gmii_sync_fifo_inst
+  (
+    .rst(1'b0),
+    .wr_clk(GMII_RX_CLK_int),
+    .rd_clk(Rd_Clk),
+    .din(fifo_din),
+    .wr_en(fifo_wr_en),
+    .rd_en(fifo_rd_en),
+    .dout({GMII_RX_DV_int_o, GMII_RX_ER_int_o, GMII_RX_RXD_int_o}),
+    .full(),
+    .empty(fifo_empty),
+    .valid(fifo_valid)
+  );	 
+
+assign GMII_RX_DV = GMII_RX_DV_int_o & fifo_valid;
+assign GMII_RX_ER = GMII_RX_ER_int_o & fifo_valid;
+assign GMII_RX_RXD = GMII_RX_RXD_int_o;
+assign GMII_RX_CLK = Rd_Clk;
+  
+always @(posedge GMII_RX_CLK) begin
+	fifo_rd_en <= !fifo_empty;
+end  
 
 	// detect start and end
    	always @ (posedge GMII_RX_CLK)
@@ -154,15 +238,19 @@ RGMII_to_GMII u_RGMII_to_GMII1 (
 		else
 			DV_last <= GMII_RX_DV2;
 	
+	reg rev_StartPulse_sig;
 	always @ *
 	// if data valid without error and the first byte is 0x55 at reset desserted, a new packet is started
-	rev_StartPulse <= !DV_last & GMII_RX_DV2 & !GMII_RX_ER & (GMII_RX_RXD == 8'h55) & !reset;//dv上升沿并且收到的帧头是h55
+	rev_StartPulse <= !GMII_RX_DV2 & GMII_RX_DV & !GMII_RX_ER & (GMII_RX_RXD == 8'h55) & !reset;
+//dv上升沿并且收到的帧头是h55
 	 // rev_StartPulse <= !DV_last & GMII_RX_DV2  & (GMII_RX_RXD == 8'h55) & !reset;
 	always @ *
 	// if data valid without error and the first byte is 0x55 at reset desserted, a new packet is started
-		rev_EndPulse <= GMII_RX_DV1 & !GMII_RX_DV;//dv下降沿
+		rev_EndPulse <= GMII_RX_DV1 & !GMII_RX_DV;
+//dv下降沿
 	always @ (posedge GMII_RX_CLK) rev_EndPulse2 <= rev_EndPulse;
 	always @ (posedge GMII_RX_CLK) rev_EndPulse3 <= rev_EndPulse2;
+	always @ (posedge GMII_RX_CLK) rev_StartPulse_sig <= rev_StartPulse;
 			
 	//rev_cnt_en
 	always @ (posedge GMII_RX_CLK)
