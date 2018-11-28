@@ -62,7 +62,7 @@ entity Pstprc_fifo_top is
 	 host_rd_status : IN STD_LOGIC;
 	 host_rd_enable : IN STD_LOGIC;
 	 host_rd_start_addr : IN STD_LOGIC_VECTOR(18 DOWNTO 0);
-	 host_rd_end_addr : IN STD_LOGIC_VECTOR(18 DOWNTO 0);
+	 host_rd_length : IN STD_LOGIC_VECTOR(18 DOWNTO 0);
 	 host_rd_seg_len : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
     status_ram_addr : OUT std_logic_vector(6 downto 0);
 		status_ram_rd_en : OUT std_logic;          
@@ -177,6 +177,7 @@ attribute KEEP of delta: signal is "TRUE";
 	signal 	host_rd_enable_r : std_logic;
 	signal 	frame_end : std_logic;
 	signal 	frame_cnt : std_logic_vector(15 downto 0);
+	signal 	host_rd_end_addr : std_logic_vector(18 downto 0);
 	signal 	recved_frame_cnt_int : std_logic_vector(23 downto 0);
 	signal 	host_rd_enable_d1 : std_logic;
 	signal 	host_rd_enable_d2 : std_logic;
@@ -269,6 +270,7 @@ END COMPONENT;
 
 
 begin
+  host_rd_end_addr <= host_rd_start_addr + host_rd_length;
   cal_done <= cal_done_i;
   rst <= (not rst_n) or ui_clk_sync_rst;
 --  fifo1_in <= Pstprc_fifo_wren & Pstprc_finish_int & Pstprc_fifo_din;
@@ -430,10 +432,10 @@ begin
 			user_rd_addr0_reg <= user_rd_addr0_reg1;
 			if host_rd_mode = '1' then
 				user_rd_data0(63 downto 0) <= user_rd_data0_reg1(63 downto 0);
-				user_rd_data0(135 downto 66) <= user_rd_data0_reg1(135 downto 66);
-				user_rd_data0(143 downto 138) <= user_rd_data0_reg1(143 downto 138);
-				user_rd_data0(65) <= user_rd_data0_reg1(65);
-				user_rd_data0(137) <= user_rd_data0_reg1(137);
+				user_rd_data0(135 downto 65) <= user_rd_data0_reg1(135 downto 65);
+				user_rd_data0(143 downto 137) <= user_rd_data0_reg1(143 downto 137);
+				-- user_rd_data0(65) <= user_rd_data0_reg1(65);
+				-- user_rd_data0(137) <= user_rd_data0_reg1(137);
 				user_rd_data0(64) <= frame_end;
 				user_rd_data0(136) <= '0';
 			else
@@ -509,46 +511,45 @@ begin
       user_rd_cmd0 <= '0';
       user_rd_addr0 <= (others => '0');
     elsif ui_clk'event and ui_clk = '1' then  -- rising clock edge
-		if(host_rd_mode = '0') then
-			if user_rd_cmd0 = '0' then
-				if((user_wr_addr0 > user_rd_addr0) and (buf_fifo_prog_full = '0') and (sram_fifo_empty = '0'))then
-					user_rd_cmd0 <= '1';
-				else
-					user_rd_cmd0 <= '0';
-				end if;
-			else
-				user_rd_cmd0 <= '0';
-			end if;
-			
-			if user_rd_cmd0 = '1' then
-				user_rd_addr0 <= user_rd_addr0+1;
-			elsif cmd_smpl_en_r = '1' then
-				user_rd_addr0 <= (others => '0');
-			end if;
-			
-		elsif(host_rd_enable_lch = '1') then
-			if(host_rd_enable_r = '1') then
-				user_rd_addr0	<= host_rd_start_addr;
-			elsif user_rd_cmd0 = '1' then
-				user_rd_addr0 <= user_rd_addr0+1;
-			end if;
-			
-			if user_rd_cmd0 = '0' then
-				if((user_rd_addr0 /= host_rd_end_addr) and (buf_fifo_prog_full = '0'))then
-					user_rd_cmd0 <= '1';
-				else
-					user_rd_cmd0 <= '0';
-				end if;
-			else
-				user_rd_cmd0 <= '0';
-			end if;
-		else
-			user_rd_addr0	<= (others => '0');
-			user_rd_cmd0 <= '0';
-		end if;
+      if(host_rd_mode = '0') then
+        if user_rd_cmd0 = '0' then
+          if((user_wr_addr0 > user_rd_addr0) and (buf_fifo_prog_full = '0') and (sram_fifo_empty = '0'))then
+            user_rd_cmd0 <= '1';
+          else
+            user_rd_cmd0 <= '0';
+          end if;
+        else
+          user_rd_cmd0 <= '0';
+        end if;
+        if user_rd_cmd0 = '1' then
+          user_rd_addr0 <= user_rd_addr0+1;
+        elsif cmd_smpl_en_r = '1' then
+          user_rd_addr0 <= (others => '0');
+        end if;
+      elsif(host_rd_enable_lch = '1') then
+        if(host_rd_enable_r = '1') then
+          user_rd_addr0	<= host_rd_start_addr;
+        elsif user_rd_cmd0 = '1' then
+          user_rd_addr0 <= user_rd_addr0+1;
+        end if;
+        if user_rd_cmd0 = '0' then
+          if((user_rd_addr0 /= host_rd_end_addr) and (buf_fifo_prog_full = '0'))then
+            user_rd_cmd0 <= '1';
+          else
+            user_rd_cmd0 <= '0';
+          end if;
+        else
+          user_rd_cmd0 <= '0';
+        end if;
+      else
+        user_rd_addr0	<= (others => '0');
+        user_rd_cmd0 <= '0';
+      end if;
     end if;
   end process;
+  
   buf_fifo_din <= user_rd_data0(137 downto 72) & user_rd_data0(65 downto 0);
+  
   Pstprc_buf_Fifo_inst : post_pro_buf_fifo
   PORT MAP (
     rst => rst,
@@ -611,7 +612,7 @@ begin
   begin  -- process Pstprc_fifo_dout_ps
     if Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
       if wait_cnt = 0 then
-		can_read_new_result <= not host_rd_status; --上位机不在读状态
+		can_read_new_result <= not active_send_status; --上位机不在读状态
 		else
 			can_read_new_result <= '0';
 		end if;
