@@ -52,7 +52,7 @@ entity command_analysis is
 	 host_rd_status : out STD_LOGIC;
 	 host_rd_enable : out STD_LOGIC;
 	 host_rd_start_addr : out STD_LOGIC_VECTOR(18 DOWNTO 0);
-	 host_rd_end_addr : out STD_LOGIC_VECTOR(18 DOWNTO 0);
+	 host_rd_length : out STD_LOGIC_VECTOR(18 DOWNTO 0);
 	 host_rd_seg_len : out STD_LOGIC_VECTOR(15 DOWNTO 0);
 	 is_counter			    : out    std_logic;
 	 wait_cnt_set         : out    std_logic_vector(23 downto 0);
@@ -534,59 +534,50 @@ begin  -- 地址33 清除帧编号
       if reg_addr =x"0021" then
         if rd_addr=x"19" then
           clear_frame_cnt<= '1';
-		  else
-		     clear_frame_cnt<= '0';
+        else
+          clear_frame_cnt<= '0';
         end if;
-		else
-			clear_frame_cnt<= '0';
+      else
+        clear_frame_cnt<= '0';
       end if;
   end if;
 end process clear_frame_cnt_ps;
 
-host_rd_ps: process (rd_clk, rst_n) is
+host_rd_mode_ps: process (rd_clk, rst_n) is
 begin  -- 地址34 上位机读模式
   if rst_n = '0' then                   -- asynchronous reset (active low)
     host_rd_mode <='0';
-    host_rd_status <='0';
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
       if reg_addr =x"0022" then
         if rd_addr=x"19" then
           host_rd_mode<= reg_data(24);
-          host_rd_status<= reg_data(16);
-        end if;
       end if;
   end if;
-end process host_rd_ps;
+end process host_rd_mode_ps;
 
-host_rd_data_ps: process (rd_clk, rst_n) is
+host_rd_seg_len_ps: process (rd_clk, rst_n) is
 begin  -- 地址35 上位机读数据参数设置
   if rst_n = '0' then                   -- asynchronous reset (active low)
     host_rd_seg_len <= (others =>'0');
-    host_rd_end_addr <= (others =>'0');
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
       if reg_addr =x"0023" then
         if rd_addr=x"19" then
           host_rd_seg_len<= reg_data(15 downto 0);
-          host_rd_end_addr<= reg_data(34 downto 16);
         end if;
       end if;
   end if;
-end process host_rd_data_ps;
+end process host_rd_seg_len_ps;
 
 host_rd_start_ps: process (rd_clk, rst_n) is
 begin  -- 地址36 上位机读数据启动一次
   if rst_n = '0' then                   -- asynchronous reset (active low)
-    host_rd_enable 		<= '0';
-	 host_rd_start_addr  <= (others =>'0');
+    host_rd_start_addr  <= (others =>'0');
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
-      if reg_addr =x"0024" then
-        if rd_addr=x"19" then
-          host_rd_start_addr <= reg_data(34 downto 16);
-		    host_rd_enable	  <= '1';
-        end if;
-		else
-			host_rd_enable<= '0';
+    if reg_addr =x"0024" then
+      if rd_addr=x"19" then
+        host_rd_start_addr <= reg_data(18 downto 0);
       end if;
+    end if;
   end if;
 end process host_rd_start_ps;
 -- ADC_gain_adj_ps: process (rd_clk, rst_n) is
@@ -625,5 +616,47 @@ end process host_rd_start_ps;
 --     end if;
 --   end if;
 -- end process reconfig_ps;
+host_rd_ps: process (rd_clk, rst_n) is
+begin  -- 地址34 上位机读模式
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    host_rd_mode <='0';
+    host_rd_status <='0';
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+      if reg_addr =x"0025" then
+        if rd_addr=x"19" then
+          host_rd_status<= reg_data(24);
+        end if;
+      else
+        host_rd_status<='0';
+      end if;
+  end if;
+end process host_rd_ps;
 
+host_rd_length_ps: process (rd_clk, rst_n) is
+begin  -- 地址35 上位机读数据参数设置
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    host_rd_length <= (others =>'0');
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+      if reg_addr =x"0026" then
+        if rd_addr=x"19" then
+          host_rd_length <= reg_data(18 downto 0);
+        end if;
+      end if;
+  end if;
+end process host_rd_length_ps;
+
+host_rd_enable_ps: process (rd_clk, rst_n) is
+begin  -- 地址36 上位机读数据启动一次
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    host_rd_enable 		<= '0';
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+    if reg_addr =x"0027" then
+      if rd_addr=x"19" then
+        host_rd_enable	  <= '1';
+      end if;
+    else
+      host_rd_enable<= '0';
+    end if;
+  end if;
+end process host_rd_enable_ps;
 end Behavioral;
