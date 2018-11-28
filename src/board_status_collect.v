@@ -102,7 +102,7 @@ always @(posedge sys_clk) begin
 	cmd_1_wr2   <= cmd_1_wr1;
 	cmd_1_wr3   <= cmd_1_wr2;
 	cmd_1_wr4   <= cmd_1_wr3;
-	if(cmd_0_wr1 == 1)	begin //命令写入在高128个地址开始 32个32位 最多16组参数
+	if(cmd_0_wr1 == 1)	begin //命令写入在0地址 32个32位 最多可容纳16组频点的参数，实际上只有8个有效
 		ram_wr_en	<= 1;
 		ram_wr_data <= cmd_0_data[31:0];
 		ram_wr_addr <= {3'b000,cmd_0_addr[3:0],1'b0};
@@ -112,7 +112,7 @@ always @(posedge sys_clk) begin
 		ram_wr_data <= cmd_0_data[63:32];
 		ram_wr_addr <= {3'b000,cmd_0_addr[3:0],1'b1};
 	end
-	else 	if(cmd_1_wr1 == 1)	begin //命令写入在高160个地址开始 32个32位 最多8组参数
+	else 	if(cmd_1_wr1 == 1)	begin //命令写入在32地址开始 32个32位 最多8组参数
 		ram_wr_en	<= 1;
 		ram_wr_data <= cmd_1_data[31:0];
 		ram_wr_addr <= {3'b001,cmd_1_addr[2:0],2'b00};
