@@ -54,7 +54,7 @@ entity cmd_ana_top is
 	 host_rd_status : out STD_LOGIC;
 	 host_rd_enable : out STD_LOGIC;
 	 host_rd_start_addr : out STD_LOGIC_VECTOR(18 DOWNTO 0);
-	 host_rd_end_addr : out STD_LOGIC_VECTOR(18 DOWNTO 0);
+	 host_rd_length : out STD_LOGIC_VECTOR(18 DOWNTO 0);
 	 host_rd_seg_len : out STD_LOGIC_VECTOR(15 DOWNTO 0);
     cmd_smpl_en          : out    std_logic;
     cmd_smpl_depth       : out    std_logic_vector(15 downto 0);
@@ -112,7 +112,7 @@ architecture Behavioral of cmd_ana_top is
 		 host_rd_status : out STD_LOGIC;
 		 host_rd_enable : out STD_LOGIC;
 		 host_rd_start_addr : out STD_LOGIC_VECTOR(18 DOWNTO 0);
-		 host_rd_end_addr : out STD_LOGIC_VECTOR(18 DOWNTO 0);
+		 host_rd_length : out STD_LOGIC_VECTOR(18 DOWNTO 0);
 		 host_rd_seg_len : out STD_LOGIC_VECTOR(15 DOWNTO 0);
       cmd_smpl_en_o          : out    std_logic;
       cmd_smpl_depth         : out    std_logic_vector(15 downto 0);
@@ -158,7 +158,7 @@ begin
 	 host_rd_status    => host_rd_status,
 	 host_rd_enable    => host_rd_enable,
 	 host_rd_start_addr=> host_rd_start_addr,
-	 host_rd_end_addr   => host_rd_end_addr,
+	 host_rd_length   => host_rd_length,
 	 host_rd_seg_len   => host_rd_seg_len,
       cmd_pstprc_IQ_sw       => cmd_pstprc_IQ_sw,
       TX_dst_MAC_addr        => TX_dst_MAC_addr,
