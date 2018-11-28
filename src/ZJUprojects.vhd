@@ -84,41 +84,41 @@ entity ZJUprojects is
     -- MRCC1_p                   : out std_logic;  --J10
     -- MRCC2_n                   : out   std_logic_vector(0 downto 0); -- pinsfor test
     ---------------------------------------------------------------------------
-	 
-	 
-	 -----------------------------SelfAdpt----------------------------------------------
-	 adpt_led		  : out	 std_logic;
-	 trig_monitor	  : out	 std_logic;
-	 -----------------------------SelfAdpt----------------------------------------------
-	 
-    PHY_RXD         : in    std_logic_vector(3 downto 0);
-    PHY_RXC         : in    std_logic;
-    PHY_RXDV        : in    std_logic;
-    PHY_TXD_o       : out   std_logic_vector(3 downto 0);
-    PHY_GTXclk_quar : out   std_logic;
-    PHy_txen_quar   : out   std_logic;
-    phy_txer_o      : out   std_logic;
+
+
+    -----------------------------SelfAdpt----------------------------------------------
+    adpt_led     : out std_logic;
+    trig_monitor : out std_logic;
+    -----------------------------SelfAdpt----------------------------------------------
+
+    PHY_RXD         : in  std_logic_vector(3 downto 0);
+    PHY_RXC         : in  std_logic;
+    PHY_RXDV        : in  std_logic;
+    PHY_TXD_o       : out std_logic_vector(3 downto 0);
+    PHY_GTXclk_quar : out std_logic;
+    PHy_txen_quar   : out std_logic;
+    phy_txer_o      : out std_logic;
 
     TX_src_MAC_addr : in  std_logic_vector(3 downto 0) := "0000";
     phy_rst_n_o     : out std_logic;
-    clk_EXT_250M : in std_logic;
-    Estmr_OQ_p        : out std_logic;
-    Estmr_OQ_n        : out std_logic;
+    clk_EXT_250M    : in  std_logic;
+    Estmr_OQ_p      : out std_logic;
+    Estmr_OQ_n      : out std_logic;
 
 
-   ---------------------------------------------------------------------------
-   qdriip_cq_p : IN std_logic_vector(0 to 0);
-	qdriip_cq_n : IN std_logic_vector(0 to 0);
-	qdriip_q : IN std_logic_vector(35 downto 0);         
-	qdriip_k_p : OUT std_logic_vector(0 to 0);
-	qdriip_k_n : OUT std_logic_vector(0 to 0);
-	qdriip_d : OUT std_logic_vector(35 downto 0);
-	qdriip_sa : OUT std_logic_vector(18 downto 0);
-	qdriip_w_n : OUT std_logic;
-	qdriip_r_n : OUT std_logic;
-	qdriip_bw_n : OUT std_logic_vector(3 downto 0);
-	qdriip_dll_off_n : OUT std_logic;
-	cal_done : OUT std_logic
+    ---------------------------------------------------------------------------
+    qdriip_cq_p      : in  std_logic_vector(0 to 0);
+    qdriip_cq_n      : in  std_logic_vector(0 to 0);
+    qdriip_q         : in  std_logic_vector(35 downto 0);
+    qdriip_k_p       : out std_logic_vector(0 to 0);
+    qdriip_k_n       : out std_logic_vector(0 to 0);
+    qdriip_d         : out std_logic_vector(35 downto 0);
+    qdriip_sa        : out std_logic_vector(18 downto 0);
+    qdriip_w_n       : out std_logic;
+    qdriip_r_n       : out std_logic;
+    qdriip_bw_n      : out std_logic_vector(3 downto 0);
+    qdriip_dll_off_n : out std_logic;
+    cal_done         : out std_logic
    ---------------------------------------------------------------------------              
     );
 end ZJUprojects;
@@ -188,7 +188,7 @@ architecture Behavioral of ZJUprojects is
   signal ethernet_Rd_addr            : std_logic_vector(13 downto 0);
   signal ethernet_frm_valid          : std_logic;
   signal frm_valid_d                 : std_logic;
-  signal trig_recv_done                 : std_logic;
+  signal trig_recv_done              : std_logic;
   signal ethernet_rd_data            : std_logic_vector(7 downto 0);
   attribute keep of ethernet_Rd_data : signal is true;
   signal ethernet_fifo_upload_data   : std_logic_vector(7 downto 0);
@@ -272,15 +272,15 @@ architecture Behavioral of ZJUprojects is
   signal cmd_pstprc_num_en            : std_logic;
   signal cmd_Pstprc_num               : std_logic_vector(3 downto 0);
   -----------------------------------------------------------------------------
-  
-  signal self_adpt_en                 : std_logic;
-  signal sram_cal_done                : std_logic;
-  signal dcm1_locked                  : std_logic;
-  signal dcm1_locked_d                : std_logic;
-  signal dcm1_locked_d2               : std_logic;
-  signal lck_rst_n                    : std_logic;
-  signal div_sclk                     : std_logic;
-  signal div_sclk_cnt                 : std_logic_vector(31 downto 0);
+
+  signal self_adpt_en        : std_logic;
+  signal sram_cal_done       : std_logic;
+  signal dcm1_locked         : std_logic;
+  signal dcm1_locked_d       : std_logic;
+  signal dcm1_locked_d2      : std_logic;
+  signal lck_rst_n           : std_logic;
+  signal div_sclk            : std_logic;
+  signal div_sclk_cnt        : std_logic_vector(31 downto 0);
   -----------------------------------------------------------------------------
   -- signal fft_ce_I : std_logic;
   -- signal fft_sclr_I : std_logic;
@@ -299,26 +299,26 @@ architecture Behavioral of ZJUprojects is
   -- signal fft_xk_im_I : std_logic_vector(7 downto 0);
   -- signal fft_ovflo_I : std_logic;
   -----------------------------------------------------------------------------
-  signal tx_rdy : std_logic;
-  signal upld_finish                  : std_logic;
-  signal CW_CH_flag                   : std_logic_vector(7 downto 0);
-  signal ch_stat                      : std_logic_vector(1 downto 0);
-  signal data_strobe                  : std_logic;
-  signal sw_ram_last                  : std_logic;
-  signal CW_mult_frame_en             : std_logic;
-  signal cw_ether_trig                : std_logic;
-  signal CM_Ram_I_rden                : std_logic;
-  signal CM_Ram_Q_rden                : std_logic;
-  signal CW_Pstprc_fifo_rden          : std_logic;
-  signal CW_wave_smpl_trig            : std_logic;
-  signal CW_demo_smpl_trig            : std_logic;
+  signal tx_rdy              : std_logic;
+  signal upld_finish         : std_logic;
+  signal CW_CH_flag          : std_logic_vector(7 downto 0);
+  signal ch_stat             : std_logic_vector(1 downto 0);
+  signal data_strobe         : std_logic;
+  signal sw_ram_last         : std_logic;
+  signal CW_mult_frame_en    : std_logic;
+  signal cw_ether_trig       : std_logic;
+  signal CM_Ram_I_rden       : std_logic;
+  signal CM_Ram_Q_rden       : std_logic;
+  signal CW_Pstprc_fifo_rden : std_logic;
+  signal CW_wave_smpl_trig   : std_logic;
+  signal CW_demo_smpl_trig   : std_logic;
   -----------------------------------------------------------------------------
-  signal pstprc_ram_wren              : std_logic;
-  signal Pstprc_RAMQ_clka             : std_logic;
-  signal Pstprc_RAMQ_clkb             : std_logic;
-  signal Pstprc_RAMI_clka             : std_logic;
-  signal Pstprc_RAMI_clkb             : std_logic;
-  signal Pstprc_RAMx_rden             : std_logic;
+  signal pstprc_ram_wren     : std_logic;
+  signal Pstprc_RAMQ_clka    : std_logic;
+  signal Pstprc_RAMQ_clkb    : std_logic;
+  signal Pstprc_RAMI_clka    : std_logic;
+  signal Pstprc_RAMI_clkb    : std_logic;
+  signal Pstprc_RAMx_rden    : std_logic;
 
   signal Pstprc_RAMQ_dina : std_logic_vector(31 downto 0);
   signal Pstprc_RAMI_dina : std_logic_vector(31 downto 0);
@@ -341,86 +341,86 @@ architecture Behavioral of ZJUprojects is
   signal pstprc_fifo_alempty : std_logic;
   -----------------------------------------------------------------------------
   signal cmd_Estmr_num_en    : std_logic;
-  signal is_counter    : std_logic;
+  signal is_counter          : std_logic;
   signal trig_recv_cnt       : std_logic_vector(23 downto 0);
-  signal wait_cnt_set       : std_logic_vector(23 downto 0);
+  signal wait_cnt_set        : std_logic_vector(23 downto 0);
   signal cmd_Estmr_num       : std_logic_vector(3 downto 0);
-  signal cmd_Estmr_A             : std_logic_vector(31 downto 0);
-  signal cmd_Estmr_B             : std_logic_vector(31 downto 0);
-  signal cmd_Estmr_C             : std_logic_vector(63 downto 0);
-  signal cmd_Estmr_sync_en       : std_logic;
+  signal cmd_Estmr_A         : std_logic_vector(31 downto 0);
+  signal cmd_Estmr_B         : std_logic_vector(31 downto 0);
+  signal cmd_Estmr_C         : std_logic_vector(63 downto 0);
+  signal cmd_Estmr_sync_en   : std_logic;
   signal REF_SRAM            : std_logic;
   signal CLK_SRAM            : std_logic;
   signal clk_500M            : std_logic;
-  signal clk_ext_500m : std_logic;
-  signal clk_EXT_250M_g : std_logic;
-  signal clk_EXT_250M_R : std_logic;
-  signal clk_EXT_500M_R : std_logic;
-  signal Estmr_OQ : std_logic;
+  signal clk_ext_500m        : std_logic;
+  signal clk_EXT_250M_g      : std_logic;
+  signal clk_EXT_250M_R      : std_logic;
+  signal clk_EXT_500M_R      : std_logic;
+  signal Estmr_OQ            : std_logic;
   -----------------------------------------------------------------------------
-  signal sys_rst_n_in    : std_logic;
-  signal sys_clk         : std_logic;
-  signal clk_adc         : std_logic;
-  signal clk_eth_r       : std_logic;
-  signal clk_eth_t       : std_logic;
-  signal clk_data_proc   : std_logic;
-  signal clk_data   : std_logic;
-  signal clk_feedback    : std_logic;
-  signal rst_data_n : std_logic;
-  signal rst_adc_n       : std_logic;
-  signal rst_eth_r_n     : std_logic;
-  signal rst_eth_t_n     : std_logic;
-  signal rst_data_proc_n : std_logic;
-  signal rst_feedback_n  : std_logic;
-  signal rst_config_n : std_logic;
+  signal sys_rst_n_in        : std_logic;
+  signal sys_clk             : std_logic;
+  signal clk_adc             : std_logic;
+  signal clk_eth_r           : std_logic;
+  signal clk_eth_t           : std_logic;
+  signal clk_data_proc       : std_logic;
+  signal clk_data            : std_logic;
+  signal clk_feedback        : std_logic;
+  signal rst_data_n          : std_logic;
+  signal rst_adc_n           : std_logic;
+  signal rst_eth_r_n         : std_logic;
+  signal rst_eth_t_n         : std_logic;
+  signal rst_data_proc_n     : std_logic;
+  signal rst_feedback_n      : std_logic;
+  signal rst_config_n        : std_logic;
   -----------------------------------------------------------------
-  signal	 	status_ram_addr : std_logic_vector(6 downto 0);
-	signal	status_ram_rd_en : std_logic;          
-	signal	status_ram_data : std_logic_vector(63 downto 0);
-	signal	status_ram_data_vld : std_logic;
+  signal status_ram_addr     : std_logic_vector(6 downto 0);
+  signal status_ram_rd_en    : std_logic;
+  signal status_ram_data     : std_logic_vector(63 downto 0);
+  signal status_ram_data_vld : std_logic;
   -----------------------------------------------------------------------------
-  signal SRCC1_p_trigout : std_logic;
-  signal cmd_adpt 		 : std_logic;
-  signal SelfAdpt_trig 	 : std_logic;
+  signal SRCC1_p_trigout     : std_logic;
+  signal cmd_adpt            : std_logic;
+  signal SelfAdpt_trig       : std_logic;
   -----------------------------------------------------------------------------
-signal  	 host_rd_mode       : STD_LOGIC;
-signal 	 host_rd_status     : STD_LOGIC;
-signal 	 host_rd_enable     : STD_LOGIC;
-signal 	 host_rd_start_addr : STD_LOGIC_VECTOR(18 DOWNTO 0);
-signal 	 host_rd_end_addr   : STD_LOGIC_VECTOR(18 DOWNTO 0);
-signal 	 host_rd_seg_len    : STD_LOGIC_VECTOR(15 DOWNTO 0);
-signal 	  recved_frame_cnt   : STD_LOGIC_VECTOR(23 DOWNTO 0);
-signal 	 status_0    : STD_LOGIC_VECTOR(31 DOWNTO 0);
-signal 	 status_1    : STD_LOGIC_VECTOR(31 DOWNTO 0);
-signal 	 status_2    : STD_LOGIC_VECTOR(31 DOWNTO 0);
-signal 	 status_3    : STD_LOGIC_VECTOR(31 DOWNTO 0);
-signal 	 status_4    : STD_LOGIC_VECTOR(31 DOWNTO 0);
-signal 	 status_5    : STD_LOGIC_VECTOR(31 DOWNTO 0);
-signal 	 status_6    : STD_LOGIC_VECTOR(31 DOWNTO 0);
-signal 	 cmd_0_data    : STD_LOGIC_VECTOR(63 DOWNTO 0);
-signal 	 cmd_1_data    : STD_LOGIC_VECTOR(127 DOWNTO 0);
+  signal host_rd_mode        : std_logic;
+  signal host_rd_status      : std_logic;
+  signal host_rd_enable      : std_logic;
+  signal host_rd_start_addr  : std_logic_vector(18 downto 0);
+  signal host_rd_length      : std_logic_vector(18 downto 0);
+  signal host_rd_seg_len     : std_logic_vector(15 downto 0);
+  signal recved_frame_cnt    : std_logic_vector(23 downto 0);
+  signal status_0            : std_logic_vector(31 downto 0);
+  signal status_1            : std_logic_vector(31 downto 0);
+  signal status_2            : std_logic_vector(31 downto 0);
+  signal status_3            : std_logic_vector(31 downto 0);
+  signal status_4            : std_logic_vector(31 downto 0);
+  signal status_5            : std_logic_vector(31 downto 0);
+  signal status_6            : std_logic_vector(31 downto 0);
+  signal cmd_0_data          : std_logic_vector(63 downto 0);
+  signal cmd_1_data          : std_logic_vector(127 downto 0);
   -----------------------------------------------------------------------------
-  	COMPONENT sys_reset_proc
-	PORT(
-		sys_rst_n_in : IN std_logic;
-		sram_cal_done : IN std_logic;
-		sys_clk : IN std_logic;
-                clk_config : in std_logic;
-		clk_adc : IN std_logic;
-		clk_eth_r : IN std_logic;
-		clk_eth_t : IN std_logic;
-                clk_data : in std_logic;
-		clk_data_proc : IN std_logic;
-		clk_feedback : IN std_logic;
-                rst_data_n : out std_logic;
-                rst_config_n : out std_logic;
-		rst_adc_n : OUT std_logic;
-		rst_eth_r_n : OUT std_logic;
-                rst_eth_t_n : OUT std_logic;
-		rst_data_proc_n : OUT std_logic;
-		rst_feedback_n : OUT std_logic
-		);
-	END COMPONENT;
+  component sys_reset_proc
+    port(
+      sys_rst_n_in    : in  std_logic;
+      sram_cal_done   : in  std_logic;
+      sys_clk         : in  std_logic;
+      clk_config      : in  std_logic;
+      clk_adc         : in  std_logic;
+      clk_eth_r       : in  std_logic;
+      clk_eth_t       : in  std_logic;
+      clk_data        : in  std_logic;
+      clk_data_proc   : in  std_logic;
+      clk_feedback    : in  std_logic;
+      rst_data_n      : out std_logic;
+      rst_config_n    : out std_logic;
+      rst_adc_n       : out std_logic;
+      rst_eth_r_n     : out std_logic;
+      rst_eth_t_n     : out std_logic;
+      rst_data_proc_n : out std_logic;
+      rst_feedback_n  : out std_logic
+      );
+  end component;
   -----------------------------------------------------------------------------
   component CDCE62005_interface
     port(
@@ -478,42 +478,42 @@ signal 	 cmd_1_data    : STD_LOGIC_VECTOR(127 DOWNTO 0);
   component G_ethernet_top
     port(
       -- rst_n_gb_i                : in     std_logic;
-      rst_eth_r_n         : in  std_logic;
-      rst_eth_t_n         : in  std_logic;
-      fifo_upload_data    : in  std_logic_vector(7 downto 0);
-      Rd_clk              : in  std_logic;
-      Rd_en               : in  std_logic;
-      Rd_Addr             : in  std_logic_vector(13 downto 0);
-      PHY_RXD             : in  std_logic_vector(3 downto 0);
-      PHY_RXC             : in  std_logic;
-      PHY_RXDV            : in  std_logic;
-      CLK_125M            : in  std_logic;
-      CLK_125M_quar       : in  std_logic;
-      PHY_TXD_o           : out std_logic_vector(3 downto 0);
-      PHY_GTXclk_quar     : out std_logic;
-      phy_txen_quar       : out std_logic;
-      phy_txer_o          : out std_logic;
-      rst_n_o             : out std_logic;
-      Rd_data             : out std_logic_vector(7 downto 0);
-      Frm_valid           : out std_logic;
+      rst_eth_r_n      : in  std_logic;
+      rst_eth_t_n      : in  std_logic;
+      fifo_upload_data : in  std_logic_vector(7 downto 0);
+      Rd_clk           : in  std_logic;
+      Rd_en            : in  std_logic;
+      Rd_Addr          : in  std_logic_vector(13 downto 0);
+      PHY_RXD          : in  std_logic_vector(3 downto 0);
+      PHY_RXC          : in  std_logic;
+      PHY_RXDV         : in  std_logic;
+      CLK_125M         : in  std_logic;
+      CLK_125M_quar    : in  std_logic;
+      PHY_TXD_o        : out std_logic_vector(3 downto 0);
+      PHY_GTXclk_quar  : out std_logic;
+      phy_txen_quar    : out std_logic;
+      phy_txer_o       : out std_logic;
+      rst_n_o          : out std_logic;
+      Rd_data          : out std_logic_vector(7 downto 0);
+      Frm_valid        : out std_logic;
       -- ram_wren            : buffer std_logic;
-      ram_rden            : out std_logic;
+      ram_rden         : out std_logic;
       -- ram_start                 : in     std_logic;
       -- srcc1_p_trigin            : in     std_logic;
       -- ram_last                  : in     std_logic;
       -- SRCC1_n_upload_sma_trigin : in     std_logic;
       -- upload_trig_ethernet      : in     std_logic;
-      clear_frame_cnt     : in  std_logic;
-      TX_dst_MAC_addr     : in  std_logic_vector(47 downto 0);
-      sample_en           : in  std_logic;
-      TX_src_MAC_addr     : in  std_logic_vector(3 downto 0);
-      CH_flag             : in  std_logic_vector(7 downto 0);
+      clear_frame_cnt  : in  std_logic;
+      TX_dst_MAC_addr  : in  std_logic_vector(47 downto 0);
+      sample_en        : in  std_logic;
+      TX_src_MAC_addr  : in  std_logic_vector(3 downto 0);
+      CH_flag          : in  std_logic_vector(7 downto 0);
       -- ch_stat             : in     std_logic_vector(1 downto 0);
-      mult_frame_en       : in  std_logic;
-      sw_ram_last         : in  std_logic;
-      data_strobe         : out std_logic;
-      tx_rdy         : out std_logic;
-      ether_trig          : in  std_logic
+      mult_frame_en    : in  std_logic;
+      sw_ram_last      : in  std_logic;
+      data_strobe      : out std_logic;
+      tx_rdy           : out std_logic;
+      ether_trig       : in  std_logic
       );
   end component;
   -----------------------------------------------------------------------------
@@ -530,13 +530,13 @@ signal 	 cmd_1_data    : STD_LOGIC_VECTOR(127 DOWNTO 0);
       upload_trig_ethernet : out    std_logic;
       ram_switch           : out    std_logic_vector(2 downto 0);
       TX_dst_MAC_addr      : out    std_logic_vector(47 downto 0);
-      is_counter				: out    std_logic;
-	 host_rd_mode : out STD_LOGIC;
-	 host_rd_status : out STD_LOGIC;
-	 host_rd_enable : out STD_LOGIC;
-	 host_rd_start_addr : out STD_LOGIC_VECTOR(18 DOWNTO 0);
-	 host_rd_end_addr : out STD_LOGIC_VECTOR(18 DOWNTO 0);
-	 host_rd_seg_len : out STD_LOGIC_VECTOR(15 DOWNTO 0);
+      is_counter           : out    std_logic;
+      host_rd_mode         : out    std_logic;
+      host_rd_status       : out    std_logic;
+      host_rd_enable       : out    std_logic;
+      host_rd_start_addr   : out    std_logic_vector(18 downto 0);
+      host_rd_length       : out    std_logic_vector(18 downto 0);
+      host_rd_seg_len      : out    std_logic_vector(15 downto 0);
       wait_cnt_set         : out    std_logic_vector(23 downto 0);
       cmd_smpl_en          : out    std_logic;
       cmd_smpl_depth       : out    std_logic_vector(15 downto 0);
@@ -558,32 +558,32 @@ signal 	 cmd_1_data    : STD_LOGIC_VECTOR(127 DOWNTO 0);
       cmd_Estmr_sync_en    : out    std_logic;
       cmd_Estmr_num        : out    std_logic_vector(3 downto 0);
       cmd_Estmr_num_en     : out    std_logic
-      
+
      -- cmd_Pstprc_dps_en : out std_logic
       );
   end component;
   -----------------------------------------------------------------------------
   component crg_dcms
     port(
-      OSC_in_p          : in     std_logic;
-      OSC_in_n          : in     std_logic;
-      ADC_CLKOI_p       : in     std_logic;
-      ADC_CLKOI_n       : in     std_logic;
-      CLK_EXT_250M : in std_logic;
-      PHY_RXC           : in     std_logic;
-      ADC_CLKOI         : buffer std_logic;
-      ADC_CLKOQ         : out    std_logic;
-      PHY_RXC_g         : out    std_logic;
-      ADC_clkoi_inv     : out    std_logic;
-      ADC_clkoq_inv     : out    std_logic;
-      REF_SRAM          : out    std_logic;
-      CLK_SRAM          : out    std_logic;
-      CLK_125M          : out    std_logic;
-      CLK_200M          : out    std_logic;
+      OSC_in_p      : in     std_logic;
+      OSC_in_n      : in     std_logic;
+      ADC_CLKOI_p   : in     std_logic;
+      ADC_CLKOI_n   : in     std_logic;
+      CLK_EXT_250M  : in     std_logic;
+      PHY_RXC       : in     std_logic;
+      ADC_CLKOI     : buffer std_logic;
+      ADC_CLKOQ     : out    std_logic;
+      PHY_RXC_g     : out    std_logic;
+      ADC_clkoi_inv : out    std_logic;
+      ADC_clkoq_inv : out    std_logic;
+      REF_SRAM      : out    std_logic;
+      CLK_SRAM      : out    std_logic;
+      CLK_125M      : out    std_logic;
+      CLK_200M      : out    std_logic;
 --      CLK_250M          : out    std_logic;
 --      CLK_500M : out std_logic;
-      CLK_EXT_500M :out std_logic;
-      CLK_125M_quar     : out    std_logic
+      CLK_EXT_500M  : out    std_logic;
+      CLK_125M_quar : out    std_logic
       );
   end component;
 -------------------------------------------------------------------------------
@@ -613,17 +613,17 @@ signal 	 cmd_1_data    : STD_LOGIC_VECTOR(127 DOWNTO 0);
 
   component TRIG_ctrl
     port(
-      clk                   : in  std_logic;
-      clk_125M              : in  std_logic;
-      rst_n                 : in  std_logic;
-      cmd_smpl_en           : in  std_logic;
-      cmd_smpl_trig_cnt     : in  std_logic_vector(23 downto 0);
-      trig_recv_cnt         : out  std_logic_vector(23 downto 0);
-      ram_start             : in  std_logic;
-      SRCC1_p_trigin        : in  std_logic;
-      trig_recv_done 		 : out std_logic;
-      SRCC1_p_trigout 		 : out std_logic;
-      posedge_sample_trig_o : out std_logic;
+      clk                        : in  std_logic;
+      clk_125M                   : in  std_logic;
+      rst_n                      : in  std_logic;
+      cmd_smpl_en                : in  std_logic;
+      cmd_smpl_trig_cnt          : in  std_logic_vector(23 downto 0);
+      trig_recv_cnt              : out std_logic_vector(23 downto 0);
+      ram_start                  : in  std_logic;
+      SRCC1_p_trigin             : in  std_logic;
+      trig_recv_done             : out std_logic;
+      SRCC1_p_trigout            : out std_logic;
+      posedge_sample_trig_o      : out std_logic;
       posedge_sample_trig_o_125M : out std_logic
       );
   end component;
@@ -661,8 +661,8 @@ signal 	 cmd_1_data    : STD_LOGIC_VECTOR(127 DOWNTO 0);
       clk_125M            : in  std_logic;
       -- ram_wren            : in  std_logic;
       posedge_sample_trig : in  std_logic;
-      rst_adc_n              : in  std_logic;
-      rst_data_n             : in  std_logic;
+      rst_adc_n           : in  std_logic;
+      rst_data_n          : in  std_logic;
       cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
       ram_Q_dina          : in  std_logic_vector(31 downto 0);
       ram_Q_clka          : in  std_logic;
@@ -688,8 +688,8 @@ signal 	 cmd_1_data    : STD_LOGIC_VECTOR(127 DOWNTO 0);
       -- pstprc_ram_wren : IN std_logic;
       posedge_sample_trig : in  std_logic;
       rst_data_proc_n     : in  std_logic;
-      rst_adc_n           : in std_logic;
-      cmd_smpl_en           : in std_logic;
+      rst_adc_n           : in  std_logic;
+      cmd_smpl_en         : in  std_logic;
       rst_feedback_n      : in  std_logic;
       cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
       Pstprc_RAMQ_dina    : in  std_logic_vector(31 downto 0);
@@ -705,7 +705,7 @@ signal 	 cmd_1_data    : STD_LOGIC_VECTOR(127 DOWNTO 0);
       Pstprc_IQ_seq_o     : out std_logic_vector(63 downto 0);
       pstprc_fifo_wren    : out std_logic;
       Pstprc_finish       : out std_logic;
-      is_counter       : in  std_logic;
+      is_counter          : in  std_logic;
       pstprc_num_en       : in  std_logic;
       pstprc_num          : in  std_logic_vector(3 downto 0);
       Estmr_A_eight       : in  std_logic_vector(31 downto 0);
@@ -722,43 +722,43 @@ signal 	 cmd_1_data    : STD_LOGIC_VECTOR(127 DOWNTO 0);
   -----------------------------------------------------------------------------
   component Pstprc_fifo_top
     port(
-	   ui_clk_in : IN std_logic;
-	   clk_200M : IN std_logic;
-		clk_125M : IN std_logic;
-		qdriip_cq_p : IN std_logic_vector(0 to 0);
-		qdriip_cq_n : IN std_logic_vector(0 to 0);
-		qdriip_q : IN std_logic_vector(35 downto 0);         
-		qdriip_k_p : OUT std_logic_vector(0 to 0);
-		qdriip_k_n : OUT std_logic_vector(0 to 0);
-		qdriip_d : OUT std_logic_vector(35 downto 0);
-		qdriip_sa : OUT std_logic_vector(18 downto 0);
-		qdriip_w_n : OUT std_logic;
-		qdriip_r_n : OUT std_logic;
-		qdriip_bw_n : OUT std_logic_vector(3 downto 0);
-		qdriip_dll_off_n : OUT std_logic;
-		cal_done : OUT std_logic;
-			 host_rd_mode : IN STD_LOGIC;
-	 host_rd_status : IN STD_LOGIC;
-	 host_rd_enable : IN STD_LOGIC;
-	 host_rd_start_addr : IN STD_LOGIC_VECTOR(18 DOWNTO 0);
-	 host_rd_end_addr : IN STD_LOGIC_VECTOR(18 DOWNTO 0);
-	 host_rd_seg_len : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-	 	status_ram_addr : OUT std_logic_vector(6 downto 0);
-		status_ram_rd_en : OUT std_logic;          
-		status_ram_data : IN std_logic_vector(63 downto 0);
-		status_ram_data_vld : IN std_logic;
+      ui_clk_in           : in  std_logic;
+      clk_200M            : in  std_logic;
+      clk_125M            : in  std_logic;
+      qdriip_cq_p         : in  std_logic_vector(0 to 0);
+      qdriip_cq_n         : in  std_logic_vector(0 to 0);
+      qdriip_q            : in  std_logic_vector(35 downto 0);
+      qdriip_k_p          : out std_logic_vector(0 to 0);
+      qdriip_k_n          : out std_logic_vector(0 to 0);
+      qdriip_d            : out std_logic_vector(35 downto 0);
+      qdriip_sa           : out std_logic_vector(18 downto 0);
+      qdriip_w_n          : out std_logic;
+      qdriip_r_n          : out std_logic;
+      qdriip_bw_n         : out std_logic_vector(3 downto 0);
+      qdriip_dll_off_n    : out std_logic;
+      cal_done            : out std_logic;
+      host_rd_mode        : in  std_logic;
+      host_rd_status      : in  std_logic;
+      host_rd_enable      : in  std_logic;
+      host_rd_start_addr  : in  std_logic_vector(18 downto 0);
+      host_rd_length      : in  std_logic_vector(18 downto 0);
+      host_rd_seg_len     : in  std_logic_vector(15 downto 0);
+      status_ram_addr     : out std_logic_vector(6 downto 0);
+      status_ram_rd_en    : out std_logic;
+      status_ram_data     : in  std_logic_vector(63 downto 0);
+      status_ram_data_vld : in  std_logic;
       rst_n               : in  std_logic;
-      cmd_smpl_en           : in  std_logic;
-      trig_recv_done           : in  std_logic;
+      cmd_smpl_en         : in  std_logic;
+      trig_recv_done      : in  std_logic;
       Pstprc_fifo_wr_clk  : in  std_logic;
       Pstprc_fifo_rd_clk  : in  std_logic;
-      wait_cnt_set     : in  std_logic_vector(23 downto 0);
+      wait_cnt_set        : in  std_logic_vector(23 downto 0);
       Pstprc_fifo_din     : in  std_logic_vector(63 downto 0);
       Pstprc_fifo_wren    : in  std_logic;
       Pstprc_fifo_rden    : in  std_logic;
-      tx_rdy    : in  std_logic;
-      Pstprc_finish_in     : in  std_logic;
-      Pstprc_finish_out    : out  std_logic;
+      tx_rdy              : in  std_logic;
+      Pstprc_finish_in    : in  std_logic;
+      Pstprc_finish_out   : out std_logic;
       -- prog_empty_thresh   : in  std_logic_vector(6 downto 0);
       recved_frame_cnt    : out std_logic_vector(23 downto 0);
       Pstprc_fifo_dout    : out std_logic_vector(7 downto 0);
@@ -768,40 +768,40 @@ signal 	 cmd_1_data    : STD_LOGIC_VECTOR(127 DOWNTO 0);
       );
   end component;
   ----------------------------------------------------------------------
-  	COMPONENT board_status_collect
-	PORT(
-		sys_clk : IN std_logic;
-		rst_n : IN std_logic;
-		cmd_0_data : IN std_logic_vector(63 downto 0);
-		cmd_0_addr : IN std_logic_vector(3 downto 0);
-		cmd_0_en : IN std_logic;
-		cmd_1_data : IN std_logic_vector(127 downto 0);
-		cmd_1_addr : IN std_logic_vector(2 downto 0);
-		cmd_1_en : IN std_logic;
-		status_1 : IN std_logic_vector(31 downto 0);
-		status_2 : IN std_logic_vector(31 downto 0);
-		status_3 : IN std_logic_vector(31 downto 0);
-		status_4 : IN std_logic_vector(31 downto 0);
-		status_ram_addr : IN std_logic_vector(6 downto 0);
-		status_ram_rd_en : IN std_logic;          
-		status_ram_data : OUT std_logic_vector(63 downto 0);
-		status_ram_data_vld : OUT std_logic
-		);
-	END COMPONENT;
+  component board_status_collect
+    port(
+      sys_clk             : in  std_logic;
+      rst_n               : in  std_logic;
+      cmd_0_data          : in  std_logic_vector(63 downto 0);
+      cmd_0_addr          : in  std_logic_vector(3 downto 0);
+      cmd_0_en            : in  std_logic;
+      cmd_1_data          : in  std_logic_vector(127 downto 0);
+      cmd_1_addr          : in  std_logic_vector(2 downto 0);
+      cmd_1_en            : in  std_logic;
+      status_1            : in  std_logic_vector(31 downto 0);
+      status_2            : in  std_logic_vector(31 downto 0);
+      status_3            : in  std_logic_vector(31 downto 0);
+      status_4            : in  std_logic_vector(31 downto 0);
+      status_ram_addr     : in  std_logic_vector(6 downto 0);
+      status_ram_rd_en    : in  std_logic;
+      status_ram_data     : out std_logic_vector(63 downto 0);
+      status_ram_data_vld : out std_logic
+      );
+  end component;
   -----------------------------------------------------------------------------
   component SelfAdpt
     port(
       clk250              : in  std_logic;
-      clk200  				  : in  std_logic;
-      rst_n  				  : in  std_logic;
-      RDY          		  : in  std_logic;
-      cmd_adpt     		  : in  std_logic;
-      trig_input    		  : in  std_logic;--trig signal from DA board
-		trig_from_trig_ctrl : in  std_logic;
-      trig_output    	  : out std_logic;--trig signgal after IODELAY
-      adpt_led    		  : out std_logic--the Self-adaption completion mark
+      clk200              : in  std_logic;
+      rst_n               : in  std_logic;
+      RDY                 : in  std_logic;
+      cmd_adpt            : in  std_logic;
+      trig_input          : in  std_logic;  --trig signal from DA board
+      trig_from_trig_ctrl : in  std_logic;
+      trig_output         : out std_logic;  --trig signgal after IODELAY
+      adpt_led            : out std_logic   --the Self-adaption completion mark
       );
-  end component; 
+  end component;
 -------------------------------------------------------------------------------
 -- component SRAM_interface
 --   generic (
@@ -865,46 +865,46 @@ signal 	 cmd_1_data    : STD_LOGIC_VECTOR(127 DOWNTO 0);
 ---------------------------------------------------------------------------------primitive instantiation       
 begin
 
-  Inst_sys_reset_proc: sys_reset_proc PORT MAP(
-    sys_rst_n_in => user_pushbutton ,
-    sram_cal_done => sram_cal_done ,
-    sys_clk => CLK_125M,
-    clk_adc => ADC_CLKOI,
-    clk_eth_r => PHY_RXC_g,
-    clk_eth_t => CLK_125M,
-    clk_data_proc => CLK_125M,
-    clk_feedback => CLK_EXT_250M_R,
-    clk_config=>clk_125M,
-    clk_data => clk_125M,
-    rst_data_n=>rst_data_n,
-    rst_config_n=>rst_config_n,
-    rst_adc_n => rst_adc_n,
-    rst_eth_r_n => rst_eth_r_n,
-    rst_eth_t_n => rst_eth_t_n,
-    rst_data_proc_n =>rst_data_proc_n, 
-    rst_feedback_n => rst_feedback_n
+  Inst_sys_reset_proc : sys_reset_proc port map(
+    sys_rst_n_in    => user_pushbutton,
+    sram_cal_done   => sram_cal_done,
+    sys_clk         => CLK_125M,
+    clk_adc         => ADC_CLKOI,
+    clk_eth_r       => PHY_RXC_g,
+    clk_eth_t       => CLK_125M,
+    clk_data_proc   => CLK_125M,
+    clk_feedback    => CLK_EXT_250M_R,
+    clk_config      => clk_125M,
+    clk_data        => clk_125M,
+    rst_data_n      => rst_data_n,
+    rst_config_n    => rst_config_n,
+    rst_adc_n       => rst_adc_n,
+    rst_eth_r_n     => rst_eth_r_n,
+    rst_eth_t_n     => rst_eth_t_n,
+    rst_data_proc_n => rst_data_proc_n,
+    rst_feedback_n  => rst_feedback_n
     );
 
   Inst_crg_dcms : crg_dcms port map(
-    OSC_in_p          => OSC_in_p,
-    OSC_in_n          => OSC_in_n,
-    ADC_CLKOI_p       => ADC_CLKOI_p,
-    ADC_CLKOI_n       => ADC_CLKOI_n,
-    CLK_EXT_250M =>CLK_EXT_250M,
-    PHY_RXC           => PHY_RXC,
-    ADC_CLKOI         => ADC_CLKOI,
-    ADC_CLKOQ         => ADC_CLKOQ,
-    PHY_RXC_g         => PHY_RXC_g,
-    ADC_clkoi_inv     => ADC_clkoi_inv,
-    ADC_clkoq_inv     => ADC_clkoq_inv,
-    REF_SRAM          => REF_SRAM,
-    CLK_SRAM          => CLK_SRAM,
-    CLK_125M          => CLK_125M,
-    CLK_200M          => CLK_200M,
+    OSC_in_p      => OSC_in_p,
+    OSC_in_n      => OSC_in_n,
+    ADC_CLKOI_p   => ADC_CLKOI_p,
+    ADC_CLKOI_n   => ADC_CLKOI_n,
+    CLK_EXT_250M  => CLK_EXT_250M,
+    PHY_RXC       => PHY_RXC,
+    ADC_CLKOI     => ADC_CLKOI,
+    ADC_CLKOQ     => ADC_CLKOQ,
+    PHY_RXC_g     => PHY_RXC_g,
+    ADC_clkoi_inv => ADC_clkoi_inv,
+    ADC_clkoq_inv => ADC_clkoq_inv,
+    REF_SRAM      => REF_SRAM,
+    CLK_SRAM      => CLK_SRAM,
+    CLK_125M      => CLK_125M,
+    CLK_200M      => CLK_200M,
 --    CLK_250M          => CLK_250M,
 --    CLK_500M          => CLK_500M,
-    CLK_EXT_500M => CLK_EXT_500M,
-    CLK_125M_quar     => CLK_125M_quar
+    CLK_EXT_500M  => CLK_EXT_500M,
+    CLK_125M_quar => CLK_125M_quar
     );
 
   -- IBUFG_inst : IBUFG
@@ -996,54 +996,54 @@ begin
   -- fft_scale_sch_I<="01010101010101";        --14bit,7bit scaling factor=128 
   ------------------------------------------------------------------------------ 
   Inst_TRIG_ctrl : TRIG_ctrl port map(
-    clk                   => ADC_CLKOI,
-    clk_125M              => CLK_125M,
-    rst_n                 => rst_adc_n,
-    cmd_smpl_en           => cmd_smpl_en,
-    cmd_smpl_trig_cnt     => cmd_smpl_trig_cnt,
-    trig_recv_cnt         => trig_recv_cnt,
+    clk                        => ADC_CLKOI,
+    clk_125M                   => CLK_125M,
+    rst_n                      => rst_adc_n,
+    cmd_smpl_en                => cmd_smpl_en,
+    cmd_smpl_trig_cnt          => cmd_smpl_trig_cnt,
+    trig_recv_cnt              => trig_recv_cnt,
     trig_recv_done             => trig_recv_done,
-    ram_start             => ram_start,
-    SRCC1_p_trigin        => SelfAdpt_trig,--trig from IODELAYE1
-    SRCC1_p_trigout       => SRCC1_p_trigout,--trig from IODELAYE1
-    posedge_sample_trig_o => posedge_sample_trig,
+    ram_start                  => ram_start,
+    SRCC1_p_trigin             => SelfAdpt_trig,    --trig from IODELAYE1
+    SRCC1_p_trigout            => SRCC1_p_trigout,  --trig from IODELAYE1
+    posedge_sample_trig_o      => posedge_sample_trig,
     posedge_sample_trig_o_125M => posedge_sample_trig_125M
     );
 
 -------------------------------------------------------------------------------
   Inst_G_ethernet_top : G_ethernet_top port map(
     -- rst_n_gb_i => ethernet_rst_n_gb_i,
-    PHY_TXD_o           => PHY_TXD_o,
-    PHY_GTXclk_quar     => PHY_GTXclk_quar,
-    phy_txen_quar       => phy_txen_quar,
-    phy_txer_o          => phy_txer_o,
-    rst_eth_r_n     => rst_eth_r_n,
-    rst_eth_t_n     => rst_eth_t_n,
-    rst_n_o             => phy_rst_n_o,
-    fifo_upload_data    => ethernet_fifo_upload_data,
-    Rd_clk              => ethernet_Rd_clk,
-    Rd_en               => ethernet_Rd_en,
-    Rd_Addr             => ethernet_Rd_Addr,
-    PHY_RXD             => PHY_RXD,
-    PHY_RXC             => phy_rxc_g,
-    PHY_RXDV            => PHY_RXDV,
-    Rd_data             => ethernet_Rd_data,
-    Frm_valid           => ethernet_Frm_valid,
-    CLK_125M            => CLK_125M,
-    CLK_125M_quar       => CLK_125M_quar,
+    PHY_TXD_o        => PHY_TXD_o,
+    PHY_GTXclk_quar  => PHY_GTXclk_quar,
+    phy_txen_quar    => phy_txen_quar,
+    phy_txer_o       => phy_txer_o,
+    rst_eth_r_n      => rst_eth_r_n,
+    rst_eth_t_n      => rst_eth_t_n,
+    rst_n_o          => phy_rst_n_o,
+    fifo_upload_data => ethernet_fifo_upload_data,
+    Rd_clk           => ethernet_Rd_clk,
+    Rd_en            => ethernet_Rd_en,
+    Rd_Addr          => ethernet_Rd_Addr,
+    PHY_RXD          => PHY_RXD,
+    PHY_RXC          => phy_rxc_g,
+    PHY_RXDV         => PHY_RXDV,
+    Rd_data          => ethernet_Rd_data,
+    Frm_valid        => ethernet_Frm_valid,
+    CLK_125M         => CLK_125M,
+    CLK_125M_quar    => CLK_125M_quar,
     -- ram_wren            => ram_wren,
-    ram_rden            => ram_rden,
-    clear_frame_cnt     => clear_frame_cnt,
-    TX_dst_MAC_addr     => TX_dst_MAC_addr,
-    TX_src_MAC_addr     => TX_src_MAC_addr,
-    sample_en           => sample_en,
-    CH_flag             => CW_CH_flag,
+    ram_rden         => ram_rden,
+    clear_frame_cnt  => clear_frame_cnt,
+    TX_dst_MAC_addr  => TX_dst_MAC_addr,
+    TX_src_MAC_addr  => TX_src_MAC_addr,
+    sample_en        => sample_en,
+    CH_flag          => CW_CH_flag,
     -- ch_stat             => ch_stat,
-    mult_frame_en       => CW_mult_frame_en,
-    sw_ram_last         => sw_ram_last,
-    Data_strobe         => data_strobe,
-    tx_rdy         => tx_rdy,
-    ether_trig          => CW_ether_trig
+    mult_frame_en    => CW_mult_frame_en,
+    sw_ram_last      => sw_ram_last,
+    Data_strobe      => data_strobe,
+    tx_rdy           => tx_rdy,
+    ether_trig       => CW_ether_trig
     );
 -------------------------------------------------------------------------------
   Inst_cmd_ana_top : cmd_ana_top port map(
@@ -1059,15 +1059,15 @@ begin
     cmd_smpl_depth       => cmd_smpl_depth,
     cmd_smpl_trig_cnt    => cmd_smpl_trig_cnt,
     cmd_pstprc_IQ_sw     => cmd_pstprc_IQ_sw,
-	 host_rd_mode      => host_rd_mode,
-	 host_rd_status    => host_rd_status,
-	 host_rd_enable    => host_rd_enable,
-	 host_rd_start_addr=> host_rd_start_addr,
-	 host_rd_end_addr   => host_rd_end_addr,
-	 host_rd_seg_len   => host_rd_seg_len,
-    is_counter  => is_counter,    
-    wait_cnt_set  => wait_cnt_set,    
-    self_adpt_en       	 => self_adpt_en,
+    host_rd_mode         => host_rd_mode,
+    host_rd_status       => host_rd_status,
+    host_rd_enable       => host_rd_enable,
+    host_rd_start_addr   => host_rd_start_addr,
+    host_rd_length       => host_rd_length,
+    host_rd_seg_len      => host_rd_seg_len,
+    is_counter           => is_counter,
+    wait_cnt_set         => wait_cnt_set,
+    self_adpt_en         => self_adpt_en,
     ethernet_Rd_en       => ethernet_Rd_en,
     ethernet_Rd_Addr     => ethernet_Rd_Addr,
     ethernet_frm_valid   => ethernet_frm_valid,
@@ -1209,7 +1209,7 @@ begin
     posedge_sample_trig => CW_demo_smpl_trig,
     rst_data_proc_n     => rst_data_proc_n,
     rst_adc_n           => rst_adc_n,
-    cmd_smpl_en           => cmd_smpl_en,
+    cmd_smpl_en         => cmd_smpl_en,
     rst_feedback_n      => rst_feedback_n,
     cmd_smpl_depth      => cmd_smpl_depth,
     Pstprc_RAMQ_dina    => Pstprc_RAMQ_dina,
@@ -1220,7 +1220,7 @@ begin
     Pstprc_RAMI_clkb    => Pstprc_RAMI_clkb,
     demoWinln_twelve    => cmd_demoWinln,
     demoWinstart_twelve => cmd_demoWinstart,
-    is_counter => is_counter,
+    is_counter          => is_counter,
     -- Pstprc_dps_en       => cmd_Pstprc_dps_en,
     Pstprc_DPS_twelve   => cmd_Pstprc_DPS,
     Pstprc_IQ_seq_o     => Pstprc_IQ_seq_o,
@@ -1244,71 +1244,71 @@ begin
   Pstprc_RAMQ_dina <= ADC_DOQB_2_d&ADC_DOQA_2_d&ADC_DOQB_1_d&ADC_DOQA_1_d;
   Pstprc_RAMI_dina <= ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
   pstprc_ram_wren  <= ram_wren;
-  cal_done  <= sram_cal_done;
-	cmd_0_data <= cmd_Pstprc_DPS & cmd_demoWinstart(7 downto 0) & cmd_demoWinln & cmd_smpl_depth;--25,8,15,16
-	cmd_1_data <= cmd_Estmr_C & cmd_Estmr_B & cmd_Estmr_A;--64,32,32
-	status_1 <= x"00" & trig_recv_cnt;
-	status_2 <= x"00" & recved_frame_cnt;
-  Inst_board_status_collect: board_status_collect PORT MAP(
-		sys_clk => clk_125M,
-		rst_n => rst_data_proc_n,
-		cmd_0_data => cmd_0_data,
-		cmd_0_addr => cmd_Pstprc_num(3 downto 0),
-		cmd_0_en => cmd_pstprc_num_en,
-		cmd_1_data => cmd_1_data,
-		cmd_1_addr => cmd_Estmr_num(2 downto 0),
-		cmd_1_en => cmd_Estmr_num_en,		
-		status_1 => status_1,
-		status_2 => status_2,
-		status_3 => status_3,
-		status_4 => status_4,
-		status_ram_data => status_ram_data,
-		status_ram_data_vld => status_ram_data_vld,
-		status_ram_addr => status_ram_addr,
-		status_ram_rd_en => status_ram_rd_en
-	);
+  cal_done         <= sram_cal_done;
+  cmd_0_data       <= cmd_Pstprc_DPS & cmd_demoWinstart(7 downto 0) & cmd_demoWinln & cmd_smpl_depth;  --25,8,15,16
+  cmd_1_data       <= cmd_Estmr_C & cmd_Estmr_B & cmd_Estmr_A;  --64,32,32
+  status_1         <= x"00" & trig_recv_cnt;
+  status_2         <= x"00" & recved_frame_cnt;
+  Inst_board_status_collect : board_status_collect port map(
+    sys_clk             => clk_125M,
+    rst_n               => rst_data_proc_n,
+    cmd_0_data          => cmd_0_data,
+    cmd_0_addr          => cmd_Pstprc_num(3 downto 0),
+    cmd_0_en            => cmd_pstprc_num_en,
+    cmd_1_data          => cmd_1_data,
+    cmd_1_addr          => cmd_Estmr_num(2 downto 0),
+    cmd_1_en            => cmd_Estmr_num_en,
+    status_1            => status_1,
+    status_2            => status_2,
+    status_3            => status_3,
+    status_4            => status_4,
+    status_ram_data     => status_ram_data,
+    status_ram_data_vld => status_ram_data_vld,
+    status_ram_addr     => status_ram_addr,
+    status_ram_rd_en    => status_ram_rd_en
+    );
   -----------------------------------------------------------------------------
   Inst_Pstprc_fifo_top : Pstprc_fifo_top port map(
-    rst_n               => rst_data_proc_n,
-	 ---------------------------------------------------
-	 ui_clk_in                   => CLK_SRAM,
-	 CLK_125M                   => clk_125M,
-    CLK_200M                   => REF_SRAM,
-    qdriip_cq_p                => qdriip_cq_p,
-    qdriip_cq_n                => qdriip_cq_n,
-    qdriip_q                   => qdriip_q,
-    qdriip_k_p                 => qdriip_k_p,
-    qdriip_k_n                 => qdriip_k_n,
-    qdriip_d                   => qdriip_d,
-    qdriip_sa                  => qdriip_sa,
-    qdriip_w_n                 => qdriip_w_n,
-    qdriip_r_n                 => qdriip_r_n,
-    qdriip_bw_n                => qdriip_bw_n,
-    qdriip_dll_off_n           => qdriip_dll_off_n,
-    cal_done                   => sram_cal_done,
-	 --------------------------------------------------
-	 host_rd_mode      => host_rd_mode,
-	 host_rd_status    => host_rd_status,
-	 host_rd_enable    => host_rd_enable,
-	 host_rd_start_addr=> host_rd_start_addr,
-	 host_rd_end_addr   => host_rd_end_addr,
-	 host_rd_seg_len   => host_rd_seg_len,
-	 
-	 
-		status_ram_data => status_ram_data,
-		status_ram_data_vld => status_ram_data_vld,
-		status_ram_addr => status_ram_addr,
-		status_ram_rd_en => status_ram_rd_en,
-		recved_frame_cnt => recved_frame_cnt,
-	 ---------------------------------------------------
-    trig_recv_done  => trig_recv_done,    --same with the clk in dmog_seg
-    cmd_smpl_en  => cmd_smpl_en,    --same with the clk in dmog_seg
-    tx_rdy  => tx_rdy,    --same with the clk in dmog_seg
-    wait_cnt_set  => wait_cnt_set,    --same with the clk in dmog_seg
-    Pstprc_finish_in  => Pstprc_finish,    --same with the clk in dmog_seg
-    Pstprc_finish_out  => Pstprc_finish_out,    --same with the clk in dmog_seg
-    Pstprc_fifo_wr_clk  => clk_125M,    --same with the clk in dmog_seg
-    Pstprc_fifo_rd_clk  => clk_125M,    --same with the clk in pstprc
+    rst_n              => rst_data_proc_n,
+    ---------------------------------------------------
+    ui_clk_in          => CLK_SRAM,
+    CLK_125M           => clk_125M,
+    CLK_200M           => REF_SRAM,
+    qdriip_cq_p        => qdriip_cq_p,
+    qdriip_cq_n        => qdriip_cq_n,
+    qdriip_q           => qdriip_q,
+    qdriip_k_p         => qdriip_k_p,
+    qdriip_k_n         => qdriip_k_n,
+    qdriip_d           => qdriip_d,
+    qdriip_sa          => qdriip_sa,
+    qdriip_w_n         => qdriip_w_n,
+    qdriip_r_n         => qdriip_r_n,
+    qdriip_bw_n        => qdriip_bw_n,
+    qdriip_dll_off_n   => qdriip_dll_off_n,
+    cal_done           => sram_cal_done,
+    --------------------------------------------------
+    host_rd_mode       => host_rd_mode,
+    host_rd_status     => host_rd_status,
+    host_rd_enable     => host_rd_enable,
+    host_rd_start_addr => host_rd_start_addr,
+    host_rd_length     => host_rd_length,
+    host_rd_seg_len    => host_rd_seg_len,
+
+
+    status_ram_data     => status_ram_data,
+    status_ram_data_vld => status_ram_data_vld,
+    status_ram_addr     => status_ram_addr,
+    status_ram_rd_en    => status_ram_rd_en,
+    recved_frame_cnt    => recved_frame_cnt,
+    ---------------------------------------------------
+    trig_recv_done      => trig_recv_done,     --same with the clk in dmog_seg
+    cmd_smpl_en         => cmd_smpl_en,        --same with the clk in dmog_seg
+    tx_rdy              => tx_rdy,             --same with the clk in dmog_seg
+    wait_cnt_set        => wait_cnt_set,       --same with the clk in dmog_seg
+    Pstprc_finish_in    => Pstprc_finish,      --same with the clk in dmog_seg
+    Pstprc_finish_out   => Pstprc_finish_out,  --same with the clk in dmog_seg
+    Pstprc_fifo_wr_clk  => clk_125M,           --same with the clk in dmog_seg
+    Pstprc_fifo_rd_clk  => clk_125M,           --same with the clk in pstprc
     Pstprc_fifo_din     => Pstprc_IQ_seq_o,
     Pstprc_fifo_wren    => Pstprc_fifo_wren,
     Pstprc_fifo_rden    => CW_Pstprc_fifo_rden,
@@ -1320,18 +1320,18 @@ begin
     );
   ------------------------------------------------------------------------------
   Inst_SelfAdpt : SelfAdpt port map(
-	 clk250					=>ADC_CLKOI,
-	 clk200					=>CLK_200M,
-	 rst_n					=>rst_adc_n,
-	 RDY						=>sram_cal_done,
-	 cmd_adpt				=>cmd_adpt,
-	 trig_input				=>SRCC1_p_trigin,--trig from DA board
-	 trig_from_trig_ctrl	=>SRCC1_p_trigout,--trig from Trig_ctrl
-	 trig_output			=>SelfAdpt_trig,--trig from IODELAYE1
-	 adpt_led				=>adpt_led
-	 );
-	 
-	 cmd_adpt <= self_adpt_en;
+    clk250              => ADC_CLKOI,
+    clk200              => CLK_200M,
+    rst_n               => rst_adc_n,
+    RDY                 => sram_cal_done,
+    cmd_adpt            => cmd_adpt,
+    trig_input          => SRCC1_p_trigin,     --trig from DA board
+    trig_from_trig_ctrl => SRCC1_p_trigout,    --trig from Trig_ctrl
+    trig_output         => SelfAdpt_trig,      --trig from IODELAYE1
+    adpt_led            => adpt_led
+    );
+
+  cmd_adpt <= self_adpt_en;
   ------------------------------------------------------------------------------
   -- SRCC1_p         <= CLK_250M;     --j12
 
@@ -1344,48 +1344,48 @@ begin
   --     );
 
 -------------------------------------------------------------------------------
-     OBUFDS_inst : OBUFDS
-   generic map (
+  OBUFDS_inst : OBUFDS
+    generic map (
       IOSTANDARD => "DEFAULT")
-   port map (
-      O => Estmr_OQ_p,     -- Diff_p output (connect directly to top-level port)
-      OB => Estmr_OQ_n,   -- Diff_n output (connect directly to top-level port)
-      I => Estmr_OQ      -- Buffer input 
+    port map (
+      O  => Estmr_OQ_p,  -- Diff_p output (connect directly to top-level port)
+      OB => Estmr_OQ_n,  -- Diff_n output (connect directly to top-level port)
+      I  => Estmr_OQ                    -- Buffer input 
       );
-  
+
   ethernet_rd_clk <= CLK_125M;
   trig_monitor    <= SRCC1_p_trigout;
-  
-    -- BUFG_inst2 : BUFG
-    -- port map (
-    --   O => clk_EXT_250M_g,                       -- 1-bit output: Clock buffer output
-    --   I => clk_EXT_250M                      -- 1-bit input: Clock buffer input
+
+  -- BUFG_inst2 : BUFG
+  -- port map (
+  --   O => clk_EXT_250M_g,                       -- 1-bit output: Clock buffer output
+  --   I => clk_EXT_250M                      -- 1-bit input: Clock buffer input
   --   );
 
-     BUFR_inst0 : BUFR
-   generic map (
-      BUFR_DIVIDE => "4", -- Values: "BYPASS", "1", "2", "3", "4", "5", "6", "7", "8" 
-      SIM_DEVICE => "VIRTEX6"  -- Must be set to "VIRTEX6" 
-   )
-   port map (
-      O => clk_EXT_250M_R,     -- 1-bit output: Clock buffer output
-      CE => '1',   -- 1-bit input: Active high clock enable input
-      CLR => '0', -- 1-bit input: Active high reset input
-      I => CLK_EXT_500M      -- 1-bit input: Clock buffer input driven by an IBUFG, MMCM or local interconnect
+  BUFR_inst0 : BUFR
+    generic map (
+      BUFR_DIVIDE => "4",  -- Values: "BYPASS", "1", "2", "3", "4", "5", "6", "7", "8" 
+      SIM_DEVICE  => "VIRTEX6"          -- Must be set to "VIRTEX6" 
+      )
+    port map (
+      O   => clk_EXT_250M_R,            -- 1-bit output: Clock buffer output
+      CE  => '1',          -- 1-bit input: Active high clock enable input
+      CLR => '0',                       -- 1-bit input: Active high reset input
+      I   => CLK_EXT_500M  -- 1-bit input: Clock buffer input driven by an IBUFG, MMCM or local interconnect
       );
-  
-       BUFR_inst1 : BUFR
-   generic map (
-      BUFR_DIVIDE => "2", -- Values: "BYPASS", "1", "2", "3", "4", "5", "6", "7", "8" 
-      SIM_DEVICE => "VIRTEX6"  -- Must be set to "VIRTEX6" 
-   )
-   port map (
-      O => clk_EXT_500M_R,     -- 1-bit output: Clock buffer output
-      CE => '1',   -- 1-bit input: Active high clock enable input
-      CLR => '0', -- 1-bit input: Active high reset input
-      I => CLK_EXT_500M      -- 1-bit input: Clock buffer input driven by an IBUFG, MMCM or local interconnect
-   );
---注释掉clk_ext_250M的bufG后需要把mmcm的配置 输入端改成普通IO
+
+  BUFR_inst1 : BUFR
+    generic map (
+      BUFR_DIVIDE => "2",  -- Values: "BYPASS", "1", "2", "3", "4", "5", "6", "7", "8" 
+      SIM_DEVICE  => "VIRTEX6"          -- Must be set to "VIRTEX6" 
+      )
+    port map (
+      O   => clk_EXT_500M_R,            -- 1-bit output: Clock buffer output
+      CE  => '1',          -- 1-bit input: Active high clock enable input
+      CLR => '0',                       -- 1-bit input: Active high reset input
+      I   => CLK_EXT_500M  -- 1-bit input: Clock buffer input driven by an IBUFG, MMCM or local interconnect
+      );
+
 -----------------------------------------------------------------------------
 -- SRCC1_p <= clk_250M;
 -- SRCC1_n <= ram_Q_clka;
