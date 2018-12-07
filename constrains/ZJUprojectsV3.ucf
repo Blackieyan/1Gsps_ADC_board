@@ -557,6 +557,9 @@ TIMESPEC TS_RXCtoCLK3_TIG = FROM "PHY_RXC" TO "Inst_crg_dcms_dcm_global_clkout3"
 TIMESPEC TS_ADCtoCLK1_TIG = FROM "ADC_CLKOI_p" TO "Inst_crg_dcms_dcm_global_clkout1" TIG;
 TIMESPEC TS_ADCtoCLK2_TIG = FROM "ADC_CLKOI_p" TO "Inst_crg_dcms_dcm_global_clkout2" TIG;
 TIMESPEC TS_ADCtoCLK3_TIG = FROM "ADC_CLKOI_p" TO "Inst_crg_dcms_dcm_global_clkout3" TIG;
+TIMESPEC TS_ADCtoCLK3_TIG = FROM "Inst_TRIG_ctrl/trigin_d2" TO "Inst_SelfAdpt/cnt_trig_interval_0" TIG;
+
+TIMESPEC TS_ADCtoCLK3_TIG = FROM "Inst_Pstprc_fifo_top/sram_init_r" TO "Inst_Pstprc_fifo_top/inst_SRAM/u_iodelay_ctrl/rst_clkref_sync_r_*" TIG;
 #Created by Constraints Editor (xc6vlx240t-ff1156-2) - 2018/06/25
 TIMESPEC TS_RXCtoEXT250_TIG = FROM "PHY_RXC" TO "clk_EXT_250M_R" TIG;
 
