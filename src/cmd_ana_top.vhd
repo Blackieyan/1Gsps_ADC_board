@@ -44,6 +44,7 @@ entity cmd_ana_top is
     ram_start            : out    std_logic;
     upload_trig_ethernet : out    std_logic;
     rst_n                : in     std_logic;
+	 use_test_IQ_data      : out    std_logic;
 	 clear_frame_cnt      : out    std_logic;
 	 is_counter			    : out    std_logic;
 	 wait_cnt_set         : out    std_logic_vector(23 downto 0);
@@ -101,6 +102,7 @@ architecture Behavioral of cmd_ana_top is
       frm_type               : out    std_logic_vector(15 downto 0);
       ram_start_o            : out    std_logic;
       upload_trig_ethernet_o : out    std_logic;
+      use_test_IQ_data       : out    std_logic;
       rst_n                  : in     std_logic;
 	   is_counter			    : out    std_logic;
 	   wait_cnt_set         : out    std_logic_vector(23 downto 0);
@@ -154,6 +156,7 @@ begin
       wait_cnt_set           => wait_cnt_set,
       is_counter             => is_counter,
       clear_frame_cnt             => clear_frame_cnt,
+			 use_test_IQ_data      => use_test_IQ_data,
 			 host_rd_mode      => host_rd_mode,
 	 host_rd_status    => host_rd_status,
 	 host_rd_enable    => host_rd_enable,
