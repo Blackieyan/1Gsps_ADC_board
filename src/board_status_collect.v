@@ -30,17 +30,21 @@ module board_status_collect(
     input [2:0]	 cmd_1_addr,
     input 			 cmd_1_en,
 	 //来自于内部逻辑，根据需要增加
+	 output reg	 	updating_status,
     input [31:0] 	status_1,
     input [31:0] 	status_2,
     input [31:0] 	status_3,
     input [31:0] 	status_4,
+    input [31:0] 	status_5,
+    input [31:0] 	status_6,
+    input [31:0] 	status_7,
 	 //读出接口
 	 output [63:0]	status_ram_data,
 	 output     	status_ram_data_vld,
 	 input [6:0]	status_ram_addr,
 	 input      	status_ram_rd_en
     );
-parameter REG_CNT = 128;
+parameter REG_CNT = 127;
 reg [7:0]   ram_wr_addr;	 
 reg [31:0]  ram_wr_data;	 
 reg			ram_wr_en; 
@@ -83,7 +87,10 @@ reg [31: 0] heart_beat=0;
 always @(posedge sys_clk) begin
 	if(time_cnt == 0)			heart_beat  <= heart_beat + 1;
 end
-
+always @(posedge sys_clk) begin
+	if(time_cnt == 0)			updating_status  <= 1;
+	else							updating_status  <= 0;
+end
 reg cmd_0_en_d1;
 reg cmd_0_wr1;
 reg cmd_0_wr2;
@@ -102,6 +109,7 @@ always @(posedge sys_clk) begin
 	cmd_1_wr2   <= cmd_1_wr1;
 	cmd_1_wr3   <= cmd_1_wr2;
 	cmd_1_wr4   <= cmd_1_wr3;
+
 	if(cmd_0_wr1 == 1)	begin //命令写入在0地址 32个32位 最多可容纳16组频点的参数，实际上只有8个有效
 		ram_wr_en	<= 1;
 		ram_wr_data <= cmd_0_data[31:0];
@@ -140,6 +148,9 @@ always @(posedge sys_clk) begin
 			2:	begin ram_wr_data <= status_2;   ram_wr_en	<= 1; end
 			3:	begin ram_wr_data <= status_3;   ram_wr_en	<= 1; end
 			4:	begin ram_wr_data <= status_4;   ram_wr_en	<= 1; end
+			5:	begin ram_wr_data <= status_5;   ram_wr_en	<= 1; end
+			6:	begin ram_wr_data <= status_6;   ram_wr_en	<= 1; end
+			7:	begin ram_wr_data <= status_7;   ram_wr_en	<= 1; end
 			default : begin ram_wr_data <= ram_wr_data; ram_wr_en	<= 0; end
 		endcase
 	end
