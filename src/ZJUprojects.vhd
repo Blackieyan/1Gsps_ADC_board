@@ -189,6 +189,7 @@ architecture Behavioral of ZJUprojects is
   signal ethernet_frm_valid          : std_logic;
   signal frm_valid_d                 : std_logic;
   signal trig_recv_done              : std_logic;
+  signal updating_status             : std_logic;
   signal ethernet_rd_data            : std_logic_vector(7 downto 0);
   attribute keep of ethernet_Rd_data : signal is true;
   signal ethernet_fifo_upload_data   : std_logic_vector(7 downto 0);
@@ -210,6 +211,7 @@ architecture Behavioral of ZJUprojects is
   -- signal ram_last : std_logic;
 
 
+  signal use_test_IQ_data              : std_logic;
   signal ram_rst              : std_logic;
   attribute keep of ram_rst   : signal is true;
   signal ram_start            : std_logic;
@@ -282,6 +284,14 @@ architecture Behavioral of ZJUprojects is
   signal div_sclk            : std_logic;
   signal div_sclk_cnt        : std_logic_vector(31 downto 0);
   -----------------------------------------------------------------------------
+  
+  	 --- host set DDS ram signal
+ signal    host_set_ram_ena_sin : std_logic; --sin 通道选择
+ signal    host_set_ram_ena_cos : std_logic; --cos 通道选择
+ signal    host_set_ram_wr_en   : std_logic; --数据写使能
+ signal    host_set_ram_wr_data : std_logic_vector(31 downto 0);--数据
+ signal    host_set_ram_wr_addr : std_logic_vector(14 downto 0);--地址
+	 ---
   -- signal fft_ce_I : std_logic;
   -- signal fft_sclr_I : std_logic;
   -- signal fft_start_I : std_logic;
@@ -358,6 +368,7 @@ architecture Behavioral of ZJUprojects is
   signal clk_EXT_500M_R      : std_logic;
   signal Estmr_OQ            : std_logic;
   -----------------------------------------------------------------------------
+  signal adpt_led_int        : std_logic;
   signal sys_rst_n_in        : std_logic;
   signal sys_clk             : std_logic;
   signal clk_adc             : std_logic;
@@ -397,6 +408,7 @@ architecture Behavioral of ZJUprojects is
   signal status_4            : std_logic_vector(31 downto 0);
   signal status_5            : std_logic_vector(31 downto 0);
   signal status_6            : std_logic_vector(31 downto 0);
+  signal status_7            : std_logic_vector(31 downto 0);
   signal cmd_0_data          : std_logic_vector(63 downto 0);
   signal cmd_1_data          : std_logic_vector(127 downto 0);
   -----------------------------------------------------------------------------
@@ -532,6 +544,7 @@ architecture Behavioral of ZJUprojects is
       TX_dst_MAC_addr      : out    std_logic_vector(47 downto 0);
       is_counter           : out    std_logic;
       host_rd_mode         : out    std_logic;
+      use_test_IQ_data       : out    std_logic;
       host_rd_status       : out    std_logic;
       host_rd_enable       : out    std_logic;
       host_rd_start_addr   : out    std_logic_vector(18 downto 0);
@@ -706,6 +719,7 @@ architecture Behavioral of ZJUprojects is
       pstprc_fifo_wren    : out std_logic;
       Pstprc_finish       : out std_logic;
       is_counter          : in  std_logic;
+      use_test_IQ_data       : in  std_logic;
       pstprc_num_en       : in  std_logic;
       pstprc_num          : in  std_logic_vector(3 downto 0);
       Estmr_A_eight       : in  std_logic_vector(31 downto 0);
@@ -749,9 +763,10 @@ architecture Behavioral of ZJUprojects is
       status_ram_data_vld : in  std_logic;
       rst_n               : in  std_logic;
       cmd_smpl_en         : in  std_logic;
-      trig_recv_done      : in  std_logic;
+      updating_status      : in  std_logic;
       Pstprc_fifo_wr_clk  : in  std_logic;
       Pstprc_fifo_rd_clk  : in  std_logic;
+      target_frame_cnt    : in  std_logic_vector(23 downto 0);
       wait_cnt_set        : in  std_logic_vector(23 downto 0);
       Pstprc_fifo_din     : in  std_logic_vector(63 downto 0);
       Pstprc_fifo_wren    : in  std_logic;
@@ -778,10 +793,14 @@ architecture Behavioral of ZJUprojects is
       cmd_1_data          : in  std_logic_vector(127 downto 0);
       cmd_1_addr          : in  std_logic_vector(2 downto 0);
       cmd_1_en            : in  std_logic;
+      updating_status     : out  std_logic;
       status_1            : in  std_logic_vector(31 downto 0);
       status_2            : in  std_logic_vector(31 downto 0);
       status_3            : in  std_logic_vector(31 downto 0);
       status_4            : in  std_logic_vector(31 downto 0);
+      status_5            : in  std_logic_vector(31 downto 0);
+      status_6            : in  std_logic_vector(31 downto 0);
+      status_7            : in  std_logic_vector(31 downto 0);
       status_ram_addr     : in  std_logic_vector(6 downto 0);
       status_ram_rd_en    : in  std_logic;
       status_ram_data     : out std_logic_vector(63 downto 0);
@@ -1065,6 +1084,7 @@ begin
     host_rd_start_addr   => host_rd_start_addr,
     host_rd_length       => host_rd_length,
     host_rd_seg_len      => host_rd_seg_len,
+    use_test_IQ_data      => use_test_IQ_data,
     is_counter           => is_counter,
     wait_cnt_set         => wait_cnt_set,
     self_adpt_en         => self_adpt_en,
@@ -1210,6 +1230,7 @@ begin
     rst_data_proc_n     => rst_data_proc_n,
     rst_adc_n           => rst_adc_n,
     cmd_smpl_en         => cmd_smpl_en,
+    use_test_IQ_data      => use_test_IQ_data,
     rst_feedback_n      => rst_feedback_n,
     cmd_smpl_depth      => cmd_smpl_depth,
     Pstprc_RAMQ_dina    => Pstprc_RAMQ_dina,
@@ -1249,6 +1270,15 @@ begin
   cmd_1_data       <= cmd_Estmr_C & cmd_Estmr_B & cmd_Estmr_A;  --64,32,32
   status_1         <= x"00" & trig_recv_cnt;
   status_2         <= x"00" & recved_frame_cnt;
+  status_3         <= x"0000" & host_rd_seg_len;
+  status_4(0)		 <= adpt_led_int;
+  status_4(1)		 <= sram_cal_done;
+  status_4(2)		 <= host_rd_mode;
+  status_4(3)		 <= use_test_IQ_data;
+  status_4(4)		 <= is_counter;
+  status_5(18 downto 0)         <= host_rd_start_addr;
+  status_6(18 downto 0)         <= host_rd_length;
+  status_7(23 downto 0)         <= cmd_smpl_trig_cnt;
   Inst_board_status_collect : board_status_collect port map(
     sys_clk             => clk_125M,
     rst_n               => rst_data_proc_n,
@@ -1258,10 +1288,14 @@ begin
     cmd_1_data          => cmd_1_data,
     cmd_1_addr          => cmd_Estmr_num(2 downto 0),
     cmd_1_en            => cmd_Estmr_num_en,
+    updating_status     => updating_status,
     status_1            => status_1,
     status_2            => status_2,
     status_3            => status_3,
     status_4            => status_4,
+    status_5            => status_5,
+    status_6            => status_6,
+    status_7            => status_7,
     status_ram_data     => status_ram_data,
     status_ram_data_vld => status_ram_data_vld,
     status_ram_addr     => status_ram_addr,
@@ -1301,7 +1335,8 @@ begin
     status_ram_rd_en    => status_ram_rd_en,
     recved_frame_cnt    => recved_frame_cnt,
     ---------------------------------------------------
-    trig_recv_done      => trig_recv_done,     --same with the clk in dmog_seg
+    target_frame_cnt    => cmd_smpl_trig_cnt, 
+    updating_status     => updating_status, 
     cmd_smpl_en         => cmd_smpl_en,        --same with the clk in dmog_seg
     tx_rdy              => tx_rdy,             --same with the clk in dmog_seg
     wait_cnt_set        => wait_cnt_set,       --same with the clk in dmog_seg
@@ -1319,6 +1354,7 @@ begin
     pstprc_fifo_alempty => pstprc_fifo_alempty
     );
   ------------------------------------------------------------------------------
+  adpt_led <= adpt_led_int;
   Inst_SelfAdpt : SelfAdpt port map(
     clk250              => ADC_CLKOI,
     clk200              => CLK_200M,
@@ -1328,7 +1364,7 @@ begin
     trig_input          => SRCC1_p_trigin,     --trig from DA board
     trig_from_trig_ctrl => SRCC1_p_trigout,    --trig from Trig_ctrl
     trig_output         => SelfAdpt_trig,      --trig from IODELAYE1
-    adpt_led            => adpt_led
+    adpt_led            => adpt_led_int
     );
 
   cmd_adpt <= self_adpt_en;
