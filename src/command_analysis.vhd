@@ -58,6 +58,7 @@ entity command_analysis is
 	 wait_cnt_set         : out    std_logic_vector(23 downto 0);
     self_adpt_en   : out std_logic;
     ram_start_o   : out std_logic;
+    use_test_IQ_data   : out std_logic;
      upload_trig_ethernet_o : out std_logic;
     rst_n : in  std_logic;
     cmd_pstprc_IQ_sw : out std_logic_vector(1 downto 0);
@@ -546,11 +547,12 @@ end process clear_frame_cnt_ps;
 host_rd_mode_ps: process (rd_clk, rst_n) is
 begin  -- 地址34 上位机读模式
   if rst_n = '0' then                   -- asynchronous reset (active low)
-    host_rd_mode <='0';
+    host_rd_mode <='1';
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
       if reg_addr =x"0022" then
         if rd_addr=x"19" then
           host_rd_mode<= reg_data(24);
+        end if;
       end if;
   end if;
 end process host_rd_mode_ps;
@@ -619,7 +621,6 @@ end process host_rd_start_ps;
 host_rd_ps: process (rd_clk, rst_n) is
 begin  -- 地址34 上位机读模式
   if rst_n = '0' then                   -- asynchronous reset (active low)
-    host_rd_mode <='0';
     host_rd_status <='0';
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
       if reg_addr =x"0025" then
@@ -659,4 +660,17 @@ begin  -- 地址36 上位机读数据启动一次
     end if;
   end if;
 end process host_rd_enable_ps;
+
+use_test_IQ_data_ps: process (rd_clk, rst_n) is
+begin  -- 地址36 上位机读数据启动一次
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    use_test_IQ_data 		<= '0';
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+    if reg_addr =x"0028" then
+      if rd_addr=x"19" then
+        use_test_IQ_data	  <= reg_data(24);
+      end if;
+    end if;
+  end if;
+end process use_test_IQ_data_ps;
 end Behavioral;
