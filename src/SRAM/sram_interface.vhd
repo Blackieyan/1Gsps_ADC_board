@@ -102,7 +102,7 @@ entity sram_interface is
    PHY_LATENCY            : integer := 20;      -- Expected Latency
    SIM_CAL_OPTION         : string := "NONE"; -- Skip various calibration steps
    SIM_INIT_OPTION        : string  := "NONE"; -- Simulation only. "NONE", "SIM_MODE"
-   PHASE_DETECT           : string := "ON";   -- Enable Phase detector
+   PHASE_DETECT           : string := "OFF";   -- Enable Phase detector
    IBUF_LPWR_MODE         : string := "OFF";  -- Input buffer low power mode
    IODELAY_HP_MODE        : string := "ON";   -- IODELAY High Performance Mode
    TCQ                    : integer := 1;   -- Simulation Register Delay
