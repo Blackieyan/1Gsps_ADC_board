@@ -46,8 +46,17 @@ entity DDS_top is
     dds_phase_shift : in  std_logic_vector(dds_phase_width downto 0);
     -- MSB 1 represents the negetive frequency 0 represents positive frequency
     -- ,default 0
+	 
+    use_test_IQ_data : in std_logic;
     Pstprc_num_frs : in std_logic;
-    -- pstprc_dps_en : in std_logic;
+	 --- host set DDS ram signal
+	  host_set_ram_switch  : in std_logic; --上位机设置DDS数据开关
+     host_set_ram_ena_sin : in std_logic; --sin 通道选择
+     host_set_ram_ena_cos : in std_logic; --cos 通道选择
+     host_set_ram_wr_en   : in std_logic; --数据写使能
+     host_set_ram_wr_data : in std_logic_vector(dds_output_width-1 downto 0);--数据
+     host_set_ram_wr_addr : in std_logic_vector(14 downto 0);--地址
+	 ---
     cos_out         : out std_logic_vector(dds_output_width*8-1 downto 0);
     sin_out         : out std_logic_vector(dds_output_width*8-1 downto 0);
     dds_data_start : in std_logic_vector(14 downto 0);
@@ -88,6 +97,17 @@ architecture Behavioral of DDS_top is
 --  signal dds_phase_out2      : std_logic_vector(dds_phase_width-1 downto 0);
   signal dds_cos_out: std_logic_vector(dds_output_width-1 downto 0);
   signal dds_sin_out : std_logic_vector(dds_output_width-1 downto 0);
+  
+  ---------- for host switch
+  signal dds_ram_ena_sin       : std_logic;
+  signal dds_ram_ena_cos       : std_logic;
+  signal dds_ram_wren_sin      : std_logic_vector(0 downto 0);
+  signal dds_ram_wren_cos      : std_logic_vector(0 downto 0);
+  signal dds_ram_addra_sin     : std_logic_vector(14 downto 0);
+  signal dds_ram_addra_cos     : std_logic_vector(14 downto 0);
+  signal dds_ram_dataa_sin 	 : std_logic_vector(dds_output_width-1 downto 0);
+  signal dds_ram_dataa_cos 	 : std_logic_vector(dds_output_width-1 downto 0);
+  
   signal dds1_sclr : std_logic;
   component DDS1
     port (
@@ -166,26 +186,15 @@ begin
       sine       => dds_sin_out,
       phase_out  => dds_phase_out);
 dds1_sclr<=dds_sclr or finish_sclr;
-  -- DDS_inst2 : DDS2
-  --   port map (
-  --     reg_select => '0',
-  --     clk        => dds_clk,
-  --     sclr       => dds_sclr or finish_sclr,
-  --     we         => '1',
-  --     ce         => dds_ce,             --pull up from the (demoWinstart -2)
-  --     data       => dds_phase_shift(dds_phase_width-1 downto 0),    --fout = clk*data/2^N
-  --     rdy        => dds_rdy2,
-  --     rfd        => dds_rfd2,
-  --     sine       => neg_sin,
-  --     phase_out  => dds_phase_out2);
+  
 
   sin_ram_inst : dds_ram
     port map (
       clka  => dds_clk,
-      ena   => '1',
-      wea   => dds_ram_wren,
-      addra => dds_ram_addra,
-      dina  => dds_sin_mux_out,
+      ena   => dds_ram_ena_sin,
+      wea   => dds_ram_wren_sin,
+      addra => dds_ram_addra_sin,
+      dina  => dds_ram_dataa_sin,
       clkb  => dds_clk,
       enb   => dds_ram_rden,
       addrb => dds_ram_addrb,
@@ -195,10 +204,10 @@ dds1_sclr<=dds_sclr or finish_sclr;
   cos_ram_inst : dds_ram
     port map (
       clka  => dds_clk,
-      ena   => '1',
-      wea   => dds_ram_wren,
-      addra => dds_ram_addra,
-      dina  => dds_cos_mux_out,
+      ena   => dds_ram_ena_cos,
+      wea   => dds_ram_wren_cos,
+      addra => dds_ram_addra_cos,
+      dina  => dds_ram_dataa_cos,
       clkb  => dds_clk,
       enb   => dds_ram_rden,
       addrb => dds_ram_addrb,
@@ -206,7 +215,18 @@ dds1_sclr<=dds_sclr or finish_sclr;
       );
 
   dds_ram_rden <= dds_en;               --control by module input signal 
-
+  
+  --
+  -- 上位机设置通道切换
+  dds_ram_ena_sin   <= host_set_ram_ena_sin when host_set_ram_switch = '1' else '1';  
+  dds_ram_ena_cos   <= host_set_ram_ena_cos when host_set_ram_switch = '1' else '1';  
+  dds_ram_wren_sin(0)  <=   host_set_ram_wr_en when host_set_ram_switch = '1' else dds_ram_wren(0);  
+  dds_ram_wren_cos(0)  <=   host_set_ram_wr_en when host_set_ram_switch = '1' else dds_ram_wren(0);  
+  dds_ram_addra_sin <= host_set_ram_wr_addr when host_set_ram_switch = '1' else dds_ram_addra;  
+  dds_ram_addra_cos <= host_set_ram_wr_addr when host_set_ram_switch = '1' else dds_ram_addra;  
+  dds_ram_dataa_sin <= host_set_ram_wr_data when host_set_ram_switch = '1' else dds_sin_mux_out;	
+  dds_ram_dataa_cos <= host_set_ram_wr_data when host_set_ram_switch = '1' else dds_cos_mux_out;
+  
   -----------------------------------------------------------------------------
   -- purpose: when the frequency is negetive then switch the dds_sin to neg_sin
   -- type   : sequential
@@ -232,7 +252,7 @@ dds1_sclr<=dds_sclr or finish_sclr;
     elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
       dds_cos<=dds_cos_out;
     end if;
-  end process dds_cos_d_ps;
+  end process dds_cos_d_ps; 
   
 data_switch_ps: process (dds_clk, dds_sclr) is
  begin  -- process data_switch_ps
@@ -240,15 +260,21 @@ data_switch_ps: process (dds_clk, dds_sclr) is
     dds_sin_mux_out<=(others => '0');
     dds_cos_mux_out<=(others => '0');
   elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
-    case ram_data_sw is
-      when '0' =>
-        dds_cos_mux_out<=(others => '0');
-        dds_sin_mux_out<=(others => '0');
-      when '1' =>
-        dds_sin_mux_out<= dds_sin;
-        dds_cos_mux_out<= dds_cos;
-      when others => null;
-    end case;
+  ---加入测试模式数据
+    if(use_test_IQ_data = '1') then
+		 dds_sin_mux_out<= dds_ram_addra(11 downto 0);
+		 dds_cos_mux_out<= dds_ram_addrb(11 downto 0);
+	 else
+		 case ram_data_sw is
+			when '0' =>
+			  dds_cos_mux_out<=(others => '0');
+			  dds_sin_mux_out<=(others => '0');
+			when '1' =>
+			  dds_sin_mux_out<= dds_sin;
+			  dds_cos_mux_out<= dds_cos;
+			when others => null;
+		 end case;
+	  end if;
   end if;
 end process data_switch_ps;
 
