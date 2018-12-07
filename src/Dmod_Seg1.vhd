@@ -52,6 +52,7 @@ entity Dmod_Seg is
     rst_data_proc_n     : in  std_logic;
     rst_feedback_n      : in  std_logic;
     is_counter          : in  std_logic;
+    use_test_IQ_data     : in  std_logic;
     cmd_smpl_en          : in  std_logic;
     cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
     Pstprc_RAMQ_dina    : in  std_logic_vector(31 downto 0);
@@ -65,6 +66,14 @@ entity Dmod_Seg is
     demoWinln_twelve    : in  std_logic_vector(14 downto 0);
     demoWinstart_twelve : in  std_logic_vector(14 downto 0);
     ---------------------------------------------------------------------------
+	 	 --- host set DDS ram signal
+--	  host_set_ram_switch  : in std_logic; --上位机设置DDS数据开关
+--     host_set_ram_ena_sin : in std_logic; --sin 通道选择
+--     host_set_ram_ena_cos : in std_logic; --cos 通道选择
+--     host_set_ram_wr_en   : in std_logic; --数据写使能
+--     host_set_ram_wr_data : in std_logic_vector(31 downto 0);--数据
+--     host_set_ram_wr_addr : in std_logic_vector(14 downto 0);--地址
+	 ---
     ---------------------------------------------------------------------------
     pstprc_IQ_seq_o     : out std_logic_vector(63 downto 0);
     Pstprc_finish       : out std_logic;
@@ -150,6 +159,7 @@ attribute KEEP of RECV_CNT: signal is "TRUE";
       posedge_sample_trig   : in     std_logic;
       rst_data_proc_n            : in     std_logic;
       rst_adc_n            : in     std_logic;
+      use_test_IQ_data       : in     std_logic;
       cmd_smpl_depth        : in     std_logic_vector(15 downto 0);
       Pstprc_RAMq_dina      : in     std_logic_vector(31 downto 0);
       Pstprc_RAMq_clka      : in     std_logic;
@@ -179,6 +189,7 @@ attribute KEEP of RECV_CNT: signal is "TRUE";
       DDS_phase_shift      : in  std_logic_vector (dds_phase_width downto 0);
       -- Pstprc_dps_en : in std_logic;
       Pstprc_en            : in  std_logic;
+      use_test_IQ_data     : in  std_logic;
       Pstprc_RAMx_rden_stp : in  std_logic;
       Pstprc_finish        : out std_logic;
       Pstprc_Qdata         : out std_logic_vector(31 downto 0);
@@ -253,6 +264,7 @@ begin
     posedge_sample_trig   => posedge_sample_trig,
     rst_data_proc_n            => rst_data_proc_n,
     rst_adc_n            => rst_adc_n,
+    use_test_IQ_data        => use_test_IQ_data,
     cmd_smpl_depth        => cmd_smpl_depth,
     Pstprc_RAMQ_dina      => Pstprc_RAMQ_dina,
     Pstprc_RAMQ_clka      => Pstprc_RAMQ_clka,
@@ -331,6 +343,7 @@ begin
       I_data               => I_data,
       DDS_phase_shift      => Pstprc_DPS(i),
       -- Pstprc_dps_en => Pstprc_dps_en,
+      use_test_IQ_data     => use_test_IQ_data,
       rst_n                => rst_data_proc_n,
       Pstprc_en            => Pstprc_en,  --for debugging the timing error
       pstprc_num_frs       => pstprc_num_frs(i),
@@ -452,12 +465,12 @@ process (clk, rst_data_proc_n) is
       pstprc_IQ_seq_o_int <= (others => '0');
     elsif clk'event and clk = '1' then  -- rising clock edge
       if(cmd_smpl_en = '1') then
-			pstprc_IQ_seq_o_int <= (others => '0');
+			pstprc_IQ_seq_o_int <= (others => '1');
 		elsif IQ_seq_cnt = upload_freq_cnt then
         pstprc_IQ_seq_o_int <= pstprc_IQ_seq_o_int;
       else
-        pstprc_IQ_seq_o_int(63 downto 32) <= pstprc_IQ_seq_o_int(63 downto 32) + '1';
-        pstprc_IQ_seq_o_int(31 downto 0) <= pstprc_IQ_seq_o_int(31 downto 0) + '1';
+        pstprc_IQ_seq_o_int(63 downto 32) <= pstprc_IQ_seq_o_int(63 downto 32) - '1';
+        pstprc_IQ_seq_o_int(31 downto 0) <= pstprc_IQ_seq_o_int(31 downto 0) - '1';
       end if;
     end if;
   end process;
