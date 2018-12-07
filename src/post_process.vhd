@@ -47,6 +47,16 @@ entity post_process is
     I_data               : in  std_logic_vector(63 downto 0);
     DDS_phase_shift      : in  std_logic_vector(dds_phase_width downto 0);
     -- pstprc_dps_en        : in std_logic;
+	 	 --- host set DDS ram signal
+--	  host_set_ram_switch  : in std_logic; --上位机设置DDS数据开关
+--     host_set_ram_ena_sin : in std_logic; --sin 通道选择
+--     host_set_ram_ena_cos : in std_logic; --cos 通道选择
+--     host_set_ram_wr_en   : in std_logic; --数据写使能
+--     host_set_ram_wr_data : in std_logic_vector(11 downto 0);--数据
+--     host_set_ram_wr_addr : in std_logic_vector(14 downto 0);--地址
+	 ---
+	 
+    use_test_IQ_data     : in  std_logic;
     pstprc_en            : in  std_logic;
     Pstprc_num_frs       : in std_logic;
     rst_n                : in  std_logic;
@@ -198,13 +208,20 @@ architecture Behavioral of post_process is
 		dds_clk : IN std_logic;
 		dds_sclr : IN std_logic;
 		dds_en : IN std_logic;
+		use_test_IQ_data : IN std_logic;
 		dds_phase_shift : IN std_logic_vector(dds_phase_width downto 0);
-                Pstprc_num_frs : in std_logic;
+      Pstprc_num_frs : in std_logic;
+	  host_set_ram_switch  : in std_logic; --上位机设置DDS数据开关
+     host_set_ram_ena_sin : in std_logic; --sin 通道选择
+     host_set_ram_ena_cos : in std_logic; --cos 通道选择
+     host_set_ram_wr_en   : in std_logic; --数据写使能
+     host_set_ram_wr_data : in std_logic_vector(11 downto 0);--数据
+     host_set_ram_wr_addr : in std_logic_vector(14 downto 0);--地址					 
 		cos_out : OUT std_logic_vector(95 downto 0);
 		sin_out : OUT std_logic_vector(95 downto 0);
-                dds_data_start : in std_logic_vector(14 downto 0);
-                dds_data_len : in std_logic_vector(14 downto 0);
-                cmd_smpl_depth : in std_logic_vector(15 downto 0)
+	 dds_data_start : in std_logic_vector(14 downto 0);
+	 dds_data_len : in std_logic_vector(14 downto 0);
+	 cmd_smpl_depth : in std_logic_vector(15 downto 0)
 		);
 	END COMPONENT;
 
@@ -260,7 +277,20 @@ begin
     dds_sclr        => dds_sclr,
     dds_en =>dds_en,
   Pstprc_num_frs =>Pstprc_num_frs,
+  use_test_IQ_data =>use_test_IQ_data,
     -- pstprc_dps_en => pstprc_dps_en,
+	 
+--    host_set_ram_ena_sin  => host_set_ram_ena_sin,
+--    host_set_ram_ena_cos  => host_set_ram_ena_cos,
+--    host_set_ram_wr_en    => host_set_ram_wr_en  ,
+--    host_set_ram_wr_data  => host_set_ram_wr_data,
+--    host_set_ram_wr_addr  => host_set_ram_wr_addr,	 
+    host_set_ram_switch  => '0',
+    host_set_ram_ena_sin  => '0',
+    host_set_ram_ena_cos  => '0',
+    host_set_ram_wr_en    => '0',
+    host_set_ram_wr_data  => (others => '0'),
+    host_set_ram_wr_addr  => (others => '0'),	 
     dds_phase_shift => dds_phase_shift,
     cos_out         => dds_cos,
     sin_out         => dds_sin,
