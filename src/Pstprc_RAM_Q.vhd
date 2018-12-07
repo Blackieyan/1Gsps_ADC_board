@@ -9,7 +9,10 @@
 -- Target Devices: 
 -- Tool versions: 
 -- Description: 
---
+-- RAM功能，接收外部写入的RAM数据，地址，数据，使能均由外部提供
+-- 向外输出数据ok标识，标识RAM中有足够的数据
+-- 外部检测到RAM中有足够的数据后开始向RAM发出连续的读使能信号，直到读完预期的数据
+-- 内部每读读一个数据，地址自动+1
 -- Dependencies: 
 --
 -- Revision: 
@@ -35,25 +38,35 @@ use UNISIM.vcomponents.all;
 
 entity Pstprc_RAM_Q is
   port(
-    Pstprc_ram_wren       : in     std_logic;
-    posedge_sample_trig   : in     std_logic;
+    
+--    posedge_sample_trig   : in     std_logic;
     rst_data_proc_n            : in     std_logic;
     rst_adc_n             : in     std_logic;
+	 --下面两个信号，配合完成IQ通道数据OK标识
     Pstprc_addra_ok             : in     std_logic;
     Pstprc_addra_rdy             : out     std_logic;
-    cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
+--    cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
     ---------------------------------------------------------------------------
     Pstprc_RAMq_clka      : in     std_logic;
     Pstprc_RAMq_clkb      : in     std_logic;
     ---------------------------------------------------------------------------
+    --RAM写接口
+	 Pstprc_ram_wren       : in     std_logic;
+	 Pstprc_RAMq_addra     : in     std_logic_vector(12 downto 0);
     Pstprc_RAMq_dina      : in     std_logic_vector(31 downto 0);
+	 --读接口
     Pstprc_RAMq_doutb     : out    std_logic_vector(63 downto 0);
+	 --读使能
     Pstprc_RAMq_rden      : buffer std_logic;
     ---------------------------------------------------------------------------
     ---------------------------------------------------------------------------
-    ini_pstprc_RAMx_addra : in     std_logic_vector(12 downto 0);
+    ---写入数据个数阈值
+	 ini_pstprc_RAMx_addra : in     std_logic_vector(12 downto 0);
+	 ---读出起始地址
     ini_pstprc_RAMx_addrb : in     std_logic_vector(11 downto 0);
+	 --读出数据个数
     Pstprc_RAMx_rden_ln   : in     std_logic_vector(11 downto 0);
+	 --读出数据达到脉冲
     Pstprc_RAMq_rden_stp  : out    std_logic
     );
 end Pstprc_RAM_Q;
@@ -62,7 +75,7 @@ architecture Behavioral of Pstprc_RAM_Q is
 
   -----------------------------------------------------------------------------
 
-  signal Pstprc_RAMq_addra    : std_logic_vector(12 downto 0);
+--  signal Pstprc_RAMq_addra    : std_logic_vector(12 downto 0);
   signal Pstprc_RAMq_addrb    : std_logic_vector(11 downto 0);
   signal Pstprc_RAMq_ena      : std_logic;
   signal Pstprc_RAMq_enb      : std_logic;
@@ -72,7 +85,7 @@ architecture Behavioral of Pstprc_RAM_Q is
   signal Pstprc_RAMq_full     : std_logic;
   signal Pstprc_RAMq_full_o   : std_logic;
 --  signal Pstprc_addra_rdy     : std_logic;
---  signal Pstprc_addra_rdy_d   : std_logic;
+  signal Pstprc_addra_rdy_int   : std_logic;
 --  signal Pstprc_addra_rdy_d2  : std_logic;
 --  signal Pstprc_addra_ok      : std_logic;
   signal Pstprc_RAMq_rden_cnt : std_logic_vector(11 downto 0);
@@ -113,57 +126,58 @@ begin
       doutb => Pstprc_RAMq_doutb
       );
 
-  Pstprc_RAMq_wea(0) <= Pstprc_ram_wren and (not Pstprc_RAMq_full);
-  Pstprc_RAMq_full_o <= Pstprc_RAMq_full;
+  Pstprc_RAMq_wea(0) <= Pstprc_ram_wren;-- and (not Pstprc_RAMq_full);
+--  Pstprc_RAMq_full_o <= Pstprc_RAMq_full;
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
-  Pstprc_RAMq_addra_ps : process (Pstprc_RAMq_clka, rst_adc_n, posedge_sample_trig) is
-  begin  -- process addra_ps
-    if rst_adc_n = '0' then             -- asynchronous reset (active low)
-      Pstprc_RAMq_addra <= (others => '0');
-    elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
-      if posedge_sample_trig = '1' then
-        Pstprc_RAMq_addra <= (others => '0');
-      elsif Pstprc_ram_wren = '1' then
-        if Pstprc_RAMq_addra < cmd_smpl_depth(14 downto 2)then  --cmd_smpl_depth/4
-          Pstprc_RAMq_addra <= Pstprc_RAMq_addra+1;
-        end if;
-      end if;
-    end if;
-  end process Pstprc_RAMq_addra_ps;
+--  Pstprc_RAMq_addra_ps : process (Pstprc_RAMq_clka, rst_adc_n, posedge_sample_trig) is
+--  begin  -- process addra_ps
+--    if rst_adc_n = '0' then             -- asynchronous reset (active low)
+--      Pstprc_RAMq_addra <= (others => '0');
+--    elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
+--      if posedge_sample_trig = '1' then
+--        Pstprc_RAMq_addra <= (others => '0');
+--      elsif Pstprc_ram_wren = '1' then
+--        if Pstprc_RAMq_addra < cmd_smpl_depth(14 downto 2)then  --cmd_smpl_depth/4
+--          Pstprc_RAMq_addra <= Pstprc_RAMq_addra+1;
+--        end if;
+--      end if;
+--    end if;
+--  end process Pstprc_RAMq_addra_ps;
 
-  Pstprc_RAMq_full_ps : process (Pstprc_RAMq_clka, rst_adc_n, posedge_sample_trig) is
-  begin  -- process addra_ps
-    if rst_adc_n = '0' then             -- asynchronous reset (active low)
-      Pstprc_RAMq_full <= '0';
-    elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
-      if posedge_sample_trig = '1' then
-        Pstprc_RAMq_full <= '0';
-      elsif Pstprc_ram_wren = '1' then
-        if Pstprc_RAMq_addra < cmd_smpl_depth(14 downto 2)then  --cmd_smpl_depth/4
-          Pstprc_RAMq_full <= '0';
-        elsif Pstprc_RAMq_addra >= cmd_smpl_depth(14 downto 2) then
-          Pstprc_RAMq_full <= '1';
-        end if;
-      end if;
-    end if;
-  end process Pstprc_RAMq_full_ps;
+--  Pstprc_RAMq_full_ps : process (Pstprc_RAMq_clka, rst_adc_n, posedge_sample_trig) is
+--  begin  -- process addra_ps
+--    if rst_adc_n = '0' then             -- asynchronous reset (active low)
+--      Pstprc_RAMq_full <= '0';
+--    elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- rising clock edge
+--      if posedge_sample_trig = '1' then
+--        Pstprc_RAMq_full <= '0';
+--      elsif Pstprc_ram_wren = '1' then
+--        if Pstprc_RAMq_addra < cmd_smpl_depth(14 downto 2)then  --cmd_smpl_depth/4
+--          Pstprc_RAMq_full <= '0';
+--        elsif Pstprc_RAMq_addra >= cmd_smpl_depth(14 downto 2) then
+--          Pstprc_RAMq_full <= '1';
+--        end if;
+--      end if;
+--    end if;
+--  end process Pstprc_RAMq_full_ps;
 
   -- purpose:  to generate addra ready flag
   -- type   : sequential
   -- inputs : Pstprc_RAMq_clka, rst_adc_n
   -- outputs: 
+  Pstprc_addra_rdy <= Pstprc_addra_rdy_int;
   Pstprc_addra_rdy_ps : process (Pstprc_RAMq_clka, rst_adc_n) is
   begin  -- process Pstprc_Addra_rdy_ps
     if rst_adc_n = '0' then             -- asynchronous reset (active low)
-      Pstprc_addra_rdy <= '0';
+      Pstprc_addra_rdy_int <= '0';
     elsif Pstprc_RAMq_clka'event and Pstprc_RAMq_clka = '1' then  -- the front side of the
                                         -- ram ,dont cross the
                                         -- clock domain
       if Pstprc_RAMq_addra = ini_pstprc_RAMx_addra then  --ini_pstprc_RAMq_addrb=demoWinstart/4
-        Pstprc_addra_rdy <= '1';
-      else
-        Pstprc_addra_rdy <= '0';
+        Pstprc_addra_rdy_int <= '1';
+      elsif(Pstprc_addra_rdy_int = '1') then
+        Pstprc_addra_rdy_int <= '0';
       end if;
     end if;
   end process Pstprc_addra_rdy_ps;
@@ -179,7 +193,7 @@ begin
       Pstprc_RAMq_rden <= '0';
     elsif Pstprc_RAMq_clkb'event and Pstprc_RAMq_clkb = '1' then  -- rising clock edge
       if Pstprc_RAMq_rden_cnt = Pstprc_RAMx_rden_ln then  --width of the
-                                                          --doutb is 64 bit
+                                                         --doutb is 64 bit
         Pstprc_RAMq_rden <= '0';
       elsif Pstprc_addra_ok = '1' then
         Pstprc_RAMq_rden <= '1';

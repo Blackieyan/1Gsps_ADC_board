@@ -71,7 +71,7 @@ architecture Behavioral of RAM_top is
   signal O_Gcnt       : std_logic_vector(7 downto 0)  := x"00";
   constant Div_multi  : std_logic_vector(3 downto 0)  := "1010";
   signal ram_wren     : std_logic;
-  signal ram_wren_cnt : std_logic_vector(11 downto 0);
+  signal ram_wren_cnt : std_logic_vector(12 downto 0);
   signal ram_I_dina_d : std_logic_vector(31 downto 0);
   signal ram_Q_dina_d : std_logic_vector(31 downto 0);
   component RAM_I
@@ -219,7 +219,8 @@ begin  -- process ram_wren_ps
   if rst_adc_n = '0' then               -- asynchronous reset (active low)
     ram_wren <= '0';
   elsif ram_Q_clka'event and ram_Q_clka = '1' then  -- rising clock edge
-    if ram_wren_cnt = x"3e1" then
+    --cmd_smpl_depth是以采样点为单位, 写入是以4个采样点为单位，所以计数判断要考虑这个关系
+    if ram_wren_cnt = cmd_smpl_depth(14 downto 2) then
       ram_wren <= '0';
     elsif posedge_sample_trig = '1' then
       ram_wren <= '1';
