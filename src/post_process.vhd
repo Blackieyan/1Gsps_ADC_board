@@ -47,13 +47,14 @@ entity post_process is
     I_data               : in  std_logic_vector(63 downto 0);
     DDS_phase_shift      : in  std_logic_vector(dds_phase_width downto 0);
     -- pstprc_dps_en        : in std_logic;
-	 	 --- host set DDS ram signal
---	  host_set_ram_switch  : in std_logic; --上位机设置DDS数据开关
---     host_set_ram_ena_sin : in std_logic; --sin 通道选择
---     host_set_ram_ena_cos : in std_logic; --cos 通道选择
---     host_set_ram_wr_en   : in std_logic; --数据写使能
---     host_set_ram_wr_data : in std_logic_vector(11 downto 0);--数据
---     host_set_ram_wr_addr : in std_logic_vector(14 downto 0);--地址
+	 	 
+	---------------------------------------------------
+	--- host set DDS ram signal
+	 weight_ram_addr 		: in STD_LOGIC_vector(15 downto 0); --上位机设置DDS数据开关
+	 weight_ram_data 		: in STD_LOGIC_vector(11 downto 0);  --数据
+	 weight_ram_data_en 	: in STD_LOGIC;                     --数据写使能
+	 host_set_ram_switch	: in STD_LOGIC;                     --上位机设置DDS数据开关   
+	 weight_ram_sel 		: in STD_LOGIC_vector(3 downto 0); --通道选择
 	 ---
 	 
     use_test_IQ_data     : in  std_logic;
@@ -78,8 +79,10 @@ architecture Behavioral of post_process is
   signal tc_I_data : array_tc_adc_data;
 
     type array_tc_dds_data is array (7 downto 0) of std_logic_vector(11 downto 0);
-  signal tc_dds_sin : array_tc_dds_data;
-  signal tc_dds_cos : array_tc_dds_data;
+  signal tc_dds_I_x_sin : array_tc_dds_data;
+  signal tc_dds_Q_x_cos : array_tc_dds_data;
+  signal tc_dds_Q_x_sin : array_tc_dds_data;
+  signal tc_dds_I_x_cos : array_tc_dds_data;
   
   type array_data_x_cos is array (7 downto 0) of std_logic_vector(mult_accum_s_width-1 downto 0);
   signal accm_Q_x_cos  : array_data_x_cos;
@@ -159,8 +162,10 @@ architecture Behavioral of post_process is
   signal dds_en : std_logic;
   signal dds_sclr          : std_logic;
 --  signal dds_fifo_rden     : std_logic;
-  signal dds_cos           : std_logic_vector(95 downto 0);
-  signal dds_sin           : std_logic_vector(95 downto 0);
+  signal dds_I_x_cos           : std_logic_vector(95 downto 0);
+  signal dds_Q_x_sin           : std_logic_vector(95 downto 0);
+  signal dds_Q_x_cos           : std_logic_vector(95 downto 0);
+  signal dds_I_x_sin           : std_logic_vector(95 downto 0);
   -- signal tc_dds_cos        : std_logic_vector(96 downto 0);
   -- signal tc_dds_sin        : std_logic_vector(96 downto 0);
   signal add_clk           : std_logic;
@@ -211,14 +216,18 @@ architecture Behavioral of post_process is
 		use_test_IQ_data : IN std_logic;
 		dds_phase_shift : IN std_logic_vector(dds_phase_width downto 0);
       Pstprc_num_frs : in std_logic;
-	  host_set_ram_switch  : in std_logic; --上位机设置DDS数据开关
-     host_set_ram_ena_sin : in std_logic; --sin 通道选择
-     host_set_ram_ena_cos : in std_logic; --cos 通道选择
-     host_set_ram_wr_en   : in std_logic; --数据写使能
-     host_set_ram_wr_data : in std_logic_vector(11 downto 0);--数据
-     host_set_ram_wr_addr : in std_logic_vector(14 downto 0);--地址					 
-		cos_out : OUT std_logic_vector(95 downto 0);
-		sin_out : OUT std_logic_vector(95 downto 0);
+	---------------------------------------------------
+	--- host set DDS ram signal
+	 weight_ram_addr 		: in STD_LOGIC_vector(15 downto 0); --上位机设置DDS数据开关
+	 weight_ram_data 		: in STD_LOGIC_vector(11 downto 0);  --数据
+	 weight_ram_data_en 	: in STD_LOGIC;                     --数据写使能
+	 host_set_ram_switch	: in STD_LOGIC;                     --上位机设置DDS数据开关   
+	 weight_ram_sel 		: in STD_LOGIC_vector(3 downto 0); --通道选择
+	 ---					 
+		cos_I_x_out : OUT std_logic_vector(95 downto 0);
+		sin_I_x_out : OUT std_logic_vector(95 downto 0);
+		cos_Q_x_out : OUT std_logic_vector(95 downto 0);
+		sin_Q_x_out : OUT std_logic_vector(95 downto 0);
 	 dds_data_start : in std_logic_vector(14 downto 0);
 	 dds_data_len : in std_logic_vector(14 downto 0);
 	 cmd_smpl_depth : in std_logic_vector(15 downto 0)
@@ -233,8 +242,10 @@ architecture Behavioral of post_process is
       mult_accum_bypass : in  std_logic;
       Q_data            : in  std_logic_vector(7 downto 0);
       I_data            : in  std_logic_vector(7 downto 0);
-      dds_sin           : in  std_logic_vector(11 downto 0);
-      dds_cos           : in  std_logic_vector(11 downto 0);
+      dds_I_x_sin           : in  std_logic_vector(11 downto 0);
+      dds_I_x_cos           : in  std_logic_vector(11 downto 0);
+      dds_Q_x_sin           : in  std_logic_vector(11 downto 0);
+      dds_Q_x_cos           : in  std_logic_vector(11 downto 0);
       accm_I_x_cos      : out std_logic_vector(mult_accum_s_width-1 downto 0);
       accm_I_x_sin      : out std_logic_vector(mult_accum_s_width-1 downto 0);
       accm_Q_x_cos      : out std_logic_vector(mult_accum_s_width-1 downto 0);
@@ -279,21 +290,19 @@ begin
   Pstprc_num_frs =>Pstprc_num_frs,
   use_test_IQ_data =>use_test_IQ_data,
     -- pstprc_dps_en => pstprc_dps_en,
-	 
---    host_set_ram_ena_sin  => host_set_ram_ena_sin,
---    host_set_ram_ena_cos  => host_set_ram_ena_cos,
---    host_set_ram_wr_en    => host_set_ram_wr_en  ,
---    host_set_ram_wr_data  => host_set_ram_wr_data,
---    host_set_ram_wr_addr  => host_set_ram_wr_addr,	 
-    host_set_ram_switch  => '0',
-    host_set_ram_ena_sin  => '0',
-    host_set_ram_ena_cos  => '0',
-    host_set_ram_wr_en    => '0',
-    host_set_ram_wr_data  => (others => '0'),
-    host_set_ram_wr_addr  => (others => '0'),	 
+	---------------------------------------------------
+
+    weight_ram_addr  => weight_ram_addr,
+    weight_ram_data  => weight_ram_data,
+    weight_ram_data_en    => weight_ram_data_en  ,
+    host_set_ram_switch  => host_set_ram_switch,
+    weight_ram_sel  => weight_ram_sel,	 
+     
     dds_phase_shift => dds_phase_shift,
-    cos_out         => dds_cos,
-    sin_out         => dds_sin,
+    cos_I_x_out         => dds_I_x_cos,
+    sin_I_x_out         => dds_I_x_sin,
+    cos_Q_x_out         => dds_Q_x_cos,
+    sin_Q_x_out         => dds_Q_x_sin,
     dds_data_start => dds_data_start,
     dds_data_len => dds_data_len,
     cmd_smpl_depth =>cmd_smpl_depth
@@ -304,8 +313,11 @@ begin
 
     -- tc_dds_cos(i)   <= not(dds_cos(8*i+11))&dds_cos(8*i+10 downto 8*i);
     -- tc_dds_sin(i)   <= not(dds_sin(8*i+11))&dds_sin(8*i+10 downto 8*i);
-    tc_dds_cos(i)<= dds_cos(12*i+11 downto 12*i);
-    tc_dds_sin(i)<= dds_sin(12*i+11 downto 12*i);
+    tc_dds_I_x_cos(i)<= dds_I_x_cos(12*i+11 downto 12*i);
+    tc_dds_I_x_sin(i)<= dds_I_x_sin(12*i+11 downto 12*i);
+    tc_dds_Q_x_cos(i)<= dds_Q_x_cos(12*i+11 downto 12*i);
+    tc_dds_Q_x_sin(i)<= dds_Q_x_sin(12*i+11 downto 12*i);
+    
     tc_I_data(i) <= not(I_data_d(8*i+7))& I_data_d(8*i+6 downto 8*i);
     tc_Q_data(i) <= not(Q_data_d(8*i+7))& Q_data_d(8*i+6 downto 8*i);
 
@@ -318,10 +330,11 @@ begin
       -- I_data            => I_data(8*i+7 downto 8*i),
       Q_data            => tc_Q_data(i),
       I_data            => tc_I_data(i), --two's complement
-      -- dds_sin           => dds_sin,
-      -- dds_cos           => dds_cos,
-      dds_sin           => tc_dds_sin(i),
-      dds_cos           => tc_dds_cos(i),  --two's comlement
+		
+      dds_I_x_sin           => tc_dds_I_x_sin(i),
+      dds_I_x_cos           => tc_dds_I_x_cos(i),
+      dds_Q_x_sin           => tc_dds_Q_x_sin(i),
+      dds_Q_x_cos           => tc_dds_Q_x_cos(i),  --two's comlement
       accm_Q_x_cos      => accm_Q_x_cos(i),
       accm_I_x_sin      => accm_I_x_sin(i),
       accm_I_x_cos      => accm_I_x_cos(i),
