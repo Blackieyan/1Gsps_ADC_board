@@ -66,14 +66,13 @@ entity Dmod_Seg is
     demoWinln_twelve    : in  std_logic_vector(14 downto 0);
     demoWinstart_twelve : in  std_logic_vector(14 downto 0);
     ---------------------------------------------------------------------------
-	 	 --- host set DDS ram signal
---	  host_set_ram_switch  : in std_logic; --上位机设置DDS数据开关
---     host_set_ram_ena_sin : in std_logic; --sin 通道选择
---     host_set_ram_ena_cos : in std_logic; --cos 通道选择
---     host_set_ram_wr_en   : in std_logic; --数据写使能
---     host_set_ram_wr_data : in std_logic_vector(31 downto 0);--数据
---     host_set_ram_wr_addr : in std_logic_vector(14 downto 0);--地址
-	 ---
+	--- host set DDS ram signal
+	 weight_ram_addr 		: in STD_LOGIC_vector(15 downto 0); --上位机设置DDS数据开关
+	 weight_ram_data 		: in STD_LOGIC_vector(11 downto 0);  --数据
+	 weight_ram_data_en 	: in STD_LOGIC;                     --数据写使能
+	 host_set_ram_switch	: in STD_LOGIC;                     --上位机设置DDS数据开关   
+	 weight_ram_sel 		: in STD_LOGIC_vector(31 downto 0); --通道选择
+	 ---	 
     ---------------------------------------------------------------------------
     pstprc_IQ_seq_o     : out std_logic_vector(63 downto 0);
     Pstprc_finish       : out std_logic;
@@ -167,6 +166,7 @@ attribute KEEP of RECV_CNT: signal is "TRUE";
       Pstprc_RAMI_dina      : in     std_logic_vector(31 downto 0);
       Pstprc_RAMi_clka      : in     std_logic;
       Pstprc_RAMi_clkb      : in     std_logic;
+ 
       -- demoWinln            : in     std_logic_vector(14 downto 0);
       -- demoWinstart         : in     std_logic_vector(14 downto 0);
       Pstprc_RAMq_doutb     : out    std_logic_vector(63 downto 0);
@@ -188,6 +188,14 @@ attribute KEEP of RECV_CNT: signal is "TRUE";
       I_data               : in  std_logic_vector(63 downto 0);
       DDS_phase_shift      : in  std_logic_vector (dds_phase_width downto 0);
       -- Pstprc_dps_en : in std_logic;
+			 --- host set DDS ram signal
+	 weight_ram_addr 		: in STD_LOGIC_vector(15 downto 0); --上位机设置DDS数据开关
+	 weight_ram_data 		: in STD_LOGIC_vector(11 downto 0);  --数据
+	 weight_ram_data_en 	: in STD_LOGIC;                     --数据写使能
+	 host_set_ram_switch	: in STD_LOGIC;                     --上位机设置DDS数据开关   
+	 weight_ram_sel 		: in STD_LOGIC_vector(3 downto 0);  --通道选择
+	 ---	
+		
       Pstprc_en            : in  std_logic;
       use_test_IQ_data     : in  std_logic;
       Pstprc_RAMx_rden_stp : in  std_logic;
@@ -343,6 +351,12 @@ begin
       I_data               => I_data,
       DDS_phase_shift      => Pstprc_DPS(i),
       -- Pstprc_dps_en => Pstprc_dps_en,
+	 weight_ram_addr  => weight_ram_addr,
+    weight_ram_data  => weight_ram_data,
+    weight_ram_data_en    => weight_ram_data_en  ,
+    host_set_ram_switch  => host_set_ram_switch,
+    weight_ram_sel  => weight_ram_sel((i+1)*4-1 downto i*4),	
+		
       use_test_IQ_data     => use_test_IQ_data,
       rst_n                => rst_data_proc_n,
       Pstprc_en            => Pstprc_en,  --for debugging the timing error
