@@ -47,8 +47,10 @@ entity multi_accum_top is
     -------------------------------------------------------------------------
     Q_data      : in  std_logic_vector(7 downto 0);
     I_data      : in  std_logic_vector(7 downto 0);
-    dds_sin           : in  std_logic_vector(dds_output_width-1 downto 0);
-    dds_cos           : in  std_logic_vector(dds_output_width-1 downto 0);
+    dds_I_x_sin           : in  std_logic_vector(dds_output_width-1 downto 0);
+    dds_Q_x_sin           : in  std_logic_vector(dds_output_width-1 downto 0);
+    dds_I_x_cos           : in  std_logic_vector(dds_output_width-1 downto 0);
+    dds_Q_x_cos           : in  std_logic_vector(dds_output_width-1 downto 0);
     -------------------------------------------------------------------------
     accm_I_x_cos   : out std_logic_vector(mult_accum_s_width-1 downto 0);
     accm_I_x_sin   : out std_logic_vector(mult_accum_s_width-1 downto 0);
@@ -103,7 +105,7 @@ begin
       s      => mult_accum0_s
       );
   mult_accum0_a   <= Q_data;
-  mult_accum0_b   <= dds_cos;           --Qdata.*coswt 
+  mult_accum0_b   <= dds_Q_x_cos;           --Qdata.*coswt 
   accm_Q_x_cos <= mult_accum0_s;
 
   Inst_multi_accum1 : multi_accum
@@ -117,7 +119,7 @@ begin
       s      => mult_accum1_s
       );
   mult_accum1_a   <= Q_data;
-  mult_accum1_b   <= dds_sin;           --Qdata.*sinwt 
+  mult_accum1_b   <= dds_Q_x_sin;           --Qdata.*sinwt 
   accm_Q_x_sin <= mult_accum1_s;
 
   Inst_multi_accum2 : multi_accum
@@ -131,7 +133,7 @@ begin
       s      => mult_accum2_s
       );
   mult_accum2_a   <= I_data;
-  mult_accum2_b   <= dds_cos;           --Idata.*coswt 
+  mult_accum2_b   <= dds_I_x_cos;           --Idata.*coswt 
   accm_I_x_cos <= mult_accum2_s;
 
   Inst_multi_accum3 : multi_accum
@@ -145,7 +147,7 @@ begin
       s      => mult_accum3_s
       );
   mult_accum3_a   <= I_data;
-  mult_accum3_b   <= dds_sin;           --Idata.*sinwt 
+  mult_accum3_b   <= dds_I_x_sin;           --Idata.*sinwt 
   accm_I_x_sin <= mult_accum3_s;
 
 -------------------------------------------------------------------------------
