@@ -49,16 +49,17 @@ entity DDS_top is
 	 
     use_test_IQ_data : in std_logic;
     Pstprc_num_frs : in std_logic;
-	 --- host set DDS ram signal
-	  host_set_ram_switch  : in std_logic; --上位机设置DDS数据开关
-     host_set_ram_ena_sin : in std_logic; --sin 通道选择
-     host_set_ram_ena_cos : in std_logic; --cos 通道选择
-     host_set_ram_wr_en   : in std_logic; --数据写使能
-     host_set_ram_wr_data : in std_logic_vector(dds_output_width-1 downto 0);--数据
-     host_set_ram_wr_addr : in std_logic_vector(14 downto 0);--地址
+	 	--- host set DDS ram signal
+	 weight_ram_addr 		: in STD_LOGIC_vector(15 downto 0); --上位机设置DDS数据开关
+	 weight_ram_data 		: in STD_LOGIC_vector(11 downto 0);  --数据
+	 weight_ram_data_en 	: in STD_LOGIC;                     --数据写使能
+	 host_set_ram_switch	: in STD_LOGIC;                     --上位机设置DDS数据开关   
+	 weight_ram_sel 		: in STD_LOGIC_vector(3 downto 0); --通道选择
 	 ---
-    cos_out         : out std_logic_vector(dds_output_width*8-1 downto 0);
-    sin_out         : out std_logic_vector(dds_output_width*8-1 downto 0);
+    cos_I_x_out         : out std_logic_vector(dds_output_width*8-1 downto 0);
+    sin_Q_x_out         : out std_logic_vector(dds_output_width*8-1 downto 0);
+    cos_Q_x_out         : out std_logic_vector(dds_output_width*8-1 downto 0);
+    sin_I_x_out         : out std_logic_vector(dds_output_width*8-1 downto 0);
     dds_data_start : in std_logic_vector(14 downto 0);
     dds_data_len : in std_logic_vector(14 downto 0);
     cmd_smpl_depth : in std_logic_vector(15 downto 0)
@@ -99,14 +100,27 @@ architecture Behavioral of DDS_top is
   signal dds_sin_out : std_logic_vector(dds_output_width-1 downto 0);
   
   ---------- for host switch
-  signal dds_ram_ena_sin       : std_logic;
-  signal dds_ram_ena_cos       : std_logic;
-  signal dds_ram_wren_sin      : std_logic_vector(0 downto 0);
-  signal dds_ram_wren_cos      : std_logic_vector(0 downto 0);
-  signal dds_ram_addra_sin     : std_logic_vector(14 downto 0);
-  signal dds_ram_addra_cos     : std_logic_vector(14 downto 0);
-  signal dds_ram_dataa_sin 	 : std_logic_vector(dds_output_width-1 downto 0);
-  signal dds_ram_dataa_cos 	 : std_logic_vector(dds_output_width-1 downto 0);
+  signal dds_ram_ena_I_x_sin       : std_logic;
+  signal dds_ram_ena_Q_x_cos       : std_logic;
+  signal dds_ram_ena_Q_x_sin       : std_logic;
+  signal dds_ram_ena_I_x_cos       : std_logic;
+  signal dds_ram_wren_I_x_sin      : std_logic_vector(0 downto 0);
+  signal dds_ram_wren_Q_x_cos      : std_logic_vector(0 downto 0);
+  signal dds_ram_wren_Q_x_sin      : std_logic_vector(0 downto 0);
+  signal dds_ram_wren_I_x_cos      : std_logic_vector(0 downto 0);
+  signal dds_ram_addra_I_x_sin     : std_logic_vector(14 downto 0);
+  signal dds_ram_addra_Q_x_cos     : std_logic_vector(14 downto 0);
+  signal dds_ram_addra_Q_x_sin     : std_logic_vector(14 downto 0);
+  signal dds_ram_addra_I_x_cos     : std_logic_vector(14 downto 0);
+  signal dds_ram_dataa_I_x_sin 	 : std_logic_vector(dds_output_width-1 downto 0);
+  signal dds_ram_dataa_Q_x_cos 	 : std_logic_vector(dds_output_width-1 downto 0);
+  signal dds_ram_dataa_Q_x_sin 	 : std_logic_vector(dds_output_width-1 downto 0);
+  signal dds_ram_dataa_I_x_cos 	 : std_logic_vector(dds_output_width-1 downto 0);
+  
+  signal cos_I_x         : std_logic_vector(dds_output_width*8-1 downto 0);
+  signal sin_Q_x         : std_logic_vector(dds_output_width*8-1 downto 0);
+  signal cos_Q_x         : std_logic_vector(dds_output_width*8-1 downto 0);
+  signal sin_I_x         : std_logic_vector(dds_output_width*8-1 downto 0);
   
   signal dds1_sclr : std_logic;
   component DDS1
@@ -188,44 +202,108 @@ begin
 dds1_sclr<=dds_sclr or finish_sclr;
   
 
-  sin_ram_inst : dds_ram
+--  sin_ram_inst : dds_ram
+--    port map (
+--      clka  => dds_clk,
+--      ena   => '1',
+--      wea   => dds_ram_wren,
+--      addra => dds_ram_addra,
+--      dina  => dds_sin_mux_out,
+--      clkb  => dds_clk,
+--      enb   => dds_ram_rden,
+--      addrb => dds_ram_addrb,
+--      doutb => sin_out
+--      );
+--
+--  cos_ram_inst : dds_ram
+--    port map (
+--      clka  => dds_clk,
+--      ena   => '1',
+--      wea   => dds_ram_wren,
+--      addra => dds_ram_addra,
+--      dina  => dds_cos_mux_out,
+--      clkb  => dds_clk,
+--      enb   => dds_ram_rden,
+--      addrb => dds_ram_addrb,
+--      doutb => cos_out
+--      );
+      
+ weight_sin_I_x_ram_inst : dds_ram
     port map (
       clka  => dds_clk,
-      ena   => dds_ram_ena_sin,
-      wea   => dds_ram_wren_sin,
-      addra => dds_ram_addra_sin,
-      dina  => dds_ram_dataa_sin,
+      ena   => dds_ram_ena_I_x_sin,
+      wea   => dds_ram_wren_I_x_sin,
+      addra => dds_ram_addra_I_x_sin,
+      dina  => dds_ram_dataa_I_x_sin,
       clkb  => dds_clk,
       enb   => dds_ram_rden,
       addrb => dds_ram_addrb,
-      doutb => sin_out
-      );
-
-  cos_ram_inst : dds_ram
+      doutb => sin_I_x
+      );  
+      
+    weight_cos_I_x_ram_inst : dds_ram
     port map (
       clka  => dds_clk,
-      ena   => dds_ram_ena_cos,
-      wea   => dds_ram_wren_cos,
-      addra => dds_ram_addra_cos,
-      dina  => dds_ram_dataa_cos,
+      ena   => dds_ram_ena_I_x_cos,
+      wea   => dds_ram_wren_I_x_cos,
+      addra => dds_ram_addra_I_x_cos,
+      dina  => dds_ram_dataa_I_x_cos,
       clkb  => dds_clk,
       enb   => dds_ram_rden,
       addrb => dds_ram_addrb,
-      doutb => cos_out
+      doutb => cos_I_x
       );
 
+    weight_sin_Q_x_ram_inst : dds_ram
+    port map (
+      clka  => dds_clk,
+      ena   => dds_ram_ena_Q_x_sin,
+      wea   => dds_ram_wren_Q_x_sin,
+      addra => dds_ram_addra_Q_x_sin,
+      dina  => dds_ram_dataa_Q_x_sin,
+      clkb  => dds_clk,
+      enb   => dds_ram_rden,
+      addrb => dds_ram_addrb,
+      doutb => sin_Q_x
+      );  
+      
+    weight_cos_Q_x_ram_inst : dds_ram
+    port map (
+      clka  => dds_clk,
+      ena   => dds_ram_ena_Q_x_cos,
+      wea   => dds_ram_wren_Q_x_cos,
+      addra => dds_ram_addra_Q_x_cos,
+      dina  => dds_ram_dataa_Q_x_cos,
+      clkb  => dds_clk,
+      enb   => dds_ram_rden,
+      addrb => dds_ram_addrb,
+      doutb => cos_Q_x
+      ); 
+		
   dds_ram_rden <= dds_en;               --control by module input signal 
   
-  --
+   dds_ram_ena_I_x_sin <= weight_ram_sel(0) when host_set_ram_switch = '1' else '1';
+	dds_ram_ena_I_x_cos <= weight_ram_sel(1) when host_set_ram_switch = '1' else '1';
+	dds_ram_ena_Q_x_sin <= weight_ram_sel(2) when host_set_ram_switch = '1' else '1';
+	dds_ram_ena_Q_x_cos <= weight_ram_sel(3) when host_set_ram_switch = '1' else '1';
+	dds_ram_wren_I_x_sin(0) <= weight_ram_data_en when host_set_ram_switch = '1' else dds_ram_wren(0);
+	dds_ram_wren_I_x_cos(0) <= weight_ram_data_en when host_set_ram_switch = '1' else dds_ram_wren(0);
+	dds_ram_wren_Q_x_sin(0) <= weight_ram_data_en when host_set_ram_switch = '1' else dds_ram_wren(0);
+	dds_ram_wren_Q_x_cos(0) <= weight_ram_data_en when host_set_ram_switch = '1' else dds_ram_wren(0);
+	dds_ram_addra_I_x_sin <= weight_ram_addr(14 downto 0) when host_set_ram_switch = '1' else dds_ram_addra;
+	dds_ram_addra_I_x_cos <= weight_ram_addr(14 downto 0) when host_set_ram_switch = '1' else dds_ram_addra;
+	dds_ram_addra_Q_x_sin <= weight_ram_addr(14 downto 0) when host_set_ram_switch = '1' else dds_ram_addra;
+	dds_ram_addra_Q_x_cos <= weight_ram_addr(14 downto 0) when host_set_ram_switch = '1' else dds_ram_addra;
+	dds_ram_dataa_I_x_sin <= weight_ram_data when host_set_ram_switch = '1' else dds_sin_mux_out;
+	dds_ram_dataa_I_x_cos <= weight_ram_data when host_set_ram_switch = '1' else dds_cos_mux_out;
+	dds_ram_dataa_Q_x_sin <= weight_ram_data when host_set_ram_switch = '1' else dds_sin_mux_out;
+	dds_ram_dataa_Q_x_cos <= weight_ram_data when host_set_ram_switch = '1' else dds_cos_mux_out;
+  
   -- 上位机设置通道切换
-  dds_ram_ena_sin   <= host_set_ram_ena_sin when host_set_ram_switch = '1' else '1';  
-  dds_ram_ena_cos   <= host_set_ram_ena_cos when host_set_ram_switch = '1' else '1';  
-  dds_ram_wren_sin(0)  <=   host_set_ram_wr_en when host_set_ram_switch = '1' else dds_ram_wren(0);  
-  dds_ram_wren_cos(0)  <=   host_set_ram_wr_en when host_set_ram_switch = '1' else dds_ram_wren(0);  
-  dds_ram_addra_sin <= host_set_ram_wr_addr when host_set_ram_switch = '1' else dds_ram_addra;  
-  dds_ram_addra_cos <= host_set_ram_wr_addr when host_set_ram_switch = '1' else dds_ram_addra;  
-  dds_ram_dataa_sin <= host_set_ram_wr_data when host_set_ram_switch = '1' else dds_sin_mux_out;	
-  dds_ram_dataa_cos <= host_set_ram_wr_data when host_set_ram_switch = '1' else dds_cos_mux_out;
+  cos_I_x_out   <= cos_I_x;-- when host_set_ram_switch = '1' else cos_out;  
+  sin_Q_x_out   <= sin_Q_x;-- when host_set_ram_switch = '1' else sin_out;  
+  cos_Q_x_out   <= cos_Q_x;-- when host_set_ram_switch = '1' else cos_out;  
+  sin_I_x_out   <= sin_I_x;-- when host_set_ram_switch = '1' else sin_out;  
   
   -----------------------------------------------------------------------------
   -- purpose: when the frequency is negetive then switch the dds_sin to neg_sin
