@@ -394,6 +394,14 @@ architecture Behavioral of ZJUprojects is
   signal cmd_adpt            : std_logic;
   signal SelfAdpt_trig       : std_logic;
   -----------------------------------------------------------------------------
+	 --- weight ram
+	signal weight_ram_addr 		: STD_LOGIC_vector(15 downto 0);
+	signal weight_ram_data 		: STD_LOGIC_vector(11 downto 0);
+	signal host_set_ram_switch	: STD_LOGIC;
+	signal weight_ram_data_en 	: STD_LOGIC;
+	signal weight_ram_sel 		: STD_LOGIC_vector(31 downto 0);
+  -----------------------------------------------------------------------------
+  signal host_reset          : std_logic;
   signal host_rd_mode        : std_logic;
   signal host_rd_status      : std_logic;
   signal host_rd_enable      : std_logic;
@@ -543,6 +551,13 @@ architecture Behavioral of ZJUprojects is
       ram_switch           : out    std_logic_vector(2 downto 0);
       TX_dst_MAC_addr      : out    std_logic_vector(47 downto 0);
       is_counter           : out    std_logic;
+      host_reset         : out    std_logic;
+			 --- weight ram
+	 weight_ram_addr 		: out STD_LOGIC_vector(15 downto 0);
+	 weight_ram_data 		: out STD_LOGIC_vector(11 downto 0);
+	 weight_ram_data_en 	: out STD_LOGIC;
+	 host_set_ram_switch 	: out STD_LOGIC;
+	 weight_ram_sel 		: out STD_LOGIC_vector(31 downto 0);
       host_rd_mode         : out    std_logic;
       use_test_IQ_data       : out    std_logic;
       host_rd_status       : out    std_logic;
@@ -713,6 +728,12 @@ architecture Behavioral of ZJUprojects is
       Pstprc_RAMI_clkb    : in  std_logic;
       demoWinln_twelve    : in  std_logic_vector(14 downto 0);
       demoWinstart_twelve : in  std_logic_vector(14 downto 0);
+		---------------------------------------------------
+	 weight_ram_addr 		: in STD_LOGIC_vector(15 downto 0);
+	 weight_ram_data 		: in STD_LOGIC_vector(11 downto 0);
+	 host_set_ram_switch 	: in STD_LOGIC;
+	 weight_ram_data_en 	: in STD_LOGIC;
+	 weight_ram_sel 		: in STD_LOGIC_vector(31 downto 0);
       -- Pstprc_dps_en       : in std_logic;
       Pstprc_DPS_twelve   : in  std_logic_vector(dds_phase_width downto 0);
       Pstprc_IQ_seq_o     : out std_logic_vector(63 downto 0);
@@ -883,7 +904,9 @@ architecture Behavioral of ZJUprojects is
 -- end component SRAM_interface;
 ---------------------------------------------------------------------------------primitive instantiation       
 begin
-
+	
+	user_pushbutton_g <= host_reset and user_pushbutton;
+	
   Inst_sys_reset_proc : sys_reset_proc port map(
     sys_rst_n_in    => user_pushbutton,
     sram_cal_done   => sram_cal_done,
@@ -1078,6 +1101,12 @@ begin
     cmd_smpl_depth       => cmd_smpl_depth,
     cmd_smpl_trig_cnt    => cmd_smpl_trig_cnt,
     cmd_pstprc_IQ_sw     => cmd_pstprc_IQ_sw,
+	 weight_ram_addr  => weight_ram_addr,
+    weight_ram_data  => weight_ram_data,
+    weight_ram_data_en    => weight_ram_data_en  ,
+    host_set_ram_switch  => host_set_ram_switch,
+    weight_ram_sel  => weight_ram_sel,	
+    host_reset           => host_reset,
     host_rd_mode         => host_rd_mode,
     host_rd_status       => host_rd_status,
     host_rd_enable       => host_rd_enable,
@@ -1233,6 +1262,13 @@ begin
     use_test_IQ_data      => use_test_IQ_data,
     rst_feedback_n      => rst_feedback_n,
     cmd_smpl_depth      => cmd_smpl_depth,
+	 
+	 weight_ram_addr  => weight_ram_addr,
+    weight_ram_data  => weight_ram_data,
+    weight_ram_data_en    => weight_ram_data_en  ,
+    host_set_ram_switch  => host_set_ram_switch,
+    weight_ram_sel  => weight_ram_sel,	
+	 
     Pstprc_RAMQ_dina    => Pstprc_RAMQ_dina,
     Pstprc_RAMQ_clka    => Pstprc_RAMQ_clka,
     Pstprc_RAMQ_clkb    => Pstprc_RAMQ_clkb,
