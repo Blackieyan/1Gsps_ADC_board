@@ -299,7 +299,11 @@ begin
   process (Pstprc_fifo_wr_clk) is
   begin  -- process Pstprc_fifo_dout_ps
     if Pstprc_fifo_wr_clk'event and Pstprc_fifo_wr_clk = '1' then  -- rising clock edge
-      sram_init <= (not cal_done_i) and Pstprc_fifo_wren;
+      if(rst_n = '0') then
+			sram_init <= '1';
+		else
+			sram_init <= (not cal_done_i) and Pstprc_fifo_wren;
+		end if;
       sram_init_d1 <= sram_init;
       sram_init_r <= not(sram_init and not sram_init_d1) and rst_n ;
     end if;
