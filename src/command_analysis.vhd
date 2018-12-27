@@ -48,6 +48,12 @@ entity command_analysis is
     -- mac_src    : out std_logic_vector(47 downto 0);
     -- reg_addr   : out std_logic_vector(15 downto 0);
     -- reg_data   : out std_logic_vector(31 downto 0);
+	 	 	 weight_ram_addr : out STD_LOGIC_vector(15 downto 0);
+	 	 	 weight_ram_data : out STD_LOGIC_vector(11 downto 0);
+	 	 	 host_set_ram_switch : out STD_LOGIC;
+	 	 	 weight_ram_data_en : out STD_LOGIC;
+	 	 	 weight_ram_sel : out STD_LOGIC_vector(31 downto 0);
+	 	 	 host_reset : out STD_LOGIC;
 	 	 	 host_rd_mode : out STD_LOGIC;
 	 host_rd_status : out STD_LOGIC;
 	 host_rd_enable : out STD_LOGIC;
@@ -94,9 +100,13 @@ architecture Behavioral of command_analysis is
   signal upload_trig_ethernet_cnt : std_logic_vector(7 downto 0);
   signal rd_en_d : std_logic;
   signal cmd_smpl_en_cnt : std_logic_vector(7 downto 0);
+  signal weight_ram_sel_int : std_logic_vector(4 downto 0);
+  signal weight_ram_addr_int : std_logic_vector(15 downto 0);
   signal upload_trig_ethernet : std_logic;
   signal ram_start : std_logic;
   signal cmd_smpl_en : std_logic;
+  signal ram_data_en_int : std_logic;
+  signal weight_ram_data_active : std_logic;
   -- signal cmd_Pstprc_DPS_d : std_logic_vector(15 downto 0);
 
   
@@ -619,7 +629,7 @@ end process host_rd_start_ps;
 --   end if;
 -- end process reconfig_ps;
 host_rd_ps: process (rd_clk, rst_n) is
-begin  -- 地址34 上位机读模式
+begin  -- 地址37 上位机读模式
   if rst_n = '0' then                   -- asynchronous reset (active low)
     host_rd_status <='0';
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
@@ -634,7 +644,7 @@ begin  -- 地址34 上位机读模式
 end process host_rd_ps;
 
 host_rd_length_ps: process (rd_clk, rst_n) is
-begin  -- 地址35 上位机读数据参数设置
+begin  -- 地址38 上位机读数据参数设置
   if rst_n = '0' then                   -- asynchronous reset (active low)
     host_rd_length <= (others =>'0');
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
@@ -647,7 +657,7 @@ begin  -- 地址35 上位机读数据参数设置
 end process host_rd_length_ps;
 
 host_rd_enable_ps: process (rd_clk, rst_n) is
-begin  -- 地址36 上位机读数据启动一次
+begin  -- 地址39 上位机读数据启动一次
   if rst_n = '0' then                   -- asynchronous reset (active low)
     host_rd_enable 		<= '0';
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
@@ -662,7 +672,7 @@ begin  -- 地址36 上位机读数据启动一次
 end process host_rd_enable_ps;
 
 use_test_IQ_data_ps: process (rd_clk, rst_n) is
-begin  -- 地址36 上位机读数据启动一次
+begin  -- 地址40 上位机使用计数器测试IQ解模
   if rst_n = '0' then                   -- asynchronous reset (active low)
     use_test_IQ_data 		<= '0';
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
@@ -673,4 +683,147 @@ begin  -- 地址36 上位机读数据启动一次
     end if;
   end if;
 end process use_test_IQ_data_ps;
+
+host_reset_ps: process (rd_clk, rst_n) is
+begin  -- 地址41 上位机复位使能
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    host_reset 		<= '1';
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+    if reg_addr =x"0029" then
+      if rd_addr=x"19" then
+        host_reset	  <= '0'; --低复位有效
+      end if;
+	 else
+		host_reset <= '1';
+    end if;
+  end if;
+end process host_reset_ps;
+
+--加权RAM写入的整体设计
+--1. 需要一条整体的数据切换指令，即切换原有的DDS生成数据模式和新增的上位机直写加权数据模式
+--2. 加权数据写入时可能会分成好几帧数据，所以最好在每一帧数据中都指定RAM的选择，RAM的起始地址
+--3. 每一帧中的加权数据从rd_addr = X"18"开始，直到该帧结束都是会写入RAM的有效数据，上位机要注意这一点
+--4. 加权数据每两个字节拼成一个数据，上位机要注意这一点
+--5. 加权数据reg标识 x"2B"
+
+---加权数据写入RAM中的数据
+--原有的DDS模式和新增的加权DDS模式之间的切换
+--默认为原有DDS数据模式
+host_set_ram_switch_ps: process (rd_clk, rst_n) is
+begin  -- 地址42 
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    host_set_ram_switch 		<= '0';
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+    if reg_addr =x"002A" then
+      if rd_addr=x"19" then
+        host_set_ram_switch	  <= reg_data(0); --低复位有效
+      end if;
+    end if;
+  end if;
+end process host_set_ram_switch_ps;
+
+---这里还需要仔细考虑时序
+weight_ram_data_en <= ram_data_en_int;
+weight_ram_data_ps: process (rd_clk) is
+begin  --
+  if rd_clk'event and rd_clk = '1' then  -- rising clock edg
+	 if(reg_addr(0) = '0') then
+		weight_ram_data(7 downto 0)   <= rd_data;
+		ram_data_en_int			   <= '0';
+	 else
+		weight_ram_data(11 downto 8)  <= rd_data(3 downto 0);
+		ram_data_en_int			   <= weight_ram_data_active;
+	 end if;
+  end if;
+end process weight_ram_data_ps;
+
+---加权数据写RAM有效标志
+weight_ram_data_en_ps: process (rd_clk, rst_n) is
+begin  -- 地址43 
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    weight_ram_data_active 		<= '0';
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+    if reg_addr =x"002B" then
+      if rd_addr=x"18" then
+        weight_ram_data_active	  <= '1'; 
+      end if;
+	 elsif(rd_en = '0') then
+		weight_ram_data_active	  <= '0';
+    end if;
+  end if;
+end process weight_ram_data_en_ps;
+
+---加权数据写入RAM中的偏移地址
+weight_ram_addr <= weight_ram_addr_int;
+weight_ram_addr_ps: process (rd_clk, rst_n) is
+begin  -- 地址43 
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    weight_ram_addr_int 		<= (others=>'0');
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+    if reg_addr =x"002B" then
+      if rd_addr=x"16" then
+         weight_ram_addr_int(7 downto 0)   <= rd_data;
+		elsif(rd_addr=x"17") then
+			weight_ram_addr_int(15 downto 8)  <= rd_data;
+		elsif(ram_data_en_int = '1') then
+			weight_ram_addr_int			  <= weight_ram_addr_int + '1';
+      end if;
+    end if;
+  end if;
+end process weight_ram_addr_ps;
+
+--加权RAM的选择
+--共8个通道，每个通道有4个加权数据，所以是32个RAM，需要32个选择信号
+weight_ram_data_sel_ps: process (rd_clk, rst_n) is
+begin  -- 地址43
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    weight_ram_sel_int 		<= (others=>'0');
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+    if reg_addr =x"002B" then
+      if rd_addr=x"14" then
+        weight_ram_sel_int	  <= rd_data(4 downto 0); 
+      end if;
+    end if;
+  end if;
+end process weight_ram_data_sel_ps;
+
+process(weight_ram_sel_int)
+begin
+	case weight_ram_sel_int is
+		when "00000" => weight_ram_sel <= x"00000001";
+		when "00001" => weight_ram_sel <= x"00000002";
+		when "00010" => weight_ram_sel <= x"00000004";
+		when "00011" => weight_ram_sel <= x"00000008";
+		when "00100" => weight_ram_sel <= x"00000010";
+		when "00101" => weight_ram_sel <= x"00000020";
+		when "00110" => weight_ram_sel <= x"00000040";
+		when "00111" => weight_ram_sel <= x"00000080";
+		when "01000" => weight_ram_sel <= x"00000100";
+		when "01001" => weight_ram_sel <= x"00000200";
+		when "01010" => weight_ram_sel <= x"00000400";
+		when "01011" => weight_ram_sel <= x"00000800";
+		when "01100" => weight_ram_sel <= x"00001000";
+		when "01101" => weight_ram_sel <= x"00002000";
+		when "01110" => weight_ram_sel <= x"00004000";
+		when "01111" => weight_ram_sel <= x"00008000";
+		when "10000" => weight_ram_sel <= x"00010000";
+		when "10001" => weight_ram_sel <= x"00020000";
+		when "10010" => weight_ram_sel <= x"00040000";
+		when "10011" => weight_ram_sel <= x"00080000";
+		when "10100" => weight_ram_sel <= x"00100000";
+		when "10101" => weight_ram_sel <= x"00200000";
+		when "10110" => weight_ram_sel <= x"00400000";
+		when "10111" => weight_ram_sel <= x"00800000";
+		when "11000" => weight_ram_sel <= x"01000000";
+		when "11001" => weight_ram_sel <= x"02000000";
+		when "11010" => weight_ram_sel <= x"04000000";
+		when "11011" => weight_ram_sel <= x"08000000";
+		when "11100" => weight_ram_sel <= x"10000000";
+		when "11101" => weight_ram_sel <= x"20000000";
+		when "11110" => weight_ram_sel <= x"40000000";
+		when "11111" => weight_ram_sel <= x"80000000";
+		when others => weight_ram_sel <= x"00000000";
+	end case;
+end process;
+
 end Behavioral;
