@@ -51,7 +51,17 @@ entity cmd_ana_top is
     ram_switch           : out    std_logic_vector(2 downto 0);
     TX_dst_MAC_addr      : out    std_logic_vector(47 downto 0);
     self_adpt_en          : out    std_logic;
-	 	 host_rd_mode : out STD_LOGIC;
+	 
+	 ------------------------------
+	 --- weight ram
+		 weight_ram_addr : out STD_LOGIC_vector(15 downto 0);
+	 weight_ram_data : out STD_LOGIC_vector(11 downto 0);
+	 weight_ram_data_en : out STD_LOGIC;
+	 host_set_ram_switch : out STD_LOGIC;
+	 weight_ram_sel : out STD_LOGIC_vector(31 downto 0);
+    -- host read and control
+	 host_reset : out STD_LOGIC;
+	 host_rd_mode : out STD_LOGIC;
 	 host_rd_status : out STD_LOGIC;
 	 host_rd_enable : out STD_LOGIC;
 	 host_rd_start_addr : out STD_LOGIC_VECTOR(18 DOWNTO 0);
@@ -110,6 +120,13 @@ architecture Behavioral of cmd_ana_top is
       TX_dst_MAC_addr        : out    std_logic_vector(47 downto 0);
       clear_frame_cnt        : out    std_logic;
       self_adpt_en          : out    std_logic;
+			 --- weight ram
+		 weight_ram_addr : out STD_LOGIC_vector(15 downto 0);
+	 weight_ram_data : out STD_LOGIC_vector(11 downto 0);
+	 host_set_ram_switch : out STD_LOGIC;
+	 weight_ram_data_en : out STD_LOGIC;
+	 weight_ram_sel : out STD_LOGIC_vector(31 downto 0);
+			 	 host_reset : out STD_LOGIC;
 			 	 host_rd_mode : out STD_LOGIC;
 		 host_rd_status : out STD_LOGIC;
 		 host_rd_enable : out STD_LOGIC;
@@ -157,7 +174,15 @@ begin
       is_counter             => is_counter,
       clear_frame_cnt             => clear_frame_cnt,
 			 use_test_IQ_data      => use_test_IQ_data,
-			 host_rd_mode      => host_rd_mode,
+			 
+	 weight_ram_addr  => weight_ram_addr,
+    weight_ram_data  => weight_ram_data,
+    weight_ram_data_en    => weight_ram_data_en  ,
+    host_set_ram_switch  => host_set_ram_switch,
+    weight_ram_sel  => weight_ram_sel,	
+	 
+	 host_reset        => host_reset,
+	 host_rd_mode      => host_rd_mode,
 	 host_rd_status    => host_rd_status,
 	 host_rd_enable    => host_rd_enable,
 	 host_rd_start_addr=> host_rd_start_addr,
