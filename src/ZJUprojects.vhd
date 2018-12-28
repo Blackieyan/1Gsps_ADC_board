@@ -1312,6 +1312,7 @@ begin
   status_4(2)		 <= host_rd_mode;
   status_4(3)		 <= use_test_IQ_data;
   status_4(4)		 <= is_counter;
+  status_4(5)		 <= host_set_ram_switch;
   status_5(18 downto 0)         <= host_rd_start_addr;
   status_6(18 downto 0)         <= host_rd_length;
   status_7(23 downto 0)         <= cmd_smpl_trig_cnt;
