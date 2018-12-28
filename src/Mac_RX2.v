@@ -157,67 +157,72 @@ rx_ssio_ddr_inst (
 assign GMII_RX_DV_int = rgmii_rx_ctl_1;
 assign GMII_RX_ER_int = rgmii_rx_ctl_1 ^ rgmii_rx_ctl_2;
 
-reg fifo_rd_en;
-wire fifo_valid;
-wire fifo_empty;
-wire fifo_wr_en;
-wire [9:0]fifo_din;
+assign GMII_RX_DV = GMII_RX_DV_int;
+assign GMII_RX_ER = GMII_RX_ER_int;
+assign GMII_RX_RXD = GMII_RX_RXD_int;
+assign GMII_RX_CLK = GMII_RX_CLK_int;
 
-  wire	[7:0]	GMII_RX_RXD_int_o;
-	wire			GMII_RX_DV_int_o;
-	wire			GMII_RX_ER_int_o;
+//reg fifo_rd_en;
+//wire fifo_valid;
+//wire fifo_empty;
+//wire fifo_wr_en;
+//wire [9:0]fifo_din;
+//
+//  wire	[7:0]	GMII_RX_RXD_int_o;
+//	wire			GMII_RX_DV_int_o;
+//	wire			GMII_RX_ER_int_o;
+//
+//reg [7:0] data_pre;	
+//reg en_pre;	
+//reg er_pre;	
+//always @(posedge 	GMII_RX_CLK_int) begin
+//	data_pre <= GMII_RX_RXD_int;
+//	en_pre   <= GMII_RX_DV_int;
+//	er_pre   <= GMII_RX_ER_int;
+//end
+//
+//reg GMII_RX_DV_int_temp;
+//reg first_err;
+//always @(posedge GMII_RX_CLK_int) begin
+//	if(en_pre == 0 & GMII_RX_DV_int == 1 & data_pre == 8'hdd & GMII_RX_RXD_int == 8'hFF) begin
+//		GMII_RX_DV_int_temp <= 0;
+//		first_err  <= 1;
+//	end
+//	else if(first_err == 1 & GMII_RX_RXD_int == 8'hFF) begin
+//		first_err <= 0;
+//		GMII_RX_DV_int_temp <= 0;
+//	end
+//	else begin
+//		first_err <= 0;
+//		GMII_RX_DV_int_temp <= GMII_RX_DV_int;
+//	end
+//end
+//
+//assign 	 fifo_wr_en = en_pre | er_pre;
+//assign  	 fifo_din = {en_pre, er_pre, data_pre};
 
-reg [7:0] data_pre;	
-reg en_pre;	
-reg er_pre;	
-always @(posedge 	GMII_RX_CLK_int) begin
-	data_pre <= GMII_RX_RXD_int;
-	en_pre   <= GMII_RX_DV_int;
-	er_pre   <= GMII_RX_ER_int;
-end
+//gmii_sync_fifo gmii_sync_fifo_inst
+//  (
+//    .rst(1'b0),
+//    .wr_clk(GMII_RX_CLK_int),
+//    .rd_clk(Rd_Clk),
+//    .din(fifo_din),
+//    .wr_en(fifo_wr_en),
+//    .rd_en(fifo_rd_en),
+//    .dout({GMII_RX_DV_int_o, GMII_RX_ER_int_o, GMII_RX_RXD_int_o}),
+//    .full(),
+//    .empty(fifo_empty),
+//    .valid(fifo_valid)
+//  );	 
 
-reg GMII_RX_DV_int_temp;
-reg first_err;
-always @(posedge GMII_RX_CLK_int) begin
-	if(en_pre == 0 & GMII_RX_DV_int == 1 & data_pre == 8'hdd & GMII_RX_RXD_int == 8'hFF) begin
-		GMII_RX_DV_int_temp <= 0;
-		first_err  <= 1;
-	end
-	else if(first_err == 1 & GMII_RX_RXD_int == 8'hFF) begin
-		first_err <= 0;
-		GMII_RX_DV_int_temp <= 0;
-	end
-	else begin
-		first_err <= 0;
-		GMII_RX_DV_int_temp <= GMII_RX_DV_int;
-	end
-end
-
-assign 	 fifo_wr_en = en_pre | er_pre;
-assign  	 fifo_din = {en_pre, er_pre, data_pre};
-
-gmii_sync_fifo gmii_sync_fifo_inst
-  (
-    .rst(1'b0),
-    .wr_clk(GMII_RX_CLK_int),
-    .rd_clk(Rd_Clk),
-    .din(fifo_din),
-    .wr_en(fifo_wr_en),
-    .rd_en(fifo_rd_en),
-    .dout({GMII_RX_DV_int_o, GMII_RX_ER_int_o, GMII_RX_RXD_int_o}),
-    .full(),
-    .empty(fifo_empty),
-    .valid(fifo_valid)
-  );	 
-
-assign GMII_RX_DV = GMII_RX_DV_int_o & fifo_valid;
-assign GMII_RX_ER = GMII_RX_ER_int_o & fifo_valid;
-assign GMII_RX_RXD = GMII_RX_RXD_int_o;
-assign GMII_RX_CLK = Rd_Clk;
+//assign GMII_RX_DV = GMII_RX_DV_int_o & fifo_valid;
+//assign GMII_RX_ER = GMII_RX_ER_int_o & fifo_valid;
+//assign GMII_RX_RXD = GMII_RX_RXD_int_o;
+//assign GMII_RX_CLK = Rd_Clk;
   
-always @(posedge GMII_RX_CLK) begin
-	fifo_rd_en <= !fifo_empty;
-end  
+//always @(posedge GMII_RX_CLK) begin
+//	fifo_rd_en <= !fifo_empty;
+//end  
 
 	// detect start and end
    	always @ (posedge GMII_RX_CLK)
