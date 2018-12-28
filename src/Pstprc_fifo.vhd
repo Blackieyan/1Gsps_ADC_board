@@ -150,7 +150,7 @@ attribute KEEP of data_pre: signal is "TRUE";
 attribute KEEP of delta: signal is "TRUE";
   signal sram_init : std_logic;
   signal sram_init_d1 : std_logic;
-  signal sram_init_r : std_logic;
+--  signal sram_init_r : std_logic;
   signal empty_rst : std_logic;
   signal ui_clk : std_logic;
   signal ui_clk_sync_rst : std_logic;
@@ -296,18 +296,18 @@ begin
   end process;    
   
   ---sram init done 在fifo写时 如果不成功，则sram 复位
-  process (Pstprc_fifo_wr_clk) is
-  begin  -- process Pstprc_fifo_dout_ps
-    if Pstprc_fifo_wr_clk'event and Pstprc_fifo_wr_clk = '1' then  -- rising clock edge
-      if(rst_n = '0') then
-			sram_init <= '1';
-		else
-			sram_init <= (not cal_done_i) and Pstprc_fifo_wren;
-		end if;
-      sram_init_d1 <= sram_init;
-      sram_init_r <= not(sram_init and not sram_init_d1) and rst_n ;
-    end if;
-  end process;
+--  process (Pstprc_fifo_wr_clk) is
+--  begin  -- process Pstprc_fifo_dout_ps
+--    if Pstprc_fifo_wr_clk'event and Pstprc_fifo_wr_clk = '1' then  -- rising clock edge
+--      if(rst_n = '0') then
+--			sram_init <= '1';
+--		else
+--			sram_init <= (not cal_done_i) and Pstprc_fifo_wren;
+--		end if;
+--      sram_init_d1 <= sram_init;
+--      sram_init_r <= not(sram_init and not sram_init_d1) and rst_n ;
+--    end if;
+--  end process;
   
   --数据写入要保持4的整数倍,最后一个数加入last标志
   Pstprc_finish_int <= fifo1_wr_en and not Pstprc_fifo_wren; --falling edge
@@ -445,7 +445,7 @@ begin
   end process;
   
   
-  cal_done_i <= '1';
+--  cal_done_i <= '1';
   inst_SRAM : SRAM_interface
   port map(
 --    sys_clk_p                  => sys_clk_p,
@@ -466,7 +466,7 @@ begin
     qdriip_r_n                 => qdriip_r_n,
     qdriip_bw_n                => qdriip_bw_n,
     qdriip_dll_off_n           => qdriip_dll_off_n,
-    cal_done                   => open,
+    cal_done                   => cal_done_i,
     user_wr_cmd0               => user_wr_cmd0_reg,
     user_wr_addr0              => user_wr_addr0_reg,
     user_rd_cmd0               => user_rd_cmd0_reg,
@@ -477,7 +477,7 @@ begin
     ui_clk_sync_rst            => ui_clk_sync_rst,
     user_rd_valid0             => user_rd_valid0_reg,
     user_rd_data0              => user_rd_data0_reg,
-    sys_rst                => sram_init_r
+    sys_rst                => rst_n
     );
   
   user_wr_bw_n0	<= (others => '0');
