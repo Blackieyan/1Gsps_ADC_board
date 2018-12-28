@@ -56,11 +56,15 @@ architecture Behavioral of TRIG_ctrl is
   
   signal trig_250M_lch : std_logic;
   signal trig_125M_trig : std_logic;
+  signal trig_125M_trig_d1 : std_logic;
+  signal trig_125M_trig_d2 : std_logic;
   
   signal ram_start_d : std_logic;
   signal ram_start_d2 : std_logic;
   signal trigin_d2 : std_logic;
   signal trigin_d : std_logic;
+  signal trig_r : std_logic;
+  signal trig_recv_cnt_int : std_logic_vector(23 downto 0);
   signal sample_trig_cnt : std_logic_vector(23 downto 0);
   signal cmd_smpl_en_d : std_logic;
   signal cmd_smpl_en_d2 : std_logic;
@@ -95,13 +99,13 @@ begin
   begin  -- process sample_trig_cnt_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
       sample_trig_cnt<=x"0007d0";
-		trig_recv_cnt  <= (others => '0');
+		
     elsif CLK'event and CLK = '1' then  -- rising clock edge
       if sample_en ='1' then
         if posedge_sample_trig_f='1' then  --为了缩短逻辑响应时间，就不用上升沿判断了。这里的trig一定要只有一个周期长度才行。所以上位机的命令触发也会被算入其中。
           sample_trig_cnt<=sample_trig_cnt+1;
         end if;
-		  trig_recv_cnt <= sample_trig_cnt;
+		  
       elsif sample_en ='0' then
         sample_trig_cnt<=(others => '0');
       end if;
@@ -158,10 +162,23 @@ begin
 
   posedge_sample_trig <= posedge_sample_trig_s or posedge_sample_trig_f;
   
+ trig_r_ps: process (CLK, rst_n) is
+  begin  -- process posedge_upload_trig_ps
+    if rst_n = '0' then                 -- asynchronous reset (active low)
+     trig_r<='0';
+    elsif CLK'event and CLK = '1' then  -- rising clock edge
+      if (trigin_d2 ='0' and trigin_d='1')  then
+      trig_r<='1';
+      else
+        trig_r<='0';
+      end if;
+    end if;
+  end process trig_r_ps; 
+  
   process (CLK) is
   begin  -- process SRCC1_p_trigin_d_ps
     if CLK'event and CLK = '1' then  -- rising clock edge
-       if(posedge_sample_trig_f = '1') then
+       if(trig_r = '1') then
 			trig_250M_lch	<= '1';
 		 elsif trig_125M_trig = '1' then
 		   trig_250M_lch	<= '0';
@@ -186,6 +203,20 @@ begin
   begin  -- process SRCC1_p_trigin_d_ps
     if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
        trig_125M_trig	<= trig_250M_lch;
+       trig_125M_trig_d1	<= trig_125M_trig;
+       trig_125M_trig_d2	<= trig_125M_trig_d1;
+    end if;
+  end process;
+  
+  trig_recv_cnt <= trig_recv_cnt_int;
+  process (CLK_125M) is
+  begin  -- process SRCC1_p_trigin_d_ps
+    if CLK_125M'event and CLK_125M = '1' then  -- rising clock edge
+       if(sample_en_d3 = '0' and sample_en_d2 = '1') then
+			trig_recv_cnt_int  <= (others => '0');
+		 elsif(trig_125M_trig_d2 = '0' and trig_125M_trig_d1 = '1') then
+			trig_recv_cnt_int<=trig_recv_cnt_int+1;
+		 end if;
     end if;
   end process;
   --    upload_trig_ethernet_d_ps: process (CLK, rst_n) isA
