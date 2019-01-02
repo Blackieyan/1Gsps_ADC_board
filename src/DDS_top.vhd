@@ -9,7 +9,12 @@
 -- Target Devices: 
 -- Tool versions: 
 -- Description: 
---
+  ---DDS的控制设计
+  ---使能信号的上升沿到来时，数据已经配置进DDS，所以在上升沿到来，使能CE， sclr置高一个周期使DDS按设定的相位开始输出
+  ---在rdy信号为高时DDS数据才输出到端口，此时数据才可以写入RAM
+  -- 写入前一段0【可选的】
+  ---计数RDY有效数，直到软件设置的DDS数据个数达到要求
+  -- 写入后一段0【可选的】
 -- Dependencies: 
 --
 -- Revision: 
@@ -69,14 +74,24 @@ end DDS_top;
 architecture Behavioral of DDS_top is
   
 --  signal dds_reg_select     : std_logic;
+  signal dds_ram_wren_zero_pre_d1             : std_logic;
+  signal dds_ram_wren_zero_pre             : std_logic;
+  signal dds_ram_wren_zero_end_d1             : std_logic;
+  signal dds_ram_wren_zero_end             : std_logic;
+  signal Pstprc_num_frs_d1             : std_logic;
+  signal dds_sclr_int             : std_logic;
   signal dds_ce             : std_logic;
+  signal dds_rdy_d1          : std_logic;
   signal dds_rdy            : std_logic;
   signal dds_rfd            : std_logic;
   signal dds_phase_out      : std_logic_vector(dds_phase_width-1 downto 0);
   signal dds_phase_shift_d  : std_logic_vector(dds_phase_width downto 0);
   signal dds_phase_shift_d2 : std_logic_vector(dds_phase_width downto 0);
   -- signal dps_en_cnt : std_logic_vector(11 downto 0);
-  signal dds_ram_wren       : std_logic_vector(0 downto 0);
+  signal dds_ram_write_enable       : std_logic;
+  signal dds_ram_wren_d1       : std_logic;
+  signal dds_ram_wren       : std_logic;
+  signal dds_data_cnt      : std_logic_vector(14 downto 0);
   signal dds_ram_addra      : std_logic_vector(14 downto 0);
   signal dds_ram_addrb      : std_logic_vector(11 downto 0);
   signal dds_cos            : std_logic_vector(dds_output_width-1 downto 0);
@@ -190,7 +205,7 @@ begin
     port map (
       reg_select => '0',
       clk        => dds_clk,
-      sclr       => dds1_sclr,
+      sclr       => dds_sclr_int,
       we         => '1',
       ce         => dds_ce,             --pull up from the (demoWinstart -2)
       data       => dds_phase_shift(dds_phase_width-1 downto 0),    --fout = clk*data/2^N
@@ -207,7 +222,7 @@ dds1_sclr<=dds_sclr or finish_sclr;
 --      clka  => dds_clk,
 --      ena   => '1',
 --      wea   => dds_ram_wren,
---      addra => dds_ram_addra,
+--      addra => dds_data_cnt,
 --      dina  => dds_sin_mux_out,
 --      clkb  => dds_clk,
 --      enb   => dds_ram_rden,
@@ -220,7 +235,7 @@ dds1_sclr<=dds_sclr or finish_sclr;
 --      clka  => dds_clk,
 --      ena   => '1',
 --      wea   => dds_ram_wren,
---      addra => dds_ram_addra,
+--      addra => dds_data_cnt,
 --      dina  => dds_cos_mux_out,
 --      clkb  => dds_clk,
 --      enb   => dds_ram_rden,
@@ -286,10 +301,10 @@ dds1_sclr<=dds_sclr or finish_sclr;
 	dds_ram_ena_I_x_cos <= weight_ram_sel(1) when host_set_ram_switch = '1' else '1';
 	dds_ram_ena_Q_x_sin <= weight_ram_sel(2) when host_set_ram_switch = '1' else '1';
 	dds_ram_ena_Q_x_cos <= weight_ram_sel(3) when host_set_ram_switch = '1' else '1';
-	dds_ram_wren_I_x_sin(0) <= weight_ram_data_en when host_set_ram_switch = '1' else dds_ram_wren(0);
-	dds_ram_wren_I_x_cos(0) <= weight_ram_data_en when host_set_ram_switch = '1' else dds_ram_wren(0);
-	dds_ram_wren_Q_x_sin(0) <= weight_ram_data_en when host_set_ram_switch = '1' else dds_ram_wren(0);
-	dds_ram_wren_Q_x_cos(0) <= weight_ram_data_en when host_set_ram_switch = '1' else dds_ram_wren(0);
+	dds_ram_wren_I_x_sin(0) <= weight_ram_data_en when host_set_ram_switch = '1' else dds_ram_write_enable;
+	dds_ram_wren_I_x_cos(0) <= weight_ram_data_en when host_set_ram_switch = '1' else dds_ram_write_enable;
+	dds_ram_wren_Q_x_sin(0) <= weight_ram_data_en when host_set_ram_switch = '1' else dds_ram_write_enable;
+	dds_ram_wren_Q_x_cos(0) <= weight_ram_data_en when host_set_ram_switch = '1' else dds_ram_write_enable;
 	dds_ram_addra_I_x_sin <= weight_ram_addr(14 downto 0) when host_set_ram_switch = '1' else dds_ram_addra;
 	dds_ram_addra_I_x_cos <= weight_ram_addr(14 downto 0) when host_set_ram_switch = '1' else dds_ram_addra;
 	dds_ram_addra_Q_x_sin <= weight_ram_addr(14 downto 0) when host_set_ram_switch = '1' else dds_ram_addra;
@@ -340,91 +355,167 @@ data_switch_ps: process (dds_clk, dds_sclr) is
   elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
   ---加入测试模式数据
     if(use_test_IQ_data = '1') then
-		 dds_sin_mux_out<= dds_ram_addra(11 downto 0);
-		 dds_cos_mux_out<= dds_ram_addrb(11 downto 0);
+		 dds_sin_mux_out<= dds_data_cnt(11 downto 0);
+		 dds_cos_mux_out<= dds_data_cnt(11 downto 0);
+	 elsif dds_ram_wren = '1' then
+		-- dds_ram_wren比rdy晚一个周期，dds_cos比dds_cos_out晚一个周期，所以dds_ram_wren正好与dds_sin对齐
+		-- dds ram写有效信号还要比dds_ram_wren晚一个周期
+		dds_sin_mux_out<= dds_sin;
+		dds_cos_mux_out<= dds_cos;
 	 else
-		 case ram_data_sw is
-			when '0' =>
-			  dds_cos_mux_out<=(others => '0');
-			  dds_sin_mux_out<=(others => '0');
-			when '1' =>
-			  dds_sin_mux_out<= dds_sin;
-			  dds_cos_mux_out<= dds_cos;
-			when others => null;
-		 end case;
+		dds_cos_mux_out<=(others => '0');
+		dds_sin_mux_out<=(others => '0');
 	  end if;
   end if;
 end process data_switch_ps;
+
+  --real_ram_write addr
+  process (dds_clk) is
+  begin
+    if dds_clk'event and dds_clk = '1' then  -- rising clock edge
+      dds_rdy_d1<=dds_rdy ;
+      Pstprc_num_frs_d1<=Pstprc_num_frs;
+      dds_ram_write_enable<=dds_ram_wren or dds_ram_wren_zero_pre or dds_ram_wren_zero_end;
+      dds_ram_wren_d1<=dds_ram_wren;
+      dds_ram_wren_zero_pre_d1<=dds_ram_wren_zero_pre;
+      dds_ram_wren_zero_end_d1<=dds_ram_wren_zero_end;
+    end if;
+  end process;   
+    --real_ram_write data
+  process (dds_clk) is
+  begin
+    if dds_clk'event and dds_clk = '1' then  -- rising clock edge
+	  if(Pstprc_num_frs = '1' and Pstprc_num_frs_d1 = '0')then
+		dds_ram_addra <= (others => '0');
+	  elsif(dds_ram_write_enable = '1') then
+		dds_ram_addra <= dds_ram_addra + '1';
+	  end if;
+    end if;
+  end process; 
 
 -- purpose: generate dps_en to prepare the dps data with a ram and control the
 -- dds output at the same time
 -- type   : sequential
 -- inputs : dds_clk, dds_sclr
 -- outputs: 
+  --rdy 上升沿数据使能
+  --- 写地址到达设定深度，数据写禁止
+  --- 先写入dds_data_start个0
+  ---- 后写入有效的dds数据
+  ---- 最后写入尾部的0
+  
+  --第一段 写入前面的0
+  dds_ram_wren_pre_ps : process (dds_clk, dds_sclr) is
+  begin  -- process dds_ram_wren_ps
+    if dds_sclr = '1' then              -- asynchronous reset (active low)
+      dds_ram_wren_zero_pre <= '0';              --write ram after reset and power on
+    elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
+      if(Pstprc_num_frs = '1' and Pstprc_num_frs_d1 = '0' and dds_data_start > 0) then
+		--上升沿到来，写ram使能,写0
+		dds_ram_wren_zero_pre <= '1';
+	  elsif(dds_data_cnt = dds_data_start) then
+		dds_ram_wren_zero_pre <= '0';
+      end if;
+    end if;
+  end process dds_ram_wren_pre_ps;
+  
+  --第二段 写入中间的dds数据
   dds_ram_wren_ps : process (dds_clk, dds_sclr) is
   begin  -- process dds_ram_wren_ps
     if dds_sclr = '1' then              -- asynchronous reset (active low)
-      dds_ram_wren <= "1";              --write ram after reset and power on
+      dds_ram_wren <= '0';              --write ram after reset and power on
     elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
-      if Pstprc_num_frs ='1' then
-        dds_ram_wren <= "1";
-      elsif dds_ram_addra =  cmd_smpl_depth(14 downto 0) then         --smpl_depth +1
-        dds_ram_wren <= "0";
+      if dds_rdy ='1' and dds_rdy_d1 ='0' then
+        dds_ram_wren <= '1';
+      elsif dds_data_cnt =  dds_data_start + dds_data_len  then         --smpl_depth +1
+        dds_ram_wren <= '0';
       end if;
     end if;
   end process dds_ram_wren_ps;
-
-  wren_finish_ps : process (dds_clk, dds_sclr) is
-  begin  -- process         finish_sclr_ps
+  
+    --第三段 写入后面的0
+  dds_ram_wren_end_ps : process (dds_clk, dds_sclr) is
+  begin  -- process dds_ram_wren_ps
     if dds_sclr = '1' then              -- asynchronous reset (active low)
-      wren_finish <= '0';
+      dds_ram_wren_zero_end <= '0';              --write ram after reset and power on
     elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
-      if dds_ram_wren = "0" and dds_ram_wren_d = "1" then
-        wren_finish <= '1';
-      else
-        wren_finish <= '0';
+      if dds_data_cnt >=  cmd_smpl_depth  then         --smpl_depth +1
+        dds_ram_wren_zero_end <= '0';
+      elsif dds_ram_wren ='0' and dds_ram_wren_d1 ='1' then
+        dds_ram_wren_zero_end <= '1';
       end if;
     end if;
-  end process wren_finish_ps;
+  end process dds_ram_wren_end_ps;
 
+--  wren_finish_ps : process (dds_clk, dds_sclr) is
+--  begin  -- process         finish_sclr_ps
+--    if dds_sclr = '1' then              -- asynchronous reset (active low)
+--      wren_finish <= '0';
+--    elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
+--      if dds_ram_wren = '0' and dds_ram_wren_d = '1' then
+--        wren_finish <= '1';
+--      else
+--        wren_finish <= '0';
+--      end if;
+--    end if;
+--  end process wren_finish_ps;
+  
+  --地址比dds_ram_wren
   dds_ram_addra_ps : process (dds_clk, dds_sclr) is
   begin  -- process dds_ram_addra_ps
     if dds_sclr = '1' then              -- asynchronous reset (active low)
-      dds_ram_addra <= (others => '0');
+      dds_data_cnt <= (0=>'1', others => '0');
     elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
-      if dds_ram_wren = "0" then
-        dds_ram_addra <= (others => '0');        -- Because the data on x"000" is all zero. 
-      elsif dds_ram_wren = "1" then
-        dds_ram_addra <= dds_ram_addra+1;
+      if Pstprc_num_frs = '1' and Pstprc_num_frs_d1 = '0' then
+        dds_data_cnt <= (0=>'1', others => '0');   -- Because the data on x"000" is all zero. 
+      elsif dds_ram_wren = '1' or dds_ram_wren_zero_pre = '1' or dds_ram_wren_zero_end = '1' then
+        dds_data_cnt <= dds_data_cnt+1;
       end if;
     end if;
   end process dds_ram_addra_ps;  --actually cnt 4091
+  
 
   dds_ce_ps: process (dds_clk, dds_sclr) is
   begin  -- process dds_ce_ps
     if dds_sclr = '1' then              -- asynchronous reset (active low)
       dds_ce<='0';
     elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
-      if dds_ram_addra = dds_data_start-4 then  --start must equal larger than "5"
+      if Pstprc_num_frs = '1' and Pstprc_num_frs_d1 = '0' and dds_data_start = 0 then  --start must equal larger than "5"
         dds_ce<='1';
-      elsif dds_ram_addra= dds_data_start+dds_data_len-1 then  --remain to be fixed
+	  elsif(dds_ram_wren_zero_pre = '0' and dds_ram_wren_zero_pre_d1 = '1') then
+		dds_ce<='1';
+      elsif dds_data_cnt = dds_data_start+dds_data_len then  --remain to be fixed
         dds_ce<='0';
       end if;
     end if;
   end process dds_ce_ps;
-
-  ram_data_sw_ps: process (dds_clk, dds_sclr) is
-  begin  -- process ram_data_sw_ps
+  
+  dds_sclr_ps: process (dds_clk, dds_sclr) is
+  begin  -- process dds_ce_ps
     if dds_sclr = '1' then              -- asynchronous reset (active low)
-      ram_data_sw<='0';
+      dds_sclr_int <= '0';
     elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
-      if dds_ram_addra = dds_data_start-2 then  --start must equal larger than "4"
-        ram_data_sw<='1';
-      elsif dds_ram_addra= dds_data_start+dds_data_len-1 then  --remain to be fixed
-        ram_data_sw<='0';
+      if Pstprc_num_frs = '1' and Pstprc_num_frs_d1 = '0' and dds_data_start = 0 then  --start must equal larger than "5"
+        dds_sclr_int<='1';
+	  elsif(dds_ram_wren_zero_pre = '0' and dds_ram_wren_zero_pre_d1 = '1') then
+		dds_sclr_int<='1';
+      else
+        dds_sclr_int<='0';
       end if;
     end if;
-  end process ram_data_sw_ps;
+  end process dds_sclr_ps;
+  -- ram_data_sw_ps: process (dds_clk, dds_sclr) is
+  -- begin  -- process ram_data_sw_ps
+    -- if dds_sclr = '1' then              -- asynchronous reset (active low)
+      -- ram_data_sw<='0';
+    -- elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
+      -- if dds_data_cnt = dds_data_start-2 then  --start must equal larger than "4"
+        -- ram_data_sw<='1';
+      -- elsif dds_data_cnt= dds_data_start+dds_data_len-1 then  --remain to be fixed
+        -- ram_data_sw<='0';
+      -- end if;
+    -- end if;
+  -- end process ram_data_sw_ps;
 
   dds_ram_addrb_ps : process (dds_clk, dds_sclr) is
   begin  -- process dds_dds_ram_addrb_ps
@@ -438,30 +529,32 @@ end process data_switch_ps;
       end if;
     end if;
   end process dds_ram_addrb_ps;  --actually cnt 4091
+--
+--  dds_phase_shift_d_ps : process (dds_clk, dds_sclr) is
+--  begin  -- process dds_phase_shift_d_ps
+--    if dds_sclr = '1' then              -- asynchronous reset (active low)
+--      dds_phase_shift_d  <= (others => '0');
+--      dds_phase_shift_d2 <= (others => '0');
+--    elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
+--      dds_phase_shift_d  <= dds_phase_shift;
+--      dds_phase_shift_d2 <= dds_phase_shift_d;
+--    end if;
+--  end process dds_phase_shift_d_ps;
 
-  dds_phase_shift_d_ps : process (dds_clk, dds_sclr) is
-  begin  -- process dds_phase_shift_d_ps
-    if dds_sclr = '1' then              -- asynchronous reset (active low)
-      dds_phase_shift_d  <= (others => '0');
-      dds_phase_shift_d2 <= (others => '0');
-    elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
-      dds_phase_shift_d  <= dds_phase_shift;
-      dds_phase_shift_d2 <= dds_phase_shift_d;
-    end if;
-  end process dds_phase_shift_d_ps;
-
-  dds_ram_wren_d_ps : process (dds_clk, dds_sclr) is
-  begin  -- process dds_ram_wren_d_ps
-    if dds_sclr = '1' then              -- asynchronous reset (active low)
-      dds_ram_wren_d  <= (others => '0');
-      wren_finish_d <='0';
-    elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
-      dds_ram_wren_d  <= dds_ram_wren;
-      wren_finish_d <= wren_finish;
-    end if;
-  end process dds_ram_wren_d_ps;
+--  dds_ram_wren_d_ps : process (dds_clk, dds_sclr) is
+--  begin  -- process dds_ram_wren_d_ps
+--    if dds_sclr = '1' then              -- asynchronous reset (active low)
+--      dds_ram_wren_d  <= (others => '0');
+--      wren_finish_d <='0';
+--    elsif dds_clk'event and dds_clk = '1' then  -- rising clock edge
+--      dds_ram_wren_d  <= dds_ram_wren;
+--      wren_finish_d <= wren_finish;
+--    end if;
+--  end process dds_ram_wren_d_ps;
   
-  finish_sclr<=wren_finish or wren_finish_d;
+--  finish_sclr<=wren_finish or wren_finish_d;
+  
+
   
 end Behavioral;
 
