@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 13.3
-# Date: Wed Oct 17 12:01:46 2018
+# Date: Fri Dec 28 12:01:10 2018
 #
 ##############################################################
 #
@@ -50,7 +50,7 @@ CSET explicit_period=false
 CSET frequency_resolution=0.4
 CSET gui_behaviour=Coregen
 CSET has_phase_out=true
-CSET latency=1
+CSET latency=4
 CSET latency_configuration=Configurable
 CSET memory_type=Auto
 CSET negative_cosine=false
@@ -139,4 +139,4 @@ CSET spurious_free_dynamic_range=36
 MISC pkg_timestamp=2011-10-05T00:23:11.000Z
 # END Extra information
 GENERATE
-# CRC: dff07945
+# CRC: 8812fc90
