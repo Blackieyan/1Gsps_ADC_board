@@ -95,6 +95,7 @@ architecture Behavioral of cmd_ana_top is
 
   signal frm_valid_d     : std_logic;
   signal rd_en           : std_logic;
+  signal frm_length_int         : std_logic_vector(15 downto 0);
   signal rd_addr         : std_logic_vector(13 downto 0);
   signal rd_data         : std_logic_vector(7 downto 0);
   signal cmd_ana_rd_data : std_logic_vector(7 downto 0);
@@ -152,7 +153,8 @@ architecture Behavioral of cmd_ana_top is
   end component command_analysis;
 
 begin
-
+	
+  frm_length       <= frm_length_int;
   cmd_ana_rd_data  <= ethernet_rd_data;
   ethernet_Rd_Addr <= rd_addr;
   ethernet_Rd_en   <= rd_en;            --for up
@@ -165,7 +167,7 @@ begin
       rd_clk                 => rd_clk,
       rd_addr                => cmd_ana_rd_addr,
       rd_en                  => cmd_ana_rd_en,
-      frm_length             => frm_length,
+      frm_length             => frm_length_int,
       frm_type               => frm_type,
       ram_start_o            => ram_start,
       upload_trig_ethernet_o => upload_trig_ethernet,
@@ -215,7 +217,7 @@ begin
     elsif rd_clk'event and rd_clk = '1' then
       if frm_valid_d = '0' and ethernet_frm_valid = '1' then  -- rising clock edge
         Rd_en <= '1';
-      elsif Rd_Addr >= x"42" then
+      elsif Rd_Addr >= frm_length_int-5 then --È¥µôÐ£Ñé
         -- elsif ethernet_Rd_Addr>=x"16" then
         Rd_en <= '0';
       end if;
@@ -227,9 +229,9 @@ begin
     if rst_n = '0' then                 -- asynchronous reset (  active low)
       Rd_Addr <= (others => '0');
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
-      if Rd_Addr <= x"42" and Rd_en = '1'then
+      if Rd_en = '1' then
         Rd_Addr <= Rd_Addr + 1;
-      elsif Rd_en = '0' or Rd_Addr > x"41" then
+      else
         Rd_Addr <= (others => '0');
       end if;
     end if;

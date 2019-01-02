@@ -102,6 +102,7 @@ architecture Behavioral of command_analysis is
   signal cmd_smpl_en_cnt : std_logic_vector(7 downto 0);
   signal weight_ram_sel_int : std_logic_vector(4 downto 0);
   signal weight_ram_addr_int : std_logic_vector(15 downto 0);
+  signal weight_ram_len : std_logic_vector(15 downto 0);
   signal upload_trig_ethernet : std_logic;
   signal ram_start : std_logic;
   signal cmd_smpl_en : std_logic;
@@ -149,14 +150,12 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
         reg_addr(15 downto 8) <= rd_data;
       elsif rd_addr = x"12" then
         reg_addr(7 downto 0) <= rd_data;
-      elsif rd_addr=x"1A" or (rd_en_d = '1' and rd_en = '0')then  --碌脴脰路脦陋0x1A禄貌脮脽rden脨脜潞脜脧脗陆碌,脪貌脦陋rddata脫脨驴脡脛脺脠芦露脕脫脨驴脡脛脺脰禄露脕0x11-0x17
-        if reg_addr<=x"0010" then         --驴脴脰脝脙眉脕卯拢卢脟氓脕茫
+      elsif rd_en_d = '1' and rd_en = '0' then  --碌脴脰路脦陋0x1A禄貌脮脽rden脨脜潞脜脧脗陆碌,脪貌脦陋rddata脫脨驴脡脛脺脠芦露脕脫脨驴脡脛脺脰禄露脕0x11-0x17
         reg_addr<=(others => '0');
-        elsif reg_addr>x"0010" then --脜盲脰脙脙眉脕卯拢卢卤拢鲁脰
-          reg_addr<=reg_addr;
+      elsif reg_addr>x"0010" then --脜盲脰脙脙眉脕卯拢卢卤拢鲁脰
+        reg_addr<=reg_addr;
       end if;
     end if;
- end if;
   end process reg_addr_ps;
 
   reg_data_ps : process (rd_clk, rst_n, rd_en_d, rd_en) is
@@ -701,7 +700,8 @@ end process host_reset_ps;
 
 --加权RAM写入的整体设计
 --1. 需要一条整体的数据切换指令，即切换原有的DDS生成数据模式和新增的上位机直写加权数据模式
---2. 加权数据写入时可能会分成好几帧数据，所以最好在每一帧数据中都指定RAM的选择，RAM的起始地址
+--2. 加权数据写入时可能会分成好几帧数据，所以最好在每一帧数据中都指定RAM的选择，RAM的起始地址, 该帧数据中的加权数据个数
+--    因为网络帧由于有效数据小于最小帧长使得会读到冗余数据
 --3. 每一帧中的加权数据从rd_addr = X"18"开始，直到该帧结束都是会写入RAM的有效数据，上位机要注意这一点
 --4. 加权数据每两个字节拼成一个数据，上位机要注意这一点
 --5. 加权数据reg标识 x"2B"
@@ -722,17 +722,21 @@ begin  -- 地址42
   end if;
 end process host_set_ram_switch_ps;
 
----这里还需要仔细考虑时序
+---已经过chipscope调试
 weight_ram_data_en <= ram_data_en_int;
 weight_ram_data_ps: process (rd_clk) is
 begin  --
   if rd_clk'event and rd_clk = '1' then  -- rising clock edg
-	 if(reg_addr(0) = '0') then
-		weight_ram_data(7 downto 0)   <= rd_data;
+	 if(rd_addr(0) = '1') then
+		weight_ram_data(11 downto 8)   <= rd_data(3 downto 0);
 		ram_data_en_int			   <= '0';
 	 else
-		weight_ram_data(11 downto 8)  <= rd_data(3 downto 0);
-		ram_data_en_int			   <= weight_ram_data_active;
+		weight_ram_data(7 downto 0)  <= rd_data(7 downto 0);
+		if(weight_ram_len > 0) then
+			ram_data_en_int			   <= weight_ram_data_active;
+		else
+			ram_data_en_int			   <= '0';
+		end if;
 	 end if;
   end if;
 end process weight_ram_data_ps;
@@ -763,7 +767,7 @@ begin  -- 地址43
     if reg_addr =x"002B" then
       if rd_addr=x"16" then
          weight_ram_addr_int(7 downto 0)   <= rd_data;
-		elsif(rd_addr=x"17") then
+		elsif(rd_addr=x"15") then
 			weight_ram_addr_int(15 downto 8)  <= rd_data;
 		elsif(ram_data_en_int = '1') then
 			weight_ram_addr_int			  <= weight_ram_addr_int + '1';
@@ -771,6 +775,24 @@ begin  -- 地址43
     end if;
   end if;
 end process weight_ram_addr_ps;
+
+-- 当前网络帧中的数据个数
+weight_ram_len_ps: process (rd_clk, rst_n) is
+begin  -- 地址43 
+  if rst_n = '0' then                   -- asynchronous reset (active low)
+    weight_ram_len 		<= (others=>'0');
+  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+    if reg_addr =x"002B" then
+      if rd_addr=x"18" then
+         weight_ram_len(7 downto 0)   <= rd_data;
+		elsif(rd_addr=x"17") then
+			weight_ram_len(15 downto 8)  <= rd_data;
+		elsif(ram_data_en_int = '1') then
+			weight_ram_len			  <= weight_ram_len - '1';
+      end if;
+    end if;
+  end if;
+end process weight_ram_len_ps;
 
 --加权RAM的选择
 --共8个通道，每个通道有4个加权数据，所以是32个RAM，需要32个选择信号
