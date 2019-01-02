@@ -42,7 +42,7 @@ entity TRIG_ctrl is
     cmd_smpl_trig_cnt : in std_logic_vector(23 downto 0);
     ram_start : in std_logic;           --force trig from ethernet
 	 
-	 trig_recv_cnt : out std_logic_vector(23 downto 0);
+	 trig_recv_cnt : out std_logic_vector(31 downto 0);
 	 
     SRCC1_p_trigin : in std_logic;
     trig_recv_done : out std_logic;
@@ -64,7 +64,7 @@ architecture Behavioral of TRIG_ctrl is
   signal trigin_d2 : std_logic;
   signal trigin_d : std_logic;
   signal trig_r : std_logic;
-  signal trig_recv_cnt_int : std_logic_vector(23 downto 0);
+  signal trig_recv_cnt_int : std_logic_vector(31 downto 0);
   signal sample_trig_cnt : std_logic_vector(23 downto 0);
   signal cmd_smpl_en_d : std_logic;
   signal cmd_smpl_en_d2 : std_logic;

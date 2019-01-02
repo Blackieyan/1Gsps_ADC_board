@@ -352,7 +352,7 @@ architecture Behavioral of ZJUprojects is
   -----------------------------------------------------------------------------
   signal cmd_Estmr_num_en    : std_logic;
   signal is_counter          : std_logic;
-  signal trig_recv_cnt       : std_logic_vector(23 downto 0);
+  signal trig_recv_cnt       : std_logic_vector(31 downto 0);
   signal wait_cnt_set        : std_logic_vector(23 downto 0);
   signal cmd_Estmr_num       : std_logic_vector(3 downto 0);
   signal cmd_Estmr_A         : std_logic_vector(31 downto 0);
@@ -646,7 +646,7 @@ architecture Behavioral of ZJUprojects is
       rst_n                      : in  std_logic;
       cmd_smpl_en                : in  std_logic;
       cmd_smpl_trig_cnt          : in  std_logic_vector(23 downto 0);
-      trig_recv_cnt              : out std_logic_vector(23 downto 0);
+      trig_recv_cnt              : out std_logic_vector(31 downto 0);
       ram_start                  : in  std_logic;
       SRCC1_p_trigin             : in  std_logic;
       trig_recv_done             : out std_logic;
@@ -1304,7 +1304,7 @@ begin
   cal_done         <= sram_cal_done;
   cmd_0_data       <= cmd_Pstprc_DPS & cmd_demoWinstart(7 downto 0) & cmd_demoWinln & cmd_smpl_depth;  --25,8,15,16
   cmd_1_data       <= cmd_Estmr_C & cmd_Estmr_B & cmd_Estmr_A;  --64,32,32
-  status_1         <= x"00" & trig_recv_cnt;
+  status_1         <= trig_recv_cnt;
   status_2         <= x"00" & recved_frame_cnt;
   status_3         <= x"0000" & host_rd_seg_len;
   status_4(0)		 <= adpt_led_int;
