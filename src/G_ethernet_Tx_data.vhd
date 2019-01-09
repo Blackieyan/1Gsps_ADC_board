@@ -52,7 +52,7 @@ entity G_ethernet_Tx_data is
 --    posedge_upload_trig : in std_logic;
     clear_frame_cnt : in std_logic;
     TX_dst_MAC_addr : in std_logic_vector(47 downto 0);
-    TX_src_MAC_addr : in std_logic_vector(3 downto 0);
+    TX_src_MAC_addr : in std_logic_vector(7 downto 0);
     sample_en : in std_logic;
     CH_flag : in std_logic_vector(7 downto 0);
     -- ch_stat : in std_logic_vector(1 downto 0);
@@ -550,7 +550,7 @@ begin
             address(8)<=x"00";
             address(9)<=x"00";
             address(10)<=x"00";
-            address(11)<=x"0"&TX_src_MAC_addr(3 downto 0);
+            address(11)<=TX_src_MAC_addr(7 downto 0);
             
             address(12)<=x"AA";
             address(13)<=x"55";--edit at 8.22

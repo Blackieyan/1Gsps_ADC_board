@@ -19,30 +19,32 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module board_status_collect(
-    input sys_clk,
-    input rst_n,
+    input 	  sys_clk,
+    input 	  rst_n,
 	 //来自于命令解析模块1
     input [63:0]  cmd_0_data,
-    input [3:0]	cmd_0_addr,
-    input 			cmd_0_en,
+    input [3:0]   cmd_0_addr,
+    input 	  cmd_0_en,
 	 //来自于命令解析模块2
-    input [127:0]  cmd_1_data,
-    input [2:0]	 cmd_1_addr,
-    input 			 cmd_1_en,
+    input [127:0] cmd_1_data,
+    input [2:0]   cmd_1_addr,
+    input 	  cmd_1_en,
 	 //来自于内部逻辑，根据需要增加
-	 output reg	 	updating_status,
-    input [31:0] 	status_1,
-    input [31:0] 	status_2,
-    input [31:0] 	status_3,
-    input [31:0] 	status_4,
-    input [31:0] 	status_5,
-    input [31:0] 	status_6,
-    input [31:0] 	status_7,
+    output reg 	  updating_status,
+    input [31:0]  status_1,
+    input [31:0]  status_2,
+    input [31:0]  status_3,
+    input [31:0]  status_4,
+    input [31:0]  status_5,
+    input [31:0]  status_6,
+    input [31:0]  status_7,
+    input [31:0]  status_8,
+    input [31:0]  status_9,
 	 //读出接口
-	 output [63:0]	status_ram_data,
-	 output     	status_ram_data_vld,
-	 input [6:0]	status_ram_addr,
-	 input      	status_ram_rd_en
+    output [63:0] status_ram_data,
+    output 	  status_ram_data_vld,
+    input [6:0]   status_ram_addr,
+    input 	  status_ram_rd_en
     );
 parameter REG_CNT = 127;
 reg [7:0]   ram_wr_addr;	 
@@ -151,6 +153,8 @@ always @(posedge sys_clk) begin
 			5:	begin ram_wr_data <= status_5;   ram_wr_en	<= 1; end
 			6:	begin ram_wr_data <= status_6;   ram_wr_en	<= 1; end
 			7:	begin ram_wr_data <= status_7;   ram_wr_en	<= 1; end
+		  	8:	begin ram_wr_data <= status_8;   ram_wr_en	<= 1; end
+		        9:	begin ram_wr_data <= status_9;   ram_wr_en	<= 1; end
 			default : begin ram_wr_data <= ram_wr_data; ram_wr_en	<= 0; end
 		endcase
 	end

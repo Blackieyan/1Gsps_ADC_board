@@ -66,7 +66,7 @@ entity G_ethernet_top is
     -- upload_trig_ethernet      : in     std_logic;
 --    posedge_upload_trig       : in     std_logic;
     TX_dst_MAC_addr           : in     std_logic_vector(47 downto 0);
-    TX_src_MAC_addr : in std_logic_vector(3 downto 0);
+    TX_src_MAC_addr : in std_logic_vector(7 downto 0);
     sample_en                 : in     std_logic;
  ------------------------------------------------------------------------------
     CH_flag                   : in     std_logic_vector(7 downto 0);
@@ -94,7 +94,7 @@ architecture Behavioral of G_ethernet_top is
       PHY_RXC   : in  std_logic; 
       PHY_RXDV  : in  std_logic; 
       Rd_data   : out std_logic_vector(7 downto 0);
-      TX_src_MAC_addr : in std_logic_vector(3 downto 0);
+      TX_src_MAC_addr : in std_logic_vector(7 downto 0);
       Frm_valid : out std_logic
       );
   end component; 
@@ -115,7 +115,7 @@ architecture Behavioral of G_ethernet_top is
       clear_frame_cnt                  : in    std_logic; 
 --      posedge_upload_trig       : in     std_logic;
       TX_dst_MAC_addr           : in     std_logic_vector(47 downto 0);
-      TX_src_MAC_addr : in std_logic_vector(3 downto 0);
+      TX_src_MAC_addr : in std_logic_vector(7 downto 0);
       sample_en                 : in     std_logic;
       CH_flag                   : in     std_logic_vector(7 downto 0);
       -- ch_stat                   : in     std_logic_vector(1 downto 0);

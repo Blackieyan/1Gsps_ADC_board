@@ -40,7 +40,7 @@ entity G_ehernet_Rx_data is
     PHY_RXC : in std_logic;
     PHY_RXDV : in std_logic;
     Rd_data : out std_logic_vector(7 downto 0);
-    TX_src_MAC_addr : in std_logic_vector(3 downto 0);
+    TX_src_MAC_addr : in std_logic_vector(7 downto 0);
     Frm_valid : out std_logic);
 --    buf_wr_en : out std_logic);
 end G_ehernet_Rx_data;
@@ -117,6 +117,6 @@ Inst_Mac_RX2: Mac_RX2 PORT MAP(
 --  end if;
 --end if;
 --end process Rd_Addr_ps;
-MAC_addr<=x"00000000000"&TX_src_MAC_addr(3 downto 0);
+MAC_addr<=x"0000000000"&TX_src_MAC_addr(7 downto 0);
 end Behavioral;
 

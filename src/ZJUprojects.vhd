@@ -99,7 +99,7 @@ entity ZJUprojects is
     PHy_txen_quar   : out std_logic;
     phy_txer_o      : out std_logic;
 
-    TX_src_MAC_addr : in  std_logic_vector(3 downto 0) := "0000";
+    TX_src_MAC_addr : in  std_logic_vector(7 downto 0) := "00000000";
     phy_rst_n_o     : out std_logic;
     clk_EXT_250M    : in  std_logic;
     Estmr_OQ_p      : out std_logic;
@@ -124,10 +124,11 @@ entity ZJUprojects is
 end ZJUprojects;
 
 architecture Behavioral of ZJUprojects is
-  signal clk2_cnt     : std_logic_vector(31 downto 0) := x"00000000";
+  signal Logic_Version : std_logic_vector(31 downto 0);
+  signal clk2_cnt      : std_logic_vector(31 downto 0) := x"00000000";
 -------------------------------------------------------------------------------
-  signal cdce62005_en : std_logic;
-  signal clk_spi      : std_logic;  --make clear what is the function of clk_spi
+  signal cdce62005_en  : std_logic;
+  signal clk_spi       : std_logic;  --make clear what is the function of clk_spi
 -------------------------------------------------------------------------------
 
   signal OSC_in                      : std_logic;
@@ -211,7 +212,7 @@ architecture Behavioral of ZJUprojects is
   -- signal ram_last : std_logic;
 
 
-  signal use_test_IQ_data              : std_logic;
+  signal use_test_IQ_data     : std_logic;
   signal ram_rst              : std_logic;
   attribute keep of ram_rst   : signal is true;
   signal ram_start            : std_logic;
@@ -275,23 +276,23 @@ architecture Behavioral of ZJUprojects is
   signal cmd_Pstprc_num               : std_logic_vector(3 downto 0);
   -----------------------------------------------------------------------------
 
-  signal self_adpt_en        : std_logic;
-  signal sram_cal_done       : std_logic;
-  signal dcm1_locked         : std_logic;
-  signal dcm1_locked_d       : std_logic;
-  signal dcm1_locked_d2      : std_logic;
-  signal lck_rst_n           : std_logic;
-  signal div_sclk            : std_logic;
-  signal div_sclk_cnt        : std_logic_vector(31 downto 0);
+  signal self_adpt_en   : std_logic;
+  signal sram_cal_done  : std_logic;
+  signal dcm1_locked    : std_logic;
+  signal dcm1_locked_d  : std_logic;
+  signal dcm1_locked_d2 : std_logic;
+  signal lck_rst_n      : std_logic;
+  signal div_sclk       : std_logic;
+  signal div_sclk_cnt   : std_logic_vector(31 downto 0);
   -----------------------------------------------------------------------------
-  
-  	 --- host set DDS ram signal
- signal    host_set_ram_ena_sin : std_logic; --sin 通道选择
- signal    host_set_ram_ena_cos : std_logic; --cos 通道选择
- signal    host_set_ram_wr_en   : std_logic; --数据写使能
- signal    host_set_ram_wr_data : std_logic_vector(31 downto 0);--数据
- signal    host_set_ram_wr_addr : std_logic_vector(14 downto 0);--地址
-	 ---
+
+  --- host set DDS ram signal
+  signal host_set_ram_ena_sin : std_logic;                      --sin 通道选择
+  signal host_set_ram_ena_cos : std_logic;                      --cos 通道选择
+  signal host_set_ram_wr_en   : std_logic;                      --数据写使能
+  signal host_set_ram_wr_data : std_logic_vector(31 downto 0);  --数据
+  signal host_set_ram_wr_addr : std_logic_vector(14 downto 0);  --地址
+  ---
   -- signal fft_ce_I : std_logic;
   -- signal fft_sclr_I : std_logic;
   -- signal fft_start_I : std_logic;
@@ -309,26 +310,26 @@ architecture Behavioral of ZJUprojects is
   -- signal fft_xk_im_I : std_logic_vector(7 downto 0);
   -- signal fft_ovflo_I : std_logic;
   -----------------------------------------------------------------------------
-  signal tx_rdy              : std_logic;
-  signal upld_finish         : std_logic;
-  signal CW_CH_flag          : std_logic_vector(7 downto 0);
-  signal ch_stat             : std_logic_vector(1 downto 0);
-  signal data_strobe         : std_logic;
-  signal sw_ram_last         : std_logic;
-  signal CW_mult_frame_en    : std_logic;
-  signal cw_ether_trig       : std_logic;
-  signal CM_Ram_I_rden       : std_logic;
-  signal CM_Ram_Q_rden       : std_logic;
-  signal CW_Pstprc_fifo_rden : std_logic;
-  signal CW_wave_smpl_trig   : std_logic;
-  signal CW_demo_smpl_trig   : std_logic;
+  signal tx_rdy               : std_logic;
+  signal upld_finish          : std_logic;
+  signal CW_CH_flag           : std_logic_vector(7 downto 0);
+  signal ch_stat              : std_logic_vector(1 downto 0);
+  signal data_strobe          : std_logic;
+  signal sw_ram_last          : std_logic;
+  signal CW_mult_frame_en     : std_logic;
+  signal cw_ether_trig        : std_logic;
+  signal CM_Ram_I_rden        : std_logic;
+  signal CM_Ram_Q_rden        : std_logic;
+  signal CW_Pstprc_fifo_rden  : std_logic;
+  signal CW_wave_smpl_trig    : std_logic;
+  signal CW_demo_smpl_trig    : std_logic;
   -----------------------------------------------------------------------------
-  signal pstprc_ram_wren     : std_logic;
-  signal Pstprc_RAMQ_clka    : std_logic;
-  signal Pstprc_RAMQ_clkb    : std_logic;
-  signal Pstprc_RAMI_clka    : std_logic;
-  signal Pstprc_RAMI_clkb    : std_logic;
-  signal Pstprc_RAMx_rden    : std_logic;
+  signal pstprc_ram_wren      : std_logic;
+  signal Pstprc_RAMQ_clka     : std_logic;
+  signal Pstprc_RAMQ_clkb     : std_logic;
+  signal Pstprc_RAMI_clka     : std_logic;
+  signal Pstprc_RAMI_clkb     : std_logic;
+  signal Pstprc_RAMx_rden     : std_logic;
 
   signal Pstprc_RAMQ_dina : std_logic_vector(31 downto 0);
   signal Pstprc_RAMI_dina : std_logic_vector(31 downto 0);
@@ -394,12 +395,12 @@ architecture Behavioral of ZJUprojects is
   signal cmd_adpt            : std_logic;
   signal SelfAdpt_trig       : std_logic;
   -----------------------------------------------------------------------------
-	 --- weight ram
-	signal weight_ram_addr 		: STD_LOGIC_vector(15 downto 0);
-	signal weight_ram_data 		: STD_LOGIC_vector(11 downto 0);
-	signal host_set_ram_switch	: STD_LOGIC;
-	signal weight_ram_data_en 	: STD_LOGIC;
-	signal weight_ram_sel 		: STD_LOGIC_vector(31 downto 0);
+  --- weight ram
+  signal weight_ram_addr     : std_logic_vector(15 downto 0);
+  signal weight_ram_data     : std_logic_vector(11 downto 0);
+  signal host_set_ram_switch : std_logic;
+  signal weight_ram_data_en  : std_logic;
+  signal weight_ram_sel      : std_logic_vector(31 downto 0);
   -----------------------------------------------------------------------------
   signal host_reset          : std_logic;
   signal host_rd_mode        : std_logic;
@@ -417,6 +418,8 @@ architecture Behavioral of ZJUprojects is
   signal status_5            : std_logic_vector(31 downto 0);
   signal status_6            : std_logic_vector(31 downto 0);
   signal status_7            : std_logic_vector(31 downto 0);
+  signal status_8            : std_logic_vector(31 downto 0);
+  signal status_9            : std_logic_vector(31 downto 0);
   signal cmd_0_data          : std_logic_vector(63 downto 0);
   signal cmd_1_data          : std_logic_vector(127 downto 0);
   -----------------------------------------------------------------------------
@@ -526,7 +529,7 @@ architecture Behavioral of ZJUprojects is
       clear_frame_cnt  : in  std_logic;
       TX_dst_MAC_addr  : in  std_logic_vector(47 downto 0);
       sample_en        : in  std_logic;
-      TX_src_MAC_addr  : in  std_logic_vector(3 downto 0);
+      TX_src_MAC_addr  : in  std_logic_vector(7 downto 0);
       CH_flag          : in  std_logic_vector(7 downto 0);
       -- ch_stat             : in     std_logic_vector(1 downto 0);
       mult_frame_en    : in  std_logic;
@@ -551,15 +554,15 @@ architecture Behavioral of ZJUprojects is
       ram_switch           : out    std_logic_vector(2 downto 0);
       TX_dst_MAC_addr      : out    std_logic_vector(47 downto 0);
       is_counter           : out    std_logic;
-      host_reset         : out    std_logic;
-			 --- weight ram
-	 weight_ram_addr 		: out STD_LOGIC_vector(15 downto 0);
-	 weight_ram_data 		: out STD_LOGIC_vector(11 downto 0);
-	 weight_ram_data_en 	: out STD_LOGIC;
-	 host_set_ram_switch 	: out STD_LOGIC;
-	 weight_ram_sel 		: out STD_LOGIC_vector(31 downto 0);
+      host_reset           : out    std_logic;
+      --- weight ram
+      weight_ram_addr      : out    std_logic_vector(15 downto 0);
+      weight_ram_data      : out    std_logic_vector(11 downto 0);
+      weight_ram_data_en   : out    std_logic;
+      host_set_ram_switch  : out    std_logic;
+      weight_ram_sel       : out    std_logic_vector(31 downto 0);
       host_rd_mode         : out    std_logic;
-      use_test_IQ_data       : out    std_logic;
+      use_test_IQ_data     : out    std_logic;
       host_rd_status       : out    std_logic;
       host_rd_enable       : out    std_logic;
       host_rd_start_addr   : out    std_logic_vector(18 downto 0);
@@ -728,19 +731,19 @@ architecture Behavioral of ZJUprojects is
       Pstprc_RAMI_clkb    : in  std_logic;
       demoWinln_twelve    : in  std_logic_vector(14 downto 0);
       demoWinstart_twelve : in  std_logic_vector(14 downto 0);
-		---------------------------------------------------
-	 weight_ram_addr 		: in STD_LOGIC_vector(15 downto 0);
-	 weight_ram_data 		: in STD_LOGIC_vector(11 downto 0);
-	 host_set_ram_switch 	: in STD_LOGIC;
-	 weight_ram_data_en 	: in STD_LOGIC;
-	 weight_ram_sel 		: in STD_LOGIC_vector(31 downto 0);
+      ---------------------------------------------------
+      weight_ram_addr     : in  std_logic_vector(15 downto 0);
+      weight_ram_data     : in  std_logic_vector(11 downto 0);
+      host_set_ram_switch : in  std_logic;
+      weight_ram_data_en  : in  std_logic;
+      weight_ram_sel      : in  std_logic_vector(31 downto 0);
       -- Pstprc_dps_en       : in std_logic;
       Pstprc_DPS_twelve   : in  std_logic_vector(dds_phase_width downto 0);
       Pstprc_IQ_seq_o     : out std_logic_vector(63 downto 0);
       pstprc_fifo_wren    : out std_logic;
       Pstprc_finish       : out std_logic;
       is_counter          : in  std_logic;
-      use_test_IQ_data       : in  std_logic;
+      use_test_IQ_data    : in  std_logic;
       pstprc_num_en       : in  std_logic;
       pstprc_num          : in  std_logic_vector(3 downto 0);
       Estmr_A_eight       : in  std_logic_vector(31 downto 0);
@@ -784,7 +787,7 @@ architecture Behavioral of ZJUprojects is
       status_ram_data_vld : in  std_logic;
       rst_n               : in  std_logic;
       cmd_smpl_en         : in  std_logic;
-      updating_status      : in  std_logic;
+      updating_status     : in  std_logic;
       Pstprc_fifo_wr_clk  : in  std_logic;
       Pstprc_fifo_rd_clk  : in  std_logic;
       target_frame_cnt    : in  std_logic_vector(23 downto 0);
@@ -814,7 +817,7 @@ architecture Behavioral of ZJUprojects is
       cmd_1_data          : in  std_logic_vector(127 downto 0);
       cmd_1_addr          : in  std_logic_vector(2 downto 0);
       cmd_1_en            : in  std_logic;
-      updating_status     : out  std_logic;
+      updating_status     : out std_logic;
       status_1            : in  std_logic_vector(31 downto 0);
       status_2            : in  std_logic_vector(31 downto 0);
       status_3            : in  std_logic_vector(31 downto 0);
@@ -822,6 +825,8 @@ architecture Behavioral of ZJUprojects is
       status_5            : in  std_logic_vector(31 downto 0);
       status_6            : in  std_logic_vector(31 downto 0);
       status_7            : in  std_logic_vector(31 downto 0);
+      status_8            : in  std_logic_vector(31 downto 0);
+      status_9            : in  std_logic_vector(31 downto 0);
       status_ram_addr     : in  std_logic_vector(6 downto 0);
       status_ram_rd_en    : in  std_logic;
       status_ram_data     : out std_logic_vector(63 downto 0);
@@ -904,9 +909,9 @@ architecture Behavioral of ZJUprojects is
 -- end component SRAM_interface;
 ---------------------------------------------------------------------------------primitive instantiation       
 begin
-	
-	user_pushbutton_g <= host_reset and user_pushbutton;
-	
+
+  user_pushbutton_g <= host_reset and user_pushbutton;
+
   Inst_sys_reset_proc : sys_reset_proc port map(
     sys_rst_n_in    => user_pushbutton,
     sram_cal_done   => sram_cal_done,
@@ -1101,11 +1106,11 @@ begin
     cmd_smpl_depth       => cmd_smpl_depth,
     cmd_smpl_trig_cnt    => cmd_smpl_trig_cnt,
     cmd_pstprc_IQ_sw     => cmd_pstprc_IQ_sw,
-	 weight_ram_addr  => weight_ram_addr,
-    weight_ram_data  => weight_ram_data,
-    weight_ram_data_en    => weight_ram_data_en  ,
+    weight_ram_addr      => weight_ram_addr,
+    weight_ram_data      => weight_ram_data,
+    weight_ram_data_en   => weight_ram_data_en,
     host_set_ram_switch  => host_set_ram_switch,
-    weight_ram_sel  => weight_ram_sel,	
+    weight_ram_sel       => weight_ram_sel,
     host_reset           => host_reset,
     host_rd_mode         => host_rd_mode,
     host_rd_status       => host_rd_status,
@@ -1113,7 +1118,7 @@ begin
     host_rd_start_addr   => host_rd_start_addr,
     host_rd_length       => host_rd_length,
     host_rd_seg_len      => host_rd_seg_len,
-    use_test_IQ_data      => use_test_IQ_data,
+    use_test_IQ_data     => use_test_IQ_data,
     is_counter           => is_counter,
     wait_cnt_set         => wait_cnt_set,
     self_adpt_en         => self_adpt_en,
@@ -1259,16 +1264,16 @@ begin
     rst_data_proc_n     => rst_data_proc_n,
     rst_adc_n           => rst_adc_n,
     cmd_smpl_en         => cmd_smpl_en,
-    use_test_IQ_data      => use_test_IQ_data,
+    use_test_IQ_data    => use_test_IQ_data,
     rst_feedback_n      => rst_feedback_n,
     cmd_smpl_depth      => cmd_smpl_depth,
-	 
-	 weight_ram_addr  => weight_ram_addr,
-    weight_ram_data  => weight_ram_data,
-    weight_ram_data_en    => weight_ram_data_en  ,
-    host_set_ram_switch  => host_set_ram_switch,
-    weight_ram_sel  => weight_ram_sel,	
-	 
+
+    weight_ram_addr     => weight_ram_addr,
+    weight_ram_data     => weight_ram_data,
+    weight_ram_data_en  => weight_ram_data_en,
+    host_set_ram_switch => host_set_ram_switch,
+    weight_ram_sel      => weight_ram_sel,
+
     Pstprc_RAMQ_dina    => Pstprc_RAMQ_dina,
     Pstprc_RAMQ_clka    => Pstprc_RAMQ_clka,
     Pstprc_RAMQ_clkb    => Pstprc_RAMQ_clkb,
@@ -1294,28 +1299,31 @@ begin
     Estmr_OQ            => Estmr_OQ
 
     );
-  Pstprc_RAMQ_clka <= ADC_clkoq;
-  Pstprc_RAMQ_clkb <= CLK_125M;
-  Pstprc_RAMI_clka <= ADC_clkoi;
-  Pstprc_RAMI_clkb <= CLK_125M;
-  Pstprc_RAMQ_dina <= ADC_DOQB_2_d&ADC_DOQA_2_d&ADC_DOQB_1_d&ADC_DOQA_1_d;
-  Pstprc_RAMI_dina <= ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
-  pstprc_ram_wren  <= ram_wren;
-  cal_done         <= sram_cal_done;
-  cmd_0_data       <= cmd_Pstprc_DPS & cmd_demoWinstart(7 downto 0) & cmd_demoWinln & cmd_smpl_depth;  --25,8,15,16
-  cmd_1_data       <= cmd_Estmr_C & cmd_Estmr_B & cmd_Estmr_A;  --64,32,32
-  status_1         <= trig_recv_cnt;
-  status_2         <= x"00" & recved_frame_cnt;
-  status_3         <= x"0000" & host_rd_seg_len;
-  status_4(0)		 <= adpt_led_int;
-  status_4(1)		 <= sram_cal_done;
-  status_4(2)		 <= host_rd_mode;
-  status_4(3)		 <= use_test_IQ_data;
-  status_4(4)		 <= is_counter;
-  status_4(5)		 <= host_set_ram_switch;
-  status_5(18 downto 0)         <= host_rd_start_addr;
-  status_6(18 downto 0)         <= host_rd_length;
-  status_7(23 downto 0)         <= cmd_smpl_trig_cnt;
+  Pstprc_RAMQ_clka      <= ADC_clkoq;
+  Pstprc_RAMQ_clkb      <= CLK_125M;
+  Pstprc_RAMI_clka      <= ADC_clkoi;
+  Pstprc_RAMI_clkb      <= CLK_125M;
+  Pstprc_RAMQ_dina      <= ADC_DOQB_2_d&ADC_DOQA_2_d&ADC_DOQB_1_d&ADC_DOQA_1_d;
+  Pstprc_RAMI_dina      <= ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
+  pstprc_ram_wren       <= ram_wren;
+  cal_done              <= sram_cal_done;
+  cmd_0_data            <= cmd_Pstprc_DPS & cmd_demoWinstart(7 downto 0) & cmd_demoWinln & cmd_smpl_depth;  --25,8,15,16
+  cmd_1_data            <= cmd_Estmr_C & cmd_Estmr_B & cmd_Estmr_A;  --64,32,32
+  status_1              <= trig_recv_cnt;
+  status_2              <= x"00" & recved_frame_cnt;
+  status_3              <= x"0000" & host_rd_seg_len;
+  status_4(0)           <= adpt_led_int;
+  status_4(1)           <= sram_cal_done;
+  status_4(2)           <= host_rd_mode;
+  status_4(3)           <= use_test_IQ_data;
+  status_4(4)           <= is_counter;
+  status_4(5)           <= host_set_ram_switch;
+  status_5(18 downto 0) <= host_rd_start_addr;
+  status_6(18 downto 0) <= host_rd_length;
+  status_7(23 downto 0) <= cmd_smpl_trig_cnt;
+  status_8              <= Logic_Version;
+  status_9              <= x"000000"&TX_src_MAC_addr;
+  -----------------------------------------------------------------------------
   Inst_board_status_collect : board_status_collect port map(
     sys_clk             => clk_125M,
     rst_n               => rst_data_proc_n,
@@ -1333,6 +1341,8 @@ begin
     status_5            => status_5,
     status_6            => status_6,
     status_7            => status_7,
+    status_8            => status_8,
+    status_9            => status_9,
     status_ram_data     => status_ram_data,
     status_ram_data_vld => status_ram_data_vld,
     status_ram_addr     => status_ram_addr,
@@ -1341,7 +1351,6 @@ begin
   -----------------------------------------------------------------------------
   Inst_Pstprc_fifo_top : Pstprc_fifo_top port map(
     rst_n              => rst_data_proc_n,
-    ---------------------------------------------------
     ui_clk_in          => CLK_SRAM,
     CLK_125M           => clk_125M,
     CLK_200M           => REF_SRAM,
@@ -1357,23 +1366,19 @@ begin
     qdriip_bw_n        => qdriip_bw_n,
     qdriip_dll_off_n   => qdriip_dll_off_n,
     cal_done           => sram_cal_done,
-    --------------------------------------------------
     host_rd_mode       => host_rd_mode,
     host_rd_status     => host_rd_status,
     host_rd_enable     => host_rd_enable,
     host_rd_start_addr => host_rd_start_addr,
     host_rd_length     => host_rd_length,
     host_rd_seg_len    => host_rd_seg_len,
-
-
     status_ram_data     => status_ram_data,
     status_ram_data_vld => status_ram_data_vld,
     status_ram_addr     => status_ram_addr,
     status_ram_rd_en    => status_ram_rd_en,
     recved_frame_cnt    => recved_frame_cnt,
-    ---------------------------------------------------
-    target_frame_cnt    => cmd_smpl_trig_cnt, 
-    updating_status     => updating_status, 
+    target_frame_cnt    => cmd_smpl_trig_cnt,
+    updating_status     => updating_status,
     cmd_smpl_en         => cmd_smpl_en,        --same with the clk in dmog_seg
     tx_rdy              => tx_rdy,             --same with the clk in dmog_seg
     wait_cnt_set        => wait_cnt_set,       --same with the clk in dmog_seg
@@ -1460,10 +1465,7 @@ begin
       );
 
 -----------------------------------------------------------------------------
--- SRCC1_p <= clk_250M;
--- SRCC1_n <= ram_Q_clka;
--- MRCC1_p <=ram_I_clka;
--- MRCC1_n <= ram_wren;
+  Logic_Version <= x"01090006";
 end Behavioral;
 
 

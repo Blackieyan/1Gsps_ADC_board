@@ -504,12 +504,19 @@ NET "TX_src_MAC_addr[0]" LOC = W29;
 NET "TX_src_MAC_addr[1]" LOC = Y29;
 NET "TX_src_MAC_addr[2]" LOC = W31;
 NET "TX_src_MAC_addr[3]" LOC = W32;
-
+NET "TX_src_MAC_addr[4]" LOC = V32;
+NET "TX_src_MAC_addr[5]" LOC = V33;
+NET "TX_src_MAC_addr[6]" LOC = Y32;
+NET "TX_src_MAC_addr[7]" LOC = Y31;
 
 NET "TX_src_MAC_addr[0]" PULLUP;
 NET "TX_src_MAC_addr[1]" PULLUP;
 NET "TX_src_MAC_addr[2]" PULLUP;
 NET "TX_src_MAC_addr[3]" PULLUP;
+NET "TX_src_MAC_addr[4]" PULLUP;
+NET "TX_src_MAC_addr[5]" PULLUP;
+NET "TX_src_MAC_addr[6]" PULLUP;
+NET "TX_src_MAC_addr[7]" PULLUP;
 NET "user_pushbutton" CLOCK_DEDICATED_ROUTE = FALSE;
 NET "user_pushbutton" TIG;
 #set_false_path -to [get_nets ];

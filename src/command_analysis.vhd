@@ -150,9 +150,9 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
         reg_addr(15 downto 8) <= rd_data;
       elsif rd_addr = x"12" then
         reg_addr(7 downto 0) <= rd_data;
-      elsif rd_en_d = '1' and rd_en = '0' then  --µØÖ·Îª0x1A»òÕßrdenÐÅºÅÏÂ½µ,ÒòÎªrddataÓÐ¿ÉÄÜÈ«¶ÁÓÐ¿ÉÄÜÖ»¶Á0x11-0x17
+      elsif rd_en_d = '1' and rd_en = '0' then  
         reg_addr<=(others => '0');
-      elsif reg_addr>x"0010" then --ÅäÖÃÃüÁî£¬±£³Ö
+      elsif reg_addr>x"0010" then
         reg_addr<=reg_addr;
       end if;
     end if;
@@ -175,10 +175,10 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
         reg_data(15 downto 8) <= rd_data;
       elsif rd_addr = x"18" then
         reg_data(7 downto 0) <= rd_data;
-      elsif rd_addr=x"1A" or (rd_en_d = '1' and rd_en = '0')then  --µØÖ·Îª0x1a»òÕßrdenÐÅºÅÏÂ½µ,ÒòÎªrddataÓÐ¿ÉÄÜÈ«¶ÁÓÐ¿ÉÄÜÖ»¶Á0x11-0x17,ÕâÊÇÎªÁË¸üÈÝÒ×½ÓÊÜÉÏÎ»»úÏÂ·¢µÄMACµØÖ·¸ü¸ÄÃüÁî¡£µØÖ·¸ü¸ÄÃüÁîÎª48Î»Êý¾Ý
-        if reg_addr<=x"0010" then         --¿ØÖÆÃüÁî£¬ÇåÁã
+      elsif rd_addr=x"1A" or (rd_en_d = '1' and rd_en = '0')then 
+        if reg_addr<=x"0010" then       
         reg_data<=(others => '0');
-        elsif reg_addr>x"0010" then       --ÅäÖÃÃüÁî,±£³Ö
+        elsif reg_addr>x"0010" then       
           reg_data<=reg_data;
         end if;
       end if;
@@ -237,13 +237,13 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
   end process ram_switch_ps;
 
 -------------------------------------------------------------------------------
---ÉÏÎ»»ú¿ÉÒÔÍ¨¹ýtrigÀ´¶ÁÈ¡ramÄÚ²¿µÄÄÚÈÝ¡£Éè¼Æ³ÉÎª£ºÉÏÎ»»úµÄtrigµ½À´¿ØÖÆtx_module¹¤×÷£¬tx_module½«ramÄÚ²¿µÄÊý¾ç´«Êä³öÀ´£¨Í¨¹ýram_fullÀ´¿ØÖÆ£¬ÅÐ¶Ïram_fullµÄ¼ÆÊýÆ÷¿ÉÒÔÁé»î¿ØÖÆÏëÒª¶ÁÈ¡µÄramµÄÉî¶È£¬³õ²½Éè¼ÆÎªramÐ´ÂúÁËram_full£©
+
   upload_trig_ethernet_ps : process (rd_clk, rst_n) is
   begin  -- process reg_clr
     if rst_n = '0' then                 -- asynchronous reset (active low)
      upload_trig_ethernet <= '0';
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
-      if upload_trig_ethernet_cnt = x"0F" then  --0fÊÇ upload_trig_ethernetµÄ³¤¶È£¬¿ØÖÆÃüÁîÖ»ÄÜ³ÖÐøÒ»¶¨Ê±¼äÈ»ºóÏûÊ§¡£ÅäÖÃÃüÁî»áÒ»Ö±´æÔÚÖ±µ½±»¸²¸Ç¡£
+      if upload_trig_ethernet_cnt = x"0F" then  
         upload_trig_ethernet <= '0';
       elsif reg_addr = x"0002" and reg_data = x"eeeeeeeeeeee" then
         if rd_addr=x"19" then
@@ -299,10 +299,9 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
       end if;
     end if;
   end process cmd_smpl_en_cnt_ps;
-  --cmd_smple_enÊÇÉÏÎ»»úÓÃÀ´½âËøtriginµÄenableÐÅºÅ£¬³¤¶ÈÓÉ¼ÆÊýÆ÷¾ö¶¨¡£Ä¿Ç°ÉèÖÃÊÇ¹Ì¶¨Êý2000.
   -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
-  --ÅäÖÃÃüÁî
+
   -- purpose: to assign new destination MAC address in case that the PC changes.
   -- type   : sequential
   -- inputs : rd_clk, rst_n
@@ -709,6 +708,11 @@ end process host_reset_ps;
 ---��Ȩ����д��RAM�е�����
 --ԭ�е�DDSģʽ�������ļ�ȨDDSģʽ֮����л�
 --Ĭ��Ϊԭ��DDS����ģʽ
+
+
+
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 host_set_ram_switch_ps: process (rd_clk, rst_n) is
 begin  -- ��ַ42 
   if rst_n = '0' then                   -- asynchronous reset (active low)
@@ -722,49 +726,31 @@ begin  -- ��ַ42
   end if;
 end process host_set_ram_switch_ps;
 
----�Ѿ���chipscope����
-weight_ram_data_en <= ram_data_en_int;
-weight_ram_data_ps: process (rd_clk) is
-begin  --
-  if rd_clk'event and rd_clk = '1' then  -- rising clock edg
-	 if(rd_addr(0) = '1') then
-		weight_ram_data(11 downto 8)   <= rd_data(3 downto 0);
-		ram_data_en_int			   <= '0';
-	 else
-		weight_ram_data(7 downto 0)  <= rd_data(7 downto 0);
-		if(weight_ram_len > 0) then
-			ram_data_en_int			   <= weight_ram_data_active;
-		else
-			ram_data_en_int			   <= '0';
-		end if;
-	 end if;
-  end if;
-end process weight_ram_data_ps;
+-------------------------------------------------------------------------------
 
----��Ȩ����дRAM��Ч��־
-weight_ram_data_en_ps: process (rd_clk, rst_n) is
-begin  -- ��ַ43 
+
+--��ȨRAM��ѡ��
+--��8��ͨ����ÿ��ͨ����4����Ȩ���ݣ�������32��RAM����Ҫ32��ѡ���ź�
+weight_ram_data_sel_ps: process (rd_clk, rst_n) is
+begin  -- ��ַ43
   if rst_n = '0' then                   -- asynchronous reset (active low)
-    weight_ram_data_active 		<= '0';
+    weight_ram_sel_int 		<= (others=>'0');
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
     if reg_addr =x"002B" then
-      if rd_addr=x"18" then
-        weight_ram_data_active	  <= '1'; 
+      if rd_addr=x"14" then
+        weight_ram_sel_int	  <= rd_data(4 downto 0); 
       end if;
-	 elsif(rd_en = '0') then
-		weight_ram_data_active	  <= '0';
     end if;
   end if;
-end process weight_ram_data_en_ps;
+end process weight_ram_data_sel_ps;
 
----��Ȩ����д��RAM�е�ƫ�Ƶ�ַ
 weight_ram_addr <= weight_ram_addr_int;
 weight_ram_addr_ps: process (rd_clk, rst_n) is
 begin  -- ��ַ43 
   if rst_n = '0' then                   -- asynchronous reset (active low)
     weight_ram_addr_int 		<= (others=>'0');
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
-    if reg_addr =x"002B" then
+    if reg_addr=x"002B" then
       if rd_addr=x"16" then
          weight_ram_addr_int(7 downto 0)   <= rd_data;
 		elsif(rd_addr=x"15") then
@@ -774,7 +760,8 @@ begin  -- ��ַ43
       end if;
     end if;
   end if;
-end process weight_ram_addr_ps;
+end process weight_ram_addr_ps; ---��Ȩ����д��RAM�е�ƫ�Ƶ�ַ
+
 
 -- ��ǰ����֡�е����ݸ���
 weight_ram_len_ps: process (rd_clk, rst_n) is
@@ -794,21 +781,44 @@ begin  -- ��ַ43
   end if;
 end process weight_ram_len_ps;
 
---��ȨRAM��ѡ��
---��8��ͨ����ÿ��ͨ����4����Ȩ���ݣ�������32��RAM����Ҫ32��ѡ���ź�
-weight_ram_data_sel_ps: process (rd_clk, rst_n) is
-begin  -- ��ַ43
+
+---��Ȩ����дRAM��Ч��־
+weight_ram_data_en_ps: process (rd_clk, rst_n) is
+begin  -- ��ַ43 
   if rst_n = '0' then                   -- asynchronous reset (active low)
-    weight_ram_sel_int 		<= (others=>'0');
+    weight_ram_data_active 		<= '0';
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
     if reg_addr =x"002B" then
-      if rd_addr=x"14" then
-        weight_ram_sel_int	  <= rd_data(4 downto 0); 
+      if rd_addr=x"18" then
+        weight_ram_data_active	  <= '1'; 
       end if;
+    elsif(rd_en = '0') then
+      weight_ram_data_active	  <= '0';
     end if;
   end if;
-end process weight_ram_data_sel_ps;
+end process weight_ram_data_en_ps;
+-------------------------------------------------------------------------------
 
+
+---�Ѿ���chipscope����
+weight_ram_data_en <= ram_data_en_int;
+weight_ram_data_ps: process (rd_clk) is
+begin  --
+  if rd_clk'event and rd_clk = '1' then  -- rising clock edg
+	 if(rd_addr(0) = '1') then
+		weight_ram_data(11 downto 8)   <= rd_data(3 downto 0);
+		ram_data_en_int			   <= '0';
+	 else
+		weight_ram_data(7 downto 0)  <= rd_data(7 downto 0);
+		if(weight_ram_len > 0) then
+			ram_data_en_int			   <= weight_ram_data_active;
+		else
+			ram_data_en_int			   <= '0';
+		end if;
+	 end if;
+  end if;
+end process weight_ram_data_ps;
+-------------------------------------------------------------------------------
 process(weight_ram_sel_int)
 begin
 	case weight_ram_sel_int is
@@ -847,5 +857,6 @@ begin
 		when others => weight_ram_sel <= x"00000000";
 	end case;
 end process;
-
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 end Behavioral;
