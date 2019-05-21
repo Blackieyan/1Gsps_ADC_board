@@ -199,44 +199,47 @@ architecture Behavioral of ZJUprojects is
   signal cmd_frm_type                : std_logic_vector(15 downto 0);
   signal phy_rxc_g                   : std_logic;
   -----------------------------------------------------------------------------
-  signal ram_doutb                   : std_logic_vector(7 downto 0);  --ram control
-  attribute keep of ram_doutb        : signal is true;
-  signal ram_Q_doutb                 : std_logic_vector(7 downto 0);
-  signal ram_q_rden                  : std_logic;
-  signal ram_Q_dina                  : std_logic_vector(31 downto 0);
-  signal ram_Q_clka                  : std_logic;
-  signal ram_Q_clkb                  : std_logic;
-  signal ram_q_full                  : std_logic;
-  signal ram_q_last                  : std_logic;
-  signal clr_n_ram                   : std_logic;
+--  signal ram_doutb                   : std_logic_vector(7 downto 0);  --ram control
+--  attribute keep of ram_doutb        : signal is true;
+--  signal ram_Q_doutb                 : std_logic_vector(7 downto 0);
+--  signal ram_q_rden                  : std_logic;
+--  signal ram_Q_dina                  : std_logic_vector(31 downto 0);
+--  signal ram_Q_clka                  : std_logic;
+--  signal ram_Q_clkb                  : std_logic;
+--  signal ram_q_full                  : std_logic;
+--  signal ram_q_last                  : std_logic;
+--  signal clr_n_ram                   : std_logic;
   -- signal ram_last : std_logic;
 
 
+  signal wave_IQ_en     : std_logic;
+  signal wave_IQ_o      : std_logic_vector(127 downto 0);
+  
   signal use_test_IQ_data     : std_logic;
-  signal ram_rst              : std_logic;
-  attribute keep of ram_rst   : signal is true;
+--  signal ram_rst              : std_logic;
+--  attribute keep of ram_rst   : signal is true;
   signal ram_start            : std_logic;
   signal upload_trig_ethernet : std_logic;
-  signal ram_wren             : std_logic;
+--  signal ram_wren             : std_logic;
   signal ram_rden             : std_logic;
-  signal ram_full             : std_logic;
+--  signal ram_full             : std_logic;
 
-  signal ram_i_full                   : std_logic;
-  -----------------------------------------------------------------------------
-  signal ram_i_doutb                  : std_logic_vector(7 downto 0);
-  attribute keep of ram_i_doutb       : signal is true;
-  signal ram_i_dina                   : std_logic_vector(31 downto 0);
-  signal ram_i_last                   : std_logic;
-  signal Ram_I_rden                   : std_logic;
-  signal ram_i_clka                   : std_logic;
-  signal ram_i_clkb                   : std_logic;
-  signal ram_i_rstb                   : std_logic;
-  signal ram_i_ena                    : std_logic;
-  signal ram_i_enb                    : std_logic;
-  signal ram_i_wea                    : std_logic_vector(0 downto 0);
-  signal ram_i_addra                  : std_logic_vector(12 downto 0);  --edit at 9.6
-  signal ram_i_addrb                  : std_logic_vector(14 downto 0);  --edit at 9.6
-  signal ram_i_rst                    : std_logic;
+--  signal ram_i_full                   : std_logic;
+--  -----------------------------------------------------------------------------
+--  signal ram_i_doutb                  : std_logic_vector(7 downto 0);
+--  attribute keep of ram_i_doutb       : signal is true;
+--  signal ram_i_dina                   : std_logic_vector(31 downto 0);
+--  signal ram_i_last                   : std_logic;
+--  signal Ram_I_rden                   : std_logic;
+--  signal ram_i_clka                   : std_logic;
+--  signal ram_i_clkb                   : std_logic;
+--  signal ram_i_rstb                   : std_logic;
+--  signal ram_i_ena                    : std_logic;
+--  signal ram_i_enb                    : std_logic;
+--  signal ram_i_wea                    : std_logic_vector(0 downto 0);
+--  signal ram_i_addra                  : std_logic_vector(12 downto 0);  --edit at 9.6
+--  signal ram_i_addrb                  : std_logic_vector(14 downto 0);  --edit at 9.6
+--  signal ram_i_rst                    : std_logic;
   signal ADC_doia_delay               : std_logic_vector(7 downto 0);
   signal ADC_doib_delay               : std_logic_vector(7 downto 0);
   signal ADC_DOiA_1_d                 : std_logic_vector(7 downto 0);
@@ -318,13 +321,13 @@ architecture Behavioral of ZJUprojects is
   signal sw_ram_last          : std_logic;
   signal CW_mult_frame_en     : std_logic;
   signal cw_ether_trig        : std_logic;
-  signal CM_Ram_I_rden        : std_logic;
-  signal CM_Ram_Q_rden        : std_logic;
+--  signal CM_Ram_I_rden        : std_logic;
+--  signal CM_Ram_Q_rden        : std_logic;
   signal CW_Pstprc_fifo_rden  : std_logic;
-  signal CW_wave_smpl_trig    : std_logic;
+--  signal CW_wave_smpl_trig    : std_logic;
   signal CW_demo_smpl_trig    : std_logic;
   -----------------------------------------------------------------------------
-  signal pstprc_ram_wren      : std_logic;
+--  signal pstprc_ram_wren      : std_logic;
   signal Pstprc_RAMQ_clka     : std_logic;
   signal Pstprc_RAMQ_clkb     : std_logic;
   signal Pstprc_RAMI_clka     : std_logic;
@@ -665,52 +668,52 @@ architecture Behavioral of ZJUprojects is
       CLK                   : in  std_logic;
       cmd_pstprc_IQ_sw      : in  std_logic_vector(1 downto 0);
       posedge_sample_trig   : in  std_logic;
-      Ram_Q_last            : in  std_logic;
-      Ram_I_last            : in  std_logic;
-      Ram_I_doutb           : in  std_logic_vector(7 downto 0);
-      Ram_Q_doutb           : in  std_logic_vector(7 downto 0);
+--      Ram_Q_last            : in  std_logic;
+--      Ram_I_last            : in  std_logic;
+--      Ram_I_doutb           : in  std_logic_vector(7 downto 0);
+--      Ram_Q_doutb           : in  std_logic_vector(7 downto 0);
       Ram_rden              : in  std_logic;
       pstprc_fifo_data      : in  std_logic_vector(7 downto 0);
       pstprc_fifo_pempty    : in  std_logic;
       pstprc_finish         : in  std_logic;
-      CM_Ram_Q_rden_o       : out std_logic;
-      CM_Ram_I_rden_o       : out std_logic;
+--      CM_Ram_Q_rden_o       : out std_logic;
+--      CM_Ram_I_rden_o       : out std_logic;
       CW_Pstprc_fifo_rden_o : out std_logic;
       sw_RAM_last           : out std_logic;
       CW_ether_trig         : out std_logic;
       CW_mult_frame_en_o    : out std_logic;
       CW_demo_smpl_trig_o   : out std_logic;
-      CW_wave_smpl_trig_o   : out std_logic;
+--      CW_wave_smpl_trig_o   : out std_logic;
       FIFO_upload_data      : out std_logic_vector(7 downto 0);
       CW_CH_flag            : out std_logic_vector(7 downto 0)
       );
   end component;
 -------------------------------------------------------------------------------
 
-  component RAM_top
-    port(
-      clk_125M            : in  std_logic;
-      -- ram_wren            : in  std_logic;
-      posedge_sample_trig : in  std_logic;
-      rst_adc_n           : in  std_logic;
-      rst_data_n          : in  std_logic;
-      cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
-      ram_Q_dina          : in  std_logic_vector(31 downto 0);
-      ram_Q_clka          : in  std_logic;
-      ram_Q_clkb          : in  std_logic;
-      ram_Q_rden          : in  std_logic;
-      ram_I_dina          : in  std_logic_vector(31 downto 0);
-      ram_I_clka          : in  std_logic;
-      ram_I_clkb          : in  std_logic;
-      ram_I_rden          : in  std_logic;
-      ram_Q_doutb         : out std_logic_vector(7 downto 0);
-      ram_Q_last          : out std_logic;
-      ram_Q_full          : out std_logic;
-      ram_I_doutb         : out std_logic_vector(7 downto 0);
-      ram_I_last          : out std_logic;
-      ram_I_full          : out std_logic
-      );
-  end component;
+--  component RAM_top
+--    port(
+--      clk_125M            : in  std_logic;
+--      -- ram_wren            : in  std_logic;
+--      posedge_sample_trig : in  std_logic;
+--      rst_adc_n           : in  std_logic;
+--      rst_data_n          : in  std_logic;
+--      cmd_smpl_depth      : in  std_logic_vector(15 downto 0);
+--      ram_Q_dina          : in  std_logic_vector(31 downto 0);
+--      ram_Q_clka          : in  std_logic;
+--      ram_Q_clkb          : in  std_logic;
+--      ram_Q_rden          : in  std_logic;
+--      ram_I_dina          : in  std_logic_vector(31 downto 0);
+--      ram_I_clka          : in  std_logic;
+--      ram_I_clkb          : in  std_logic;
+--      ram_I_rden          : in  std_logic;
+--      ram_Q_doutb         : out std_logic_vector(7 downto 0);
+--      ram_Q_last          : out std_logic;
+--      ram_Q_full          : out std_logic;
+--      ram_I_doutb         : out std_logic_vector(7 downto 0);
+--      ram_I_last          : out std_logic;
+--      ram_I_full          : out std_logic
+--      );
+--  end component;
 -------------------------------------------------------------------------------
 
   component Dmod_Seg
@@ -731,6 +734,11 @@ architecture Behavioral of ZJUprojects is
       Pstprc_RAMI_clkb    : in  std_logic;
       demoWinln_twelve    : in  std_logic_vector(14 downto 0);
       demoWinstart_twelve : in  std_logic_vector(14 downto 0);
+		
+      ---------------------------------------------------
+		cmd_pstprc_IQ_sw	: in std_logic_vector(1 downto 0);
+		wave_IQ_o     		: out std_logic_vector(127 downto 0);
+		wave_IQ_en       	: out std_logic;
       ---------------------------------------------------
       weight_ram_addr     : in  std_logic_vector(15 downto 0);
       weight_ram_data     : in  std_logic_vector(11 downto 0);
@@ -792,6 +800,11 @@ architecture Behavioral of ZJUprojects is
       Pstprc_fifo_rd_clk  : in  std_logic;
       target_frame_cnt    : in  std_logic_vector(23 downto 0);
       wait_cnt_set        : in  std_logic_vector(23 downto 0);
+		---------------------------------------------------
+		wave_IQ_o     		: in std_logic_vector(127 downto 0);
+		wave_IQ_en       	: in std_logic;
+		cmd_pstprc_IQ_sw 	: in std_logic_vector(1 downto 0);
+      ---------------------------------------------------
       Pstprc_fifo_din     : in  std_logic_vector(63 downto 0);
       Pstprc_fifo_wren    : in  std_logic;
       Pstprc_fifo_rden    : in  std_logic;
@@ -1147,22 +1160,22 @@ begin
     CLK                   => CLK_125M,
     cmd_pstprc_IQ_sw      => cmd_pstprc_IQ_sw,
     posedge_sample_trig   => posedge_sample_trig_125M,
-    Ram_Q_last            => Ram_Q_last,
-    Ram_I_last            => Ram_I_last,
-    Ram_I_doutb           => Ram_I_doutb,
-    Ram_Q_doutb           => Ram_Q_doutb,
+--    Ram_Q_last            => Ram_Q_last,
+--    Ram_I_last            => Ram_I_last,
+--    Ram_I_doutb           => Ram_I_doutb,
+--    Ram_Q_doutb           => Ram_Q_doutb,
     Ram_rden              => Ram_rden,
     pstprc_fifo_data      => pstprc_fifo_dout,
     Pstprc_fifo_pempty    => pstprc_fifo_pempty,
     pstprc_finish         => Pstprc_finish_out,
-    CM_Ram_Q_rden_o       => CM_Ram_Q_rden,
-    CM_Ram_I_rden_o       => CM_Ram_I_rden,
+--    CM_Ram_Q_rden_o       => CM_Ram_Q_rden,
+--    CM_Ram_I_rden_o       => CM_Ram_I_rden,
     CW_Pstprc_fifo_rden_o => CW_Pstprc_fifo_rden,
     sw_RAM_last           => sw_RAM_last,
     CW_ether_trig         => CW_ether_trig,
     CW_mult_frame_en_o    => CW_mult_frame_en,
     CW_demo_smpl_trig_o   => CW_demo_smpl_trig,
-    CW_wave_smpl_trig_o   => CW_wave_smpl_trig,
+--    CW_wave_smpl_trig_o   => CW_wave_smpl_trig,
     FIFO_upload_data      => ethernet_FIFO_upload_data,
     CW_CH_flag            => CW_CH_flag
     );
@@ -1226,34 +1239,34 @@ begin
 --     );
 
   -----------------------------------------------------------------------------
-  Inst_RAM_top : RAM_top port map(
-    clk_125m            => clk_125m,
-    -- ram_wren            => ram_wren,
-    posedge_sample_trig => CW_wave_smpl_trig,
-    rst_adc_n           => rst_adc_n,
-    rst_data_n          => rst_data_n,
-    cmd_smpl_depth      => cmd_smpl_depth,
-    ram_Q_dina          => ram_Q_dina,
-    ram_Q_clka          => ram_Q_clka,
-    ram_Q_clkb          => ram_Q_clkb,
-    ram_Q_rden          => CM_Ram_Q_rden,
-    ram_Q_doutb         => ram_Q_doutb,
-    ram_Q_last          => ram_Q_last,
-    ram_Q_full          => ram_Q_full,
-    ram_I_dina          => ram_I_dina,
-    ram_I_clka          => ram_I_clka,
-    ram_I_clkb          => ram_I_clkb,
-    ram_I_rden          => CM_Ram_I_rden,
-    ram_I_doutb         => ram_I_doutb,
-    ram_I_last          => ram_I_last,
-    ram_I_full          => ram_I_full
-    );
-  ram_Q_dina <= ADC_DOQB_2_d&ADC_DOQA_2_d&ADC_DOQB_1_d&ADC_DOQA_1_d;
-  ram_I_dina <= ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
-  ram_Q_clkb <= CLK_125M;
-  ram_I_clkb <= CLK_125M;
-  ram_Q_clka <= ADC_clkoq;
-  ram_I_clka <= ADC_clkoi;
+--  Inst_RAM_top : RAM_top port map(
+--    clk_125m            => clk_125m,
+--    -- ram_wren            => ram_wren,
+--    posedge_sample_trig => CW_wave_smpl_trig,
+--    rst_adc_n           => rst_adc_n,
+--    rst_data_n          => rst_data_n,
+--    cmd_smpl_depth      => cmd_smpl_depth,
+--    ram_Q_dina          => ram_Q_dina,
+--    ram_Q_clka          => ram_Q_clka,
+--    ram_Q_clkb          => ram_Q_clkb,
+--    ram_Q_rden          => CM_Ram_Q_rden,
+--    ram_Q_doutb         => ram_Q_doutb,
+--    ram_Q_last          => ram_Q_last,
+--    ram_Q_full          => ram_Q_full,
+--    ram_I_dina          => ram_I_dina,
+--    ram_I_clka          => ram_I_clka,
+--    ram_I_clkb          => ram_I_clkb,
+--    ram_I_rden          => CM_Ram_I_rden,
+--    ram_I_doutb         => ram_I_doutb,
+--    ram_I_last          => ram_I_last,
+--    ram_I_full          => ram_I_full
+--    );
+--  ram_Q_dina <= ADC_DOQB_2_d&ADC_DOQA_2_d&ADC_DOQB_1_d&ADC_DOQA_1_d;
+--  ram_I_dina <= ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
+--  ram_Q_clkb <= CLK_125M;
+--  ram_I_clkb <= CLK_125M;
+--  ram_Q_clka <= ADC_clkoq;
+--  ram_I_clka <= ADC_clkoi;
 -----------------------------------------------------------------------------
   Inst_Dmod_Seg : Dmod_Seg port map(
     clk                 => CLK_125M,
@@ -1283,6 +1296,9 @@ begin
     demoWinln_twelve    => cmd_demoWinln,
     demoWinstart_twelve => cmd_demoWinstart,
     is_counter          => is_counter,
+    cmd_pstprc_IQ_sw    => cmd_pstprc_IQ_sw,
+    wave_IQ_en          => wave_IQ_en,
+    wave_IQ_o           => wave_IQ_o,
     -- Pstprc_dps_en       => cmd_Pstprc_dps_en,
     Pstprc_DPS_twelve   => cmd_Pstprc_DPS,
     Pstprc_IQ_seq_o     => Pstprc_IQ_seq_o,
@@ -1305,7 +1321,7 @@ begin
   Pstprc_RAMI_clkb      <= CLK_125M;
   Pstprc_RAMQ_dina      <= ADC_DOQB_2_d&ADC_DOQA_2_d&ADC_DOQB_1_d&ADC_DOQA_1_d;
   Pstprc_RAMI_dina      <= ADC_DOiB_2_d&ADC_DOiA_2_d&ADC_DOiB_1_d&ADC_DOiA_1_d;
-  pstprc_ram_wren       <= ram_wren;
+--  pstprc_ram_wren       <= ram_wren;
   cal_done              <= sram_cal_done;
   cmd_0_data            <= cmd_Pstprc_DPS & cmd_demoWinstart(7 downto 0) & cmd_demoWinln & cmd_smpl_depth;  --25,8,15,16
   cmd_1_data            <= cmd_Estmr_C & cmd_Estmr_B & cmd_Estmr_A;  --64,32,32
@@ -1379,6 +1395,9 @@ begin
     recved_frame_cnt    => recved_frame_cnt,
     target_frame_cnt    => cmd_smpl_trig_cnt,
     updating_status     => updating_status,
+    cmd_pstprc_IQ_sw    => cmd_pstprc_IQ_sw,
+    wave_IQ_en          => wave_IQ_en,
+    wave_IQ_o           => wave_IQ_o,
     cmd_smpl_en         => cmd_smpl_en,        --same with the clk in dmog_seg
     tx_rdy              => tx_rdy,             --same with the clk in dmog_seg
     wait_cnt_set        => wait_cnt_set,       --same with the clk in dmog_seg

@@ -73,6 +73,10 @@ entity Dmod_Seg is
 	 host_set_ram_switch	: in STD_LOGIC;                     --上位机设置DDS数据开关   
 	 weight_ram_sel 		: in STD_LOGIC_vector(31 downto 0); --通道选择
 	 ---	 
+	 ---------------------------------------------------------------------------
+    cmd_pstprc_IQ_sw		: in std_logic_vector(1 downto 0);
+    wave_IQ_o     		: out std_logic_vector(127 downto 0);
+    wave_IQ_en       	: out std_logic;
     ---------------------------------------------------------------------------
     pstprc_IQ_seq_o     : out std_logic_vector(63 downto 0);
     Pstprc_finish       : out std_logic;
@@ -552,7 +556,7 @@ process (clk, rst_data_proc_n) is
       if IQ_seq_cnt = upload_freq_cnt then
         pstprc_fifo_wren <= '0';
       else
-        pstprc_fifo_wren <= '1';
+        pstprc_fifo_wren <= cmd_pstprc_IQ_sw(0);
       end if;
     end if;
   end process fifo_wren_ps;
@@ -618,5 +622,12 @@ process (clk, rst_data_proc_n) is
   Q_data    <= Pstprc_RAMQ_doutb;
   I_data    <= Pstprc_RAMI_doutb;
 
+  process (clk) is
+  begin  -- process Pstprc_RAMx_rden_d_ps
+    if clk'event and clk = '1' then  -- rising clock edge
+      wave_IQ_en <= Pstprc_RAMq_rden and cmd_pstprc_IQ_sw(1);
+      wave_IQ_o  <= Pstprc_RAMI_doutb & Pstprc_RAMQ_doutb;
+    end if;
+  end process;
 end Behavioral;
 

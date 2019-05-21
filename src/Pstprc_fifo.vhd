@@ -39,7 +39,7 @@ entity Pstprc_fifo_top is
       );
   port(
     ----sram interface------
-	 clk_200M : IN std_logic;
+	clk_200M : IN std_logic;
 	clk_125M : IN std_logic;
 	ui_clk_in : IN std_logic;
 	qdriip_cq_p : IN std_logic_vector(0 to 0);
@@ -66,10 +66,15 @@ entity Pstprc_fifo_top is
 	 host_rd_length : IN STD_LOGIC_VECTOR(18 DOWNTO 0);
 	 host_rd_seg_len : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
     status_ram_addr : OUT std_logic_vector(6 downto 0);
-		status_ram_rd_en : OUT std_logic;          
-		status_ram_data : IN std_logic_vector(63 downto 0);
-		status_ram_data_vld : IN std_logic;
+	 status_ram_rd_en : OUT std_logic;          
+	 status_ram_data : IN std_logic_vector(63 downto 0);
+	 status_ram_data_vld : IN std_logic;
     rst_n : IN STD_LOGIC;
+	---------------------------------------------------
+	wave_IQ_o     		: in std_logic_vector(127 downto 0);
+	wave_IQ_en       	: in std_logic;
+	cmd_pstprc_IQ_sw 	: in std_logic_vector(1 downto 0);
+	---------------------------------------------------
     Pstprc_fifo_wr_clk : IN STD_LOGIC;
     Pstprc_fifo_rd_clk : IN STD_LOGIC;
     Pstprc_fifo_din : IN STD_LOGIC_VECTOR(63 DOWNTO 0);
@@ -425,17 +430,15 @@ begin
       user_wr_data0 <= (others => '0');
       user_wr_addr0 <= (others => '0');
     elsif ui_clk'event and ui_clk = '1' then  -- rising clock edge
-      user_wr_cmd0 <= fifo1_rd_vld;
-		user_wr_data0(65 downto 0) <= fifo1_dout(65 downto 0);
---		user_wr_data0(66) <= fifo1_dout(22);
---		user_wr_data0(67) <= fifo1_dout(31);
---		user_wr_data0(68) <= fifo1_dout(54);
---		user_wr_data0(69) <= fifo1_dout(63);
-		user_wr_data0(137 downto 72) <= fifo1_dout(131 downto 66);
---		user_wr_data0(138) <= fifo1_dout(88);
---		user_wr_data0(139) <= fifo1_dout(97);
---		user_wr_data0(140) <= fifo1_dout(120);
---		user_wr_data0(141) <= fifo1_dout(131);
+		if(cmd_pstprc_IQ_sw(1) = '1') then
+			user_wr_cmd0 <= wave_IQ_en;
+			user_wr_data0(63 downto 0)   <= wave_IQ_o(63 downto 0);
+			user_wr_data0(135 downto 72) <= fifo1_dout(127 downto 64);
+		else
+			user_wr_cmd0 <= fifo1_rd_vld;
+			user_wr_data0(65 downto 0) <= fifo1_dout(65 downto 0);
+			user_wr_data0(137 downto 72) <= fifo1_dout(131 downto 66);
+		end if;
 		if(host_rd_enable_r = '1' or cmd_smpl_en_r = '1' or host_rd_mode_f = '1') then
 			user_wr_addr0 <= (others => '0');
 		elsif user_wr_cmd0 = '1' then

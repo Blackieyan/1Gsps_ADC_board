@@ -370,11 +370,11 @@ INST "Inst_DATAin_IOB/DFF_doiB_2_inst4[6].FDCE_inst" LOC = SLICE_X89Y27;
 INST "Inst_DATAin_IOB/DFF_doiB_2_inst4[7].FDCE_inst" TNM = "DFFI";
 INST "Inst_DATAin_IOB/DFF_doiB_2_inst4[7].FDCE_inst" LOC = SLICE_X89Y25;
 #--------
-INST "inst_ram_top/inst_ram_Q/ram_Q_inst" TNM = "RAMQ";
-INST "inst_ram_top/inst_ram_I/ram_I_inst" TNM = "RAMI";
+#INST "inst_ram_top/inst_ram_Q/ram_Q_inst" TNM = "RAMQ";
+#INST "inst_ram_top/inst_ram_I/ram_I_inst" TNM = "RAMI";
 
-TIMESPEC TS_DFFQtoRAM = FROM "DFFQ" TO "RAMQ" 4 ns;
-TIMESPEC TS_DFFItoRAM = FROM "DFFI" TO "RAMI" 4 ns;
+#TIMESPEC TS_DFFQtoRAM = FROM "DFFQ" TO "RAMQ" 4 ns;
+#TIMESPEC TS_DFFItoRAM = FROM "DFFI" TO "RAMI" 4 ns;
 
 INST "inst_Dmod_Seg/inst_Win_RAM_top/inst_Pstprc_ram_Q/inst_Post_Process_ramQ" TNM = "PSTPRC_RAMQ";
 INST "inst_Dmod_Seg/inst_Win_RAM_top/inst_Pstprc_ram_I/inst_Post_Process_ramQ" TNM = "PSTPRC_RAMI";
