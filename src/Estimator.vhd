@@ -57,6 +57,12 @@ architecture Behavioral of Estimator is
 
   signal pstprc_add_stp_d  : std_logic;
   signal pstprc_add_stp_d2 : std_logic;
+  signal pstprc_add_stp_d3 : std_logic;
+  signal pstprc_add_stp_d4 : std_logic;
+  signal pstprc_add_stp_d5 : std_logic;
+  signal pstprc_add_stp_d6 : std_logic;
+  signal pstprc_add_stp_d7 : std_logic;
+  signal pstprc_add_stp_d8 : std_logic;
   signal mult_ce           : std_logic;
   signal add_ce            : std_logic;
   signal Estmr_Q           : std_logic_vector(31 downto 0);
@@ -102,10 +108,16 @@ begin
       pstprc_add_stp_d  <= '0';
       pstprc_add_stp_d2 <= '0';
     elsif clk'event and clk = '1' then  -- rising clock edge
+        pstprc_add_stp_d8 <= pstprc_add_stp_d7;
+        pstprc_add_stp_d7 <= pstprc_add_stp_d6;
+        pstprc_add_stp_d6 <= pstprc_add_stp_d5;
+        pstprc_add_stp_d5 <= pstprc_add_stp_d4;
+        pstprc_add_stp_d4 <= pstprc_add_stp_d3;
+        pstprc_add_stp_d3 <= pstprc_add_stp_d2;
         pstprc_add_stp_d2 <= pstprc_add_stp_d;
         pstprc_add_stp_d  <= pstprc_add_stp;
-        mult_ce           <= pstprc_add_stp_d2;
-        add_ce            <= mult_ce;
+        mult_ce           <= pstprc_add_stp_d2 or pstprc_add_stp_d3 or pstprc_add_stp_d4 or pstprc_add_stp_d5 or pstprc_add_stp_d6 or pstprc_add_stp_d7;
+        add_ce            <= pstprc_add_stp_d7 or pstprc_add_stp_d8;
       end if;
   end process pstprc_add_stp_d_ps;
 
@@ -222,9 +234,9 @@ begin  -- process stat_prerdy_ps
   if rst_n = '0' then                   -- asynchronous reset (active low)
     stat_prerdy<='0';
   elsif clk'event and clk = '1' then    -- rising clock edge
-    if stat_prerdy_cnt=x"4" then
+    if stat_prerdy_cnt=x"2" then
       stat_prerdy<='0';
-    elsif Pstprc_add_stp_d='0' and Pstprc_add_stp_d2 ='1' then
+    elsif Pstprc_add_stp_d7='0' and Pstprc_add_stp_d8 ='1' then
       stat_prerdy<='1';
     end if;
   end if;
