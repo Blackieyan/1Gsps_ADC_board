@@ -121,7 +121,7 @@ begin
       addra => Pstprc_RAMq_addra,
       dina  => Pstprc_RAMq_dina,
       clkb  => Pstprc_RAMq_clkb,
-      enb   => Pstprc_RAMq_rden,
+      enb   => '1', --此处通过chipscope可以看到用rd_en是有问题的
       addrb => Pstprc_RAMq_addrb,
       doutb => Pstprc_RAMq_doutb
       );
