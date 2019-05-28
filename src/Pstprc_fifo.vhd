@@ -107,6 +107,12 @@ architecture Behavioral of Pstprc_fifo_top is
   signal fifo1_rd_vld : std_logic;
   signal fifo1_dout : std_logic_vector(131 downto 0);
   signal fifo1_in : std_logic_vector(65 downto 0);
+  
+  signal wave_fifo1_empty : std_logic;
+  signal wave_fifo1_rd_en : std_logic;
+  signal wave_fifo1_rd_vld : std_logic;
+  signal wave_fifo1_dout : std_logic_vector(127 downto 0);
+  
   signal Pstprc_fifo_din_d1 : std_logic_vector(63 downto 0);
   
   signal Pstprc_fifo_wren_d1 : std_logic;
@@ -214,6 +220,21 @@ COMPONENT post_pro_wr_fifo
     wr_en : IN STD_LOGIC;
     rd_en : IN STD_LOGIC;
     dout : OUT STD_LOGIC_VECTOR(131 DOWNTO 0);
+    full : OUT STD_LOGIC;
+    empty : OUT STD_LOGIC;
+    valid : OUT STD_LOGIC
+  );
+END COMPONENT;
+
+COMPONENT wave_IQ_fifo
+  PORT (
+    rst : IN STD_LOGIC;
+    wr_clk : IN STD_LOGIC;
+    rd_clk : IN STD_LOGIC;
+    din : IN STD_LOGIC_VECTOR(127 DOWNTO 0);
+    wr_en : IN STD_LOGIC;
+    rd_en : IN STD_LOGIC;
+    dout : OUT STD_LOGIC_VECTOR(127 DOWNTO 0);
     full : OUT STD_LOGIC;
     empty : OUT STD_LOGIC;
     valid : OUT STD_LOGIC
@@ -394,6 +415,20 @@ begin
     empty => fifo1_empty,
     valid => fifo1_rd_vld
   );
+  
+  inst_wave_IQ_fifo : wave_IQ_fifo
+  PORT MAP (
+    rst => rst,
+    wr_clk => Pstprc_fifo_wr_clk,
+    rd_clk => ui_clk,
+    din => wave_IQ_o,
+    wr_en =>wave_IQ_en,
+    rd_en => wave_fifo1_rd_en,
+    dout =>  wave_fifo1_dout,
+    full => open,
+    empty => wave_fifo1_empty,
+    valid => wave_fifo1_rd_vld
+  );  
 
   -- read fifo1 while fifo is not empty
   -- this is for synchronization two clock
@@ -406,6 +441,14 @@ begin
     end if;
   end process;
   
+   process (ui_clk, ui_clk_sync_rst) is
+  begin  -- process Pstprc_fifo_dout_ps
+    if ui_clk_sync_rst = '1' then                 -- asynchronous reset (active low)
+      wave_fifo1_rd_en <= '0';
+    elsif ui_clk'event and ui_clk = '1' then  -- rising clock edge
+      wave_fifo1_rd_en <= not wave_fifo1_empty and cal_done_i;
+    end if;
+  end process; 
   ------- SRAM write ---------
   -- write data to SRAM
   process (ui_clk) is
@@ -430,10 +473,10 @@ begin
       user_wr_data0 <= (others => '0');
       user_wr_addr0 <= (others => '0');
     elsif ui_clk'event and ui_clk = '1' then  -- rising clock edge
-		if(cmd_pstprc_IQ_sw(1) = '1') then
-			user_wr_cmd0 <= wave_IQ_en;
-			user_wr_data0(63 downto 0)   <= wave_IQ_o(63 downto 0);
-			user_wr_data0(135 downto 72) <= fifo1_dout(127 downto 64);
+		if(cmd_pstprc_IQ_sw = "01") then
+			user_wr_cmd0 <= wave_fifo1_rd_vld;
+			user_wr_data0(63 downto 0)   <= wave_fifo1_dout(63 downto 0);
+			user_wr_data0(135 downto 72) <= wave_fifo1_dout(127 downto 64);
 		else
 			user_wr_cmd0 <= fifo1_rd_vld;
 			user_wr_data0(65 downto 0) <= fifo1_dout(65 downto 0);
@@ -781,7 +824,7 @@ begin
     end if;
   end process;
   
-  empty_rst <= rst or timeout_rst;
+  empty_rst <= rst or host_rd_enable_r;
   Pstprc_Fifo_inst : Pstprc_Fifo
   PORT MAP (
     rst => empty_rst,
