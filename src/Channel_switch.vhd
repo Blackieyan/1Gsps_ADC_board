@@ -180,7 +180,7 @@ begin
 --    end if;
   end process state_mux_ps;
   
---  sw_ram_last <= posedge_pempty;
+  sw_ram_last <= posedge_pempty;
   
 --  last_byte_mux_ps : process (clk, rst_n) is
 --  begin  -- process   last_byte_mux_ps

@@ -87,6 +87,7 @@
          <ClosedNode>/ZJUprojects - Behavioral D:|FPGA|ISE|1Gsps_ADC_board-AD_SRAM|1Gsps_ADC_board-AD_SRAM|src|ZJUprojects.vhd/Inst_Pstprc_fifo_top - Pstprc_fifo_top - Behavioral/inst_SRAM - sram_interface - arch_sram_interface/u_user_top - user_top - arch</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral D:|FPGA|ISE|1Gsps_ADC_board-AD_SRAM|1Gsps_ADC_board-AD_SRAM|src|ZJUprojects.vhd/Inst_RAM_top - RAM_top - Behavioral/Inst_RAM_I - RAM_I - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral D:|FPGA|ISE|1Gsps_ADC_board-AD_SRAM|1Gsps_ADC_board-AD_SRAM|src|ZJUprojects.vhd/Inst_RAM_top - RAM_top - Behavioral/Inst_RAM_Q - RAM_Q - Behavioral</ClosedNode>
+         <ClosedNode>/ZJUprojects - Behavioral D:|FPGA|ISE|1Gsps_ADC_board_AD_SRAM|1Gsps_ADC_board_1Gbps_state|src|ZJUprojects.vhd/Inst_Pstprc_fifo_top - Pstprc_fifo_top - Behavioral/inst_SRAM - sram_interface - arch_sram_interface</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral D:|FPGA|ISE|1Gsps_ADC_board|src|ZJUprojects.vhd/Inst_CDCE62005_interface - CDCE62005_interface - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral D:|FPGA|ISE|1Gsps_ADC_board|src|ZJUprojects.vhd/Inst_DATAin_IOB - DATAin_IOB - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects - Behavioral D:|FPGA|ISE|1Gsps_ADC_board|src|ZJUprojects.vhd/Inst_Dmod_Seg - Dmod_Seg - Behavioral/Inst_Estimator - Estimator - Behavioral</ClosedNode>
@@ -121,13 +122,13 @@
          <ClosedNode>/usbdatacounter - SYN D:|ZJUprojects|ZJUproject|USB2.0_Interface_Logic_|usbdatacounter.vhd</ClosedNode>
       </ClosedNodes>
       <SelectedItems>
-         <SelectedItem>ZJUprojects - Behavioral (D:/FPGA/ISE/1Gsps_ADC_board-AD_SRAM/1Gsps_ADC_board-1Gbps_state/src/ZJUprojects.vhd)</SelectedItem>
+         <SelectedItem>Inst_Pstprc_fifo_top - Pstprc_fifo_top - Behavioral (D:/FPGA/ISE/1Gsps_ADC_board_AD_SRAM/1Gsps_ADC_board_1Gbps_state/src/Pstprc_fifo.vhd)</SelectedItem>
       </SelectedItems>
-      <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
+      <ScrollbarPosition orientation="vertical" >88</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
-      <ViewHeaderState orientation="horizontal" >000000ff0000000000000001000000010000000000000000000000000000000002020000000100000001000000640000034b000000020000000000000000000000000200000064ffffffff0000008100000003000000020000034b0000000100000003000000000000000100000003</ViewHeaderState>
+      <ViewHeaderState orientation="horizontal" >000000ff0000000000000001000000010000000000000000000000000000000002020000000100000001000000640000048e000000020000000000000000000000000200000064ffffffff0000008100000003000000020000048e0000000100000003000000000000000100000003</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >true</UserChangedColumnWidths>
-      <CurrentItem>ZJUprojects - Behavioral (D:/FPGA/ISE/1Gsps_ADC_board-AD_SRAM/1Gsps_ADC_board-1Gbps_state/src/ZJUprojects.vhd)</CurrentItem>
+      <CurrentItem>Inst_Pstprc_fifo_top - Pstprc_fifo_top - Behavioral (D:/FPGA/ISE/1Gsps_ADC_board_AD_SRAM/1Gsps_ADC_board_1Gbps_state/src/Pstprc_fifo.vhd)</CurrentItem>
    </ItemView>
    <ItemView engineview="SynthesisOnly" sourcetype="" guiview="Process" >
       <ClosedNodes>
@@ -151,7 +152,7 @@
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
       <ViewHeaderState orientation="horizontal" >000000ff0000000000000001000000010000000001000000000000000000000000000000000000040b000000040101000100000000000000000000000064ffffffff0000008100000000000000040000030b0000000100000000000000240000000100000000000000780000000100000000000000640000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
-      <CurrentItem>D:\FPGA\ISE\1Gsps_ADC_board-AD_SRAM\1Gsps_ADC_board-1Gbps_state\src\ZJUprojects.vhd</CurrentItem>
+      <CurrentItem>D:\FPGA\ISE\1Gsps_ADC_board_AD_SRAM\1Gsps_ADC_board_1Gbps_state\src\ZJUprojects.vhd</CurrentItem>
    </ItemView>
    <ItemView guiview="Library" >
       <ClosedNodes>
@@ -175,7 +176,7 @@
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
-      <ViewHeaderState orientation="horizontal" >000000ff000000000000000100000001000000000000000000000000000000000000000000000001b9000000010000000100000000000000000000000064ffffffff000000810000000000000001000001b90000000100000000</ViewHeaderState>
+      <ViewHeaderState orientation="horizontal" >000000ff000000000000000100000001000000000000000000000000000000000000000000000001ca000000010000000100000000000000000000000064ffffffff000000810000000000000001000001ca0000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
       <CurrentItem></CurrentItem>
    </ItemView>
@@ -190,7 +191,7 @@
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
-      <ViewHeaderState orientation="horizontal" >000000ff000000000000000100000001000000000000000000000000000000000000000000000001ca000000010000000100000000000000000000000064ffffffff000000810000000000000001000001ca0000000100000000</ViewHeaderState>
+      <ViewHeaderState orientation="horizontal" >000000ff000000000000000100000001000000000000000000000000000000000000000000000001b9000000010000000100000000000000000000000064ffffffff000000810000000000000001000001b90000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
       <CurrentItem>CORE Generator</CurrentItem>
    </ItemView>
@@ -209,17 +210,21 @@
          <ClosedNode>/Dmod_Seg_tester D:|FPGA|ISE|1Gsps_ADC_board|simulation|Dmod_Seg_tester.v</ClosedNode>
          <ClosedNode>/FFT_test_TB - behavior C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|src|FFT_test_TB.vhd</ClosedNode>
          <ClosedNode>/FFT_test_TB - behavior D:|FPGA|ISE|1Gsps_ADC_board-AD_SRAM|1Gsps_ADC_board-AD_SRAM|src|FFT_test_TB.vhd</ClosedNode>
+         <ClosedNode>/FFT_test_TB - behavior D:|FPGA|ISE|1Gsps_ADC_board_AD_SRAM|1Gsps_ADC_board_1Gbps_state|src|FFT_test_TB.vhd</ClosedNode>
          <ClosedNode>/G_ethernet_Tx_data_TB - behavior C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|simulation|G_ethernet_Tx_data_TB.vhd</ClosedNode>
          <ClosedNode>/G_ethernet_Tx_data_TB - behavior C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|simulation|G_ethernet_Tx_data_TB.vhd/uut - G_ethernet_Tx_data - Behavioral</ClosedNode>
          <ClosedNode>/G_ethernet_Tx_data_TB - behavior D:|FPGA|ISE|1Gsps_ADC_board-AD_SRAM|1Gsps_ADC_board-AD_SRAM|simulation|G_ethernet_Tx_data_TB.vhd</ClosedNode>
+         <ClosedNode>/G_ethernet_Tx_data_TB - behavior D:|FPGA|ISE|1Gsps_ADC_board_AD_SRAM|1Gsps_ADC_board_1Gbps_state|simulation|G_ethernet_Tx_data_TB.vhd</ClosedNode>
          <ClosedNode>/Inst_DDS_Tb - behavior C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|simulation|Inst_DDS_Tb.vhd</ClosedNode>
          <ClosedNode>/Inst_DDS_Tb - behavior C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|simulation|Inst_DDS_Tb.vhd/DDS_top_1 - DDS_top - Behavioral/cos_ram_inst - dds_ram</ClosedNode>
          <ClosedNode>/Inst_DDS_Tb - behavior C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|simulation|Inst_DDS_Tb.vhd/DDS_top_1 - DDS_top - Behavioral/sin_ram_inst - dds_ram</ClosedNode>
          <ClosedNode>/Inst_DDS_Tb - behavior D:|FPGA|ISE|1Gsps_ADC_board-AD_SRAM|1Gsps_ADC_board-AD_SRAM|simulation|Inst_DDS_Tb.vhd</ClosedNode>
+         <ClosedNode>/Inst_DDS_Tb - behavior D:|FPGA|ISE|1Gsps_ADC_board_AD_SRAM|1Gsps_ADC_board_1Gbps_state|simulation|Inst_DDS_Tb.vhd</ClosedNode>
          <ClosedNode>/Mac_RX2_tester C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|simulation|Mac_RX2_tester.v</ClosedNode>
          <ClosedNode>/Mac_RX2_tester D:|FPGA|ISE|1Gsps_ADC_board-AD_SRAM|1Gsps_ADC_board-AD_SRAM|simulation|Mac_RX2_tester.v</ClosedNode>
          <ClosedNode>/Mac_RX2_tester D:|FPGA|ISE|1Gsps_ADC_board|simulation|Mac_RX2_tester.v/uut - Mac_RX2/u_RX_buffer - PP_buffer</ClosedNode>
          <ClosedNode>/Mac_RX2_tester D:|ZJUprojects|1Gsps_ADC_board|simulation|Mac_RX2_tester.v</ClosedNode>
+         <ClosedNode>/RAM_top - Behavioral D:|FPGA|ISE|1Gsps_ADC_board_AD_SRAM|1Gsps_ADC_board_1Gbps_state|src|RAM_top.vhd</ClosedNode>
          <ClosedNode>/ZJUprojects_TB - behavior C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|simulation|ZJUprojects_TB.vhd</ClosedNode>
          <ClosedNode>/ZJUprojects_TB - behavior C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|simulation|ZJUprojects_TB.vhd/Inst_ZJUprojects - ZJUprojects - Behavioral/Inst_DATAin_IOB - DATAin_IOB - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects_TB - behavior C:|Current_Key_Projects|1Gsps_ADC_board_V4_algromth|simulation|ZJUprojects_TB.vhd/Inst_ZJUprojects - ZJUprojects - Behavioral/Inst_G_ethernet_top - G_ethernet_top - Behavioral/Inst_G_ehernet_Rx_data - G_ehernet_Rx_data - Behavioral/Inst_Mac_RX2 - Mac_RX2</ClosedNode>
@@ -248,6 +253,14 @@
          <ClosedNode>/ZJUprojects_TB - behavior D:|FPGA|ISE|1Gsps_ADC_board-AD_SRAM|1Gsps_ADC_board-AD_SRAM|simulation|ZJUprojects_TB.vhd/ZJUprojects_1 - ZJUprojects - Behavioral/Inst_board_status_collect - board_status_collect</ClosedNode>
          <ClosedNode>/ZJUprojects_TB - behavior D:|FPGA|ISE|1Gsps_ADC_board-AD_SRAM|1Gsps_ADC_board-AD_SRAM|simulation|ZJUprojects_TB.vhd/ZJUprojects_1 - ZJUprojects - Behavioral/Inst_crg_dcms - crg_dcms - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects_TB - behavior D:|FPGA|ISE|1Gsps_ADC_board-AD_SRAM|1Gsps_ADC_board-AD_SRAM|simulation|ZJUprojects_TB.vhd/ZJUprojects_1 - ZJUprojects - Behavioral/Inst_sys_reset_proc - sys_reset_proc - Behavioral</ClosedNode>
+         <ClosedNode>/ZJUprojects_TB - behavior D:|FPGA|ISE|1Gsps_ADC_board_AD_SRAM|1Gsps_ADC_board_1Gbps_state|simulation|ZJUprojects_TB.vhd/ZJUprojects_1 - ZJUprojects - Behavioral/Inst_CDCE62005_interface - CDCE62005_interface - Behavioral</ClosedNode>
+         <ClosedNode>/ZJUprojects_TB - behavior D:|FPGA|ISE|1Gsps_ADC_board_AD_SRAM|1Gsps_ADC_board_1Gbps_state|simulation|ZJUprojects_TB.vhd/ZJUprojects_1 - ZJUprojects - Behavioral/Inst_DATAin_IOB - DATAin_IOB - Behavioral</ClosedNode>
+         <ClosedNode>/ZJUprojects_TB - behavior D:|FPGA|ISE|1Gsps_ADC_board_AD_SRAM|1Gsps_ADC_board_1Gbps_state|simulation|ZJUprojects_TB.vhd/ZJUprojects_1 - ZJUprojects - Behavioral/Inst_Dmod_Seg - Dmod_Seg - Behavioral/Inst_Estimator - Estimator - Behavioral</ClosedNode>
+         <ClosedNode>/ZJUprojects_TB - behavior D:|FPGA|ISE|1Gsps_ADC_board_AD_SRAM|1Gsps_ADC_board_1Gbps_state|simulation|ZJUprojects_TB.vhd/ZJUprojects_1 - ZJUprojects - Behavioral/Inst_Dmod_Seg - Dmod_Seg - Behavioral/Inst_Win_RAM_top - Win_RAM_top - Behavioral</ClosedNode>
+         <ClosedNode>/ZJUprojects_TB - behavior D:|FPGA|ISE|1Gsps_ADC_board_AD_SRAM|1Gsps_ADC_board_1Gbps_state|simulation|ZJUprojects_TB.vhd/ZJUprojects_1 - ZJUprojects - Behavioral/Inst_Dmod_Seg - Dmod_Seg - Behavioral/Inst_Win_post_process - post_process - Behavioral</ClosedNode>
+         <ClosedNode>/ZJUprojects_TB - behavior D:|FPGA|ISE|1Gsps_ADC_board_AD_SRAM|1Gsps_ADC_board_1Gbps_state|simulation|ZJUprojects_TB.vhd/ZJUprojects_1 - ZJUprojects - Behavioral/Inst_G_ethernet_top - G_ethernet_top - Behavioral</ClosedNode>
+         <ClosedNode>/ZJUprojects_TB - behavior D:|FPGA|ISE|1Gsps_ADC_board_AD_SRAM|1Gsps_ADC_board_1Gbps_state|simulation|ZJUprojects_TB.vhd/ZJUprojects_1 - ZJUprojects - Behavioral/Inst_crg_dcms - crg_dcms - Behavioral</ClosedNode>
+         <ClosedNode>/ZJUprojects_TB - behavior D:|FPGA|ISE|1Gsps_ADC_board_AD_SRAM|1Gsps_ADC_board_1Gbps_state|simulation|ZJUprojects_TB.vhd/ZJUprojects_1 - ZJUprojects - Behavioral/Inst_sys_reset_proc - sys_reset_proc - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects_TB - behavior D:|FPGA|ISE|1Gsps_ADC_board|simulation|ZJUprojects_TB.vhd</ClosedNode>
          <ClosedNode>/ZJUprojects_TB - behavior D:|ZJUprojects|1Gsps_ADC_board|simulation|ZJUprojects_TB.vhd/Inst_ZJUprojects - ZJUprojects - Behavioral/Inst_G_ethernet_top - G_ethernet_top - Behavioral/Inst_G_ehernet_Rx_data - G_ehernet_Rx_data - Behavioral</ClosedNode>
          <ClosedNode>/ZJUprojects_TB - behavior D:|ZJUprojects|1Gsps_ADC_board|simulation|ZJUprojects_TB.vhd/Inst_ZJUprojects - ZJUprojects - Behavioral/Inst_G_ethernet_top - G_ethernet_top - Behavioral/Inst_G_ethernet_Tx_data - G_ethernet_Tx_data - Behavioral</ClosedNode>
@@ -265,13 +278,13 @@
          <ClosedNode>/inst_Dmod_Seg_TB - behavior D:|FPGA|ISE|1Gsps_ADC_board|simulation|Inst_Dmod_Seg_TB.vhd</ClosedNode>
       </ClosedNodes>
       <SelectedItems>
-         <SelectedItem>Unassigned User Library Modules</SelectedItem>
+         <SelectedItem>Inst_Pstprc_fifo_top - Pstprc_fifo_top - Behavioral (D:/FPGA/ISE/1Gsps_ADC_board_AD_SRAM/1Gsps_ADC_board_1Gbps_state/src/Pstprc_fifo.vhd)</SelectedItem>
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
       <ViewHeaderState orientation="horizontal" >000000ff000000000000000100000001000000000000000000000000000000000202000000010000000100000064000004b4000000020000000000000000000000000200000064ffffffff000000810000000300000002000004b40000000100000003000000000000000100000003</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >true</UserChangedColumnWidths>
-      <CurrentItem>Unassigned User Library Modules</CurrentItem>
+      <CurrentItem>Inst_Pstprc_fifo_top - Pstprc_fifo_top - Behavioral (D:/FPGA/ISE/1Gsps_ADC_board_AD_SRAM/1Gsps_ADC_board_1Gbps_state/src/Pstprc_fifo.vhd)</CurrentItem>
    </ItemView>
    <ItemView engineview="BehavioralSim" sourcetype="" guiview="Process" >
       <ClosedNodes>
@@ -279,26 +292,26 @@
          <ClosedNode>Design Utilities/Compile HDL Simulation Libraries</ClosedNode>
       </ClosedNodes>
       <SelectedItems>
-         <SelectedItem/>
+         <SelectedItem></SelectedItem>
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
-      <ViewHeaderState orientation="horizontal" >000000ff00000000000000010000000100000000000000000000000000000000000000000000000115000000010000000100000000000000000000000064ffffffff000000810000000000000001000001150000000100000000</ViewHeaderState>
+      <ViewHeaderState orientation="horizontal" >000000ff000000000000000100000001000000000000000000000000000000000000000000000001ca000000010000000100000000000000000000000064ffffffff000000810000000000000001000001ca0000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
-      <CurrentItem/>
+      <CurrentItem></CurrentItem>
    </ItemView>
    <ItemView engineview="BehavioralSim" sourcetype="DESUT_VHDL_ARCHITECTURE" guiview="Process" >
       <ClosedNodes>
          <ClosedNodesVersion>1</ClosedNodesVersion>
       </ClosedNodes>
       <SelectedItems>
-         <SelectedItem/>
+         <SelectedItem></SelectedItem>
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
-      <ViewHeaderState orientation="horizontal" >000000ff00000000000000010000000100000000000000000000000000000000000000000000000115000000010000000100000000000000000000000064ffffffff000000810000000000000001000001150000000100000000</ViewHeaderState>
+      <ViewHeaderState orientation="horizontal" >000000ff000000000000000100000001000000000000000000000000000000000000000000000001ca000000010000000100000000000000000000000064ffffffff000000810000000000000001000001ca0000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
-      <CurrentItem/>
+      <CurrentItem></CurrentItem>
    </ItemView>
    <ItemView engineview="BehavioralSim" sourcetype="DESUT_XCO" guiview="Process" >
       <ClosedNodes>
@@ -357,13 +370,13 @@
          <ClosedNodesVersion>1</ClosedNodesVersion>
       </ClosedNodes>
       <SelectedItems>
-         <SelectedItem/>
+         <SelectedItem></SelectedItem>
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
       <ViewHeaderState orientation="horizontal" >000000ff000000000000000100000001000000000000000000000000000000000000000000000001ca000000010000000100000000000000000000000064ffffffff000000810000000000000001000001ca0000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
-      <CurrentItem/>
+      <CurrentItem></CurrentItem>
    </ItemView>
    <ItemView engineview="BehavioralSim" sourcetype="DESUT_VERILOG" guiview="Process" >
       <ClosedNodes>

@@ -556,7 +556,7 @@ process (clk, rst_data_proc_n) is
       if IQ_seq_cnt = upload_freq_cnt then
         pstprc_fifo_wren <= '0';
       else
-        pstprc_fifo_wren <= cmd_pstprc_IQ_sw(0);
+        pstprc_fifo_wren <= '1';
       end if;
     end if;
   end process fifo_wren_ps;
@@ -621,12 +621,16 @@ process (clk, rst_data_proc_n) is
 -------------------------------------------------------------------------------
   Q_data    <= Pstprc_RAMQ_doutb;
   I_data    <= Pstprc_RAMI_doutb;
-
+	
+  wave_IQ_o  <= Pstprc_RAMI_doutb & Pstprc_RAMQ_doutb;
   process (clk) is
   begin  -- process Pstprc_RAMx_rden_d_ps
     if clk'event and clk = '1' then  -- rising clock edge
-      wave_IQ_en <= Pstprc_RAMq_rden and cmd_pstprc_IQ_sw(1);
-      wave_IQ_o  <= Pstprc_RAMI_doutb & Pstprc_RAMQ_doutb;
+		if(cmd_pstprc_IQ_sw = "01") then
+			wave_IQ_en <= Pstprc_RAMq_rden_d;
+		else
+			wave_IQ_en <= '0';
+		end if;
     end if;
   end process;
 end Behavioral;
