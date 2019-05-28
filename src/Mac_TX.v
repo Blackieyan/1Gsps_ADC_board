@@ -36,7 +36,14 @@ module Mac_TX(
 	 output  PHY_GTXCLK_o,		// TX clock, should be 125MHz for GbE
 	 output [3:0] PHY_TXD_o
     );
-
+	
+	reg Last_byte_last;
+	reg minByteSent;	// indicate that minimun ethernet bytes, 8 preamble + 12 src & dst MAC + 2 length + 46 data = 68, has been sent
+	reg dataComplete;	// indicate that all data has been sent
+	reg end_pulse;
+	reg Send_FCS;
+	reg[3:0] phy_frm_blanking_cnt;
+	reg[7:0]		Data_in_buf;
 	// detect start and end
 	//Trig_last
 	reg Trig_last;
@@ -84,12 +91,11 @@ module Mac_TX(
 	end
 	
 	//Last_byte_last
-	reg Last_byte_last;
+	
 	always @ (posedge clk)
 		Last_byte_last <= Last_byte;
 
 	//minByteSent
-	reg minByteSent;	// indicate that minimun ethernet bytes, 8 preamble + 12 src & dst MAC + 2 length + 46 data = 68, has been sent
 	always @ (posedge clk)
 		if(TX_byte_cnt == 'd67)
 			minByteSent <= 1;
@@ -97,16 +103,15 @@ module Mac_TX(
 			minByteSent <= 0;
 
 	//dataComplete
-	reg dataComplete;	// indicate that all data has been sent
+	
 	always @ (posedge clk)
 		if(Last_byte_last)
 			dataComplete <= 1;
-		else if(Reset_i | minByteSent | end_pulse)
+		else if(Reset_i | minByteSent | end_pulse | Trig_i)
 			dataComplete <= 0;
 		
 	
 	//end_pulse
-	reg end_pulse;
 	always @ (posedge clk)
 		end_pulse <= (TX_byte_cnt == 'd3) & Send_FCS;
 
@@ -122,7 +127,6 @@ module Mac_TX(
 			Send_DATA <= 1'b1;
 		
 	//Send_FCS
-	reg Send_FCS;
 	always @ (posedge clk)
 		if(Reset_i | start_pulse | (TX_byte_cnt == 'd3) )
 			Send_FCS <= 1'b0;
@@ -147,10 +151,10 @@ module Mac_TX(
 		else if(end_pulse)
 			phy_frm_blanking_cnt_en <= 1'b1;
 	
-	wire end_blank = (phy_frm_blanking_cnt=='d15);
+	wire end_blank;
+	assign end_blank = (phy_frm_blanking_cnt=='d15);
 	
 	//phy_frm_blanking_cnt
-	reg[3:0] phy_frm_blanking_cnt;
 	always @(posedge clk)
 		if(Reset_i | Last_byte_last)
 			phy_frm_blanking_cnt = 4'b0;
@@ -168,6 +172,7 @@ module Mac_TX(
 		CRC_Cal <= Send_DATA;
 	
 	//CRC
+	wire [31:0] CRC_calc;
 	reg[31:0] CRC;
 	always @ (posedge clk)
 		if(Reset_i | start_pulse | end_pulse)
@@ -180,7 +185,7 @@ module Mac_TX(
 	// crc
 	wire[7:0]	Data_in_r;		//reverse sequence of Data_in, use to caculate CRC
 	assign Data_in_r = {Data_in_buf[0],Data_in_buf[1],Data_in_buf[2],Data_in_buf[3],Data_in_buf[4],Data_in_buf[5],Data_in_buf[6],Data_in_buf[7]};
-	wire [31:0] CRC_calc;
+	
 	crc32_d8	 crc32_d8(
 		.C		(CRC),	//
 		.D		(Data_in_r),	//input data, [7:0]rev_crc_data_r
@@ -204,7 +209,7 @@ module Mac_TX(
 			TX_EN <= 1'b1;
 	
 	//GMII_TX_TXD, send out data
-	reg[7:0]		Data_in_buf;
+	
 	always @ (posedge clk) 
 		Data_in_buf <= Data_in;
 		

@@ -355,7 +355,7 @@ begin
         else
           ram_rden_stop<='0';
         end if;                         --让ram_rden比last_byte提前3周期结束，可以保证每帧数据连续.11.10改动提前4周期，因为ram_x_rden<=ram_rden又消耗掉一个周期
-      if wr_addr = x"05db" or sw_ram_last_d ='1'then  --帧长1500 如果想一通道传输的帧结束没有相同数据拖尾就sw_ram_last代替sw_ram_last_d3
+      if wr_addr = x"05db" or (sw_ram_last_d ='1' and sw_ram_last_d2 = '0')then  --帧长1500 如果想一通道传输的帧结束没有相同数据拖尾就sw_ram_last代替sw_ram_last_d3
         last_byte <= '1';
       else
         last_byte <= '0';
