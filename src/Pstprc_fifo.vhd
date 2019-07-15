@@ -577,7 +577,7 @@ begin
   process (ui_clk) is
   begin  -- process Pstprc_fifo_dout_ps
     if ui_clk'event and ui_clk = '1' then  -- rising clock edge
-			if host_rd_mode = '0' then
+			if host_rd_mode = '0' or host_rd_enable_r = '1' then
 				frame_cnt <= (others => '0');
 				frame_end <= '0';
 			elsif user_rd_valid0_reg = '1' then
@@ -736,17 +736,19 @@ begin
 		end if;
     end if;
   end process; 
-  --什么时候可以读呢？其中一个条件是逻辑向网络传输1024帧数据后，需要等一个计数器值减到0，该值可通过上位机设置
-  process (Pstprc_fifo_rd_clk) is
-  begin  -- process Pstprc_fifo_dout_ps
-    if Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
-      if wait_cnt = 0 then
-		can_read_new_result <= not active_send_status; --上位机不在读状态
-		else
-			can_read_new_result <= '0';
-		end if;
-    end if;
-  end process;
+  
+  can_read_new_result <= '1';
+--  --什么时候可以读呢？其中一个条件是逻辑向网络传输1024帧数据后，需要等一个计数器值减到0，该值可通过上位机设置
+--  process (Pstprc_fifo_rd_clk) is
+--  begin  -- process Pstprc_fifo_dout_ps
+--    if Pstprc_fifo_rd_clk'event and Pstprc_fifo_rd_clk = '1' then  -- rising clock edge
+--      if wait_cnt = 0 then
+--		can_read_new_result <= not active_send_status; --上位机不在读状态
+--		else
+--			can_read_new_result <= '0';
+--		end if;
+--    end if;
+--  end process;
   
   --buf fifo的读取条件：
   -- 当前网络没有数据在发送
