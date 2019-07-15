@@ -433,8 +433,8 @@ begin
 		clk => clk_Estmr,
 		rst_n => rst_feedback_n,
 		stat_rdy => stat_rdy(0),        --至少要从第0通道开始使用
-		sync_en => Estmr_sync_en,
-                state0 => state(0),
+		sync_en => '1',
+      state0 => state(0),
 		state1 => state(1),
 		state2 => state(2),
 		state3 =>  state(3),
