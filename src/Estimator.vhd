@@ -158,9 +158,9 @@ end process Estmr_Q_ps;
 A_x_EstmrI_inst : multiplier
   port map (
     clk  => clk,
-    a    => Estmr_I,
+    a    => I,
     b    => A,
-    ce   => mult_ce,
+    ce   => '1',
     sclr => mult_rst,
     p    => A_x_EstmrI
     );
@@ -168,9 +168,9 @@ A_x_EstmrI_inst : multiplier
 B_x_EstmrQ_inst : multiplier
   port map (
     clk  => clk,
-    a    => Estmr_Q,
+    a    => Q,
     b    => B,
-    ce   => mult_ce,
+    ce   => '1',
     sclr => mult_rst,
     p    => B_x_EstmrQ
     );
@@ -181,7 +181,7 @@ A_x_EstmrI_add_B_x_EstmrQ_inst : adder64
     b    => A_x_EstmrI(63 downto 1),
     clk  => clk,
     add  => '1',
-    ce   => ADD_CE,
+    ce   => '1',
     sclr => ADD_RST,
     s    => sum);                       --2 clk delay
 
@@ -223,8 +223,8 @@ begin  -- process comparator_ps
       else
         state <= "01";
       end if;
-    else
-      state<="11";
+--    else
+--      state<="11";
     end if;
   end if;
 end process comparator_ps;
@@ -234,7 +234,7 @@ begin  -- process stat_prerdy_ps
   if rst_n = '0' then                   -- asynchronous reset (active low)
     stat_prerdy<='0';
   elsif clk'event and clk = '1' then    -- rising clock edge
-    if stat_prerdy_cnt=x"2" then
+    if stat_prerdy_cnt=x"3" then
       stat_prerdy<='0';
     elsif Pstprc_add_stp_d7='0' and Pstprc_add_stp_d8 ='1' then
       stat_prerdy<='1';
