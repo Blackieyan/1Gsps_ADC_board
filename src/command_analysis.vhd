@@ -682,11 +682,9 @@ begin  -- 地址40 上位机使用计数器测试IQ解模
   end if;
 end process use_test_IQ_data_ps;
 
-host_reset_ps: process (rd_clk, rst_n) is
+host_reset_ps: process (rd_clk) is
 begin  -- 地址41 上位机复位使能
-  if rst_n = '0' then                   -- asynchronous reset (active low)
-    host_reset 		<= '1';
-  elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
+  if rd_clk'event and rd_clk = '1' then  -- rising clock edg
     if reg_addr =x"0029" then
       if rd_addr=x"19" then
         host_reset	  <= '0'; --低复位有效
@@ -857,6 +855,5 @@ begin
 		when others => weight_ram_sel <= x"00000000";
 	end case;
 end process;
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
+
 end Behavioral;

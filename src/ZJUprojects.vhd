@@ -926,7 +926,7 @@ begin
   user_pushbutton_g <= host_reset and user_pushbutton;
 
   Inst_sys_reset_proc : sys_reset_proc port map(
-    sys_rst_n_in    => user_pushbutton,
+    sys_rst_n_in    => user_pushbutton_g,
     sram_cal_done   => sram_cal_done,
     sys_clk         => CLK_125M,
     clk_adc         => ADC_CLKOI,
