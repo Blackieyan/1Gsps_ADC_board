@@ -222,7 +222,7 @@ upload_trig_ethernet_o<=upload_trig_ethernet;
   ram_switch_ps: process (rd_clk, rst_n) is
   begin  -- process ram_switch_ps
     if rst_n = '0' then                 -- asynchronous reset (active low)
-     cmd_pstprc_IQ_sw <= "01";
+     cmd_pstprc_IQ_sw <= "10";
     elsif rd_clk'event and rd_clk = '1' then  -- rising clock edge
       if rd_addr=x"19" then
         if reg_addr=x"0101" and reg_data = x"111111111111" then
@@ -568,7 +568,7 @@ end process host_rd_mode_ps;
 host_rd_seg_len_ps: process (rd_clk, rst_n) is
 begin  -- 地址35 上位机读数据参数设置
   if rst_n = '0' then                   -- asynchronous reset (active low)
-    host_rd_seg_len <= (others =>'0');
+    host_rd_seg_len <= x"0130";         --20 trigger counts --1280 byte
   elsif rd_clk'event and rd_clk = '1' then  -- rising clock edg
       if reg_addr =x"0023" then
         if rd_addr=x"19" then

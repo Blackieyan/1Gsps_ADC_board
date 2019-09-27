@@ -816,7 +816,8 @@ begin
 		if (host_rd_status_d1 = '0' and host_rd_status = '1') or (trig_recv_done_lch_f = '1' and host_rd_mode = '1') then
 			status_ram_rd_addr_sig <= (others => '0');
 			status_ram_rd_en_sig   <= '1';
-		elsif status_ram_rd_addr_sig < x"80" then
+		elsif status_ram_rd_addr_sig < x"80" then  --总容量是1024Byte
+                                                           --读位宽是64位 所以地址是128
 			status_ram_rd_addr_sig <= status_ram_rd_addr_sig+1;
 			status_ram_rd_en_sig   <= '1';
 		else
